@@ -4,3 +4,8 @@
 DerivedData/
 xcuserdata/
 *.xcuserstate
+
+# Full-resolution generated art stays local; only its README (prompts, seeds) is tracked.
+# App-ready, optimized copies live in the asset catalog.
+Art/*
+!Art/README.md
