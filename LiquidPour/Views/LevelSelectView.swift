@@ -4,30 +4,50 @@ import SwiftUI
 struct LevelSelectView: View {
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
-    let onSelect: (Int) -> Void
+    let onSelect: (_ pack: String, _ index: Int) -> Void
     let onRandom: () -> Void
+
+    /// Last viewed pack (a per-device convenience).
+    @AppStorage("levelSelect.pack") private var selectedPackID = ""
 
     private let columns = [GridItem(.adaptive(minimum: 72, maximum: 96), spacing: 14)]
 
+    private var selectedPack: LevelPackInfo? {
+        catalog.pack(id: selectedPackID) ?? catalog.packs.first
+    }
+
     var body: some View {
         ScrollView {
-            if let error = catalog.loadError {
+            ForEach(catalog.loadErrors, id: \.self) { error in
                 ContentUnavailableView("Levels unavailable", systemImage: "exclamationmark.triangle", description: Text(error))
             }
             randomButton
                 .padding([.horizontal, .top])
-            let ids = catalog.levels.map(\.id)
-            LazyVGrid(columns: columns, spacing: 14) {
-                ForEach(catalog.levels.indices, id: \.self) { index in
-                    let unlocked = progress.isUnlocked(index: index, ids: ids)
-                    Button { onSelect(index) } label: {
-                        LevelCell(number: index + 1, stars: progress.stars(for: ids[index]), unlocked: unlocked)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!unlocked)
+            packPicker
+                .padding(.top, 8)
+            if let pack = selectedPack {
+                if let subtitle = pack.subtitle {
+                    Text(subtitle)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal)
+                        .padding(.top, 4)
                 }
+                let ids = pack.levels.map(\.id)
+                LazyVGrid(columns: columns, spacing: 14) {
+                    ForEach(pack.levels.indices, id: \.self) { index in
+                        let unlocked = progress.isUnlocked(index: index, ids: ids)
+                        Button { onSelect(pack.id, index) } label: {
+                            LevelCell(number: index + 1, stars: progress.stars(for: ids[index]), unlocked: unlocked)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(!unlocked)
+                    }
+                }
+                .padding()
+                .id(pack.id)
             }
-            .padding()
         }
         .navigationTitle("LiquidPour")
         .toolbar {
@@ -35,6 +55,34 @@ struct LevelSelectView: View {
                 Button(action: onRandom) { Label("Random Level", systemImage: "dice") }
                     .help("Play a randomly generated level")
             }
+        }
+    }
+
+    /// Horizontal row of pack chips with earned/total stars.
+    private var packPicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(catalog.packs) { pack in
+                    let selected = pack.id == selectedPack?.id
+                    let earned = pack.levels.reduce(0) { $0 + progress.stars(for: $1.id) }
+                    Button { selectedPackID = pack.id } label: {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(pack.name).font(.subheadline.weight(.semibold))
+                            Text("★ \(earned)/\(pack.levels.count * 3)")
+                                .font(.caption.monospacedDigit())
+                                .foregroundStyle(selected ? Color.primary.opacity(0.8) : Color.secondary)
+                        }
+                        .padding(.horizontal, 14).padding(.vertical, 8)
+                        .background(Capsule().fill(selected ? Color.accentColor.opacity(0.3) : Color.gray.opacity(0.12)))
+                        .overlay(Capsule().strokeBorder(selected ? Color.accentColor : .clear, lineWidth: 1.5))
+                        .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(pack.name) pack, \(earned) of \(pack.levels.count * 3) stars")
+                    .accessibilityAddTraits(selected ? .isSelected : [])
+                }
+            }
+            .padding(.horizontal)
         }
     }
 

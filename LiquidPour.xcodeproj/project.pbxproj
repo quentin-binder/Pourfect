@@ -8,18 +8,21 @@
 
 /* Begin PBXBuildFile section */
 		000000000000000000000302 /* BottleSortCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000301 /* BottleSortCore */; };
-		000000000000000000000311 /* pack_01.json in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000310 /* pack_01.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		000000000000000000000120 /* LiquidPour.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiquidPour.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		000000000000000000000310 /* pack_01.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = pack_01.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		000000000000000000000010 /* LiquidPour */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = LiquidPour;
+			sourceTree = "<group>";
+		};
+		000000000000000000000312 /* Levels */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Levels;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -51,14 +54,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		000000000000000000000312 /* Levels */ = {
-			isa = PBXGroup;
-			children = (
-				000000000000000000000310 /* pack_01.json */,
-			);
-			path = Levels;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -74,6 +69,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				000000000000000000000010 /* LiquidPour */,
+				000000000000000000000312 /* Levels */,
 			);
 			name = LiquidPour;
 			packageProductDependencies = (
@@ -124,7 +120,6 @@
 		000000000000000140000000 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
-				000000000000000000000311 /* pack_01.json in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
