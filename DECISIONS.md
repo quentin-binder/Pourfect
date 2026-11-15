@@ -10,3 +10,5 @@ Short entries, newest at the bottom.
 6. **Rules in one place.** `Rules.pourAmount(from:to:)` is the single legality + amount check (returns 0 = illegal); `Rules.movableRunCount` and `Rules.isSolved` are the other hooks. `GameState.canPour/pouring/legalMoves/isSolved` all delegate to it. Locked bottles are already rejected there (cheap, and the field exists now).
 7. **Move counter.** `GameSession.moveCount` = number of moves currently applied, so Undo decreases it. Stars compare this with `minMoves`.
 8. **Validation scope.** `validate()` checks: at least one bottle, capacity ≥ 1 and identical across bottles, no overfilled bottle, every color exactly `capacity` times. It does not check solvability (that's the solver's job).
+9. **Per-user Xcode files untracked.** `xcuserdata/` removed from the index (files stay on disk) — user-approved.
+10. **macOS input.** A click acts as a tap. Haptics only on iOS; the illegal-move shake animation runs on both platforms — user-approved.
