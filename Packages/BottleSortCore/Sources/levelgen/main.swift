@@ -5,13 +5,14 @@ import Foundation
 //
 //   levelgen --colors 4 --capacity 4 --empty 2 --count 20 \
 //            --min-moves 8 --max-moves 15 --seed 1 --out Levels/pack_01.json
+//   levelgen --colors 5 --empty 2 --locks 1 --count 5 --out locks.json
 //   levelgen --preset starter --out Levels/pack_01.json
 //   levelgen --report Levels/pack_01.json
 //   levelgen --bench [--colors 8] [--count 10]
 
 let usage = """
 usage:
-  levelgen --colors N [--capacity 4] [--empty 2] [--count 20] [--seed 1]
+  levelgen --colors N [--capacity 4] [--empty 2] [--locks 0] [--count 20] [--seed 1]
            [--min-moves A --max-moves B] [--min-score X --max-score Y]
            [--id-prefix p1] --out FILE
   levelgen --preset starter [--seed 1] [--id-prefix p1] --out FILE
@@ -80,7 +81,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let r: DifficultyReport }
     var rows: [Row] = []
     for (i, level) in pack.levels.enumerated() {
         let state = level.gameState
@@ -88,10 +89,11 @@ func report(path: String) {
         if let expected = level.meta?.minMoves, expected != r.minMoves {
             log("warning: \(level.id) meta.minMoves=\(expected) but solver says \(r.minMoves)")
         }
-        let colors = Set(state.bottles.flatMap(\.layers)).count
-        rows.append(Row(index: i + 1, id: level.id, colors: colors, empty: state.bottles.filter(\.isEmpty).count, r: r))
+        let colors = Set(state.bottles.flatMap(\.layers).compactMap(\.colorID)).count
+        rows.append(Row(index: i + 1, id: level.id, colors: colors, empty: state.bottles.filter(\.isEmpty).count,
+                        locks: state.bottles.filter { $0.lockedBy != nil }.count, r: r))
     }
-    let header = "  #  id         colors empty minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -101,7 +103,7 @@ func report(path: String) {
         case .sampled: dead = String(format: "~%.2f", row.r.deadEndRatio)
         }
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
-              + String(format: " %6d %5d %8d %7d ", row.colors, row.empty, row.r.minMoves, row.r.statesExplored)
+              + String(format: " %6d %5d %5d %8d %7d ", row.colors, row.empty, row.locks, row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -115,6 +117,7 @@ struct Tier {
     let colors: Int
     let capacity: Int
     let empty: Int
+    var locks: Int = 0
     let moves: ClosedRange<Int>
 }
 
@@ -136,14 +139,14 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
     for (t, tier) in tiers.enumerated() {
         // Separate seed space per tier, so editing one tier doesn't change the others.
         let config = GeneratorConfig(colors: tier.colors, capacity: tier.capacity, emptyBottles: tier.empty,
-                                     seed: seed &+ UInt64(t) * 1_000_000, minMoves: tier.moves, score: scoreRange)
+                                     locks: tier.locks, seed: seed &+ UInt64(t) * 1_000_000, minMoves: tier.moves, score: scoreRange)
         let start = ContinuousClock.now
         do {
             all += try Generator.generate(config, count: tier.count) { level in
                 log("  seed \(level.seed): minMoves \(level.report.minMoves), score \(level.report.score)")
             }
         } catch { fail("tier \(t + 1) (\(tier.colors) colors): \(error)") }
-        log("tier \(t + 1): \(tier.count) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty — \(formatTime(ContinuousClock.now - start))")
+        log("tier \(t + 1): \(tier.count) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks — \(formatTime(ContinuousClock.now - start))")
     }
     // One global sort by score, so difficulty rises through the whole pack.
     return all.sorted { ($0.report.score, $0.seed) < ($1.report.score, $1.seed) }
@@ -211,8 +214,10 @@ if let path = options["--report"] {
     } else {
         guard let colors = int("--colors") else { fail(usage) }
         let moves = range(int("--min-moves"), int("--max-moves"), name: "moves") ?? 0...Int.max
+        let locks = int("--locks", default: 0)!
+        guard locks >= 0, locks < colors else { fail("--locks must be between 0 and colors - 1") }
         tiers = [Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
-                      empty: int("--empty", default: 2)!, moves: moves)]
+                      empty: int("--empty", default: 2)!, locks: locks, moves: moves)]
     }
     write(generate(tiers: tiers, seed: seed, idPrefix: prefix, scoreRange: scores), to: out)
 }
