@@ -1,4 +1,5 @@
 {
+  "kind" : "challenge",
   "levels" : [
     {
       "bottles" : [
@@ -1430,6 +1431,6 @@
     }
   ],
   "name" : "Expert",
-  "subtitle" : "10–12 colors and tall bottles",
+  "subtitle" : "10–12 colors and tall flasks",
   "version" : 1
 }

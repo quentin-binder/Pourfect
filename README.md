@@ -11,17 +11,26 @@ Progress is tracked in [`PLAN.md`](PLAN.md); design choices are in [`DECISIONS.m
 
 ## Level packs
 
-| File | Pack | Levels | Moves (min–max) | What makes it hard |
-|---|---|---|---|---|
-| `pack_01` | Starter | 40 | 5–26 | Learn the rules: 3 → 8 colors |
-| `pack_02` | Challenger | 30 | 15–34 | 8–10 colors, taller bottles, one-empty-bottle levels |
-| `pack_03` | Expert | 30 | 20–41 | 10–12 colors, bottle size 5, one empty bottle |
-| `pack_04` | Locks & Keys | 30 | 18–33 | 1–2 locked bottles; find and free the keys |
-| `pack_05` | Hidden Depths | 30 | 13–27 | Layers below the top are "?" until revealed |
-| `pack_06` | Master | 20 | 22–43 | 12 colors, size-5 bottles, 2 locks, hidden 10-color boards |
+Main path (chapters, star-gated: a chapter opens when the previous one has at least half of its stars):
 
-Each pack is sorted by difficulty score; harder packs keep only the highest-scoring levels from a larger generated pool.
-Pick a pack from the chips on the level-select screen. Inside a pack, clearing a level unlocks the next.
+| File | Chapter | Ids | Recipes | Moves | Score | What it adds |
+|---|---|---|---|---|---|---|
+| `chapter_01` | 1 Apprentice Cellar | `p1_001…` | 40 | 5–26 | 15–52 | Basic sorting: 3 → 8 colors (the original Starter pack) |
+| `chapter_02` | 2 Rune Vault | `c2_001…` | 30 | 6–25 | 15–53 | Sealed flasks and rune-stone keys: 1 seal, then 2 |
+| `chapter_03` | 3 Misty Marsh | `c3_001…` | 30 | 5–25 | 15–54 | Murky "?" layers; the last 8 also have one seal |
+
+Chapters 4–10 (Glyph Library … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
+Optional **Challenges** (never gated):
+
+| File | Pack | Ids | Levels | Moves | Score | What makes it hard |
+|---|---|---|---|---|---|---|
+| `challenge_challenger` | Challenger | `p2_…` | 30 | 15–34 | 43–72 | 8–10 colors, taller flasks, one-empty-flask levels |
+| `challenge_expert` | Expert | `p3_…` | 30 | 20–41 | 50–84 | 10–12 colors, flask size 5, one empty flask |
+| `challenge_master` | Master | `p6_…` | 20 | 22–43 | 53–96 | 12 colors, size-5 flasks, 2 locks, hidden 10-color boards |
+
+Each chapter starts with a tiny tutorial recipe and then rises in difficulty score; challenges keep only the
+highest-scoring levels from a larger generated pool. Level ids of the original packs are unchanged, so saved
+stars keep counting. (The old Locks & Keys and Hidden Depths packs were replaced by chapters 2 and 3.)
 
 ## Layout
 
@@ -38,7 +47,7 @@ Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
   Sources/BottleSortCore/    Model, Rules, Solver, Difficulty, Generator, LevelFile, GameSession, RandomLevel, Settings
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
-Levels/pack_01…06.json       The six bundled level packs (synchronized folder: any pack_*.json is bundled)
+Levels/chapter_0N.json       Main-path chapters 1–3; challenge_*.json: optional challenges (synchronized folder: every JSON file is bundled)
 ```
 
 No third-party dependencies, only Apple frameworks.
@@ -143,11 +152,13 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 95 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 143 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
-hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format, and the
-shipped packs (every level loads and validates, ids are unique across packs, and every level whose recorded
-search is small solves in its recorded `minMoves` — the larger ones are re-solved by `levelgen --report` in release).
+hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
+the chapter gate (including the exact-50 % boundary), the lock-impact check, and the shipped files (every level
+loads and validates, ids are unique across files, chapter 1 keeps the Starter ids, chapters have the expected
+shape, every lock in a chapter matters, and every level whose recorded search is small solves in its recorded
+`minMoves` — the larger ones are re-solved by `levelgen --report` in release).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -155,34 +166,42 @@ You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift
 ```sh
 cd Packages/BottleSortCore
 
-# Regenerate all six shipped packs (about 90 s; output is deterministic)
+# Regenerate all six shipped files (about 90 s; output is deterministic)
 swift run -c release levelgen --preset all --out-dir ../../Levels
 
-# One pack: starter | challenger | expert | locks | hidden | master
-swift run -c release levelgen --preset expert --out ../../Levels/pack_03.json
+# One file: chapter1 | chapter2 | chapter3 | challenger | expert | master
+swift run -c release levelgen --preset chapter2 --out ../../Levels/chapter_02.json
 
 # One configuration; --pool 3 keeps the hardest 20 of 60 passing levels, --hidden makes "?" levels
 swift run -c release levelgen --colors 9 --capacity 4 --empty 2 --count 20 --pool 3 \
     --min-moves 26 --max-moves 40 --seed 1 --name "My Pack" --out my_pack.json
 
-# Lock levels: N locked full bottles, their keys buried in the other bottles (0 ≤ N < colors)
-swift run -c release levelgen --colors 5 --empty 2 --locks 1 --count 5 --seed 1 --out locks.json
+# Lock levels: N locked full flasks, their keys buried in the others (0 ≤ N < colors);
+# --locks-matter rejects levels where a lock only adds the key pour (LockImpact)
+swift run -c release levelgen --colors 5 --empty 2 --locks 1 --locks-matter --count 5 --seed 1 --out locks.json
 
-# Re-solve every level in a pack and print a difficulty table, sorted by score
-swift run -c release levelgen --report ../../Levels/pack_01.json
+# Re-solve every level of every file and print difficulty tables, sorted by score, plus the
+# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter lock that doesn't matter
+swift run -c release levelgen --report ../../Levels
 
 # Time the solver on random 8-color puzzles
 swift run -c release levelgen --bench --colors 8 --count 10
 ```
 
-Optional generator flags: `--min-score/--max-score` and `--id-prefix`. Generation is fully deterministic:
-the same flags and seed always produce the same pack.
+Optional generator flags: `--min-score/--max-score`, `--id-prefix`, `--easiest` (keep the easiest of the pool) and
+the pack metadata `--kind chapter|challenge --chapter N --location NAME`. Generation is fully deterministic:
+the same flags and seed always produce the same file. Chapter presets put a tiny tutorial recipe first, then sort
+the rest by score inside sections (e.g. one seal before two).
 
 Level files are JSON. Layers are listed bottom → top. A color layer is an integer and a key layer is
-`{"key": n}`. A locked bottle has `"lockedBy": n`, and `"hidden": true` turns on hidden layers for a level:
+`{"key": n}`. A locked bottle has `"lockedBy": n`, and `"hidden": true` turns on hidden layers for a level.
+Pack fields besides `version` and `levels` are optional: `name`, `subtitle`, `kind` (`"chapter"` or
+`"challenge"`), `chapter` (1-based, required for a chapter), `location` and `introduces` (mechanics a
+first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`; unknown names still load):
 
 ```json
-{ "version": 1, "levels": [ { "id": "p1_001", "capacity": 4,
+{ "version": 1, "name": "Rune Vault", "kind": "chapter", "chapter": 2, "location": "Rune Vault",
+  "introduces": ["sealed"], "levels": [ { "id": "c2_001", "capacity": 4,
   "bottles": [ { "layers": [0, 1, 1, 2] }, { "layers": [3, 3, 3, 3], "lockedBy": 1 },
                { "layers": [2, {"key": 1}, 0] }, { "layers": [] } ],
   "meta": { "seed": 12345, "minMoves": 11, "score": 23.4 } } ] }
@@ -190,8 +209,7 @@ Level files are JSON. Layers are listed bottom → top. A color layer is an inte
 
 Every lock needs exactly one matching key and vice versa; the loader rejects files that break this.
 
-To ship a new pack, add the JSON file to the `Levels` group in Xcode (target *LiquidPour*), then load it
-with `LevelCatalog.loadBundled(named:)`.
+To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
 
 ## How it works
 
@@ -239,6 +257,6 @@ with `LevelCatalog.loadBundled(named:)`.
 ## Next steps
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
-2. Curated Locks & Keys and Hidden-layer packs (`levelgen --locks` already generates lock levels).
+2. More chapters as their mechanics land (R5).
 3. VoiceOver descriptions of bottle contents.
 4. More packs and a pack picker; optional iCloud progress sync.

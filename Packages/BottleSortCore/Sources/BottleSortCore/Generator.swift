@@ -11,11 +11,14 @@ public struct GeneratorConfig: Sendable, Hashable {
     public var minMoves: ClosedRange<Int>?
     /// Accept only levels whose score is in this range.
     public var score: ClosedRange<Double>?
+    /// Reject lock levels where some lock doesn't matter (see `LockImpact.everyLockMatters`).
+    public var requireLocksMatter: Bool
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
     public init(colors: Int, capacity: Int = 4, emptyBottles: Int = 2, locks: Int = 0, seed: UInt64 = 1,
                 minMoves: ClosedRange<Int>? = nil, score: ClosedRange<Double>? = nil,
+                requireLocksMatter: Bool = false,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -24,6 +27,7 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.seed = seed
         self.minMoves = minMoves
         self.score = score
+        self.requireLocksMatter = requireLocksMatter
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -130,6 +134,8 @@ public enum Generator {
         guard case .solved(let moves, let explored) = Solver().solve(state, limits: config.solverLimits) else { return nil }
         // Cheap filter before the (more expensive) full report.
         if let range = config.minMoves, !range.contains(moves.count) { return nil }
+        if config.requireLocksMatter,
+           !LockImpact.everyLockMatters(state, minMoves: moves.count, limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -161,5 +167,41 @@ public enum Generator {
             progress?(found)
         }
         return result
+    }
+}
+
+/// Whether a lock changes a level (the "must matter" check for sealed flasks).
+///
+/// Winning always needs every key, so "the key is used" holds trivially. The real test
+/// compares with the same level *without* that lock: the bottle unlocked from the start
+/// and its key layer removed. The lock matters when that level is unsolvable, or when the
+/// locked level needs more than one extra move (the key pour itself), i.e. the seal
+/// forces the player to dig for the key or to plan around the closed flask.
+public enum LockImpact {
+    /// `state` with lock `key` removed: its bottle starts unlocked, its key layer is gone.
+    public static func removingLock(_ key: KeyID, from state: GameState) -> GameState {
+        var result = state
+        for i in result.bottles.indices {
+            if result.bottles[i].lockedBy == key { result.bottles[i].lockedBy = nil }
+            result.bottles[i].layers.removeAll { $0.keyID == key }
+        }
+        return result
+    }
+
+    /// Whether lock `key` matters in a level whose optimal solution has `minMoves` moves.
+    /// An undecided solve (limits hit) counts as "doesn't matter".
+    public static func lockMatters(_ key: KeyID, in state: GameState, minMoves: Int,
+                                   limits: SolverLimits = .default) -> Bool {
+        switch Solver().solve(removingLock(key, from: state), limits: limits) {
+        case .unsolvable: return true
+        case .solved(let moves, _): return minMoves > moves.count + 1
+        case .unknown: return false
+        }
+    }
+
+    /// Whether every lock in the level matters (true for a level without locks).
+    public static func everyLockMatters(_ state: GameState, minMoves: Int, limits: SolverLimits = .default) -> Bool {
+        let keys = Set(state.bottles.compactMap(\.lockedBy)).sorted()
+        return keys.allSatisfy { lockMatters($0, in: state, minMoves: minMoves, limits: limits) }
     }
 }

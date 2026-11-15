@@ -358,7 +358,7 @@ private func bottle(_ tokens: [Any], capacity: Int = 4, lockedBy: KeyID? = nil) 
     }
 
     @Test func classicLayoutUnchangedWithZeroLocks() {
-        // locks = 0 must reproduce existing levels exactly (pack_01 seeds).
+        // locks = 0 must reproduce existing levels exactly (chapter_01 seeds).
         let a = Generator.candidate(GeneratorConfig(colors: 5), seed: 12)
         let b = Generator.candidate(GeneratorConfig(colors: 5, locks: 0), seed: 12)
         #expect(a == b)

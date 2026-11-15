@@ -225,7 +225,7 @@ import Testing
     static let packURL = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .deletingLastPathComponent().deletingLastPathComponent()
-        .appendingPathComponent("Levels/pack_01.json")
+        .appendingPathComponent("Levels/chapter_01.json")
 
     @Test func decodesSpecExample() throws {
         let json = """
@@ -267,17 +267,81 @@ import Testing
     }
 
     static let levelsDir = packURL.deletingLastPathComponent()
-    static let shippedPacks = ["pack_01", "pack_02", "pack_03", "pack_04", "pack_05", "pack_06"]
+    static let shippedChapters = ["chapter_01", "chapter_02", "chapter_03"]
+    static let shippedChallenges = ["challenge_challenger", "challenge_expert", "challenge_master"]
+    static let shippedPacks = shippedChapters + shippedChallenges
+
+    static func load(_ name: String) throws -> LevelPack {
+        try LevelLoader.load(contentsOf: levelsDir.appendingPathComponent(name + ".json"))
+    }
 
     @Test func starterPackSize() throws {
         let pack = try LevelLoader.load(contentsOf: Self.packURL)
         #expect((35...45).contains(pack.levels.count))
-        #expect(pack.name == "Starter")
+        #expect(pack.name == "Apprentice Cellar")
+    }
+
+    @Test func packMetadata() throws {
+        for (i, name) in Self.shippedChapters.enumerated() {
+            let pack = try Self.load(name)
+            #expect(pack.kind == .chapter, "\(name)")
+            #expect(pack.chapter == i + 1, "\(name)")
+            #expect(pack.location == ChapterOutline.plan[i].location, "\(name)")
+            #expect(pack.introduces == ChapterOutline.plan[i].introduces, "\(name)")
+        }
+        for name in Self.shippedChallenges {
+            let pack = try Self.load(name)
+            #expect(pack.kind == .challenge && pack.chapter == nil, "\(name)")
+        }
+    }
+
+    /// Rune Vault: ~30 recipes c2_001…, every one sealed; a tiny tutorial first, two seals at the end.
+    @Test func runeVaultShape() throws {
+        let pack = try Self.load("chapter_02")
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c2_%03d", $0 + 1) })
+        let locks = pack.levels.map { $0.gameState.bottles.filter { $0.lockedBy != nil }.count }
+        #expect(locks.allSatisfy { $0 >= 1 })
+        #expect(locks.last == 2)
+        #expect(locks == locks.sorted())  // one seal first, then two
+        let tutorial = try #require(pack.levels.first)
+        #expect(tutorial.capacity == 3 && (tutorial.meta?.minMoves ?? 99) <= 8)
+        #expect(!pack.levels.contains { $0.isHidden })
+    }
+
+    /// Misty Marsh: ~30 murky recipes c3_001…; the last ones add one seal.
+    @Test func mistyMarshShape() throws {
+        let pack = try Self.load("chapter_03")
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c3_%03d", $0 + 1) })
+        #expect(pack.levels.allSatisfy { $0.isHidden })
+        let locks = pack.levels.map { $0.gameState.bottles.filter { $0.lockedBy != nil }.count }
+        #expect(locks == locks.sorted())
+        #expect((6...10).contains(locks.filter { $0 == 1 }.count))
+        #expect(locks.allSatisfy { $0 <= 1 })
+        let tutorial = try #require(pack.levels.first)
+        #expect(tutorial.capacity == 3 && (tutorial.meta?.minMoves ?? 99) <= 6)
+    }
+
+    /// Every lock in a chapter changes the level (`LockImpact`); small searches only, like the solve test.
+    @Test(arguments: ["chapter_02", "chapter_03"])
+    func chapterLocksMatter(_ name: String) throws {
+        for level in try Self.load(name).levels {
+            guard let meta = level.meta, let minMoves = meta.minMoves, (meta.statesExplored ?? 0) <= 8_000 else { continue }
+            #expect(LockImpact.everyLockMatters(level.gameState, minMoves: minMoves), "\(level.id)")
+        }
+    }
+
+    /// Chapter 1 is the original Starter pack: its ids must never change, or saved stars stop counting.
+    @Test func chapterOneKeepsTheStarterIDs() throws {
+        let pack = try LevelLoader.load(contentsOf: Self.packURL)
+        #expect(pack.levels.map(\.id) == (1...40).map { String(format: "p1_%03d", $0) })
+        #expect(pack.levels.first?.meta?.seed == 1)
     }
 
     @Test func everyPackFileIsListed() throws {
         let files = try FileManager.default.contentsOfDirectory(atPath: Self.levelsDir.path)
-            .filter { $0.hasPrefix("pack_") && $0.hasSuffix(".json") }
+            .filter { $0.hasSuffix(".json") }
             .map { String($0.dropLast(5)) }
         #expect(Set(files) == Set(Self.shippedPacks))
     }
