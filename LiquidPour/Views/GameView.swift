@@ -3,6 +3,7 @@ import SwiftUI
 
 struct GameView: View {
     @State var model: GameViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let maxPerRow = 7
 
@@ -12,6 +13,7 @@ struct GameView: View {
             GeometryReader { geo in
                 board(in: geo.size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .overlayPreferenceValue(BottleFramesKey.self) { pourLayer($0) }
             }
             controls
         }
@@ -19,7 +21,7 @@ struct GameView: View {
         .overlay { overlay }
         .overlay(alignment: .top) { message }
         .sensoryFeedback(.impact(weight: .light), trigger: model.invalidMoveCount)
-        .sensoryFeedback(.success, trigger: isWon) { _, won in won }
+        .sensoryFeedback(.success, trigger: showsResult && isWon) { _, won in won }
         .navigationTitle("Level \(model.levelIndex + 1)")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -34,6 +36,8 @@ struct GameView: View {
     }
 
     private var isWon: Bool { if case .won = model.status { return true } else { return false } }
+    /// Win / stuck cards wait until the pour that caused them has finished animating.
+    private var showsResult: Bool { model.pour == nil }
 
     // MARK: HUD
 
@@ -99,11 +103,34 @@ struct GameView: View {
                                        shakes: model.shakes.indices.contains(index) ? model.shakes[index] : 0)
                         }
                         .buttonStyle(.plain)
+                        .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }
+                        // The pour animation draws these two bottles itself; swap without fading.
+                        .animation(nil) { $0.opacity(isPouring(index) ? 0 : 1) }
                         .accessibilityLabel("Bottle \(index + 1)")
                     }
                 }
             }
         }
+    }
+
+    private func isPouring(_ index: Int) -> Bool {
+        guard let pour = model.pour else { return false }
+        return pour.from == index || pour.to == index
+    }
+
+    @ViewBuilder
+    private func pourLayer(_ frames: [Int: Anchor<CGRect>]) -> some View {
+        GeometryReader { proxy in
+            if let pour = model.pour, let from = frames[pour.from], let to = frames[pour.to] {
+                PourAnimationView(event: pour, sourceFrame: proxy[from], targetFrame: proxy[to],
+                                  boardSize: proxy.size, reduceMotion: reduceMotion) {
+                    withAnimation(.easeInOut(duration: 0.3)) { model.finishPour(pour.id) }
+                }
+                .id(pour.id)
+                .transition(.identity)   // the board's own bottles take over in the same frame
+            }
+        }
+        .allowsHitTesting(false)
     }
 
     private func hintRole(for index: Int) -> BottleView.HintRole? {
@@ -116,7 +143,7 @@ struct GameView: View {
     // MARK: Overlays
 
     @ViewBuilder private var overlay: some View {
-        switch model.status {
+        switch showsResult ? model.status : .playing {
         case .won(let stars):
             card {
                 Text("Solved!").font(.largeTitle.bold())
