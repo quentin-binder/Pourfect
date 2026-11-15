@@ -118,8 +118,9 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - [ ] Chapter map (main path), star-gated: Ch. 1 Apprentice Cellar (basic), Ch. 2 Rune Vault (A1), Ch. 3 Misty Marsh (B1). Later chapters show as "coming soon" until their mechanic lands
 - [ ] Current Challenger / Expert / Master packs move to an optional **Challenges** area (no gating); Locks & Keys and Hidden Depths content is regenerated as chapters 2–3
 - [ ] Tutorial overlay: one illustrated hint the first time a mechanic appears (seen-state stored per mechanic)
-- [ ] `levelgen` chapter presets with a tuned curve and a tutorial level first
-- [ ] Progress migration: existing stars keep counting (level ids stay unique)
+- [x] `levelgen` chapter presets with a tuned curve and a tutorial level first (`chapter1|chapter2|chapter3|challenger|expert|master`; every lock in a chapter must matter)
+- [x] Core: pack metadata (`kind`, `chapter`, `location`, `introduces`), `ChapterGate` / `ChapterProgress` (50 % star gate, recipes in order), `ChapterOutline.plan`; files renamed to `chapter_0N.json` / `challenge_*.json`; chapters 2 Rune Vault and 3 Misty Marsh generated (30 recipes each)
+- [ ] Progress migration: existing stars keep counting (level ids stay unique) — core side done: chapter 1 and the challenges keep their `p1/p2/p3/p6` ids (tested); the app still has to load the new file names
 
 ## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
 - [ ] Deterministic daily level: seed = UTC date, generated on device, offline
