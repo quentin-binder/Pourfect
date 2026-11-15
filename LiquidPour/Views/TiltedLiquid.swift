@@ -38,11 +38,12 @@ struct TiltedLiquid: View {
 
             var bottom = deepest + 1
             var area: CGFloat = 0
-            for (index, segment) in segments.enumerated() where segment.fraction > 0.001 {
+            let bands = Self.merged(segments)
+            for (index, segment) in bands.enumerated() where segment.fraction > 0.001 {
                 area += segment.fraction * layerHeight * size.width
                 let top = Self.level(forArea: area, in: corners, depth: depth, range: highest...deepest)
                 // Overlap the next band by 1pt so no background seam shows between bands.
-                let isTop = index == segments.count - 1
+                let isTop = index == bands.count - 1
                 var band = Self.clip(corners) { depth($0) - (isTop ? top : top - 1) }
                 band = Self.clip(band) { bottom - depth($0) }
                 if band.count >= 3 {
@@ -75,6 +76,20 @@ struct TiltedLiquid: View {
                 .foregroundStyle(color)
             context.draw(context.resolve(icon), at: .zero)
         }
+    }
+
+    /// Joins consecutive glyph-less segments of the same color into one band, so a run of equal
+    /// layers shares one gradient (like `BottleView`'s runs). Glyph segments stay separate.
+    private static func merged(_ segments: [LiquidSegment]) -> [LiquidSegment] {
+        var out: [LiquidSegment] = []
+        for segment in segments where segment.fraction > 0.001 {
+            if segment.glyph == nil, let last = out.last, last.glyph == nil, last.color == segment.color {
+                out[out.count - 1].fraction += segment.fraction
+            } else {
+                out.append(segment)
+            }
+        }
+        return out
     }
 
     // MARK: Geometry

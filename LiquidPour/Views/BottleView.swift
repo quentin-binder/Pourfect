@@ -47,9 +47,10 @@ struct BottleView: View {
         ZStack(alignment: .bottom) {
             shape.fill(Self.glassColor)
             VStack(spacing: 0) {
-                ForEach(Array(bottle.layers.enumerated().reversed()), id: \.offset) { index, layer in
-                    LayerView(layer: layer, hidden: index < hiddenLayers, height: layerHeight)
-                        .frame(height: layerHeight)
+                // One view per run of identical visible layers, so a run shares one gradient.
+                ForEach(runs.reversed(), id: \.start) { run in
+                    LayerView(layer: run.layer, hidden: run.hidden, height: layerHeight)
+                        .frame(height: CGFloat(run.count) * layerHeight)
                         .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                                 removal: .opacity))
                 }
@@ -74,6 +75,25 @@ struct BottleView: View {
         .shadow(color: hintRole != nil ? .yellow.opacity(0.8) : .clear, radius: 8)
         .contentShape(Rectangle())
     }
+
+    /// Consecutive layers drawn as one band: same color and both visible. Hidden ("?") and
+    /// key layers are always bands of their own (each shows its own glyph / flips on its own).
+    struct Run { let start: Int; var count: Int; let layer: Layer; let hidden: Bool }
+
+    static func runs(_ layers: [Layer], hiddenLayers: Int) -> [Run] {
+        var runs: [Run] = []
+        for (index, layer) in layers.enumerated() {
+            let hidden = index < hiddenLayers
+            if !hidden, !layer.isKey, let last = runs.last, !last.hidden, last.layer == layer {
+                runs[runs.count - 1].count += 1
+            } else {
+                runs.append(Run(start: index, count: 1, layer: layer, hidden: hidden))
+            }
+        }
+        return runs
+    }
+
+    private var runs: [Run] { Self.runs(bottle.layers, hiddenLayers: hiddenLayers) }
 
     private var outline: Color {
         switch hintRole {
