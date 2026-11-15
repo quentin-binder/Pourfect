@@ -18,8 +18,9 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_01` | 1 Apprentice Cellar | `p1_001…` | 40 | 5–26 | 15–52 | Basic sorting: 3 → 8 colors (the original Starter pack) |
 | `chapter_02` | 2 Rune Vault | `c2_001…` | 30 | 6–25 | 15–53 | Sealed flasks and rune-stone keys: 1 seal, then 2 |
 | `chapter_03` | 3 Misty Marsh | `c3_001…` | 30 | 5–25 | 15–54 | Murky "?" layers; the last 8 also have one seal |
+| `chapter_04` | 4 Glyph Library | `c4_001…` | 30 | 7–26 | 16–55 | Essence flasks (one color only): 1–2 runes, then runes with murky layers or one seal |
 
-Chapters 4–10 (Glyph Library … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
+Chapters 5–10 (Glass Works … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
 Optional **Challenges** (never gated):
 
 | File | Pack | Ids | Levels | Moves | Score | What makes it hard |
@@ -123,6 +124,11 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
 - **Murky / Hidden layers** (chapter 3, Master, random levels): every layer below a bottle's top run is shown as a grey "?". A layer flips over
   to its real color once it becomes part of the top run, and stays revealed. Undo and restart restore the "?" layers.
   This is display-only; the rules and the solver see every layer.
+- **Essence flasks** (chapter 4): a flask etched with one color's rune receives only layers of that color: no other
+  color and no key (unless it is also sealed and the key is its own: the seal is handled first and opening it leaves
+  the rune). It can always be poured from, and may start with other colors, which have to be poured out first. It
+  counts as sorted like any flask (empty, or full with one color), so in practice it ends empty or full of its own
+  color. An empty essence flask is not a free empty flask.
 
 ### Random Brew (random levels)
 
@@ -198,7 +204,7 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 213 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 247 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -209,7 +215,10 @@ shape, every lock in a chapter matters, and every level whose recorded search is
 tests: the modifier pipeline, the `.sealed` modifier against a copy of the old lock rules (same legal moves and
 results on up to 720 lock states), StateKey v2 (permutation invariance with modifiers, links and goal targets), JSON v1/v2
 round trips, `MechanicImpact`, and golden fingerprints that pin generator, random-level, solver and canonical-key
-output to what they were before the refactor (every shipped file also re-encodes byte for byte).
+output to what they were before the refactor (every shipped file also re-encodes byte for byte). Essence flasks
+have their own suite: every rule case (with seals), a hand-made puzzle the rune makes longer, the solver against the
+naive BFS on 175 random essence levels (with seals too), pruning that keeps every distinct child, permutation-invariant
+keys, the JSON round trip, validation, undo/restart, the generator options, and chapter 4 (every rune and seal matters).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -217,10 +226,10 @@ You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift
 ```sh
 cd Packages/BottleSortCore
 
-# Regenerate all six shipped files (about 90 s; output is deterministic)
+# Regenerate all seven shipped files (output is deterministic; chapter 2 takes the longest)
 swift run -c release levelgen --preset all --out-dir ../../Levels
 
-# One file: chapter1 | chapter2 | chapter3 | challenger | expert | master
+# One file: chapter1 | chapter2 | chapter3 | chapter4 | challenger | expert | master
 swift run -c release levelgen --preset chapter2 --out ../../Levels/chapter_02.json
 
 # One configuration; --pool 3 keeps the hardest 20 of 60 passing levels, --hidden makes "?" levels
@@ -231,11 +240,16 @@ swift run -c release levelgen --colors 9 --capacity 4 --empty 2 --count 20 --poo
 # --locks-matter rejects levels where a lock only adds the key pour (LockImpact)
 swift run -c release levelgen --colors 5 --empty 2 --locks 1 --locks-matter --count 5 --seed 1 --out locks.json
 
+# Essence flasks: N runes of different colors, on empty flasks or on filled flasks (their bottom color);
+# --essence-empty K puts K of them on empty flasks; --essence-cost C rejects levels where a rune adds fewer
+# than C moves (EssenceImpact; --essence-matter = cost 1, the chapter uses 2 after its tutorial)
+swift run -c release levelgen --colors 5 --empty 2 --essence 1 --essence-cost 2 --count 5 --seed 1 --out runes.json
+
 # Re-solve every level of every file and print difficulty tables, sorted by score, plus the
-# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter lock that doesn't matter
+# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune) that doesn't matter
 swift run -c release levelgen --report ../../Levels
 
-# Time the solver on random 8-color puzzles
+# Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty)
 swift run -c release levelgen --bench --colors 8 --count 10
 ```
 
@@ -248,7 +262,7 @@ Level files are JSON. Layers are listed bottom → top. A color layer is an inte
 `{"key": n}`. A locked bottle has `"lockedBy": n`, and `"hidden": true` turns on hidden layers for a level.
 Pack fields besides `version` and `levels` are optional: `name`, `subtitle`, `kind` (`"chapter"` or
 `"challenge"`), `chapter` (1-based, required for a chapter), `location` and `introduces` (mechanics a
-first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`; unknown names still load):
+first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`, `"essence"`; unknown names still load):
 
 ```json
 { "version": 1, "name": "Rune Vault", "kind": "chapter", "chapter": 2, "location": "Rune Vault",
@@ -263,8 +277,9 @@ Every lock needs exactly one matching key and vice versa; the loader rejects fil
 **Format version 2** adds flask `modifiers` (`[{"type": "essence", "color": 3}, {"type": "narrowNeck"}, …]`; the
 seal stays `lockedBy`), level `links` (`{"type": "twins", "between": [0, 4]}`, `{"type": "overflow", "from": 1,
 "to": 2}`, `{"type": "switchGate", "switch": 3, "gate": 5}`) and a `goal` (`{"type": "order", "targets": […]}`, …).
-`levelgen` and `LevelLoader.encode` write version 2 only when a level uses one of these, so every current file
-stays version 1. The R5/R7 mechanics are defined but not playable yet: such levels decode, but fail validation.
+`levelgen` and `LevelLoader.encode` write version 2 only when a level uses one of these, so chapters 1–3 and the
+challenges stay version 1 and `chapter_04` (essence runes) is version 2. Essence flasks are playable; the other
+R5/R7 mechanics are defined but not yet: such levels decode, but fail validation.
 
 To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
 
@@ -274,15 +289,18 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   of MECHANICS.md §4 (immediate effects such as unsealing, move counter, timed effects, goal check). A pour runs
   through one modifier pipeline (`Rules.apply`, a switch where each flask modifier can veto or change it) and then the
   base rule (a color run moves, or a key opens its seal). The game, the solver and the generator all go through it.
-- **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed` today; `.essence`, `.narrowNeck`,
-  `.funnel`, `.tap`, `.frozen(layer:turns:)`, `.bubbling`, `.cauldron` are defined for R5), the level has `links`
+- **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed` and `.essence` are implemented;
+  `.narrowNeck`, `.funnel`, `.tap`, `.frozen(layer:turns:)`, `.bubbling`, `.cauldron` are defined for R5), the level has `links`
   (twins, overflow, switch → gate) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
   case plus its arms in the `Rules` switches; key, JSON and validation already handle every case.
-  `Bottle.lockedBy` remains as the seal's accessor. `MechanicImpact` is the "must matter" check for any mechanic.
+  `Bottle.lockedBy` remains as the seal's accessor, `Bottle.essenceColor` gives a flask's rune color, and
+  `Rules.refusal(of:in:)` names the modifier that refuses a pour (e.g. a rune). `MechanicImpact` is the "must
+  matter" check for any mechanic (`LockImpact` and `EssenceImpact` are its seal and rune cases).
 - **Solver**: breadth-first search for the fewest moves. Each state gets a compact key that ignores
   bottle order (`StateKey`: one word per classic or sealed bottle; v2 adds variable-length words for other
   modifiers and a global section where links refer to bottles by canonical rank), and three pruning rules skip
-  moves that can't change the outcome (only on classic/sealed states).
+  moves that can't change the outcome (on states whose flasks carry only seals and runes; an empty flask is only
+  interchangeable with an empty flask carrying the same modifiers).
   An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.
@@ -336,6 +354,6 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 ## Next steps
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
-2. More chapters as their mechanics land (R5).
+2. More chapters as their mechanics land (R5; chapter 4's essence flasks still need their look in the app).
 3. A full accessibility pass (VoiceOver already reads flask contents).
 4. Optional iCloud progress sync.

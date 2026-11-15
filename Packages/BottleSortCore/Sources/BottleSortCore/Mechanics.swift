@@ -24,7 +24,7 @@
 /// bottom, a cauldron recolors) must keep it valid too: when D1 is implemented together
 /// with them, the rule decides either that a frozen layer blocks them, or that the
 /// timed step re-indexes `.frozen` modifiers (DECISIONS 122, PLAN R5). Nothing does so
-/// yet, because no R5 rule is implemented.
+/// yet: the only R5 rule implemented (essence) never moves layers below the top.
 public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// A1 sealed flask: can't be poured from or into, except by key `KeyID`,
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is

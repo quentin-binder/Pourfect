@@ -152,6 +152,10 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 ## R5 — New mechanics, one chapter each (Milestone 3)
 For each: rules, solver/key, generator flag, JSON, art + one visual signal, tutorial level, chapter pack (~30), tests incl. naive-BFS cross-check and a "requires the mechanic" puzzle.
 - [ ] **Ch. 4 Glyph Library — C1 Essence flasks** (accepts only its rune's color)
+  - [x] Core: `.essence` rule in the modifier pipeline (seal first), validation (`multipleEssences`, `essenceColorAbsent`), solver pruning for gate modifiers (empty flasks alike only with equal modifiers), StateKey fast path, app helpers (`essenceColor`, `Rules.refusal`, `LevelDefinition.mechanics`, `Mechanic.essence`) (DECISIONS 132–136)
+  - [x] Generator `essence` / `essenceEmpty` / `requireEssenceMatter` + `essenceCost` (`EssenceImpact`, strong = 2); levelgen `--essence`, `--essence-empty`, `--essence-matter`, `--essence-cost`; `--report` checks every rune (DECISIONS 137)
+  - [x] `Levels/chapter_04.json` (preset `chapter4`, seed 9000): 30 recipes, scores 16.5 → 55.1; tests 213 → 247 (DECISIONS 138)
+  - [ ] App: rune etched near the neck + faint glass tint, tip, refusal feedback
 - [ ] **Ch. 5 Glass Works — C2 Narrow neck + C4 Funnels/taps** (one layer per pour; pour-in-only / pour-from-bottom)
 - [ ] **Ch. 6 Frost Peak — D1 Frozen layers** (thaw counter ≤ 5, ≤ 2 per level; fire-potion variant later)
 - [ ] **Ch. 7 Bubbling Bog — D2 Bubbling flask** (bottom layer rises every K moves)
