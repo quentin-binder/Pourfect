@@ -145,8 +145,9 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - [x] `StateKey` v2: variable-length encoding that includes modifiers, counters and links (endpoints as canonical ranks, ties resolved by minimum); classic/sealed keys unchanged; benchmarked (DECISIONS 126)
 - [x] JSON v2 (modifiers, links, goal); v1 files still load and re-encode byte for byte
 - [x] "Must matter" check generalized: `MechanicImpact` (`LockImpact` is its seal case); `levelgen --report` checks every mechanic instance
-- [x] All existing tests stay green (149 → 180 with the new ones); solver vs. naive BFS cross-check extended to lock levels and the unpruned path
-- Not covered in R4: no R5 rule is implemented (levels using them fail validation and the solver refuses them); `levelgen` has no per-mechanic flags yet; StateKey v2 is ~6× slower per key than v1 (only used by R5 states)
+- [x] All existing tests stay green (149 → 180 with the new ones; 213 after merging main and the review fixes); solver vs. naive BFS cross-check extended to lock levels and the unpruned path
+- [x] Review fixes: merged main (stronger locks: `MechanicImpact` takes the lock cost; R4 decisions renumbered 120–131; golden checks re-gathered against main, DECISIONS 131); bounded move counter; one step-1 legality check for `resolve` and `isLegal`; immediate effects run in steps 2 and 5; hooks see both bottles; StateKey overflow and goal-target collision fixed (DECISIONS 121–126)
+- Not covered in R4: no R5 rule is implemented (levels using them fail validation and the solver refuses them); `levelgen` has no per-mechanic flags yet; StateKey v2 is ~6× slower per key than v1 (only used by R5 states). Deferred to R5, with the mechanic that needs it (DECISIONS 130, 122): multi-bottle pours (twins, overflow, gates) and plan fields for tap / cauldron; turn events for the app's animations; murky reveal state inside the rules once bubbling or taps exist; the frozen-index rule for bubbling / tap / mixing
 
 ## R5 — New mechanics, one chapter each (Milestone 3)
 For each: rules, solver/key, generator flag, JSON, art + one visual signal, tutorial level, chapter pack (~30), tests incl. naive-BFS cross-check and a "requires the mechanic" puzzle.

@@ -198,7 +198,7 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 208 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 213 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
