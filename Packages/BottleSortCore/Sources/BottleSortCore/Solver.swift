@@ -23,7 +23,8 @@ public enum SolverResult: Sendable, Hashable {
         case timeout(statesExplored: Int)
         /// The calling task was cancelled (checked every 4096 states).
         case cancelled(statesExplored: Int)
-        case unsupportedState   // doesn't fit the packed StateKey encoding
+        /// Doesn't fit the packed StateKey encoding, or uses a mechanic `Rules` doesn't implement yet.
+        case unsupportedState
     }
 
     public var moves: [Move]? {
@@ -45,7 +46,7 @@ public struct Solver: Sendable {
     public init() {}
 
     public func solve(_ start: GameState, limits: SolverLimits = .default) -> SolverResult {
-        guard StateKey.canEncode(start) else { return .unknown(reason: .unsupportedState) }
+        guard StateKey.canEncode(start), Rules.isSupported(start) else { return .unknown(reason: .unsupportedState) }
         if start.isSolved { return .solved(moves: [], statesExplored: 1) }
 
         let deadline = limits.timeout.map { ContinuousClock.now + $0 }
@@ -61,12 +62,13 @@ public struct Solver: Sendable {
             var next: [(GameState, Int32)] = []
             for (state, index) in frontier {
                 for move in Solver.candidateMoves(state) {
-                    guard let child = state.pouring(move),
-                          visited.insert(child.canonicalKey).inserted else { continue }
+                    guard let turn = Rules.resolve(state, afterAction: .pour(move)),
+                          visited.insert(turn.state.canonicalKey).inserted else { continue }
+                    let child = turn.state
                     parents.append(index)
                     moves.append(move)
                     let childIndex = Int32(parents.count - 1)
-                    if child.isSolved {
+                    if turn.isWon {
                         return .solved(moves: Solver.path(to: childIndex, parents: parents, moves: moves),
                                        statesExplored: visited.count)
                     }
@@ -111,14 +113,21 @@ public struct Solver: Sendable {
     /// empty targets, which a key can never be poured into anyway, so no key
     /// move is ever pruned except by rule 1 (which can't apply to a bottle
     /// that holds a key).
+    ///
+    /// The pruning rules assume classic flasks: same capacity, no modifier but a seal,
+    /// no links, no move counter. Any other state gets every legal move (R5 mechanics
+    /// can add their own safe pruning here).
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
+        guard state.isBottlesOnly, bottles.allSatisfy(\.hasOnlySeal) else {
+            return state.legalMoves()
+        }
         // Rule 3: unlocked empty bottles are interchangeable (same capacity, no
         // content, no lock), so pouring into any of them gives the same
         // canonical state as pouring into the first one. A *locked* empty
         // bottle is not interchangeable (its key may target it), so it is
         // never skipped here.
-        let firstEmpty = bottles.firstIndex { $0.isEmpty && $0.lockedBy == nil }
+        let firstEmpty = bottles.firstIndex { $0.isEmpty && $0.isPlain }
         var result: [Move] = []
         for from in bottles.indices {
             let source = bottles[from]
@@ -136,8 +145,8 @@ public struct Solver: Sendable {
             let movesWhole = Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
-                if target.isEmpty && target.lockedBy == nil && (to != firstEmpty || movesWhole) { continue }
-                if Rules.pour(from: source, to: target) != nil {
+                if target.isEmpty && target.isPlain && (to != firstEmpty || movesWhole) { continue }
+                if Rules.plan(from: source, to: target) != nil {
                     result.append(Move(from: from, to: to))
                 }
             }
@@ -168,7 +177,7 @@ struct StateGraph {
 
     /// Explores every reachable state, or returns nil if there are more than `maxStates`.
     static func explore(from start: GameState, maxStates: Int) -> StateGraph? {
-        guard StateKey.canEncode(start) else { return nil }
+        guard StateKey.canEncode(start), Rules.isSupported(start) else { return nil }
         var graph = StateGraph()
         var index: [StateKey: Int32] = [start.canonicalKey: 0]
         graph.solved.append(start.isSolved)
@@ -182,16 +191,16 @@ struct StateGraph {
             graph.edgeStart.append(Int32(graph.edges.count))
             if !state.isSolved {  // solved states are terminal
                 for move in Solver.candidateMoves(state) {
-                    guard let child = state.pouring(move) else { continue }
-                    let key = child.canonicalKey
+                    guard let turn = Rules.resolve(state, afterAction: .pour(move)) else { continue }
+                    let key = turn.state.canonicalKey
                     if let existing = index[key] {
                         graph.edges.append(existing)
                     } else {
                         let id = graph.solved.count
                         if id >= maxStates { return nil }
                         index[key] = Int32(id)
-                        queue.append(child)
-                        graph.solved.append(child.isSolved)
+                        queue.append(turn.state)
+                        graph.solved.append(turn.isWon)
                         graph.edges.append(Int32(id))
                     }
                 }

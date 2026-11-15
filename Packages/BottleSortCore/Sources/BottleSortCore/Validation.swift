@@ -21,6 +21,12 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     case lockWithoutKey(KeyID)
     /// A key layer has no bottle locked by it.
     case keyWithoutLock(KeyID)
+    /// A flask modifier, link or goal these rules don't implement yet (named by its JSON type).
+    case unsupportedMechanic(String)
+    /// A flask carries more than one seal (multi-rune seals aren't a rule yet).
+    case multipleSeals(bottle: Int)
+    /// A link points at a missing bottle, or both ends are the same bottle.
+    case invalidLink(Link)
 
     public var description: String {
         switch self {
@@ -37,6 +43,9 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .duplicateLock(k): return "more than one bottle is locked by key \(k.rawValue)"
         case let .lockWithoutKey(k): return "lock \(k.rawValue) has no matching key"
         case let .keyWithoutLock(k): return "key \(k.rawValue) has no matching lock"
+        case let .unsupportedMechanic(name): return "mechanic \(name) is not supported yet"
+        case let .multipleSeals(b): return "bottle \(b) has more than one seal"
+        case let .invalidLink(link): return "link \(link) doesn't connect two different existing bottles"
         }
     }
 }
@@ -47,9 +56,24 @@ extension GameState {
     /// key ids fit the solver's encoding, keys and locks pair up one-to-one (each
     /// key id at most once as a layer and once as a lock), and every lock's key can
     /// be reached (not behind its own lock, directly or through a cycle of locks).
+    /// Mechanics: at most one seal per flask, links connect two different existing
+    /// bottles, and every modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
         var errors: [ValidationError] = []
+        var unsupported: [String] = []
+        for (i, bottle) in bottles.enumerated() {
+            if bottle.modifiers.filter(\.isSeal).count > 1 { errors.append(.multipleSeals(bottle: i)) }
+            unsupported += bottle.modifiers.filter { !$0.isImplemented }.map(\.name)
+        }
+        for link in links {
+            let (a, b) = link.endpoints
+            if a == b || !bottles.indices.contains(a) || !bottles.indices.contains(b) { errors.append(.invalidLink(link)) }
+            if !link.isImplemented { unsupported.append(link.name) }
+        }
+        if !goal.isImplemented { unsupported.append(goal.name) }
+        var reported = Set<String>()
+        for name in unsupported where reported.insert(name).inserted { errors.append(.unsupportedMechanic(name)) }
         if !(1...StateKey.maxCapacity).contains(capacity) { errors.append(.invalidCapacity(capacity)) }
         var counts: [ColorID: Int] = [:]
         var keyCounts: [KeyID: Int] = [:]

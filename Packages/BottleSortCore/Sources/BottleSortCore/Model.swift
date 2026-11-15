@@ -73,21 +73,109 @@ public enum Layer: Hashable, Codable, Sendable, CustomStringConvertible {
     }
 }
 
-/// A bottle: a stack of layers, bottom → top.
-public struct Bottle: Hashable, Codable, Sendable, CustomStringConvertible {
+/// A bottle: a stack of layers, bottom → top, plus the modifiers it carries.
+public struct Bottle: Hashable, Sendable, CustomStringConvertible {
     public var layers: [Layer]
     public let capacity: Int
-    public var lockedBy: KeyID?
+    /// The modifiers, stored compactly: a plain or sealed flask (every shipped level) holds
+    /// no array, so copying a bottle costs no more than before modifiers existed. Always
+    /// normalized (see `modifiers`), so the synthesized equality is set equality.
+    var storage: ModifierStorage
+
+    enum ModifierStorage: Hashable, Sendable {
+        case none
+        case sealed(KeyID)
+        /// Normalized, and never empty or a lone seal.
+        case list([BottleModifier])
+
+        init(_ normalized: [BottleModifier]) {
+            if normalized.isEmpty {
+                self = .none
+            } else if normalized.count == 1, case .sealed(let key) = normalized[0] {
+                self = .sealed(key)
+            } else {
+                self = .list(normalized)
+            }
+        }
+    }
+
+    public init(layers: [Layer] = [], capacity: Int, modifiers: [BottleModifier]) {
+        self.layers = layers
+        self.capacity = capacity
+        self.storage = ModifierStorage(Bottle.normalize(modifiers))
+    }
 
     public init(layers: [Layer] = [], capacity: Int, lockedBy: KeyID? = nil) {
         self.layers = layers
         self.capacity = capacity
-        self.lockedBy = lockedBy
+        self.storage = lockedBy.map(ModifierStorage.sealed) ?? .none
     }
 
     /// Convenience: build from color numbers, bottom → top.
     public init(_ colors: [Int], capacity: Int, lockedBy: KeyID? = nil) {
         self.init(layers: colors.map { .color(ColorID($0)) }, capacity: capacity, lockedBy: lockedBy)
+    }
+
+    /// What this flask carries (seal, essence rune, …), as a set: always deduplicated and
+    /// sorted in `BottleModifier.canonicalOrder` (setting normalizes), so equal sets
+    /// compare equal. Empty for a plain flask. The rules for each case live in `Rules`.
+    public var modifiers: [BottleModifier] {
+        get {
+            switch storage {
+            case .none: return []
+            case .sealed(let key): return [.sealed(key)]
+            case .list(let list): return list
+            }
+        }
+        set { storage = ModifierStorage(Bottle.normalize(newValue)) }
+    }
+
+    /// Whether the flask carries no modifier at all.
+    public var isPlain: Bool {
+        if case .none = storage { return true }
+        return false
+    }
+
+    /// Whether the flask carries nothing but (at most) one seal: the classic rules.
+    var hasOnlySeal: Bool {
+        if case .list = storage { return false }
+        return true
+    }
+
+    /// The key of this flask's seal (its `.sealed` modifier), or nil if it isn't sealed.
+    /// Compatibility accessor from before modifiers existed: setting it replaces the seal.
+    public var lockedBy: KeyID? {
+        get {
+            switch storage {
+            case .none: return nil
+            case .sealed(let key): return key
+            case .list(let list):
+                for modifier in list {
+                    if case .sealed(let key) = modifier { return key }
+                }
+                return nil
+            }
+        }
+        set {
+            if case .list = storage {
+                var kept = modifiers.filter { !$0.isSeal }
+                if let newValue { kept.append(.sealed(newValue)) }
+                modifiers = kept
+            } else {
+                storage = newValue.map(ModifierStorage.sealed) ?? .none
+            }
+        }
+    }
+
+    /// Whether this flask carries a seal.
+    public var isSealed: Bool { lockedBy != nil }
+
+    static func normalize(_ modifiers: [BottleModifier]) -> [BottleModifier] {
+        var result: [BottleModifier] = []
+        for m in modifiers.map(\.normalized).sorted(by: BottleModifier.canonicalOrder) where result.last != m {
+            result.append(m)
+        }
+        return result
     }
 
     public var isEmpty: Bool { layers.isEmpty }
@@ -112,7 +200,50 @@ public struct Bottle: Hashable, Codable, Sendable, CustomStringConvertible {
 
     public var description: String {
         let lock = lockedBy.map { "🔒\($0.rawValue)" } ?? ""
-        return lock + "[" + layers.map(\.description).joined(separator: ",") + "]/\(capacity)"
+        let others = Bottle.splitSeal(modifiers).others
+        let extra = others.isEmpty ? "" : "{" + others.map(\.description).joined(separator: ",") + "}"
+        return lock + extra + "[" + layers.map(\.description).joined(separator: ",") + "]/\(capacity)"
+    }
+}
+
+extension BottleModifier {
+    var isSeal: Bool {
+        if case .sealed = self { return true }
+        return false
+    }
+}
+
+extension Bottle: Codable {
+    // JSON: {"layers": […], "capacity": n, "lockedBy": k?, "modifiers": […]?}. The (first)
+    // seal is written as `lockedBy`, the v1 form; `modifiers` holds every other modifier
+    // and is omitted when there is none.
+    private enum CodingKeys: String, CodingKey { case layers, capacity, lockedBy, modifiers }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        var modifiers = try c.decodeIfPresent([BottleModifier].self, forKey: .modifiers) ?? []
+        if let lock = try c.decodeIfPresent(KeyID.self, forKey: .lockedBy) { modifiers.append(.sealed(lock)) }
+        self.init(layers: try c.decode([Layer].self, forKey: .layers), capacity: try c.decode(Int.self, forKey: .capacity),
+                  modifiers: modifiers)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(layers, forKey: .layers)
+        try c.encode(capacity, forKey: .capacity)
+        let (lock, others) = Bottle.splitSeal(modifiers)
+        try c.encodeIfPresent(lock, forKey: .lockedBy)
+        if !others.isEmpty { try c.encode(others, forKey: .modifiers) }
+    }
+
+    /// The first seal's key (the v1 `lockedBy`) and every other modifier, in order.
+    static func splitSeal(_ modifiers: [BottleModifier]) -> (lock: KeyID?, others: [BottleModifier]) {
+        var lock: KeyID?
+        var others: [BottleModifier] = []
+        for m in modifiers {
+            if case .sealed(let k) = m, lock == nil { lock = k } else { others.append(m) }
+        }
+        return (lock, others)
     }
 }
 
@@ -124,19 +255,111 @@ public struct Move: Hashable, Codable, Sendable, CustomStringConvertible {
     public var description: String { "\(from)→\(to)" }
 }
 
-/// The full board.
-public struct GameState: Hashable, Codable, Sendable, CustomStringConvertible {
+/// The full board: the bottles, plus level-wide links, the goal and counters.
+///
+/// Classic and sealed levels only use `bottles`: `links` is empty, `goal` is `.standard`
+/// and `moveCount` is nil. Links and goal sit in one shared box that is nil for that
+/// default, so a classic state is as cheap to copy as before.
+public struct GameState: Hashable, Sendable, CustomStringConvertible {
     public var bottles: [Bottle]
-    public init(bottles: [Bottle]) { self.bottles = bottles }
+    /// Moves made so far. Stored (non-nil) only while a rule depends on it (a timed
+    /// mechanic or goal such as `.rescue`), because it makes otherwise equal states
+    /// different for the solver. `Rules.resolve` increments it when present.
+    public var moveCount: Int?
+    private var structure: Structure?
 
-    public var description: String { bottles.map(\.description).joined(separator: " ") }
+    /// Static, level-wide data. A class so a state copy costs one reference.
+    private final class Structure: Hashable, Sendable {
+        let links: [Link]
+        let goal: Goal
+        init(links: [Link], goal: Goal) {
+            self.links = links
+            self.goal = goal
+        }
+        static func == (a: Structure, b: Structure) -> Bool { a === b || (a.links == b.links && a.goal == b.goal) }
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(links)
+            hasher.combine(goal)
+        }
+    }
+
+    public init(bottles: [Bottle], links: [Link] = [], goal: Goal = .standard, moveCount: Int? = nil) {
+        self.bottles = bottles
+        self.moveCount = moveCount
+        self.structure = GameState.box(links: links, goal: goal)
+    }
+
+    private static func box(links: [Link], goal: Goal) -> Structure? {
+        links.isEmpty && goal == .standard ? nil : Structure(links: links, goal: goal)
+    }
+
+    /// Level-wide links between bottles (by index). Empty for classic levels.
+    public var links: [Link] {
+        get { structure?.links ?? [] }
+        set { structure = GameState.box(links: newValue, goal: goal) }
+    }
+
+    /// When the level is won. `.standard` for classic levels.
+    public var goal: Goal {
+        get { structure?.goal ?? .standard }
+        set { structure = GameState.box(links: links, goal: newValue) }
+    }
+
+    /// No links, the standard goal and no move counter: the state is described by its
+    /// bottles alone (fast paths in `Rules`, `StateKey` and the solver).
+    var isBottlesOnly: Bool { structure == nil && moveCount == nil }
+
+    /// Whether the goal is `.standard` (without building the `Goal` value).
+    var hasStandardGoal: Bool { structure.map { $0.goal == .standard } ?? true }
+
+    public var description: String {
+        var text = bottles.map(\.description).joined(separator: " ")
+        if !links.isEmpty { text += " links[" + links.map(\.description).joined(separator: " ") + "]" }
+        if goal != .standard { text += " goal:\(goal.name)" }
+        if let moveCount { text += " moves:\(moveCount)" }
+        return text
+    }
+}
+
+extension GameState: Codable {
+    // {"bottles": […]} as before; links, goal and moveCount only when they aren't the default.
+    private enum CodingKeys: String, CodingKey { case bottles, links, goal, moveCount }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(bottles: try c.decode([Bottle].self, forKey: .bottles),
+                  links: try c.decodeIfPresent([Link].self, forKey: .links) ?? [],
+                  goal: try c.decodeIfPresent(Goal.self, forKey: .goal) ?? .standard,
+                  moveCount: try c.decodeIfPresent(Int.self, forKey: .moveCount))
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(bottles, forKey: .bottles)
+        if !links.isEmpty { try c.encode(links, forKey: .links) }
+        if goal != .standard { try c.encode(goal, forKey: .goal) }
+        try c.encodeIfPresent(moveCount, forKey: .moveCount)
+    }
 }
 
 extension GameState {
     /// The same puzzle with its bottles in a random order. Bottle order never changes the puzzle
     /// (same canonical key, same optimal solution length), so this is purely presentation, e.g. so
-    /// empty bottles aren't always at the end.
+    /// empty bottles aren't always at the end. Links and goal targets follow their bottles.
     public func shufflingBottles<G: RandomNumberGenerator>(using rng: inout G) -> GameState {
-        GameState(bottles: bottles.shuffled(using: &rng))
+        var order = Array(bottles.indices)
+        order.shuffle(using: &rng)   // same swaps as `bottles.shuffled(using:)`
+        return permuted(by: order)
+    }
+
+    /// The same puzzle with `bottles[order[i]]` at position i; links and goal targets are
+    /// renumbered so they follow their bottles. `order` must be a permutation of the indices.
+    public func permuted(by order: [Int]) -> GameState {
+        var newIndex = [Int](repeating: 0, count: order.count)
+        for (i, old) in order.enumerated() { newIndex[old] = i }
+        return GameState(bottles: order.map { bottles[$0] },
+                         links: links.map { $0.remapped { newIndex[$0] } },
+                         goal: goal.remapped { newIndex[$0] },
+                         moveCount: moveCount)
     }
 }
