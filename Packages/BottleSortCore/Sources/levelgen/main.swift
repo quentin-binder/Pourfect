@@ -22,7 +22,7 @@ usage:
   levelgen --preset all --out-dir DIR
            (writes chapter_01…03.json and challenge_challenger|expert|master.json)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
-  levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--count 10] [--seed 1]
+  levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--count 10] [--seed 1]
 """
 
 func fail(_ message: String) -> Never {
@@ -299,7 +299,8 @@ func bench() {
     let empty = int("--empty", default: 2)!
     let count = int("--count", default: 10)!
     let seed = UInt64(int("--seed", default: 1)!)
-    let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty)
+    let locks = int("--locks", default: 0)!
+    let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks)
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
