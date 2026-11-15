@@ -121,7 +121,9 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - [x] `levelgen` chapter presets with a tuned curve and a tutorial level first (`chapter1|chapter2|chapter3|challenger|expert|master`; every lock in a chapter must matter)
 - [x] Core: pack metadata (`kind`, `chapter`, `location`, `introduces`), `ChapterGate` / `ChapterProgress` (50 % star gate, recipes in order), `ChapterOutline.plan`; files renamed to `chapter_0N.json` / `challenge_*.json`; chapters 2 Rune Vault and 3 Misty Marsh generated (30 recipes each)
 - [x] Progress migration: existing stars keep counting (level ids stay unique; chapter 1 and the challenges keep their `p1/p2/p3/p6` ids); stars of the removed `p4_`/`p5_` recipes are ignored
-- Not covered in R2: light mode on the Mac and iPad layouts were not checked; tutorial steps were checked by screenshots only (no UI tests)
+- Review fixes: cleared recipes stay open (stars never hidden behind a lock), readable locked cells in light mode, consistent rune-seal tip wording, themed Random Brew screen (DECISIONS 100–102)
+- Not covered in R2: iPad layouts were not checked; tutorial steps were checked by screenshots only (no UI tests); light mode was checked on the Mac chapter screen only
+- Open design question: chapter locks only have to add more than one move (DECISIONS 91, 103); most add exactly one. A stricter threshold would mean regenerating chapters 2–3
 
 ## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
 - [ ] Deterministic daily level: seed = UTC date, generated on device, offline

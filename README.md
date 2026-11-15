@@ -98,7 +98,7 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
 - You can pour onto an empty bottle or onto the same color, as long as there's room. The whole top run pours, or as much as fits.
 - **Undo** (⌘Z), **Restart** (⌘R) and **Hint** (⇧⌘H) are at the bottom of the screen.
 - Finish in the optimal number of moves for 3 stars, within 3 extra moves for 2 stars, and in any number of moves for 1 star.
-  Clearing a recipe unlocks the next one in its chapter; a chapter opens once the previous chapter has half of its
+  Clearing a recipe unlocks the next one in its chapter (and a cleared recipe always stays open); a chapter opens once the previous chapter has half of its
   stars. Progress is saved on the device.
 - A pour is animated: the bottle flies over the target, tilts, and a stream fills the target. Taps made during
   a pour are queued. With *Reduce Motion* on, the levels just change in place.
