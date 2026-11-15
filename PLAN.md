@@ -17,17 +17,17 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Checkpoint (awaiting "continue")
 
 ## Phase 2 — Solver, difficulty, generator
-- [ ] Canonical state key (bottle-order independent, includes `lockedBy`)
-- [ ] BFS `Solver` with safe pruning + `SolverLimits` / `SolverResult`
-- [ ] `hint(for:)`
-- [ ] `DifficultyReport` (minMoves, statesExplored, deadEndRatio, branchingFactor, score)
-- [ ] SplitMix64 RNG + `GeneratorConfig` + rejection-sampling generator
-- [ ] Level JSON format + `LevelLoader` (validates)
-- [ ] `levelgen` CLI (generate + `--report`)
-- [ ] `Levels/pack_01.json` (~40 levels, rising difficulty)
-- [ ] Tests: known optimal puzzles, unsolvable, replay, canonicalization, determinism, pack loads/solves
-- [ ] Perf: 8 colors / cap 4 / 2 empty < ~2 s release
-- [ ] Checkpoint
+- [x] Canonical state key (bottle-order independent, includes `lockedBy`)
+- [x] BFS `Solver` with safe pruning + `SolverLimits` / `SolverResult`
+- [x] `hint(for:)`
+- [x] `DifficultyReport` (minMoves, statesExplored, deadEndRatio, branchingFactor, score)
+- [x] SplitMix64 RNG + `GeneratorConfig` + rejection-sampling generator
+- [x] Level JSON format + `LevelLoader` (validates)
+- [x] `levelgen` CLI (generate + `--report`)
+- [x] `Levels/pack_01.json` (~40 levels, rising difficulty)
+- [x] Tests: known optimal puzzles, unsolvable, replay, canonicalization, determinism, pack loads/solves
+- [x] Perf: 8 colors / cap 4 / 2 empty < ~2 s release
+- [x] Checkpoint (awaiting "continue")
 
 ## Phase 3 — SwiftUI app (iOS + macOS)
 - [ ] Link local package into `LiquidPour.xcodeproj`; bundle `Levels/pack_01.json`
