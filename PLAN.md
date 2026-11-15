@@ -1,6 +1,6 @@
 # Plan — LiquidPour (Bottle Sort prototype)
 
-Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
+Decisions: `DECISIONS.md`. (The original prototype spec was removed from the repo after Phase 5.)
 
 ## Setup
 - [x] Move spec to repo root, add `.gitignore`
@@ -79,3 +79,10 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Reduce Motion: in-place level change
 - [x] Verified on iOS Simulator and macOS (burst screenshots)
 - [ ] Not hand-tested: undo during a pour, macOS window resize during a pour
+
+## Level packs
+- [x] Remove the prototype spec file
+- [x] Pack name/subtitle in the JSON format; levelgen `--hidden`, `--pool`, `--name`, presets and `--preset all`
+- [x] Five new harder packs (Challenger, Expert, Locks & Keys, Hidden Depths, Master) — 140 new levels
+- [x] App: loads every bundled `pack_*.json`, pack picker with star totals, pack-aware routing, `-LPOpenPack`
+- [x] Tests: every shipped pack loads/validates, unique ids, solvable levels checked; all 180 re-solved by `--report`

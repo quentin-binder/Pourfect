@@ -3,8 +3,21 @@
 A liquid-sorting puzzle game for **iPhone, iPad and Mac** (native Apple silicon), built with SwiftUI.
 Pour colored layers between bottles until every bottle is empty or full with one color.
 
-This is the prototype described in [`BOTTLE_SORT_PROTOTYPE_SPEC.md`](BOTTLE_SORT_PROTOTYPE_SPEC.md).
 Progress is tracked in [`PLAN.md`](PLAN.md); design choices are in [`DECISIONS.md`](DECISIONS.md).
+
+## Level packs
+
+| File | Pack | Levels | Moves (min–max) | What makes it hard |
+|---|---|---|---|---|
+| `pack_01` | Starter | 40 | 5–26 | Learn the rules: 3 → 8 colors |
+| `pack_02` | Challenger | 30 | 15–34 | 8–10 colors, taller bottles, one-empty-bottle levels |
+| `pack_03` | Expert | 30 | 20–41 | 10–12 colors, bottle size 5, one empty bottle |
+| `pack_04` | Locks & Keys | 30 | 18–33 | 1–2 locked bottles; find and free the keys |
+| `pack_05` | Hidden Depths | 30 | 13–27 | Layers below the top are "?" until revealed |
+| `pack_06` | Master | 20 | 22–43 | 12 colors, size-5 bottles, 2 locks, hidden 10-color boards |
+
+Each pack is sorted by difficulty score; harder packs keep only the highest-scoring levels from a larger generated pool.
+Pick a pack from the chips on the level-select screen. Inside a pack, clearing a level unlocks the next.
 
 ## Layout
 
@@ -18,7 +31,7 @@ Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
   Sources/BottleSortCore/    Model, Rules, Solver, Difficulty, Generator, LevelFile, GameSession, RandomLevel
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
-Levels/pack_01.json          The 40 levels bundled into the app
+Levels/pack_01…06.json       The six bundled level packs (synchronized folder: any pack_*.json is bundled)
 ```
 
 No third-party dependencies, only Apple frameworks.
@@ -83,7 +96,8 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 
 | Argument | Effect |
 |---|---|
-| `-LPOpenLevel N` | Opens pack level N (1-based) directly, ignoring locks. |
+| `-LPOpenLevel N` | Opens level N (1-based) directly, ignoring locks. |
+| `-LPOpenPack P` | With `-LPOpenLevel`: which pack (1-based, default 1 = Starter). |
 | `-LPUnlockAll 1` | Makes every pack level playable in the grid (saved stars are untouched). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). |
 | `-LPRandomSettings 1` | Opens the Random Level screen. |
@@ -104,7 +118,8 @@ swift test
 This runs 95 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format, and the
-shipped pack (every level loads, validates and solves in its recorded `minMoves`).
+shipped packs (every level loads and validates, ids are unique across packs, and every level whose recorded
+search is small solves in its recorded `minMoves` — the larger ones are re-solved by `levelgen --report` in release).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -112,15 +127,18 @@ You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift
 ```sh
 cd Packages/BottleSortCore
 
-# One configuration (spec example)
-swift run -c release levelgen --colors 4 --capacity 4 --empty 2 --count 20 \
-    --min-moves 8 --max-moves 15 --seed 1 --out ../../Levels/pack_02.json
+# Regenerate all six shipped packs (about 90 s; output is deterministic)
+swift run -c release levelgen --preset all --out-dir ../../Levels
+
+# One pack: starter | challenger | expert | locks | hidden | master
+swift run -c release levelgen --preset expert --out ../../Levels/pack_03.json
+
+# One configuration; --pool 3 keeps the hardest 20 of 60 passing levels, --hidden makes "?" levels
+swift run -c release levelgen --colors 9 --capacity 4 --empty 2 --count 20 --pool 3 \
+    --min-moves 26 --max-moves 40 --seed 1 --name "My Pack" --out my_pack.json
 
 # Lock levels: N locked full bottles, their keys buried in the other bottles (0 ≤ N < colors)
 swift run -c release levelgen --colors 5 --empty 2 --locks 1 --count 5 --seed 1 --out locks.json
-
-# The starter pack (tiers from 3 to 8 colors, sorted by difficulty score)
-swift run -c release levelgen --preset starter --seed 1 --out ../../Levels/pack_01.json
 
 # Re-solve every level in a pack and print a difficulty table, sorted by score
 swift run -c release levelgen --report ../../Levels/pack_01.json
@@ -163,13 +181,15 @@ with `LevelCatalog.loadBundled(named:)`.
 
 ## Known limitations
 
-- Locks & Keys and Hidden layers exist only as random levels. There's no hand-curated pack for them.
 - Random levels can take a few seconds for the largest settings (up to ~2.5 s per level in a release build on an
   M-series Mac, longer on a phone or in a debug build; a hard attempt can take ~5 s). Leaving the screen, Replay or Undo
   cancels a running generation.
 - Pour animation: a pour between rows makes the flying bottle cover the upper row; near the top of a short screen
   the tilted bottle can overlap the header.
-- Only one level pack. There's no menu for choosing packs, and progress is keyed by level id.
+- All packs are open from the start (levels unlock only within a pack). Progress is keyed by level id, so
+  regenerating a pack with different content keeps old stars on the new levels.
+- One empty bottle makes almost every puzzle with 6+ colors (bottle size 4) unsolvable, so one-empty levels stay at
+  5 colors, or 6 colors with size-5 bottles.
 - Progress lives in `UserDefaults` on each device, with no iCloud sync.
 - No sound, settings screen, tutorial overlay or accessibility pass beyond basic labels. Colors alone tell
   layers apart, which is hard for color-blind players.
