@@ -214,7 +214,10 @@ public struct StateKey: Hashable, Sendable {
             words.insert(0xD0 << 56 | UInt64(words.count), at: 0)
             var goalWords = [goalTag(goal) << 56 | UInt64(targets.count)]
             var targetWords = targets.map { t -> [UInt64] in
-                [UInt64(rankOf[t.bottle]) << 56 | UInt64(t.layers.count) << 48 | layerBits(t.layers)]
+                // Rank, then the layers (bits 0..<54). No separate count: layer tokens are
+                // never 0, so the layer bits already determine it (a count at bit 48 would
+                // overlap a 9th layer's token).
+                [UInt64(rankOf[t.bottle]) << 56 | layerBits(t.layers)]
             }
             targetWords.sort { $0.lexicographicallyPrecedes($1) }
             goalWords += targetWords.flatMap { $0 }
@@ -222,9 +225,7 @@ public struct StateKey: Hashable, Sendable {
         }
 
         var best = encode(rankOf)
-        let permutations = classes.reduce(1) { total, c in
-            total > maxTiePermutations ? total : total * (1...c.count).reduce(1, *)
-        }
+        let permutations = tiePermutationCount(classSizes: classes.map(\.count))
         if permutations > 1 && permutations <= maxTiePermutations {
             // Try every assignment of tied bottles to their class's ranks.
             var current = rankOf
@@ -245,6 +246,20 @@ public struct StateKey: Hashable, Sendable {
             search(0)
         }
         return best + fixed
+    }
+
+    /// The number of rank assignments of tied bottles (the product of the classes'
+    /// factorials), saturating at `maxTiePermutations + 1`, so large or many tie classes
+    /// fall back to bottle order instead of overflowing.
+    static func tiePermutationCount(classSizes: [Int]) -> Int {
+        var total = 1
+        for size in classSizes {
+            for factor in stride(from: 2, through: size, by: 1) {
+                total *= factor
+                if total > maxTiePermutations { return maxTiePermutations + 1 }
+            }
+        }
+        return total
     }
 
     static func goalTag(_ goal: Goal) -> UInt64 {

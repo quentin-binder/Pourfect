@@ -264,7 +264,8 @@ public struct GameState: Hashable, Sendable, CustomStringConvertible {
     public var bottles: [Bottle]
     /// Moves made so far. Stored (non-nil) only while a rule depends on it (a timed
     /// mechanic or goal such as `.rescue`), because it makes otherwise equal states
-    /// different for the solver. `Rules.resolve` increments it when present.
+    /// different for the solver. `Rules.resolve` increments it when present, up to
+    /// `Rules.moveCountLimit` (so the state graph stays finite).
     public var moveCount: Int?
     private var structure: Structure?
 

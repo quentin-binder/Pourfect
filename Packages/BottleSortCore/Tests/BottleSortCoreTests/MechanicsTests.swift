@@ -60,18 +60,20 @@ enum LegacyRules {
 }
 
 @Suite struct ModifierPipelineTests {
+    let plain = Bottle(capacity: 4)
+
     @Test func sealVetoesPourOutAndForeignPourIn() {
         var plan = PourPlan(layer: .color(0))
-        #expect(!Rules.apply(.sealed(1), as: .source, to: &plan))
-        #expect(!Rules.apply(.sealed(1), as: .target, to: &plan))
+        #expect(!Rules.apply(.sealed(1), as: .source, to: &plan, source: plain, target: plain))
+        #expect(!Rules.apply(.sealed(1), as: .target, to: &plan, source: plain, target: plain))
         var keyPlan = PourPlan(layer: .key(2))
-        #expect(!Rules.apply(.sealed(1), as: .target, to: &keyPlan))
+        #expect(!Rules.apply(.sealed(1), as: .target, to: &keyPlan, source: plain, target: plain))
         #expect(keyPlan.opensSeal == nil)
     }
 
     @Test func sealAcceptsItsKeyAndMarksTheUnseal() {
         var plan = PourPlan(layer: .key(1))
-        #expect(Rules.apply(.sealed(1), as: .target, to: &plan))
+        #expect(Rules.apply(.sealed(1), as: .target, to: &plan, source: plain, target: plain))
         #expect(plan.opensSeal == 1)
     }
 
@@ -81,7 +83,7 @@ enum LegacyRules {
         for m in modifiers {
             for side in [PourSide.source, .target] {
                 var plan = PourPlan(layer: .color(3))
-                #expect(Rules.apply(m, as: side, to: &plan), "\(m)")
+                #expect(Rules.apply(m, as: side, to: &plan, source: plain, target: plain), "\(m)")
                 #expect(plan == PourPlan(layer: .color(3)), "\(m)")
             }
             #expect(!m.isImplemented)
@@ -116,10 +118,62 @@ enum LegacyRules {
         let plain = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 2))))
         #expect(plain.state.moveCount == nil)
         s.moveCount = 7
+        s.goal = .rescue(withinMoves: 20)   // a rule that reads the counter
         let counted = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 2))))
         #expect(counted.state.moveCount == 8)
         #expect(counted.state.bottles == plain.state.bottles)
         #expect(counted.state.canonicalKey != plain.state.canonicalKey)
+    }
+
+    /// The counter stops one past the last value a rule reads, so pouring back and forth
+    /// returns to an already seen state (finite state graph).
+    @Test func moveCountStopsAtItsLimit() throws {
+        var s = state([[0], []], capacity: 2)
+        s.goal = .rescue(withinMoves: 3)
+        s.moveCount = 0
+        #expect(Rules.moveCountLimit(s) == 4)
+        var states = [s]
+        for i in 0..<10 {
+            let move = i.isMultiple(of: 2) ? Move(from: 0, to: 1) : Move(from: 1, to: 0)
+            states.append(try #require(states.last?.pouring(move)))
+        }
+        #expect(states.map { $0.moveCount ?? -1 } == [0, 1, 2, 3, 4, 4, 4, 4, 4, 4, 4])
+        #expect(states[6].canonicalKey == states[8].canonicalKey)
+        // No rule reads it: a stored counter never changes.
+        var plain = state([[0, 1], [1, 0], []], capacity: 2)
+        plain.moveCount = 5
+        #expect(Rules.moveCountLimit(plain) == 0)
+        #expect(plain.pouring(Move(from: 0, to: 2))?.moveCount == 5)
+    }
+
+    /// With a stored counter the solver must still prove an unsolvable level unsolvable
+    /// (an unbounded counter made every depth a new state: `.unknown(stateLimit)`).
+    @Test func solverProvesUnsolvableWithACounter() {
+        var s = state([[0], [0, 1], []], capacity: 2)   // color 1 can never fill a flask
+        s.moveCount = 0
+        guard case .unsolvable = Solver().solve(s, limits: SolverLimits(maxStates: 10_000)) else {
+            Issue.record("expected unsolvable")
+            return
+        }
+    }
+
+    /// `isLegal` (`canPour`, `legalMoves`) and `resolve` share one step-1 check, so every
+    /// listed move resolves and every other move is rejected, also in lock states.
+    @Test func legalityAndResolveAgree() {
+        for seed in UInt64(1)...20 {
+            var s = Generator.candidate(GeneratorConfig(colors: 4, capacity: 3, emptyBottles: 1, locks: 2), seed: seed)
+            for step in 0..<8 {
+                for from in -1...s.bottles.count {
+                    for to in -1...s.bottles.count {
+                        let move = Move(from: from, to: to)
+                        #expect(s.canPour(move) == (Rules.resolve(s, afterAction: .pour(move)) != nil), "\(seed) \(move)")
+                    }
+                }
+                let moves = s.legalMoves()
+                guard !moves.isEmpty, let next = s.pouring(moves[(Int(seed) + step) % moves.count]) else { break }
+                s = next
+            }
+        }
     }
 
     @Test func goalDecidesTheWin() {
@@ -393,5 +447,41 @@ enum LegacyRules {
         #expect(!StateKey.canEncode(s))
         s.bottles[1].modifiers = [.frozen(layer: 0, turns: 300)]
         #expect(!StateKey.canEncode(s))
+    }
+
+    /// Huge tie classes saturate the permutation count instead of trapping on overflow
+    /// (21! and 4 × 20! overflow Int), and fall back to bottle order.
+    @Test func largeTieClassesDontOverflow() {
+        #expect(StateKey.tiePermutationCount(classSizes: [3, 2]) == 12)
+        #expect(StateKey.tiePermutationCount(classSizes: [6]) == 720)
+        #expect(StateKey.tiePermutationCount(classSizes: [7]) == 721)
+        #expect(StateKey.tiePermutationCount(classSizes: [2, 2, 25]) == 721)
+        #expect(StateKey.tiePermutationCount(classSizes: [21]) == 721)
+        let s = GameState(bottles: Array(repeating: Bottle(layers: [], capacity: 4), count: 23), links: [.twins(0, 1)])
+        #expect(StateKey.canEncode(s))
+        // Past the cap the bottles' own order breaks the tie (no search, no crash).
+        #expect(s.canonicalKey.codes.count > 23)
+        var other = s
+        other.links = [.overflow(from: 0, to: 1)]
+        #expect(other.canonicalKey != s.canonicalKey)
+    }
+
+    /// Goal targets with nine layers (capacity 9) that differ only in the ninth layer get
+    /// different keys (the layer count no longer overlaps the ninth token).
+    @Test func nineLayerGoalTargetsDiffer() {
+        let eight = Array(repeating: Layer.color(0), count: 8)
+        var a = GameState(bottles: Array(repeating: Bottle(layers: [], capacity: 9), count: 3))
+        var b = a
+        a.goal = .pattern([GoalTarget(bottle: 0, layers: eight + [.color(0)])])
+        b.goal = .pattern([GoalTarget(bottle: 0, layers: eight + [.color(8)])])
+        #expect(StateKey.canEncode(a) && StateKey.canEncode(b))
+        #expect(a.canonicalKey != b.canonicalKey)
+        // Two targets, swapped contents (the reviewer's S / S' case).
+        var x = GameState(bottles: [Bottle([1, 1], capacity: 9), Bottle([2, 2], capacity: 9), Bottle(capacity: 9)])
+        x.goal = .pattern([GoalTarget(bottle: 0, layers: eight + [.color(0)]),
+                           GoalTarget(bottle: 1, layers: eight + [.color(7)])])
+        var y = x
+        y.bottles.swapAt(0, 1)
+        #expect(x.canonicalKey != y.canonicalKey)
     }
 }

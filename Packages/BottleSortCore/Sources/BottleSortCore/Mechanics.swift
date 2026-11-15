@@ -17,9 +17,14 @@
 /// so equal sets compare equal and encode identically.
 ///
 /// Per-layer state (frozen layers) is a modifier too, `.frozen(layer:turns:)`, holding
-/// the layer's index from the bottom. A frozen layer and everything below it can't
-/// move, so that index stays valid while the layer is frozen. This keeps `Layer` a
-/// plain value (runs, equality and the 6-bit layer tokens of `StateKey` unchanged).
+/// the layer's index from the bottom. This keeps `Layer` a plain value (runs, equality
+/// and the 6-bit layer tokens of `StateKey` unchanged). Pours only add and remove at the
+/// top above a frozen layer, so they keep the index valid. Rules that move or change
+/// layers *under* the top (bubbling rotates the bottom layer up, a tap pours from the
+/// bottom, a cauldron recolors) must keep it valid too: when D1 is implemented together
+/// with them, the rule decides either that a frozen layer blocks them, or that the
+/// timed step re-indexes `.frozen` modifiers (DECISIONS 122, PLAN R5). Nothing does so
+/// yet, because no R5 rule is implemented.
 public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// A1 sealed flask: can't be poured from or into, except by key `KeyID`,
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is

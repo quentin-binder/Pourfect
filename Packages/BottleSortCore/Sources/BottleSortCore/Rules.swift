@@ -46,17 +46,25 @@ public enum Rules {
     }
 
     /// The modifier pipeline: the one place where each modifier vetoes (returns false)
-    /// or changes a pour. Source modifiers run first, then target modifiers.
+    /// or changes a pour. Source modifiers run first, then target modifiers. A hook sees
+    /// both bottles of the pour (`source`, `target`, before it) and the plan so far; the
+    /// base rule then reads the plan (`layer`, `limit`, `opensSeal`), not the bottles' tops.
     ///
     /// - `.sealed(k)`: a sealed flask can't be poured from. As a target it accepts only
     ///   key `k`, which opens it (needs no free slot); nothing else goes in.
     ///
-    /// R5 plan (one arm each): `.essence(c)` target → veto unless `layer == .color(c)`;
-    /// `.narrowNeck` either side → `limit = 1`; `.funnel` source → veto; `.tap` target →
-    /// veto, source → pour from the bottom (needs a `fromBottom` flag on the plan);
-    /// `.frozen(i, _)` source → `limit` = layers above `i` (veto at 0); `.cauldron` target →
-    /// also accept a recipe partner (mixing is an immediate effect in `resolve`).
-    public static func apply(_ modifier: BottleModifier, as side: PourSide, to plan: inout PourPlan) -> Bool {
+    /// R5 plan: `.essence(c)` target → veto unless `layer == .color(c)`; `.narrowNeck`
+    /// either side → `limit = 1`; `.funnel` source → veto; `.frozen(i, _)` source →
+    /// `limit` = `source.layers.count - 1 - i` layers above it (veto at 0). Mechanics that
+    /// change *what* the base rule does need a plan field it reads, added with the
+    /// mechanic: `.tap` (source → pour from the bottom: `layer` = bottom layer plus a
+    /// `fromBottom` flag that `movableRunCount` / `transfer` honour; target → veto) and
+    /// `.cauldron` (target → accept a recipe partner on top: an `acceptsMismatch` flag;
+    /// mixing itself is an immediate effect). Links (twins, overflow into a full flask,
+    /// gates) act on more than two bottles; they belong in `actionPlan(for:in:)` and
+    /// `Transfer` becomes a list of bottle changes then (DECISIONS 130).
+    public static func apply(_ modifier: BottleModifier, as side: PourSide, to plan: inout PourPlan,
+                             source: Bottle, target: Bottle) -> Bool {
         switch (modifier, side) {
         case (.sealed, .source):
             return false
@@ -70,16 +78,18 @@ public enum Rules {
         }
     }
 
-    /// Runs `apply` for every modifier of `bottle` (none for a plain flask).
+    /// Runs `apply` for every modifier of the bottle on `side` (none for a plain flask).
     @inline(__always)
-    static func applyModifiers(of bottle: Bottle, as side: PourSide, to plan: inout PourPlan) -> Bool {
-        switch bottle.storage {
+    static func applyModifiers(as side: PourSide, to plan: inout PourPlan, source: Bottle, target: Bottle) -> Bool {
+        switch (side == .source ? source.storage : target.storage) {
         case .none:
             return true
         case .sealed(let key):
-            return apply(.sealed(key), as: side, to: &plan)
+            return apply(.sealed(key), as: side, to: &plan, source: source, target: target)
         case .list(let list):
-            for modifier in list where !apply(modifier, as: side, to: &plan) { return false }
+            for modifier in list where !apply(modifier, as: side, to: &plan, source: source, target: target) {
+                return false
+            }
             return true
         }
     }
@@ -92,6 +102,12 @@ public enum Rules {
     /// - Nothing can be poured onto a key (a key top never matches a color).
     static func transfer(from source: Bottle, to target: Bottle) -> Transfer? {
         guard let plan = plan(from: source, to: target) else { return nil }
+        return transfer(plan, from: source, to: target)
+    }
+
+    /// Carries out a finished plan (from `plan(from:to:)`) between its two bottles.
+    @inline(__always)
+    static func transfer(_ plan: PourPlan, from source: Bottle, to target: Bottle) -> Transfer {
         var newSource = source
         newSource.layers.removeLast(plan.amount)
         if let key = plan.opensSeal {
@@ -108,18 +124,30 @@ public enum Rules {
     static func plan(from source: Bottle, to target: Bottle) -> PourPlan? {
         guard let top = source.topLayer else { return nil }
         var plan = PourPlan(layer: top)
-        guard applyModifiers(of: source, as: .source, to: &plan),
-              applyModifiers(of: target, as: .target, to: &plan) else { return nil }
+        guard applyModifiers(as: .source, to: &plan, source: source, target: target),
+              applyModifiers(as: .target, to: &plan, source: source, target: target) else { return nil }
         if plan.opensSeal != nil {
             plan.amount = 1
             return plan
         }
-        // Base rule. A key only ever goes into its own seal (handled above).
-        guard !top.isKey else { return nil }
+        // Base rule, on the plan's layer. A key only ever goes into its own seal (above).
+        guard !plan.layer.isKey else { return nil }
         guard target.freeSpace > 0 else { return nil }
-        if let targetTop = target.topLayer, targetTop != top { return nil }
+        if let targetTop = target.topLayer, targetTop != plan.layer { return nil }
         plan.amount = min(min(movableRunCount(source), target.freeSpace), plan.limit)
         return plan.amount > 0 ? plan : nil
+    }
+
+    /// Step 1 of `resolve` for a pour: the finished plan for `move` in `state`, or nil if
+    /// the move is illegal. This is the single legality check: `resolve` and `isLegal`
+    /// (hence `canPour` and `legalMoves`) both use it, so they can't disagree. R5 links
+    /// that veto or extend a pour (twins, overflow, gates) are checked here.
+    @inline(__always)
+    static func actionPlan(for move: Move, in state: GameState) -> PourPlan? {
+        guard move.from != move.to,
+              state.bottles.indices.contains(move.from),
+              state.bottles.indices.contains(move.to) else { return nil }
+        return plan(from: state.bottles[move.from], to: state.bottles[move.to])
     }
 
     /// The source and target bottles after pouring `source` into `target`, or nil if
@@ -157,7 +185,9 @@ public enum Rules {
     /// 1. The action (a pour; R5: twins / overflow extend it here).
     /// 2. Immediate effects: unseal (A1). R5: mixing (E1), switch gates (A3). Murky
     ///    reveals (B1) are display state in `GameSession`.
-    /// 3. `moveCount += 1`, only if the state stores a move counter.
+    /// 3. `moveCount += 1`, only if the state stores a move counter, and only up to
+    ///    `moveCountLimit` (a counter past every limit a rule reads is one dead value, so
+    ///    the state graph stays finite).
     /// 4. Timed effects: corks (A2) → thaw (D1) → bubbling (D2) → evaporation (D4) →
     ///    conveyor (D3). None is implemented yet.
     /// 5. Immediate effects again if a timed effect changed anything.
@@ -166,35 +196,43 @@ public enum Rules {
     /// Returns nil if the action is illegal.
     public static func resolve(_ state: GameState, afterAction action: Action) -> Turn? {
         var next = state
-        // 1. The player's action.
+        // 1. The player's action (`actionPlan` is also what `isLegal` checks).
         var opened: (bottle: Int, key: KeyID)?
         switch action {
         case .pour(let move):
-            guard move.from != move.to,
-                  state.bottles.indices.contains(move.from),
-                  state.bottles.indices.contains(move.to),
-                  let t = transfer(from: state.bottles[move.from], to: state.bottles[move.to]) else { return nil }
+            guard let plan = actionPlan(for: move, in: state) else { return nil }
+            let t = transfer(plan, from: state.bottles[move.from], to: state.bottles[move.to])
             next.bottles[move.from] = t.source
             next.bottles[move.to] = t.target
             if let key = t.openedSeal { opened = (move.to, key) }
         }
-        // 2. Immediate effects.
-        if let opened { unseal(&next.bottles[opened.bottle], key: opened.key) }
+        // 2. Immediate effects (unseal, then everything that follows from the state).
+        applyImmediateEffects(&next, opened: opened)
         // 3. Move counter.
-        if let n = next.moveCount { next.moveCount = n + 1 }
+        if let n = next.moveCount, n < moveCountLimit(next) { next.moveCount = n + 1 }
         // 4. + 5. Timed effects, then immediate effects again.
-        if applyTimedEffects(&next) { applyImmediateEffects(&next) }
+        if applyTimedEffects(&next) { applyImmediateEffects(&next, opened: nil) }
         // 6. Goal.
         return Turn(state: next, isWon: isWon(next))
     }
 
-    /// Whether `move` is legal in `state` (step 1 of `resolve` succeeds).
+    /// Whether `move` is legal in `state`: step 1 of `resolve` succeeds (same check).
     public static func isLegal(_ move: Move, in state: GameState) -> Bool {
-        guard move.from != move.to,
-              state.bottles.indices.contains(move.from),
-              state.bottles.indices.contains(move.to) else { return false }
-        // R5: links that can veto a pour (twins) are checked here.
-        return plan(from: state.bottles[move.from], to: state.bottles[move.to]) != nil
+        actionPlan(for: move, in: state) != nil
+    }
+
+    /// The value at which `GameState.moveCount` stops counting: one past the largest
+    /// count any rule of `state` distinguishes. Rescue (R7): `withinMoves + 1` (every
+    /// count beyond means "too late"). With no rule reading the counter it is 0, so a
+    /// stored counter never changes. A new rule that reads the counter (corks, A2)
+    /// raises this to its own bound; an unbounded counter would make every position
+    /// reached at a different depth a new state, so the solver could never prove a
+    /// level unsolvable.
+    public static func moveCountLimit(_ state: GameState) -> Int {
+        switch state.goal {
+        case .rescue(let n): return n < Int.max ? n + 1 : n
+        case .standard, .order, .pattern: return 0
+        }
     }
 
     /// Unseal (A1): the key poured into a seal opens it.
@@ -206,10 +244,14 @@ public enum Rules {
         }
     }
 
-    /// Immediate effects that follow from the state alone (step 2/5 of `resolve`).
-    /// Unseal is driven by the pour itself, so this has nothing to do yet.
-    /// R5: mixing (E1), switch gates (A3).
-    static func applyImmediateEffects(_ state: inout GameState) {}
+    /// Immediate effects, steps 2 and 5 of `resolve` (both run this same function, so an
+    /// effect added here applies after every pour, not only after timed effects).
+    /// Unseal (A1) is driven by the pour (`opened`: the bottle and the key poured into
+    /// its seal; nil in step 5). R5: mixing (E1) and switch gates (A3) go after it.
+    @inline(__always)
+    static func applyImmediateEffects(_ state: inout GameState, opened: (bottle: Int, key: KeyID)?) {
+        if let opened { unseal(&state.bottles[opened.bottle], key: opened.key) }
+    }
 
     /// Step 4 of `resolve`. Returns whether anything changed. Each timed mechanic
     /// becomes one step here, run only when the state carries its modifier.
