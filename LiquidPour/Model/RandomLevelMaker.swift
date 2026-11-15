@@ -1,0 +1,114 @@
+import BottleSortCore
+import Foundation
+import Observation
+
+extension GameMode {
+    var title: String {
+        switch self {
+        case .classic: return "Classic"
+        case .locksAndKeys: return "Locks & Keys"
+        case .hidden: return "Hidden layers"
+        }
+    }
+
+    var blurb: String {
+        switch self {
+        case .classic: return "Sort every color into its own bottle."
+        case .locksAndKeys: return "Locked bottles open when you pour their key into them. Keys move alone."
+        case .hidden: return "Layers below the top are shown as “?” until you uncover them."
+        }
+    }
+}
+
+/// Last-used Random Level settings, kept in UserDefaults. Launch arguments such as
+/// `-random.colors 8` override them for one run (UserDefaults argument domain).
+enum RandomSettings {
+    static let modeKey = "random.mode"
+    static let colorsKey = "random.colors"
+    static let capacityKey = "random.capacity"
+    static let emptyKey = "random.empty"
+    static let locksKey = "random.locks"
+
+    static func load(_ defaults: UserDefaults = .standard) -> RandomLevelOptions {
+        let base = RandomLevelOptions()
+        func int(_ key: String, _ fallback: Int) -> Int {
+            defaults.object(forKey: key) == nil ? fallback : defaults.integer(forKey: key)
+        }
+        return RandomLevelOptions(
+            mode: defaults.string(forKey: modeKey).flatMap(GameMode.init(rawValue:)) ?? base.mode,
+            colors: int(colorsKey, base.colors),
+            capacity: int(capacityKey, base.capacity),
+            emptyBottles: int(emptyKey, base.emptyBottles),
+            locks: int(locksKey, base.locks)
+        ).clamped
+    }
+
+    static func save(_ options: RandomLevelOptions, _ defaults: UserDefaults = .standard) {
+        defaults.set(options.mode.rawValue, forKey: modeKey)
+        defaults.set(options.colors, forKey: colorsKey)
+        defaults.set(options.capacity, forKey: capacityKey)
+        defaults.set(options.emptyBottles, forKey: emptyKey)
+        defaults.set(options.locks, forKey: locksKey)
+    }
+
+    /// Bottles a level with these options will have (lock levels get one extra, partly filled bottle).
+    static func bottleCount(_ options: RandomLevelOptions) -> Int {
+        let o = options.clamped
+        return o.colors + o.emptyBottles + (o.mode == .locksAndKeys ? 1 : 0)
+    }
+}
+
+/// Runs `RandomLevel.generate` off the main thread and publishes its progress.
+/// The core is deterministic for a seed; the fresh seed comes from the system RNG here.
+@MainActor
+@Observable
+final class RandomLevelMaker {
+    enum Phase: Equatable {
+        case idle
+        case generating(attempt: Int, of: Int)
+        case failed
+    }
+
+    private(set) var phase: Phase = .idle
+    private var generation = 0
+
+    var isGenerating: Bool { if case .generating = phase { return true } else { return false } }
+
+    static let failureMessage = "Couldn't find a solvable level in \(RandomLevel.defaultMaxAttempts) tries — try more empty bottles or fewer colors"
+
+    /// Generates a level and passes it to `completion` (on the main actor). On failure
+    /// `phase` becomes `.failed`. `seed` defaults to a fresh random seed.
+    func generate(_ options: RandomLevelOptions, seed: UInt64? = nil,
+                  completion: @escaping (LevelDefinition) -> Void) {
+        guard !isGenerating else { return }
+        generation += 1
+        let id = generation
+        let seed = seed ?? UInt64.random(in: 1...999_999_999)
+        phase = .generating(attempt: 1, of: RandomLevel.defaultMaxAttempts)
+        Task {
+            let result = await Task.detached(priority: .userInitiated) {
+                RandomLevel.generate(options, seed: seed) { attempt, max in
+                    Task { @MainActor in self.report(attempt: attempt, of: max, generation: id) }
+                }
+            }.value
+            guard id == self.generation else { return }   // cancelled meanwhile
+            if let level = result.level {
+                self.phase = .idle
+                completion(level)
+            } else {
+                self.phase = .failed
+            }
+        }
+    }
+
+    /// Forgets any running generation (its result is dropped) and resets the phase.
+    func cancel() {
+        generation += 1
+        phase = .idle
+    }
+
+    private func report(attempt: Int, of max: Int, generation id: Int) {
+        guard id == generation, isGenerating else { return }
+        phase = .generating(attempt: attempt, of: max)
+    }
+}
