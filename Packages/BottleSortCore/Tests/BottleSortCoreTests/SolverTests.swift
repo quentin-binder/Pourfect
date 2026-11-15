@@ -53,6 +53,18 @@ import Testing
         guard case .unknown(.timeout) = result else { Issue.record("expected timeout, got \(result)"); return }
     }
 
+    @Test func cancelledTaskGivesUnknown() async {
+        let start = Generator.candidate(GeneratorConfig(colors: 10, capacity: 4, emptyBottles: 2), seed: 3)
+        let task = Task.detached { () -> SolverResult in
+            while !Task.isCancelled { await Task.yield() }
+            return Solver().solve(start)
+        }
+        task.cancel()
+        let result = await task.value
+        guard case .unknown(.cancelled(let explored)) = result else { Issue.record("expected cancelled, got \(result)"); return }
+        #expect(explored == 4096)
+    }
+
     /// Pruning safety: on many random small puzzles the solver's optimum equals
     /// the unpruned, uncanonicalized reference BFS, and its moves replay to a win.
     @Test(arguments: [(3, 3, 2), (3, 4, 2), (4, 3, 2), (3, 4, 1), (4, 4, 1)])

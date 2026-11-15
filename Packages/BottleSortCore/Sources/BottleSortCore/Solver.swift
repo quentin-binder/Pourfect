@@ -1,7 +1,8 @@
 public struct SolverLimits: Sendable, Hashable {
     /// Maximum number of distinct states to visit before giving up.
     public var maxStates: Int
-    /// Optional wall-clock limit.
+    /// Optional wall-clock limit. Makes the result depend on machine speed, so leave it
+    /// nil where results must be reproducible (e.g. random level generation).
     public var timeout: Duration?
 
     public init(maxStates: Int = 2_000_000, timeout: Duration? = nil) {
@@ -20,6 +21,8 @@ public enum SolverResult: Sendable, Hashable {
     public enum UnknownReason: Sendable, Hashable {
         case stateLimit(statesExplored: Int)
         case timeout(statesExplored: Int)
+        /// The calling task was cancelled (checked every 4096 states).
+        case cancelled(statesExplored: Int)
         case unsupportedState   // doesn't fit the packed StateKey encoding
     }
 
@@ -70,8 +73,13 @@ public struct Solver: Sendable {
                     if visited.count >= limits.maxStates {
                         return .unknown(reason: .stateLimit(statesExplored: visited.count))
                     }
-                    if let deadline, visited.count & 0xFFF == 0, ContinuousClock.now > deadline {
-                        return .unknown(reason: .timeout(statesExplored: visited.count))
+                    if visited.count & 0xFFF == 0 {
+                        if Task.isCancelled {
+                            return .unknown(reason: .cancelled(statesExplored: visited.count))
+                        }
+                        if let deadline, ContinuousClock.now > deadline {
+                            return .unknown(reason: .timeout(statesExplored: visited.count))
+                        }
                     }
                     next.append((child, childIndex))
                 }

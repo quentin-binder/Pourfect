@@ -40,6 +40,24 @@ private final class Calls: @unchecked Sendable {
         #expect((1...6).contains(result.attempts.count))
     }
 
+    /// A wall-clock timeout would make the outcome depend on device speed (DECISIONS #46).
+    @Test func defaultLimitsHaveNoTimeout() {
+        #expect(RandomLevel.defaultLimits.timeout == nil)
+        #expect(RandomLevel.defaultLimits.maxStates == 1_000_000)
+    }
+
+    @Test func cancelledTaskStopsBeforeTheFirstAttempt() async {
+        let options = RandomLevelOptions(mode: .classic, colors: 4, capacity: 4, emptyBottles: 2)
+        let task = Task.detached { () -> RandomLevelResult in
+            while !Task.isCancelled { await Task.yield() }
+            return RandomLevel.generate(options, seed: 7, limits: Self.limits)
+        }
+        task.cancel()
+        let result = await task.value
+        #expect(result.level == nil)
+        #expect(result.attempts.isEmpty)
+    }
+
     @Test func deterministicForSameSeed() throws {
         let options = RandomLevelOptions(mode: .locksAndKeys, colors: 4, capacity: 3, emptyBottles: 1, locks: 2)
         let a = RandomLevel.generate(options, seed: 42, limits: Self.limits)

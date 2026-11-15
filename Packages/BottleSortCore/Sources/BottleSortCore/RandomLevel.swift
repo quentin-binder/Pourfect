@@ -78,8 +78,10 @@ public struct RandomLevelResult: Sendable, Hashable {
 /// Random level generation for the app (no difficulty filtering).
 public enum RandomLevel {
     public static let defaultMaxAttempts = 6
-    /// Default solver limits per attempt (sized for an on-device background task).
-    public static let defaultLimits = SolverLimits(maxStates: 1_000_000, timeout: .seconds(4))
+    /// Default solver limits per attempt: a state cap only, no wall-clock timeout, so the
+    /// result for a seed is the same on every device (about 5 s per attempt at worst in
+    /// release on an M-series Mac). Callers stop a long run by cancelling the task.
+    public static let defaultLimits = SolverLimits(maxStates: 1_000_000)
 
     /// Tries up to `maxAttempts` generator candidates (seeds `seed`, `seed + 1`, …).
     /// A candidate is rejected if any bottle is already sorted, or the solver
@@ -90,6 +92,10 @@ public enum RandomLevel {
     ///
     /// `progress` is called before each attempt with (attempt number, maxAttempts),
     /// e.g. to show "attempt 2/6".
+    ///
+    /// Deterministic for a seed as long as `limits` has no timeout and the task is not
+    /// cancelled. If the calling task is cancelled, the running solve stops (its attempt
+    /// counts as `.unknown`) and no further attempts are made.
     public static func generate(_ options: RandomLevelOptions, seed: UInt64,
                                 maxAttempts: Int = defaultMaxAttempts,
                                 limits: SolverLimits = defaultLimits,
@@ -98,6 +104,7 @@ public enum RandomLevel {
         let config = options.generatorConfig(limits: limits)
         var attempts: [RandomLevelAttempt] = []
         for i in 0..<max(0, maxAttempts) {
+            if Task.isCancelled { break }
             progress?(i + 1, maxAttempts)
             let attemptSeed = seed &+ UInt64(i)
             let state = Generator.candidate(config, seed: attemptSeed)
