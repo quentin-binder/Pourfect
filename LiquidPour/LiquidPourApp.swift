@@ -8,7 +8,7 @@ struct LiquidPourApp: App {
     @State private var settings = AppSettings(store: UserDefaultsSettingsStore())
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup("Pourfect") {
             RootView()
                 .environment(catalog)
                 .environment(progress)

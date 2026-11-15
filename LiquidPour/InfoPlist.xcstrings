@@ -1,0 +1,30 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "CFBundleDisplayName" : {
+      "comment" : "Name shown under the app icon and in Finder",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourfect"
+          }
+        }
+      }
+    },
+    "CFBundleName" : {
+      "comment" : "Short app name; the Mac menu bar shows it (About, Hide, Quit). The target stays LiquidPour until R8.",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pourfect"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}
