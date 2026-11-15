@@ -64,5 +64,11 @@ Short entries, newest at the bottom.
 59. **No Game Center, iCloud or notifications.** The user has a developer account but doesn't want them; the daily puzzle works fully offline. TestFlight may come later.
 60. **English only**, but all UI text goes through a String catalog so languages can be added cheaply.
 61. **Design docs are tracked.** `FUTURE_FEATURES.md` and `MECHANICS.md` are committed (they still mention the removed prototype spec by name).
-62. **Daily seed = UTC calendar date** so every player gets the same puzzle on the same day regardless of time zone. *(Default; open to change.)*
-63. **Chapter gate:** a chapter unlocks when the previous chapter has at least half of its possible stars. *(Default; open to change.)*
+62. **Daily seed = UTC calendar date** so every player gets the same puzzle on the same day regardless of time zone (user-confirmed).
+63. **Chapter gate:** a chapter unlocks when the previous chapter has at least half of its possible stars (user-confirmed).
+64. **Hints in murky levels** stay unlimited on the main path (user-confirmed).
+65. **Mixing-cauldron levels** are built backwards from a solved board, then verified by the solver (user-confirmed exception to "no backward scrambling").
+66. **Bundle id `dev.qbi.pourfect`** (from the user's domain qbi.dev), applied now. Saved progress from the old placeholder id doesn't carry over.
+67. **Assets:** sounds, vector art, runes and the app icon are generated in code/SVG; raster art (painted backgrounds, portraits) is listed for the user to supply later as an upgrade.
+68. **Roadmap workflow:** each R-step ends with a Mac-app test checklist for the user; it's pushed to GitHub only after the user's OK.
+
