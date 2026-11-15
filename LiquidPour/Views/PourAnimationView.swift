@@ -21,6 +21,7 @@ struct PourPose {
     var streamTail: Double = 0
     var sourceSlosh: Double = 0   // surface rock, radians
     var targetSlosh: Double = 0
+    var corkOff: Double = 0       // a completed source's cork pops off before it tilts
 
     static let duration = 1.1
     static let reducedDuration = 0.4
@@ -36,6 +37,7 @@ struct PourPose {
         if reduceMotion {
             p.returning = true   // source stays in its resting slot
             p.flow = ease(t, 0, reducedDuration)
+            p.corkOff = ease(t, 0, reducedDuration / 3)
             return p
         }
         p.returning = t > 0.6
@@ -43,6 +45,7 @@ struct PourPose {
         p.rise = p.returning ? 1 - ease(t, 0.84, 1.0) : ease(t, 0, 0.24)
         p.tilt = t < 0.6 ? ease(t, 0.12, 0.36) : 1 - ease(t, 0.72, 0.95)
         p.flow = ease(t, flowStart, flowEnd)
+        p.corkOff = ease(t, 0.02, 0.22)
         p.streamHead = ease(t, 0.30, 0.42)
         p.streamTail = ease(t, 0.64, 0.78)   // leaves the lip before the bottle moves away
         let settle = 1 - ease(t, 1.0, duration)   // guarantees a flat surface at the end
@@ -75,6 +78,7 @@ struct PourAnimationView: View {
     let reduceMotion: Bool
     let onFinish: () -> Void
 
+    @Environment(\.colorRunesEnabled) private var runesEnabled
     @State private var start = Date()
 
     private var duration: Double { reduceMotion ? PourPose.reducedDuration : PourPose.duration }
@@ -117,7 +121,8 @@ struct PourAnimationView: View {
             }
 
             bottle(segments: sourceSegments(pose.flow), frame: sourceFrame,
-                   gravity: angle * .pi / 180 + pose.sourceSlosh)
+                   gravity: angle * .pi / 180 + pose.sourceSlosh,
+                   corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil)
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
                 .rotationEffect(.degrees(angle), anchor: right ? .topTrailing : .topLeading)
                 // The rotation anchor is the pouring lip, so place the frame by that corner.
@@ -134,8 +139,9 @@ struct PourAnimationView: View {
 
     /// `lock`/`unlock`: a locked target shows its lock (and dimmed contents) until the key
     /// lands; then the lock pops away (`unlock` 0 → 1).
+    /// `corkOff`: a cork on a completed source, 0 = seated … 1 = popped off and gone.
     private func bottle(segments: [LiquidSegment], frame: CGRect, gravity: Double,
-                        lock: KeyID? = nil, unlock: Double = 0) -> some View {
+                        lock: KeyID? = nil, unlock: Double = 0, corkOff: Double? = nil) -> some View {
         let shape = BottleView.shape(width: frame.width)
         return ZStack {
             // Opaque backing so bottles the flying one passes in front of don't show through.
@@ -144,6 +150,8 @@ struct PourAnimationView: View {
             TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: frame.width),
                          gravity: gravity)
                 .clipShape(shape)
+                .potionGlow(width: frame.width)
+            GlassSheen(width: frame.width)
             if let lock {
                 shape.fill(BottleView.lockedDim.opacity(1 - unlock))
                 BottleView.lockBadge(lock, width: frame.width)
@@ -153,6 +161,15 @@ struct PourAnimationView: View {
             shape.strokeBorder(BottleView.outlineColor, lineWidth: 2)
         }
         .frame(width: frame.width, height: frame.height)
+        .overlay(alignment: .top) {
+            // Same place as `BottleView`'s cork; pops up and fades like its removal transition.
+            if let corkOff, corkOff < 1 {
+                Cork(width: frame.width)
+                    .scaleEffect(1 - 0.2 * corkOff)
+                    .offset(y: Cork.offsetY(width: frame.width) - frame.width * 0.7 * corkOff)
+                    .opacity(1 - corkOff)
+            }
+        }
     }
 
     /// Layer `index` of a bottle whose bottom `hidden` layers show as "?", drawn like `BottleView`
@@ -162,7 +179,13 @@ struct PourAnimationView: View {
         if case .key(let key) = layer {
             return LiquidSegment(color: layer.liquidColor, fraction: fraction, glyph: .key(Palette.keyColor(key.rawValue)))
         }
-        return LiquidSegment(color: layer.liquidColor, fraction: fraction)
+        return LiquidSegment(color: layer.liquidColor, fraction: fraction, rune: rune(for: layer))
+    }
+
+    /// The layer's colorblind rune, when runes are on (never on key layers).
+    private func rune(for layer: Layer) -> Rune? {
+        guard runesEnabled, case .color(let id) = layer else { return nil }
+        return Rune(colorIndex: id.rawValue)
     }
 
     /// Source keeps its layers; the poured top layers shrink as `flow` grows.
@@ -183,7 +206,8 @@ struct PourAnimationView: View {
             segment(layer, index: i, hidden: event.targetHiddenBefore, fraction: 1)
         }
         if event.isKey { return kept }
-        return kept + Array(repeating: LiquidSegment(color: color, fraction: flow), count: event.amount)
+        return kept + Array(repeating: LiquidSegment(color: color, fraction: flow, rune: rune(for: event.layer)),
+                            count: event.amount)
     }
 
     // MARK: Key pour

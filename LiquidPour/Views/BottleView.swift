@@ -11,6 +11,13 @@ struct BottleView: View {
     var isSelected = false
     var hintRole: HintRole?
     var shakes = 0
+    /// Goes up each time this bottle becomes complete (`GameViewModel.completions`): the cork
+    /// drops in and sparkles burst out of the mouth.
+    var completions = 0
+
+    @Environment(\.colorRunesEnabled) private var runesEnabled
+    @Environment(\.effectiveReduceMotion) private var reduceMotion
+    @State private var burst: Date?
 
     enum HintRole { case source, target }
 
@@ -49,7 +56,8 @@ struct BottleView: View {
             VStack(spacing: 0) {
                 // One view per run of identical visible layers, so a run shares one gradient.
                 ForEach(runs.reversed(), id: \.start) { run in
-                    LayerView(layer: run.layer, hidden: run.hidden, height: layerHeight)
+                    LayerView(layer: run.layer, hidden: run.hidden, count: run.count, height: layerHeight,
+                              width: width, runes: runesEnabled)
                         .frame(height: CGFloat(run.count) * layerHeight)
                         .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                                 removal: .opacity))
@@ -60,6 +68,8 @@ struct BottleView: View {
             // This matches `TiltedLiquid` in the pour animation.
             .frame(width: width, height: height, alignment: .bottom)
             .clipShape(shape)
+            .potionGlow(width: width)
+            GlassSheen(width: width)
             if let key = bottle.lockedBy {
                 shape.fill(Self.lockedDim)
                 Self.lockBadge(key, width: width)
@@ -69,11 +79,45 @@ struct BottleView: View {
             shape.strokeBorder(outline, lineWidth: isSelected || hintRole != nil ? 3 : 2)
         }
         .frame(width: width, height: height)
+        .overlay(alignment: .top) { cork }
+        .overlay(alignment: .top) { sparkles }
+        .onChange(of: completions) {
+            // Sparkles start as the cork lands.
+            if !reduceMotion { burst = Date().addingTimeInterval(0.12) }
+        }
         .offset(y: isSelected ? -width * 0.3 : 0)
         .modifier(ShakeEffect(animatableData: CGFloat(shakes)))
         .animation(.easeInOut(duration: 0.35), value: shakes)
         .shadow(color: hintRole != nil ? .yellow.opacity(0.8) : .clear, radius: 8)
         .contentShape(Rectangle())
+    }
+
+    // MARK: Completed flask
+
+    private var isCompleted: Bool { Rules.isCompleted(bottle) }
+
+    /// The cork sits in the mouth while the flask is complete. It drops in when the pour that
+    /// completed it lands (`completions` changes) and pops off when the flask stops being complete.
+    @ViewBuilder private var cork: some View {
+        if isCompleted {
+            Cork(width: width)
+                .corkDrop(width: width, trigger: reduceMotion ? 0 : completions)
+                .offset(y: Cork.offsetY(width: width))
+                .transition(reduceMotion ? .opacity : .asymmetric(
+                    insertion: .opacity,
+                    removal: .offset(y: -width * 0.7).combined(with: .scale(scale: 0.8)).combined(with: .opacity)))
+        }
+    }
+
+    @ViewBuilder private var sparkles: some View {
+        if let burst, case .color(let id)? = bottle.layers.last {
+            SparkleBurst(start: burst, color: Palette.color(id.rawValue), width: width)
+                .offset(y: -SparkleBurst.size(width: width).height / 2)   // centered on the mouth
+                .task(id: burst) {
+                    try? await Task.sleep(for: .seconds(burst.timeIntervalSinceNow + SparkleBurst.duration))
+                    if self.burst == burst { self.burst = nil }
+                }
+        }
     }
 
     /// Consecutive layers drawn as one band: same color and both visible. Hidden ("?") and
@@ -111,7 +155,11 @@ struct BottleView: View {
 private struct LayerView: View {
     let layer: Layer
     let hidden: Bool
+    /// Layers in this run (one rune is drawn per layer).
+    let count: Int
     let height: CGFloat
+    let width: CGFloat
+    let runes: Bool
 
     var body: some View {
         face
@@ -123,6 +171,15 @@ private struct LayerView: View {
         switch layer {
         case .color(let id):
             Rectangle().fill(Palette.color(id.rawValue).gradient)
+                .overlay {
+                    if runes, let rune = Rune(colorIndex: id.rawValue) {
+                        VStack(spacing: 0) {
+                            ForEach(0..<count, id: \.self) { _ in
+                                RuneView(rune: rune, scale: 0.5).frame(width: width, height: height)
+                            }
+                        }
+                    }
+                }
         case .key(let key):
             Rectangle().fill(Palette.keyLayer)
                 .overlay {

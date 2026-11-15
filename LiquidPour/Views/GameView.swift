@@ -38,6 +38,12 @@ struct GameView: View {
         .task {
             let k = UserDefaults.standard.integer(forKey: "LPDemoMoves")
             if k > 0 { await model.debugPlayOptimal(moves: k) }
+            // `-LPDemoUndo N`: then undoes N moves, one per second (to check corks popping off).
+            for _ in 0..<UserDefaults.standard.integer(forKey: "LPDemoUndo") {
+                while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
+                try? await Task.sleep(for: .seconds(1))
+                withAnimation(.easeInOut(duration: 0.3)) { model.undo() }
+            }
         }
         #endif
     }
@@ -108,7 +114,9 @@ struct GameView: View {
                                        hiddenLayers: model.hiddenLayerCount(index),
                                        isSelected: model.selected == index,
                                        hintRole: hintRole(for: index),
-                                       shakes: model.shakes.indices.contains(index) ? model.shakes[index] : 0)
+                                       shakes: model.shakes.indices.contains(index) ? model.shakes[index] : 0,
+                                       completions: model.completions.indices.contains(index)
+                                           ? model.completions[index] : 0)
                         }
                         .buttonStyle(.plain)
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }

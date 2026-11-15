@@ -14,6 +14,9 @@ struct LiquidSegment {
     var color: Color
     var fraction: CGFloat
     var glyph: Glyph? = nil
+    /// Colorblind rune drawn on this layer. Unlike glyphs, runes don't stop a run of equal
+    /// layers from merging into one band: they are drawn per layer, on top of the bands.
+    var rune: Rune? = nil
 }
 
 /// Liquid inside a bottle whose surface stays level with the world while the bottle tilts.
@@ -56,6 +59,33 @@ struct TiltedLiquid: View {
                 }
                 bottom = top
             }
+            if segments.contains(where: { $0.rune != nil }) {
+                drawRunes(in: context, corners: corners, depth: depth, range: highest...deepest,
+                          width: size.width)
+            }
+        }
+    }
+
+    /// One rune per layer (also inside merged bands), at the center of that layer's own slice,
+    /// the same size as `BottleView`'s; it shrinks with a draining or filling layer.
+    private func drawRunes(in context: GraphicsContext, corners: [CGPoint], depth: (CGPoint) -> CGFloat,
+                           range: ClosedRange<CGFloat>, width: CGFloat) {
+        var bottom = range.upperBound + 1
+        var area: CGFloat = 0
+        for segment in segments where segment.fraction > 0.001 {
+            area += segment.fraction * layerHeight * width
+            let top = Self.level(forArea: area, in: corners, depth: depth, range: range)
+            if let rune = segment.rune, segment.fraction > 0.25 {
+                var slice = Self.clip(corners) { depth($0) - top }
+                slice = Self.clip(slice) { bottom - depth($0) }
+                if slice.count >= 3 {
+                    let center = Self.center(of: slice)
+                    let side = layerHeight * 0.5 * min(segment.fraction, 1)
+                    rune.draw(in: context, rect: CGRect(x: center.x - side / 2, y: center.y - side / 2,
+                                                        width: side, height: side))
+                }
+            }
+            bottom = top
         }
     }
 

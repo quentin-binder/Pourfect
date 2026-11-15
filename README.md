@@ -101,12 +101,14 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPOpenPack P` | With `-LPOpenLevel`: which pack (1-based, default 1 = Starter). |
 | `-LPUnlockAll 1` | Makes every pack level playable in the grid (saved stars are untouched). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). |
+| `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
 | `-LPRandomSettings 1` | Opens the Random Level screen. |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
 | `-LPRandomSeed S` | Seed for `-LPRandomMode` (default 1), so the same level comes back every time. |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
 | `-LPExportSounds DIR` | Writes every synthesized sound to `DIR` as WAV files (to listen to or inspect them). |
+| `-settings.colorRunes 1`, `-settings.sound 0`, `-settings.reduceMotion always\|never\|system` | Override a setting for this run (not saved unless changed in Settings). |
 | `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Level settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
 
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
