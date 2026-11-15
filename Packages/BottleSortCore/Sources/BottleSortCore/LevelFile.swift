@@ -3,10 +3,18 @@ import Foundation
 /// A level pack file (`Levels/*.json`).
 ///
 /// Every field but `version` and `levels` is optional, so older files still load.
+///
+/// Format versions: **1** = colors, keys and seals (`lockedBy`), murky flag. **2** adds
+/// flask `modifiers`, level `links` and a `goal`. `LevelLoader.encode` writes version 2
+/// only when a level uses something version 1 can't express (`requiredVersion`), so
+/// classic and sealed packs stay byte-identical version-1 files.
 /// The app shows packs as *chapters* (main path, star-gated, see `ChapterGate`)
 /// or *challenges* (optional, never gated).
 public struct LevelPack: Codable, Sendable, Hashable {
+    /// The version written by default (and by `LevelLoader.encode` when nothing needs more).
     public static let currentVersion = 1
+    /// Every version this build reads.
+    public static let supportedVersions = 1...2
     public var version: Int
     /// Display name, e.g. "Apprentice Cellar" or "Challenger". Optional; the app falls back to the file name.
     public var name: String?
@@ -33,6 +41,11 @@ public struct LevelPack: Codable, Sendable, Hashable {
         self.location = location
         self.introduces = introduces
         self.levels = levels
+    }
+
+    /// The lowest format version that can express every level in the pack.
+    public var requiredVersion: Int {
+        levels.contains(where: \.needsVersion2) ? 2 : 1
     }
 
     /// Whether this pack is part of the star-gated main path.
@@ -88,40 +101,72 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var bottles: [BottleDefinition]
     /// Hidden-layers mode (display only). JSON key `"hidden"`, omitted when false.
     public var hidden: Bool?
+    /// v2: links between flasks (by index in `bottles`). Omitted when empty.
+    public var links: [Link]?
+    /// v2: the win condition. Omitted for `.standard`.
+    public var goal: Goal?
     public var meta: LevelMeta?
 
-    public init(id: String, capacity: Int, bottles: [BottleDefinition], hidden: Bool = false, meta: LevelMeta? = nil) {
+    public init(id: String, capacity: Int, bottles: [BottleDefinition], hidden: Bool = false,
+                links: [Link] = [], goal: Goal = .standard, meta: LevelMeta? = nil) {
         self.id = id
         self.capacity = capacity
         self.bottles = bottles
         self.hidden = hidden ? true : nil
+        self.links = links.isEmpty ? nil : links
+        self.goal = goal == .standard ? nil : goal
         self.meta = meta
     }
 
     public init(id: String, state: GameState, hidden: Bool = false, meta: LevelMeta? = nil) {
         self.init(id: id,
                   capacity: state.bottles.first?.capacity ?? 0,
-                  bottles: state.bottles.map { BottleDefinition(layers: $0.layers, lockedBy: $0.lockedBy) },
+                  bottles: state.bottles.map { BottleDefinition(layers: $0.layers, modifiers: $0.modifiers) },
                   hidden: hidden,
+                  links: state.links,
+                  goal: state.goal,
                   meta: meta)
     }
 
     /// Whether the level is played with hidden layers.
     public var isHidden: Bool { hidden ?? false }
 
+    /// Whether the level uses something format version 1 can't express.
+    public var needsVersion2: Bool {
+        !(links ?? []).isEmpty || (goal ?? .standard) != .standard
+            || bottles.contains { !($0.modifiers ?? []).isEmpty }
+    }
+
     public var gameState: GameState {
-        GameState(bottles: bottles.map { Bottle(layers: $0.layers, capacity: capacity, lockedBy: $0.lockedBy) })
+        GameState(bottles: bottles.map { Bottle(layers: $0.layers, capacity: capacity, modifiers: $0.allModifiers) },
+                  links: links ?? [], goal: goal ?? .standard)
     }
 }
 
 public struct BottleDefinition: Codable, Sendable, Hashable {
     /// Bottom → top. Color layers are plain integers, keys are `{"key": n}`.
     public var layers: [Layer]
+    /// The flask's seal (the v1 form of `BottleModifier.sealed`).
     public var lockedBy: KeyID?
+    /// v2: every other modifier (`{"type": "essence", "color": 3}`, …). Omitted when empty.
+    public var modifiers: [BottleModifier]?
 
     public init(layers: [Layer], lockedBy: KeyID? = nil) {
         self.layers = layers
         self.lockedBy = lockedBy
+    }
+
+    /// Splits `modifiers` into the v1 `lockedBy` (first seal) and the v2 rest.
+    public init(layers: [Layer], modifiers: [BottleModifier]) {
+        let (lock, others) = Bottle.splitSeal(modifiers)
+        self.layers = layers
+        self.lockedBy = lock
+        self.modifiers = others.isEmpty ? nil : others
+    }
+
+    /// The seal plus every other modifier.
+    public var allModifiers: [BottleModifier] {
+        (modifiers ?? []) + (lockedBy.map { [.sealed($0)] } ?? [])
     }
 }
 
@@ -157,6 +202,8 @@ public enum LevelLoadError: Error, Hashable, CustomStringConvertible {
     case duplicateID(String)
     /// `kind` is "chapter" but `chapter` is missing or below 1.
     case missingChapterNumber
+    /// A version-1 file uses something only version 2 can express (modifiers, links, goal).
+    case needsVersion2(id: String)
 
     public var description: String {
         switch self {
@@ -164,19 +211,30 @@ public enum LevelLoadError: Error, Hashable, CustomStringConvertible {
         case let .invalidLevel(id, errors): return "level \(id): " + errors.map(\.description).joined(separator: "; ")
         case .duplicateID(let id): return "duplicate level id \(id)"
         case .missingChapterNumber: return "a chapter pack needs \"chapter\": n (n ≥ 1)"
+        case .needsVersion2(let id): return "level \(id) uses modifiers, links or a goal, which need \"version\": 2"
         }
     }
 }
 
 public enum LevelLoader {
-    /// Decodes a pack and validates every level.
-    public static func load(_ data: Data) throws -> LevelPack {
+    /// Decodes a pack and checks its structure (version, chapter number, unique ids)
+    /// without validating the levels against the rules.
+    public static func decode(_ data: Data) throws -> LevelPack {
         let pack = try JSONDecoder().decode(LevelPack.self, from: data)
-        guard pack.version == LevelPack.currentVersion else { throw LevelLoadError.unsupportedVersion(pack.version) }
+        guard LevelPack.supportedVersions.contains(pack.version) else { throw LevelLoadError.unsupportedVersion(pack.version) }
         if pack.kind == .chapter, (pack.chapter ?? 0) < 1 { throw LevelLoadError.missingChapterNumber }
         var seen = Set<String>()
         for level in pack.levels {
             guard seen.insert(level.id).inserted else { throw LevelLoadError.duplicateID(level.id) }
+            if pack.version < 2 && level.needsVersion2 { throw LevelLoadError.needsVersion2(id: level.id) }
+        }
+        return pack
+    }
+
+    /// Decodes a pack and validates every level.
+    public static func load(_ data: Data) throws -> LevelPack {
+        let pack = try decode(data)
+        for level in pack.levels {
             let errors = level.gameState.validate()
             if !errors.isEmpty { throw LevelLoadError.invalidLevel(id: level.id, errors: errors) }
         }
@@ -187,10 +245,13 @@ public enum LevelLoader {
         try load(Data(contentsOf: url))
     }
 
-    /// Pretty JSON with each bottle's layer list on one line.
+    /// Pretty JSON with each bottle's layer list on one line. The `version` written is
+    /// `pack.requiredVersion`: 1 unless a level needs version 2.
     public static func encode(_ pack: LevelPack) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        var pack = pack
+        pack.version = pack.requiredVersion
         let text = String(decoding: try encoder.encode(pack), as: UTF8.self)
         // Collapse layer lists (numbers and `{"key": n}` objects) onto a single line.
         let compact = text.replacing(/\[(?:[\s\d,\-]|\{\s*"key"\s*:\s*-?\d+\s*\})*\]/) { match in

@@ -260,8 +260,8 @@ import Testing
     }
 
     @Test func rejectsUnknownVersionAndDuplicates() {
-        let v2 = #"{"version": 2, "levels": []}"#
-        #expect(throws: LevelLoadError.unsupportedVersion(2)) { try LevelLoader.load(Data(v2.utf8)) }
+        let v3 = #"{"version": 3, "levels": []}"#
+        #expect(throws: LevelLoadError.unsupportedVersion(3)) { try LevelLoader.load(Data(v3.utf8)) }
         let dup = #"{"version": 1, "levels": [{"id": "a", "capacity": 1, "bottles": [{"layers": [0]}]}, {"id": "a", "capacity": 1, "bottles": [{"layers": [0]}]}]}"#
         #expect(throws: LevelLoadError.duplicateID("a")) { try LevelLoader.load(Data(dup.utf8)) }
     }
