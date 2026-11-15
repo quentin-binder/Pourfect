@@ -163,6 +163,64 @@ private func bottle(_ tokens: [Any], capacity: Int = 4, lockedBy: KeyID? = nil) 
                                     bottle([], capacity: 4, lockedBy: 1)])
         #expect(s.validate() == [.overfilled(bottle: 0, count: 5, capacity: 4), .duplicateLock(1)])
     }
+
+    /// Levels the solver can't encode are rejected at load time instead of
+    /// failing every hint with `.unsupportedState`.
+    @Test func idsAndCapacityMustFitTheSolverEncoding() {
+        let bigKey = GameState(bottles: [bottle([0, "k16"], capacity: 2), bottle([0], capacity: 2, lockedBy: 16),
+                                         bottle([], capacity: 2)])
+        #expect(bigKey.validate() == [.keyOutOfRange(16)])
+        let negativeKey = GameState(bottles: [bottle([0, "k-1"], capacity: 2), bottle([0], capacity: 2, lockedBy: -1),
+                                              bottle([], capacity: 2)])
+        #expect(negativeKey.validate() == [.keyOutOfRange(-1)])
+        #expect(state([Array(repeating: 0, count: 10), []], capacity: 10).validate() == [.invalidCapacity(10)])
+        #expect(state([[47, 47], []], capacity: 2).validate() == [.colorOutOfRange(47)])
+        // The largest encodable values are still accepted.
+        let edge = GameState(bottles: [bottle([46, "k15"], capacity: 2), bottle([46], capacity: 2, lockedBy: 15)])
+        #expect(edge.validate().isEmpty)
+        #expect(StateKey.canEncode(edge))
+    }
+
+    @Test func keyInsideItsOwnLockIsRejected() {
+        let s = GameState(bottles: [bottle([0, 0], capacity: 2), bottle(["k1"], capacity: 2, lockedBy: 1),
+                                    bottle([], capacity: 2)])
+        #expect(s.validate() == [.unopenableLock(1)])
+        guard case .unsolvable = Solver().solve(s) else { Issue.record("expected unsolvable"); return }
+    }
+
+    @Test func lockCycleIsRejected() {
+        // Key 1 is behind lock 2 and key 2 behind lock 1; key 3 sits behind that cycle too.
+        let s = GameState(bottles: [bottle(["k1", 0], capacity: 2, lockedBy: 2), bottle(["k2", 0], capacity: 2, lockedBy: 1),
+                                    bottle(["k3"], capacity: 2, lockedBy: 1), bottle([], capacity: 2, lockedBy: 3),
+                                    bottle([], capacity: 2)])
+        #expect(s.validate().contains(.unopenableLock(1)))
+        #expect(s.validate().contains(.unopenableLock(2)))
+        #expect(s.validate().contains(.unopenableLock(3)))
+    }
+
+    @Test func keyBehindAnOpenableLockIsAllowed() {
+        // Key 2 sits in the bottle locked by 1; key 1 is free (DECISIONS #33).
+        let s = GameState(bottles: [bottle(["k1", 0], capacity: 2), bottle(["k2", 0], capacity: 2, lockedBy: 1),
+                                    bottle([], capacity: 2, lockedBy: 2), bottle([], capacity: 2)])
+        #expect(s.validate().isEmpty)
+    }
+
+    @Test func loaderRejectsUnplayableLockLevels() {
+        let selfLock = """
+        {"version": 1, "levels": [{"id": "x", "capacity": 2,
+          "bottles": [{"layers": [0, 0]}, {"layers": [{"key": 1}], "lockedBy": 1}, {"layers": []}]}]}
+        """
+        #expect(throws: LevelLoadError.invalidLevel(id: "x", errors: [.unopenableLock(1)])) {
+            try LevelLoader.load(Data(selfLock.utf8))
+        }
+        let bigKey = """
+        {"version": 1, "levels": [{"id": "y", "capacity": 2,
+          "bottles": [{"layers": [0, {"key": 16}]}, {"layers": [0], "lockedBy": 16}, {"layers": []}]}]}
+        """
+        #expect(throws: LevelLoadError.invalidLevel(id: "y", errors: [.keyOutOfRange(16)])) {
+            try LevelLoader.load(Data(bigKey.utf8))
+        }
+    }
 }
 
 @Suite struct KeyCanonicalKeyTests {
