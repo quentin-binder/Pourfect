@@ -166,3 +166,12 @@ import Testing
         #expect(GameState(bottles: []).validate() == [.noBottles])
     }
 }
+
+@Suite struct StarRatingTests {
+    @Test func thresholds() {
+        #expect(StarRating.stars(moves: 10, minMoves: 10) == 3)
+        #expect(StarRating.stars(moves: 11, minMoves: 10) == 2)
+        #expect(StarRating.stars(moves: 13, minMoves: 10) == 2)
+        #expect(StarRating.stars(moves: 14, minMoves: 10) == 1)
+    }
+}
