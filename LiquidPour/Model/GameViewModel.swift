@@ -63,6 +63,7 @@ final class GameViewModel {
     /// Latest optimal solution, valid for `solutionState`. Lets Hint answer instantly.
     private var solution: (state: GameState, moves: [Move])?
     private var analysisTask: Task<Void, Never>?
+    private var hintTask: Task<Void, Never>?
     private var hintClearTask: Task<Void, Never>?
     private var pourCount = 0
     /// Taps received while a pour animates; replayed in order when it ends.
@@ -149,6 +150,7 @@ final class GameViewModel {
 
     func undo() {
         guard session.undo() else { return }
+        randomMaker.cancel()   // the player went back to the board: drop a pending new level
         cancelPour()
         selected = nil
         clearHint()
@@ -157,6 +159,7 @@ final class GameViewModel {
 
     func restart() {
         session.restart()
+        randomMaker.cancel()   // Replay while "New Random Level" runs: keep the replayed board
         cancelPour()
         selected = nil
         clearHint()
@@ -172,9 +175,10 @@ final class GameViewModel {
         }
         isThinking = true
         let current = state
-        Task {
+        hintTask?.cancel()
+        hintTask = Task {
             let result = await Self.solve(current)
-            guard current == self.state else { return }   // board changed meanwhile
+            guard !Task.isCancelled, current == self.state else { return }   // board changed meanwhile
             self.isThinking = false
             self.handle(result, for: current)
             switch result {
@@ -251,6 +255,7 @@ final class GameViewModel {
 
     private func afterStateChange() {
         analysisTask?.cancel()
+        hintTask?.cancel()
         isThinking = false
         if state.isSolved {
             let best = minMoves ?? moveCount
@@ -285,10 +290,13 @@ final class GameViewModel {
         }
     }
 
+    /// Solves off the main actor. Cancelling the calling task stops the solver too
+    /// (a detached task doesn't inherit cancellation, so it is forwarded).
     nonisolated private static func solve(_ state: GameState) async -> SolverResult {
-        await Task.detached(priority: .userInitiated) {
+        let work = Task.detached(priority: .userInitiated) {
             Solver().solve(state, limits: solverLimits)
-        }.value
+        }
+        return await withTaskCancellationHandler { await work.value } onCancel: { work.cancel() }
     }
 
     private func showHint(_ move: Move) {

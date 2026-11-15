@@ -23,6 +23,7 @@ struct GameView: View {
         .sensoryFeedback(.impact(weight: .light), trigger: model.invalidMoveCount)
         .sensoryFeedback(.success, trigger: showsResult && isWon) { _, won in won }
         .navigationTitle(model.title)
+        .onDisappear { model.randomMaker.cancel() }   // left the screen: stop generating
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

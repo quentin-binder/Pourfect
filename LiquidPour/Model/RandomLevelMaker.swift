@@ -71,6 +71,7 @@ final class RandomLevelMaker {
 
     private(set) var phase: Phase = .idle
     private var generation = 0
+    private var task: Task<Void, Never>?
 
     var isGenerating: Bool { if case .generating = phase { return true } else { return false } }
 
@@ -85,12 +86,14 @@ final class RandomLevelMaker {
         let id = generation
         let seed = seed ?? UInt64.random(in: 1...999_999_999)
         phase = .generating(attempt: 1, of: RandomLevel.defaultMaxAttempts)
-        Task {
-            let result = await Task.detached(priority: .userInitiated) {
+        task = Task {
+            let work = Task.detached(priority: .userInitiated) {
                 RandomLevel.generate(options, seed: seed) { attempt, max in
                     Task { @MainActor in self.report(attempt: attempt, of: max, generation: id) }
                 }
-            }.value
+            }
+            // Cancelling `task` stops the core generation too (it checks Task.isCancelled).
+            let result = await withTaskCancellationHandler { await work.value } onCancel: { work.cancel() }
             guard id == self.generation else { return }   // cancelled meanwhile
             if let level = result.level {
                 self.phase = .idle
@@ -101,8 +104,10 @@ final class RandomLevelMaker {
         }
     }
 
-    /// Forgets any running generation (its result is dropped) and resets the phase.
+    /// Stops any running generation (its result is dropped) and resets the phase.
     func cancel() {
+        task?.cancel()
+        task = nil
         generation += 1
         phase = .idle
     }
