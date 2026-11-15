@@ -107,6 +107,8 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - [x] Colorblind runes: one simple vector rune per color (12), drawn on every layer when enabled
 - [x] Settings screen: sound, haptics, colorblind runes, reduce-motion override; stored behind a `SettingsStore` protocol
 - [x] Tests: settings persistence; "flask completed" detection lives in core
+- [x] Review fixes: cork no longer dips into the liquid, Reduce Motion toggle doesn't replay drops, sound synthesis off the main thread, cancelled pours drop their delayed sounds/haptics
+- Not covered in R1: light-mode and iOS-device screenshots were not checked (iOS builds only); haptics are untested on hardware
 
 ## R2 — Pourfect theme & chapters (Milestone 2)
 - [ ] Rename to **Pourfect**: display name, window title, in-app titles. Code/module names stay neutral; the target/bundle id rename waits for R8

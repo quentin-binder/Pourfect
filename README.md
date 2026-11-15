@@ -186,8 +186,13 @@ with `LevelCatalog.loadBundled(named:)`.
 - **Feedback**: the view model publishes `FeedbackEvent`s (select, illegal, pour, flask completed, level won);
   `FeedbackPlayer` turns them into sound and haptics, timed to the pour animation. "Flask completed" is
   `Rules.completedBottles(before:after:)` in the core and fires when the pour lands.
-- **Sound**: `SoundEngine` synthesizes every sound into PCM buffers at launch (glass clinks, bubbly gurgles,
-  cork pop + chime, success arpeggio, muted tap) and plays them with `AVAudioEngine`; no audio files.
+- **Sound**: `SoundEngine` synthesizes every sound at launch, off the main thread (glass clinks, bubbly gurgles,
+  cork pop + chime, success arpeggio, muted tap, key click), and plays the PCM buffers with `AVAudioEngine`; no
+  audio files. Sounds and haptics scheduled for later in a pour are dropped when that pour is cancelled (Undo,
+  Restart, new level), when you leave the game, or when Sound is turned off.
+- **Flask look**: a completed flask gets a cork that drops in with a bounce and a sparkle burst in the potion's
+  color; glass sheen and a soft potion glow on every flask. With *Color Runes* on, every layer shows one of 12
+  runes (one per color) so colors can be told apart without hue.
 - **Settings** (gear in the level list, or ⌘, on the Mac): sound, haptics (iOS), color runes, reduce motion
   (system / on / off). Stored behind `SettingsStore` (`UserDefaults` keys `settings.*`).
 
@@ -203,8 +208,7 @@ with `LevelCatalog.loadBundled(named:)`.
 - One empty bottle makes almost every puzzle with 6+ colors (bottle size 4) unsolvable, so one-empty levels stay at
   5 colors, or 6 colors with size-5 bottles.
 - Progress lives in `UserDefaults` on each device, with no iCloud sync.
-- No tutorial overlay or accessibility pass beyond basic labels. The color-runes setting exists, but runes are
-  not drawn yet (planned in R1).
+- No tutorial overlay or accessibility pass beyond basic labels (color runes are available in Settings).
 - The difficulty score's weights are hand-picked and haven't been calibrated with playtest data.
 - The solver's packed state key supports capacity ≤ 9, color ids 0–46 and key ids 0–15.
 - The app has no UI tests. Gameplay was checked with screenshots taken via the debug launch arguments.
@@ -213,6 +217,5 @@ with `LevelCatalog.loadBundled(named:)`.
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
 2. Curated Locks & Keys and Hidden-layer packs (`levelgen --locks` already generates lock levels).
-3. Color-blind support (patterns or symbols per color) and VoiceOver descriptions of bottle contents.
-4. Sound and haptic polish.
-5. More packs and a pack picker; optional iCloud progress sync.
+3. VoiceOver descriptions of bottle contents.
+4. More packs and a pack picker; optional iCloud progress sync.
