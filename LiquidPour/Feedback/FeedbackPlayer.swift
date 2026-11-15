@@ -38,11 +38,23 @@ enum FeedbackPlayer {
         }
     }
 
+    /// Drops delayed sounds and haptics that haven't fired yet: the pour they belonged to was
+    /// cancelled (undo, restart, new level), the game was left, or sound was turned off.
+    static func cancelPending() {
+        SoundEngine.shared.cancelPending()
+        for task in pendingHaptics { task.cancel() }
+        pendingHaptics.removeAll()
+    }
+
+    private static var pendingHaptics: [Task<Void, Never>] = []
+
     private static func delayed(_ seconds: TimeInterval, _ action: @escaping @MainActor () -> Void) {
         guard seconds > 0 else { action(); return }
-        Task {
+        pendingHaptics.removeAll { $0.isCancelled }
+        pendingHaptics.append(Task {
             try? await Task.sleep(for: .seconds(seconds))
+            guard !Task.isCancelled else { return }
             action()
-        }
+        })
     }
 }

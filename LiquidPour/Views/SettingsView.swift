@@ -16,7 +16,7 @@ struct SettingsView: View {
                     Label("Sound Effects", systemImage: "speaker.wave.2")
                 }
                 .onChange(of: settings.value.soundEnabled) { _, on in
-                    if on { SoundEngine.shared.play(.clink) } else { SoundEngine.shared.stopAll() }
+                    if on { SoundEngine.shared.play(.clink) } else { FeedbackPlayer.cancelPending(); SoundEngine.shared.stopAll() }
                 }
                 #if os(iOS)
                 Toggle(isOn: $settings.value.hapticsEnabled) {

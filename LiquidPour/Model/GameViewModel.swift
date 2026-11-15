@@ -81,6 +81,9 @@ final class GameViewModel {
     /// Recent feedback events, oldest first (only the last few are kept). Observe
     /// `feedback.last?.id` and read `feedback(after:)` so events published in one update
     /// (e.g. a completion followed by a queued tap) are never lost.
+    /// Goes up each time a pour is cancelled mid-animation (undo, restart, level load), so the
+    /// view can drop that pour's delayed sounds and haptics.
+    private(set) var cancelledPours = 0
     private(set) var feedback: [Feedback] = []
     /// Incremented per bottle each time it becomes complete (drives the cork / burst visuals).
     private(set) var completions: [Int] = []
@@ -287,6 +290,7 @@ final class GameViewModel {
     }
 
     private func cancelPour() {
+        if pour != nil { cancelledPours += 1 }
         pour = nil
         queuedTaps.removeAll()
         pourTimeout?.cancel()

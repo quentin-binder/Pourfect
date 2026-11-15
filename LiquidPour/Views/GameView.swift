@@ -27,9 +27,13 @@ struct GameView: View {
                 FeedbackPlayer.play(item.event, settings: settings.value, reduceMotion: reduceMotion)
             }
         }
+        .onChange(of: model.cancelledPours) { FeedbackPlayer.cancelPending() }
         .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }
         .navigationTitle(model.title)
-        .onDisappear { model.randomMaker.cancel() }   // left the screen: stop generating
+        .onDisappear {
+            model.randomMaker.cancel()   // left the screen: stop generating
+            FeedbackPlayer.cancelPending()
+        }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif

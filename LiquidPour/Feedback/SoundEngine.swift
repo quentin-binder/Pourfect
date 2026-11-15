@@ -11,7 +11,7 @@ import Foundation
 final class SoundEngine {
     static let shared = SoundEngine()
 
-    enum Sound: CaseIterable {
+    nonisolated enum Sound: CaseIterable, Sendable {
         /// Bright glass clink (bottle picked up).
         case clink
         /// Lower, softer clink (bottle lip touches as a pour starts).
@@ -27,8 +27,7 @@ final class SoundEngine {
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
-    private static let sampleRate = 44_100.0
-    private let format = AVAudioFormat(standardFormatWithSampleRate: SoundEngine.sampleRate, channels: 1)!
+    private let format = AVAudioFormat(standardFormatWithSampleRate: SoundSynthesis.sampleRate, channels: 1)!
 
     private var buffers: [Sound: AVAudioPCMBuffer] = [:]
     /// Gurgle variants per poured amount (1…4 layers), alternated so repeats don't sound identical.
@@ -41,9 +40,17 @@ final class SoundEngine {
     /// After a failed start, don't retry before this time (avoids hammering a dead device).
     private var retryAfter = Date.distantPast
     private var observers: [NSObjectProtocol] = []
+    /// Delayed sounds not yet started, by id (see `cancelPending()`).
+    private var pending: [Int: Task<Void, Never>] = [:]
+    private var pendingCount = 0
 
     private init() {
-        synthesizeAll()
+        // Synthesis is pure math; do it off the main actor so opening a level never waits on it.
+        // Sounds requested before it finishes are skipped.
+        Task.detached(priority: .userInitiated) { [weak self] in
+            let output = SoundSynthesis.makeAll()
+            await self?.install(output)
+        }
     }
 
     // MARK: API
@@ -55,7 +62,7 @@ final class SoundEngine {
 
     /// Plays `sound` now, or after `delay` seconds.
     func play(_ sound: Sound, after delay: TimeInterval = 0, volume: Float = 1) {
-        guard let buffer = buffers[sound] else { return }
+        guard let buffer = buffers[sound] else { return }   // still synthesizing
         schedule(buffer, after: delay, volume: volume)
     }
 
@@ -70,12 +77,19 @@ final class SoundEngine {
 
     /// Length of the gurgle for `amount` layers: 0.35 s (1 layer) to 0.5 s (4+), around the
     /// pour animation's 0.4 s flow; the last third is a fade-out.
-    static func gurgleDuration(amount: Int) -> TimeInterval {
+    nonisolated static func gurgleDuration(amount: Int) -> TimeInterval {
         0.30 + 0.05 * Double(min(max(amount, 1), 4))
     }
 
-    /// Silences everything that is playing.
+    /// Drops sounds scheduled with a delay that haven't started yet (a pour was cancelled).
+    func cancelPending() {
+        for task in pending.values { task.cancel() }
+        pending.removeAll()
+    }
+
+    /// Silences everything that is playing or scheduled.
     func stopAll() {
+        cancelPending()
         for player in players where player.isPlaying { player.stop() }
         if engine?.isRunning == true { for player in players { player.play() } }
     }
@@ -84,6 +98,7 @@ final class SoundEngine {
     /// Dev aid (`-LPExportSounds <dir>`): writes every synthesized sound as a WAV file.
     func debugExport(to directory: URL) {
         try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        if buffers.isEmpty { install(SoundSynthesis.makeAll()) }   // launch-time export: don't wait
         var all: [(String, AVAudioPCMBuffer)] = buffers.map { ("\($0.key)", $0.value) }
         for (k, variants) in gurgles.enumerated() {
             for (v, buffer) in variants.enumerated() { all.append(("gurgle\(k + 1)-\(v + 1)", buffer)) }
@@ -101,9 +116,13 @@ final class SoundEngine {
 
     private func schedule(_ buffer: AVAudioPCMBuffer, after delay: TimeInterval, volume: Float) {
         if delay > 0 {
-            Task { [weak self] in
+            pendingCount += 1
+            let id = pendingCount
+            pending[id] = Task { [weak self] in
                 try? await Task.sleep(for: .seconds(delay))
-                self?.schedule(buffer, after: 0, volume: volume)
+                guard let self, !Task.isCancelled else { return }
+                self.pending[id] = nil
+                self.schedule(buffer, after: 0, volume: volume)
             }
             return
         }
@@ -184,23 +203,49 @@ final class SoundEngine {
     }
     #endif
 
-    // MARK: Synthesis
+    /// Installs the synthesized samples as playable buffers.
+    private func install(_ output: SoundSynthesis.Output) {
+        buffers = output.sounds.compactMapValues { buffer(from: $0) }
+        gurgles = output.gurgles.map { $0.compactMap { buffer(from: $0) } }.filter { !$0.isEmpty }
+    }
 
-    private func synthesizeAll() {
+    /// Copies samples into a mono float buffer.
+    private func buffer(from samples: [Float]) -> AVAudioPCMBuffer? {
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count)),
+              let channel = buffer.floatChannelData?[0] else { return nil }
+        samples.withUnsafeBufferPointer { channel.update(from: $0.baseAddress!, count: $0.count) }   // memcpy
+        buffer.frameLength = AVAudioFrameCount(samples.count)
+        return buffer
+    }
+}
+
+/// The game's sounds as samples (mono, `sampleRate`), synthesized from scratch. Pure math, kept
+/// off the main actor: about 30 ms optimized, but most of a second in an unoptimized Debug build.
+nonisolated enum SoundSynthesis {
+    struct Output: Sendable {
+        var sounds: [SoundEngine.Sound: [Float]] = [:]
+        /// Variants per poured amount (1…4 layers).
+        var gurgles: [[[Float]]] = []
+    }
+
+    static let sampleRate = 44_100.0
+
+    static func makeAll() -> Output {
+        var out = Output()
         var rng = NoiseGenerator(seed: 0x5EED)
-        buffers[.clink] = render(0.55, peak: 0.20) { Self.clink(t: $0, f0: 1880) }
-        buffers[.clinkLow] = render(0.5, peak: 0.13) { Self.clink(t: $0, f0: 1320) }
-        let lowNoise = Self.lowpassedNoise(count: Int(0.16 * Self.sampleRate), cutoff: 600, rng: &rng)
-        buffers[.tap] = render(0.16, peak: 0.16) { t in
-            let i = min(Int(t * Self.sampleRate), lowNoise.count - 1)
+        out.sounds[.clink] = render(0.55, peak: 0.20) { Self.clink(t: $0, f0: 1880) }
+        out.sounds[.clinkLow] = render(0.5, peak: 0.13) { Self.clink(t: $0, f0: 1320) }
+        let lowNoise = Self.lowpassedNoise(count: Int(0.16 * sampleRate), cutoff: 600, rng: &rng)
+        out.sounds[.tap] = render(0.16, peak: 0.16) { t in
+            let i = min(Int(t * sampleRate), lowNoise.count - 1)
             return (sin(2 * .pi * 150 * t) * 0.8 + lowNoise[i] * 0.6) * exp(-t * 32)
         }
-        buffers[.keyClick] = render(0.3, peak: 0.16) { t in
+        out.sounds[.keyClick] = render(0.3, peak: 0.16) { t in
             (sin(2 * .pi * 2600 * t) * 0.5 + sin(2 * .pi * 3900 * t) * 0.3) * exp(-t * 40)
                 + Self.clink(t: max(0, t - 0.07), f0: 2300) * (t > 0.07 ? 0.6 : 0)
         }
-        buffers[.corkPop] = renderCorkPop(rng: &rng)
-        buffers[.success] = render(1.7, peak: 0.20) { t in
+        out.sounds[.corkPop] = renderCorkPop(rng: &rng)
+        out.sounds[.success] = render(1.7, peak: 0.20) { t in
             let notes = [523.25, 659.25, 783.99, 1046.50]
             var sum = 0.0
             for (k, f) in notes.enumerated() {
@@ -212,19 +257,17 @@ final class SoundEngine {
             }
             return sum
         }
-        gurgles = []
         for amount in 1...4 {
-            var variants: [AVAudioPCMBuffer] = []
+            var variants: [[Float]] = []
             for variant in 0..<3 {
                 let seed = UInt64(amount * 31 + variant * 7 + 1)
                 let density = 16.0 + 5.0 * Double(amount)
-                if let buffer = renderGurgle(duration: Self.gurgleDuration(amount: amount),
-                                             bubblesPerSecond: density, seed: seed) {
-                    variants.append(buffer)
-                }
+                variants.append(renderGurgle(duration: SoundEngine.gurgleDuration(amount: amount),
+                                             bubblesPerSecond: density, seed: seed))
             }
-            if !variants.isEmpty { gurgles.append(variants) }
+            out.gurgles.append(variants)
         }
+        return out
     }
 
     /// Glass: a few inharmonic partials, each fading at its own rate, plus a tiny strike.
@@ -245,8 +288,8 @@ final class SoundEngine {
         return attack * (sin(2 * .pi * f * t) + 0.22 * sin(4 * .pi * f * t) + 0.08 * sin(6 * .pi * f * t))
     }
 
-    private func renderCorkPop(rng: inout NoiseGenerator) -> AVAudioPCMBuffer? {
-        let noise = Self.lowpassedNoise(count: Int(0.02 * Self.sampleRate), cutoff: 3000, rng: &rng)
+    private static func renderCorkPop(rng: inout NoiseGenerator) -> [Float] {
+        let noise = Self.lowpassedNoise(count: Int(0.02 * sampleRate), cutoff: 3000, rng: &rng)
         let chime = [2093.0, 2637.0, 3136.0, 4186.0]
         return render(1.2, peak: 0.22) { t in
             var sum = 0.0
@@ -254,7 +297,7 @@ final class SoundEngine {
             if t < 0.08 {
                 let phase = 2 * .pi * (350 * t + (1100 - 350) / 60 * (1 - exp(-t * 60)))
                 sum += sin(phase) * exp(-t * 55) * 0.9
-                let i = Int(t * Self.sampleRate)
+                let i = Int(t * sampleRate)
                 if i < noise.count { sum += noise[i] * exp(-t * 200) * 0.7 }
             }
             // Sparkle: a quick rising C-major bell run.
@@ -271,9 +314,9 @@ final class SoundEngine {
 
     /// Bubbles: short decaying sines with a rising pitch (like air entering a bottle), at random
     /// times, over a bed of low rumbling noise. Fades in fast and out over the last third.
-    private func renderGurgle(duration: Double, bubblesPerSecond: Double, seed: UInt64) -> AVAudioPCMBuffer? {
+    private static func renderGurgle(duration: Double, bubblesPerSecond: Double, seed: UInt64) -> [Float] {
         var rng = NoiseGenerator(seed: seed)
-        let count = Int(duration * Self.sampleRate)
+        let count = Int(duration * sampleRate)
         var samples = Self.lowpassedNoise(count: count, cutoff: 260, rng: &rng).map { $0 * 0.35 }
         var time = 0.01
         while time < duration - 0.05 {
@@ -281,23 +324,23 @@ final class SoundEngine {
             let tau = 0.018 + rng.unit() * 0.03
             let rise = 4 + rng.unit() * 5
             let amp = 0.45 + rng.unit() * 0.55
-            let start = Int(time * Self.sampleRate)
-            let length = Int(tau * 5 * Self.sampleRate)
+            let start = Int(time * sampleRate)
+            let length = Int(tau * 5 * sampleRate)
             var phase = 0.0
             for j in 0..<length where start + j < count {
-                let local = Double(j) / Self.sampleRate
-                phase += 2 * .pi * f0 * (1 + rise * local) / Self.sampleRate
+                let local = Double(j) / sampleRate
+                phase += 2 * .pi * f0 * (1 + rise * local) / sampleRate
                 samples[start + j] += amp * sin(phase) * exp(-local / tau) * min(1, local / 0.002)
             }
             time += (0.5 + rng.unit()) / bubblesPerSecond
         }
         for i in 0..<count {
-            let t = Double(i) / Self.sampleRate
+            let t = Double(i) / sampleRate
             let fadeIn = min(1, t / 0.03)
             let fadeOut = min(1, (duration - t) / (duration / 3))
             samples[i] *= fadeIn * fadeOut
         }
-        return buffer(from: samples, peak: 0.24)
+        return normalized(samples, peak: 0.24)
     }
 
     private static func lowpassedNoise(count: Int, cutoff: Double, rng: inout NoiseGenerator) -> [Double] {
@@ -312,32 +355,28 @@ final class SoundEngine {
         return peak > 0 ? out.map { $0 / peak } : out
     }
 
-    private func render(_ duration: Double, peak: Double, _ sample: (Double) -> Double) -> AVAudioPCMBuffer? {
-        let count = Int(duration * Self.sampleRate)
+    private static func render(_ duration: Double, peak: Double, _ sample: (Double) -> Double) -> [Float] {
+        let count = Int(duration * sampleRate)
         var samples = [Double](repeating: 0, count: count)
-        for i in 0..<count { samples[i] = sample(Double(i) / Self.sampleRate) }
+        for i in 0..<count { samples[i] = sample(Double(i) / sampleRate) }
         // Short fades so no buffer starts or ends on a click.
-        let fadeIn = min(count, Int(0.001 * Self.sampleRate))
+        let fadeIn = min(count, Int(0.001 * sampleRate))
         for k in 0..<fadeIn { samples[k] *= Double(k) / Double(fadeIn) }
-        let fadeOut = min(count, Int(0.02 * Self.sampleRate))
+        let fadeOut = min(count, Int(0.02 * sampleRate))
         for k in 0..<fadeOut { samples[count - 1 - k] *= Double(k) / Double(fadeOut) }
-        return buffer(from: samples, peak: peak)
+        return normalized(samples, peak: peak)
     }
 
-    /// Normalizes `samples` to `peak` and copies them into a mono float buffer.
-    private func buffer(from samples: [Double], peak: Double) -> AVAudioPCMBuffer? {
-        guard let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: AVAudioFrameCount(samples.count)),
-              let channel = buffer.floatChannelData?[0] else { return nil }
+    /// Scales `samples` so the loudest one is `peak`.
+    private static func normalized(_ samples: [Double], peak: Double) -> [Float] {
         let maxValue = samples.map(abs).max() ?? 0
         let gain = maxValue > 0 ? peak / maxValue : 0
-        for (i, s) in samples.enumerated() { channel[i] = Float(s * gain) }
-        buffer.frameLength = AVAudioFrameCount(samples.count)
-        return buffer
+        return samples.map { Float($0 * gain) }
     }
 }
 
 /// Small deterministic RNG (SplitMix64) so every launch synthesizes the same sounds.
-private struct NoiseGenerator {
+nonisolated private struct NoiseGenerator {
     private var state: UInt64
     init(seed: UInt64) { state = seed }
 

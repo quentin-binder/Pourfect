@@ -34,6 +34,7 @@ struct RootView: View {
                 }
         }
         #if DEBUG
+        .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
         .task { await openFromLaunchArguments() }
         #endif
     }
