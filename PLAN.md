@@ -126,10 +126,13 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - Open design question: chapter locks only have to add more than one move (DECISIONS 91, 103); most add exactly one. A stricter threshold would mean regenerating chapters 2–3
 
 ## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
-- [ ] Deterministic daily level: seed = UTC date, generated on device, offline
-- [ ] Difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky)
-- [ ] Streak counter, calendar of solved days, "perfect solve" badge (= solver minimum)
-- [ ] Tests: same date → same level on every device; streak rules across day boundaries and time zones
+- [x] Core: `DailyDate` (UTC calendar day, ISO string, day arithmetic, weekday)
+- [x] Core: deterministic daily level (`DailyPuzzle`, algorithm `daily-v1`): seed hashed from the UTC date, generated on device, offline, guaranteed fallback
+- [x] Core: difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky / murky + seal) — `DailyPlan`
+- [x] Core: `DailyResult`, `DailyHistory`, `DailyStreaks` (current/best streak, solved days, perfect = solver minimum without a hint)
+- [x] Tests: same date → same level (golden value), 60-day generation timing, streak rules across day boundaries and time zones
+- [ ] App: Daily screen (today's puzzle, streak, calendar of solved days, perfect badge), persistence of `DailyHistory`
+- [ ] App: entry point on the chapter map / side panel, localized weekday + tier labels
 
 ## R4 — Mechanics architecture (prerequisite for R5)
 - [ ] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen…`, `.bubbling`, `.cauldron`, `.switch…`); each modifier can veto or change a pour; `lockedBy` migrates to `.sealed`

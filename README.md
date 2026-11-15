@@ -182,10 +182,11 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 143 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 170 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
-the chapter gate (including the exact-50 % boundary), the lock-impact check, and the shipped files (every level
+the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
+UTC+14 and UTC−12, leap days, a golden level, 60 days of generation) and streak rules, and the shipped files (every level
 loads and validates, ids are unique across files, chapter 1 keeps the Starter ids, chapters have the expected
 shape, every lock in a chapter matters, and every level whose recorded search is small solves in its recorded
 `minMoves` — the larger ones are re-solved by `levelgen --report` in release).
@@ -250,6 +251,11 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.
+- **Daily puzzle (core)**: `DailyDate` is a UTC calendar day (the puzzle changes at UTC midnight for everyone).
+  `DailyPlan.spec(for:)` picks the weekday's recipe (Mon Gentle 4 colors → Sun Grand Brew, 7 colors murky + seal),
+  and `DailyPuzzle.level(for:)` generates it on device from a seed hashed from the date and `algorithmVersion`
+  (`daily-v1`), so every device gets the same level, offline. `DailyResult` / `DailyHistory` / `DailyStreaks` give
+  the current and best streak, solved days and perfect solves (solver minimum, no hint). See DECISIONS 105–112.
 - **App**: `GameViewModel` wraps `GameSession`. After every move it solves the new state in the background
   to detect dead ends ("Stuck — undo or restart?") and to keep the next hint ready instantly.
   It applies each move first and then publishes a `PourEvent`; the view only animates it.
