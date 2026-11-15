@@ -62,8 +62,10 @@ public enum ChapterGate {
     }
 
     /// Same rule over a chapter's recipe ids; `isCleared(id)` tells whether a recipe was finished.
+    /// A recipe that is itself cleared always stays open, so its stars never hide behind a lock.
     public static func isRecipeUnlocked(at index: Int, in recipeIDs: [String], isCleared: (String) -> Bool) -> Bool {
         guard index > 0 else { return true }
+        if recipeIDs.indices.contains(index), isCleared(recipeIDs[index]) { return true }
         guard recipeIDs.indices.contains(index - 1) else { return false }
         return isCleared(recipeIDs[index - 1])
     }

@@ -63,6 +63,14 @@ import Testing
         #expect(ChapterGate.isRecipeUnlocked(at: 3, previousCleared: true))
     }
 
+    @Test func clearedRecipeStaysOpenEvenIfThePreviousIsNot() {
+        let ids = ["p1_001", "p1_002", "p1_003", "p1_004"]
+        let cleared: Set<String> = ["p1_002"]  // e.g. played through a debug launch argument
+        #expect(ChapterGate.isRecipeUnlocked(at: 1, in: ids) { cleared.contains($0) })
+        #expect(ChapterGate.isRecipeUnlocked(at: 2, in: ids) { cleared.contains($0) })
+        #expect(!ChapterGate.isRecipeUnlocked(at: 3, in: ids) { cleared.contains($0) })
+    }
+
     @Test func packProgressSumsClampedStars() {
         let level = { (id: String) in LevelDefinition(id: id, state: state([[0, 0, 0, 0]])) }
         let pack = LevelPack(kind: .chapter, chapter: 1, levels: ["a", "b", "c", "d"].map(level))
