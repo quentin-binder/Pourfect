@@ -38,9 +38,9 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Verified: iOS Simulator screenshots (level select, game, win, persistence after relaunch); native arm64 macOS app launches
 
 ## Phase 4 — Verification & cleanup
-- [ ] All tests, `levelgen --report` table
-- [ ] README.md
-- [ ] Review pass, limitations & next steps
-- [ ] Checkpoint
+- [x] All tests, `levelgen --report` table
+- [x] README.md
+- [x] Review pass, limitations & next steps
+- [x] Checkpoint
 
 ## Phase 5 — Locks & keys (only on request)

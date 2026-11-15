@@ -131,7 +131,6 @@ final class GameViewModel {
     // MARK: Helpers
 
     private var isWon: Bool { if case .won = status { return true } else { return false } }
-    private var stars: Int { if case .won(let s) = status { return s } else { return 0 } }
 
     private func reject(_ bottle: Int) {
         shakes[bottle] += 1
