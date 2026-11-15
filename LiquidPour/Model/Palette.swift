@@ -114,6 +114,10 @@ extension Bottle {
             text += ", " + String(localized: "sealed with a \(Palette.keyName(key.rawValue)) rune",
                                   comment: "A sealed flask; the argument is the key metal")
         }
+        if let essence = essenceColor {
+            text += ", " + String(localized: "essence flask, accepts \(Palette.potionName(essence.rawValue)) only",
+                                  comment: "An essence flask; the argument is the only potion it takes")
+        }
         return text
     }
 }

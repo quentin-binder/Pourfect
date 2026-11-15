@@ -24,6 +24,8 @@ final class SoundEngine {
         case tap
         /// A key dropping into its lock.
         case keyClick
+        /// Low glassy hum with a slight wobble: an essence flask's rune refuses a pour.
+        case runeHum
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -243,6 +245,13 @@ nonisolated enum SoundSynthesis {
         out.sounds[.keyClick] = render(0.3, peak: 0.16) { t in
             (sin(2 * .pi * 2600 * t) * 0.5 + sin(2 * .pi * 3900 * t) * 0.3) * exp(-t * 40)
                 + Self.clink(t: max(0, t - 0.07), f0: 2300) * (t > 0.07 ? 0.6 : 0)
+        }
+        out.sounds[.runeHum] = render(0.42, peak: 0.13) { t in
+            // Two detuned glass tones beating against each other, a muted strike, quick fade.
+            let attack = min(1, t / 0.012)
+            let wobble = 1 + 0.5 * sin(2 * .pi * 14 * t)
+            let tone = sin(2 * .pi * 392 * t) + 0.8 * sin(2 * .pi * 370 * t) + 0.25 * sin(2 * .pi * 1176 * t)
+            return attack * tone * wobble * exp(-t * 9) + Self.clink(t: t, f0: 1100) * 0.18
         }
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in

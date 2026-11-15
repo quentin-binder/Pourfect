@@ -3,7 +3,7 @@ import SwiftUI
 
 /// One page of a tip: a small scene drawn with the game's own flasks, a title and a sentence.
 struct TutorialStep: Identifiable {
-    enum Scene { case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal }
+    enum Scene { case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut }
 
     let id: String
     let topic: TutorialTopic
@@ -42,6 +42,15 @@ struct TutorialStep: Identifiable {
                 TutorialStep(id: "murky.reveal", topic: topic, title: String(localized: "Clear the mist"),
                              text: String(localized: "Pour off the top potion to reveal the layer below it. Hints still work."),
                              scene: .reveal),
+            ]
+        case .essence:
+            return [
+                TutorialStep(id: "essence.gate", topic: topic, title: String(localized: "Essence flasks"),
+                             text: String(localized: "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty."),
+                             scene: .essence),
+                TutorialStep(id: "essence.out", topic: topic, title: String(localized: "Pour out freely"),
+                             text: String(localized: "You can always pour out of an essence flask. Clear the other potions out, then fill it with its own."),
+                             scene: .essenceOut),
             ]
         }
     }
@@ -133,6 +142,7 @@ extension TutorialTopic {
         case .basic: return String(localized: "How to play")
         case .sealed: return String(localized: "New: sealed flasks")
         case .murky: return String(localized: "New: murky potions")
+        case .essence: return String(localized: "New: essence flasks")
         }
     }
 }
@@ -179,6 +189,24 @@ private struct TutorialScene: View {
             case .murky:
                 BottleView(bottle: Bottle([5, 0, 6, 2], capacity: 4), width: w, hiddenLayers: 3)
                 BottleView(bottle: Bottle([3, 7, 7], capacity: 4), width: w, hiddenLayers: 1)
+            case .essence:
+                VStack(spacing: 6) {
+                    BottleView(bottle: essence(0, [0, 0]), width: w)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
+                BottleView(bottle: Bottle([1, 0], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                VStack(spacing: 6) {
+                    BottleView(bottle: essence(2, []), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+            case .essenceOut:
+                BottleView(bottle: essence(0, [0, 0, 6]), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: Bottle([6, 6], capacity: 4), width: w)
+                Image(systemName: "arrow.right").font(.title3).foregroundStyle(.secondary).padding(.bottom, w)
+                BottleView(bottle: essence(0, [0, 0, 0, 0]), width: w)
             case .reveal:
                 BottleView(bottle: Bottle([5, 0, 6, 6], capacity: 4), width: w, hiddenLayers: 2, isSelected: true)
                     .offset(y: -14)
@@ -187,6 +215,11 @@ private struct TutorialScene: View {
             }
         }
         .padding(.top, 18)
+    }
+
+    /// An essence flask with the rune of `color` holding `colors`.
+    private func essence(_ color: Int, _ colors: [Int]) -> Bottle {
+        Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4, modifiers: [.essence(ColorID(color))])
     }
 
     private var arrow: some View {

@@ -15,6 +15,9 @@ enum FeedbackPlayer {
         case .illegal:
             if sound { engine.play(.tap) }
             if haptics { Haptics.illegal() }
+        case .refused:
+            if sound { engine.play(.runeHum) }
+            if haptics { Haptics.illegal() }
         case .pour(_, _, let amount, let isKey):
             // Liquid starts moving at `flowStart` (immediately with reduce motion).
             let flowStart = reduceMotion ? 0 : PourPose.flowStart

@@ -347,6 +347,7 @@
         }
       }
     },
+    "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {},
     "A hint was used, so this brew can't be perfect" : {},
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
@@ -575,6 +576,10 @@
     },
     "Empty" : {},
     "Empty flasks" : {},
+    "essence flask, accepts %@ only" : {
+      "comment" : "An essence flask; the argument is the only potion it takes"
+    },
+    "Essence flasks" : {},
     "Fairy Blush" : {
       "comment" : "Potion name of the pink liquid"
     },
@@ -664,6 +669,7 @@
       "comment" : "Countdown to the next daily puzzle, minutes"
     },
     "New Random Brew" : {},
+    "New: essence flasks" : {},
     "New: murky potions" : {},
     "New: sealed flasks" : {},
     "Next" : {},
@@ -686,6 +692,7 @@
     "Potions" : {},
     "Pour" : {},
     "Pour off the top potion to reveal the layer below it. Hints still work." : {},
+    "Pour out freely" : {},
     "Pour the rune-stone key of the same color onto the sealed flask to break the seal." : {},
     "Pourfect" : {},
     "Pourfect Daily %@ · %@ · 🔥 %lld" : {
@@ -819,6 +826,9 @@
     },
     "Thinking…" : {},
     "This brew's day ended at midnight UTC, so it no longer counts. Today's new brew is waiting." : {},
+    "This essence flask only takes %@" : {
+      "comment" : "Shown when an essence flask refuses a pour; the argument is a potion name"
+    },
     "Thursday" : {
       "comment" : "Weekday of the daily puzzle"
     },
@@ -857,6 +867,7 @@
       "comment" : "Weekday of the daily puzzle"
     },
     "Workbench" : {},
+    "You can always pour out of an essence flask. Clear the other potions out, then fill it with its own." : {},
     "Your device's clock is earlier than a brew you already solved, so this one doesn't count." : {
       "comment" : "Daily win card when the device clock was set back"
     },

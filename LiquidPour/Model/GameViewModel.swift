@@ -43,6 +43,8 @@ final class GameViewModel {
         case select(bottle: Int)
         /// A tap that can't do anything (empty bottle selected, or an illegal pour).
         case illegal(bottle: Int)
+        /// An essence flask refused a pour of another potion (or a key): its rune flares.
+        case refused(bottle: Int)
         /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved.
         case pour(from: Int, to: Int, amount: Int, isKey: Bool)
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
@@ -86,6 +88,8 @@ final class GameViewModel {
     private(set) var isThinking = false
     /// Incremented per bottle on an illegal move (drives the shake animation).
     private(set) var shakes: [Int] = []
+    /// Incremented per bottle each time its rune refuses a pour (drives the rune flare).
+    private(set) var refusals: [Int] = []
     /// Recent feedback events, oldest first (only the last few are kept). Observe
     /// `feedback.last?.id` and read `feedback(after:)` so events published in one update
     /// (e.g. a completion followed by a queued tap) are never lost.
@@ -208,6 +212,8 @@ final class GameViewModel {
         if session.apply(move) {
             startPour(move, before: before, hiddenBefore: hiddenBefore)
             afterStateChange()
+        } else if let refusal = Rules.refusal(of: move, in: before), case .essence(let color) = refusal.modifier {
+            refuse(refusal.bottle, color: color)
         } else {
             reject(from)
         }
@@ -283,6 +289,7 @@ final class GameViewModel {
         cancelPour()
         minMoves = levels[index].meta?.minMoves
         shakes = Array(repeating: 0, count: session.state.bottles.count)
+        refusals = Array(repeating: 0, count: session.state.bottles.count)
         completions = Array(repeating: 0, count: session.state.bottles.count)
         selected = nil
         solution = nil
@@ -339,6 +346,16 @@ final class GameViewModel {
     private func reject(_ bottle: Int) {
         shakes[bottle] += 1
         emit(.illegal(bottle: bottle))
+    }
+
+    /// An essence flask said no: it shakes, its rune flares, and a short line names the one
+    /// potion it takes (the rule comes from `Rules.refusal`, not from the app).
+    private func refuse(_ bottle: Int, color: ColorID) {
+        shakes[bottle] += 1
+        refusals[bottle] += 1
+        flash(String(localized: "This essence flask only takes \(Palette.potionName(color.rawValue))",
+                     comment: "Shown when an essence flask refuses a pour; the argument is a potion name"))
+        emit(.refused(bottle: bottle))
     }
 
     /// Events newer than `id` (all kept events for nil), oldest first.
@@ -443,6 +460,20 @@ final class GameViewModel {
             tap(bottle: move.from)
             try? await Task.sleep(for: .milliseconds(250))
             tap(bottle: move.to)
+        }
+    }
+
+    /// Dev aid: tries one pour that an essence flask refuses (to see the rune flare and message).
+    func debugRefusedPour() {
+        let n = state.bottles.count
+        for from in 0..<n {
+            for to in 0..<n where from != to {
+                guard let refusal = Rules.refusal(of: Move(from: from, to: to), in: state),
+                      case .essence = refusal.modifier else { continue }
+                tap(bottle: from)
+                tap(bottle: to)
+                return
+            }
         }
     }
     #endif

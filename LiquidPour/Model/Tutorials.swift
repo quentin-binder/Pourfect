@@ -4,7 +4,7 @@ import Observation
 
 /// A mechanic with a first-time tip. Raw values match `Mechanic` names in the level files.
 enum TutorialTopic: String, CaseIterable, Hashable {
-    case basic, sealed, murky
+    case basic, sealed, murky, essence
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 
@@ -13,8 +13,7 @@ enum TutorialTopic: String, CaseIterable, Hashable {
     /// opens a chapter.
     static func topics(in level: LevelDefinition, introduces: [Mechanic] = []) -> [TutorialTopic] {
         var found = Set(introduces.compactMap { TutorialTopic($0) })
-        if level.bottles.contains(where: { $0.lockedBy != nil }) { found.insert(.sealed) }
-        if level.isHidden { found.insert(.murky) }
+        found.formUnion(level.mechanics.compactMap { TutorialTopic($0) })
         if found.subtracting([.basic]).isEmpty { found.insert(.basic) }
         return allCases.filter(found.contains)
     }
