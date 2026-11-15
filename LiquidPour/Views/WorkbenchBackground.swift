@@ -60,3 +60,31 @@ struct WorkbenchBackground: View {
         }
     }
 }
+
+/// Any painting as a full-screen backdrop, with the same washes as `WorkbenchBackground`
+/// (`.menu`: strongly blurred and washed with the system background; `.game`: a soft dark scene).
+struct PaintedBackdrop: View {
+    let image: ImageResource
+    var style: WorkbenchBackground.Style = .menu
+
+    var body: some View {
+        GeometryReader { proxy in
+            Image(image)
+                .resizable()
+                .interpolation(.medium)
+                .aspectRatio(contentMode: .fill)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .blur(radius: style == .game ? 24 : 30, opaque: true)
+                .clipped()
+                .overlay {
+                    switch style {
+                    case .menu: Rectangle().fill(.background.opacity(0.72))
+                    case .game: Color.black.opacity(0.5)
+                    }
+                }
+        }
+        .ignoresSafeArea()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
+    }
+}

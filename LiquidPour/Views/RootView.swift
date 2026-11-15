@@ -1,8 +1,11 @@
 import BottleSortCore
 import SwiftUI
 
-/// Screens reachable from the level select.
+/// Screens reachable from the chapter map.
 enum Route: Hashable {
+    /// A chapter's or challenge book's recipe list.
+    case pack(String)
+    case challenges
     case level(pack: String, index: Int)
     case randomSettings
     case random(LevelDefinition, RandomLevelOptions)
@@ -18,13 +21,21 @@ struct RootView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            LevelSelectView(onSelect: { pack, index in path.append(.level(pack: pack, index: index)) },
-                            onRandom: { path.append(.randomSettings) })
+            ChapterMapView(onOpenChapter: { path.append(.pack($0)) },
+                           onChallenges: { path.append(.challenges) })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
+                    case .pack(let packID):
+                        if let pack = catalog.pack(id: packID) {
+                            PackView(pack: pack) { path.append(.level(pack: pack.id, index: $0)) }
+                        }
+                    case .challenges:
+                        ChallengesView(onOpenPack: { path.append(.pack($0)) },
+                                       onRandom: { path.append(.randomSettings) })
                     case .level(let packID, let index):
                         if let pack = catalog.pack(id: packID) {
-                            GameView(model: GameViewModel(levels: pack.levels, index: index, progress: progress))
+                            GameView(model: GameViewModel(levels: pack.levels, index: index, progress: progress,
+                                                          introduces: pack.introduces))
                         }
                     case .randomSettings:
                         RandomLevelView { level, options in path.append(.random(level, options)) }
@@ -41,9 +52,13 @@ struct RootView: View {
 
     #if DEBUG
     /// Dev aids for automated screenshots (DEBUG builds only):
-    /// `-LPOpenLevel N` (1-based) opens level N of pack `-LPOpenPack P` (1-based, default 1); `-LPRandomSettings 1` opens the Random Level
-    /// screen; `-LPRandomMode classic|locks|hidden` (+ optional `-LPRandomSeed S`) generates a
-    /// random level with the saved settings and opens it.
+    /// - `-LPOpenChapter N` opens chapter N's recipe list, `-LPOpenChallenge NAME` a challenge book
+    ///   (`challenger`, `expert`, `master`; file name or display name), `-LPOpenChallenges 1` the Challenges area.
+    /// - `-LPOpenLevel N` (1-based) then opens recipe N of that chapter / book directly. Without
+    ///   either, `-LPOpenPack P` picks the pack by position: 1–3 = chapters 1–3, 4–6 = Challenger,
+    ///   Expert, Master (default 1).
+    /// - `-LPRandomSettings 1` opens the Random Brew screen; `-LPRandomMode classic|locks|hidden`
+    ///   (+ optional `-LPRandomSeed S`) generates a random recipe with the saved settings and opens it.
     private func openFromLaunchArguments() async {
         guard path.isEmpty else { return }
         let defaults = UserDefaults.standard
@@ -54,12 +69,28 @@ struct RootView: View {
             SoundEngine.shared.debugExport(to: URL(fileURLWithPath: dir))
         }
         let n = defaults.integer(forKey: "LPOpenLevel")
-        let p = max(1, defaults.integer(forKey: "LPOpenPack"))
-        if n > 0, p <= catalog.packs.count, n <= catalog.packs[p - 1].levels.count {
-            path = [.level(pack: catalog.packs[p - 1].id, index: n - 1)]
+        var pack: LevelPackInfo?
+        var showsList = false
+        if defaults.integer(forKey: "LPOpenChapter") > 0 {
+            pack = catalog.chapter(defaults.integer(forKey: "LPOpenChapter"))
+            showsList = true
+        } else if let name = defaults.string(forKey: "LPOpenChallenge")?.lowercased() {
+            pack = catalog.challenges.first { $0.id.lowercased() == name || $0.id.lowercased() == "challenge_" + name
+                || $0.name.lowercased() == name }
+            showsList = true
+        } else if n > 0 {
+            let p = max(1, defaults.integer(forKey: "LPOpenPack"))
+            if p <= catalog.packs.count { pack = catalog.packs[p - 1] }
+        }
+        if let pack {
+            var route: [Route] = pack.isChapter ? [] : [.challenges]
+            if showsList || n == 0 { route.append(.pack(pack.id)) }
+            if n > 0, n <= pack.levels.count { route.append(.level(pack: pack.id, index: n - 1)) }
+            path = route
             return
         }
-        if defaults.bool(forKey: "LPRandomSettings") { path = [.randomSettings]; return }
+        if defaults.bool(forKey: "LPOpenChallenges") { path = [.challenges]; return }
+        if defaults.bool(forKey: "LPRandomSettings") { path = [.challenges, .randomSettings]; return }
         guard let raw = defaults.string(forKey: "LPRandomMode") else { return }
         var options = RandomSettings.load()
         switch raw {
@@ -70,7 +101,7 @@ struct RootView: View {
         let seed = UInt64(max(1, defaults.integer(forKey: "LPRandomSeed")))
         let chosen = options
         let result = await Task.detached { RandomLevel.generate(chosen, seed: seed) }.value
-        if let level = result.level { path = [.random(level, result.options)] }
+        if let level = result.level { path = [.challenges, .random(level, result.options)] }
     }
     #endif
 }
