@@ -54,4 +54,28 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Tests: every key/lock rule, JSON round-trip, validation, canonical key, puzzle that needs the key, solver vs reference BFS on lock levels, generator determinism
 - [x] Hidden layers: `LevelDefinition.hidden`, `GameSession(_:hidden:)`, `isHidden(bottle:layer:)`, undo/restart restore
 - [x] `RandomLevel.generate` (6-attempt cap, progress callback, `GameMode` classic / locks & keys / hidden) + tests
-- [ ] App: lock icon on bottles, key layer, "?" for hidden layers, Random Level button (separate task)
+- [x] Merged into `main`; `swift test` green (95 tests)
+
+## Phase 5 — App: new mechanics
+- [x] Key layer (dark layer, `key.fill` in the key's color; key/lock colors in `Palette`)
+- [x] Locked bottle: `lock.fill` badge in the key's color, contents dimmed, outline tinted
+- [x] Key pour uses the pour animation: key drops into the lock, lock pops away
+- [x] Hidden layers: grey "?" from `GameSession.hiddenDepths`; flip reveal; flying bottle keeps them grey
+- [x] `GameViewModel` creates `GameSession(_:hidden:)` from the level's flag
+- [x] Hint and stuck detection on lock and hidden levels (same solver path)
+
+## Random level
+- [x] "Random Level" card (dice) on the level list + toolbar button
+- [x] Settings: mode, colors 2–12, bottle size 2–6, empty 0–4, locks 1–2 (Locks & Keys only); clamped by core; remembered
+- [x] Generate off the main thread with a fresh seed, "Attempt k of 6", failure message after 6 tries
+- [x] Played in `GameView`; no effect on progress; win card offers "New Random Level"
+- [x] DEBUG launch args `-LPRandomSettings`, `-LPRandomGenerate`, `-LPRandomMode`, `-LPRandomSeed`
+- [x] Verified: iOS Simulator screenshots (settings, progress, failure, lock level, key pour, hidden level, random win) + macOS lock level
+
+## Pour animation
+- [x] `PourEvent` published by the view model after the move is applied; taps queued (≤ 2) during a pour
+- [x] Tilt + stream + continuous fill (`PourPose` timeline, `TiltedLiquid` level surface), 1.1 s
+- [x] Undo / restart / level change cancel the pour; win & stuck cards wait for it
+- [x] Reduce Motion: in-place level change
+- [x] Verified on iOS Simulator and macOS (burst screenshots)
+- [ ] Not hand-tested: undo during a pour, macOS window resize during a pour
