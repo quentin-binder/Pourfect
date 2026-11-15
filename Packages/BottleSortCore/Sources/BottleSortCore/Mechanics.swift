@@ -1,7 +1,7 @@
 // Mechanic types (R4 architecture). The *rules* for every case live in Rules.swift;
 // this file only defines the data and its JSON form.
 //
-// How a new mechanic plugs in (see also DECISIONS 104–112):
+// How a new mechanic plugs in (see also DECISIONS 104–113):
 // 1. Its case already exists here (or is added here): a `BottleModifier` for
 //    something a flask carries, a `Link` for something between two flasks, a
 //    `Goal` for a different win condition.

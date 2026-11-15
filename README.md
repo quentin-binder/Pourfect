@@ -65,7 +65,8 @@ LiquidPour/                  SwiftUI app
   Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
 Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
-  Sources/BottleSortCore/    Model, Rules, Solver, Difficulty, Generator, LevelFile, GameSession, RandomLevel, Settings
+  Sources/BottleSortCore/    Model, Mechanics, Rules, StateKey, Solver, Difficulty, Generator, LevelFile, GameSession,
+                             RandomLevel, Settings
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
 Levels/chapter_0N.json       Main-path chapters 1–3; challenge_*.json: optional challenges (synchronized folder: every JSON file is bundled)
@@ -182,13 +183,17 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 143 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 180 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, and the shipped files (every level
 loads and validates, ids are unique across files, chapter 1 keeps the Starter ids, chapters have the expected
 shape, every lock in a chapter matters, and every level whose recorded search is small solves in its recorded
-`minMoves` — the larger ones are re-solved by `levelgen --report` in release).
+`minMoves` — the larger ones are re-solved by `levelgen --report` in release). The mechanics architecture has its own
+tests: the modifier pipeline, the `.sealed` modifier against a copy of the old lock rules (same legal moves and
+results on up to 720 lock states), StateKey v2 (permutation invariance with modifiers, links and goal targets), JSON v1/v2
+round trips, `MechanicImpact`, and golden fingerprints that pin generator, random-level, solver and canonical-key
+output to what they were before the refactor (every shipped file also re-encodes byte for byte).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -239,14 +244,29 @@ first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`; unknown names st
 
 Every lock needs exactly one matching key and vice versa; the loader rejects files that break this.
 
+**Format version 2** adds flask `modifiers` (`[{"type": "essence", "color": 3}, {"type": "narrowNeck"}, …]`; the
+seal stays `lockedBy`), level `links` (`{"type": "twins", "between": [0, 4]}`, `{"type": "overflow", "from": 1,
+"to": 2}`, `{"type": "switchGate", "switch": 3, "gate": 5}`) and a `goal` (`{"type": "order", "targets": […]}`, …).
+`levelgen` and `LevelLoader.encode` write version 2 only when a level uses one of these, so every current file
+stays version 1. The R5/R7 mechanics are defined but not playable yet: such levels decode, but fail validation.
+
 To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
 
 ## How it works
 
-- **Rules** (`Rules.swift`): a single function, `Rules.pour(from:to:)`, decides whether a pour is legal and what it does
-  (a color run moves, or a key opens its lock). The game, the solver and the generator all go through it.
+- **Rules** (`Rules.swift`): one turn is `Rules.resolve(_:afterAction:)`, which applies the pour and then the turn order
+  of MECHANICS.md §4 (immediate effects such as unsealing, move counter, timed effects, goal check). A pour runs
+  through one modifier pipeline (`Rules.apply`, a switch where each flask modifier can veto or change it) and then the
+  base rule (a color run moves, or a key opens its seal). The game, the solver and the generator all go through it.
+- **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed` today; `.essence`, `.narrowNeck`,
+  `.funnel`, `.tap`, `.frozen(layer:turns:)`, `.bubbling`, `.cauldron` are defined for R5), the level has `links`
+  (twins, overflow, switch → gate) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
+  case plus its arms in the `Rules` switches; key, JSON and validation already handle every case.
+  `Bottle.lockedBy` remains as the seal's accessor. `MechanicImpact` is the "must matter" check for any mechanic.
 - **Solver**: breadth-first search for the fewest moves. Each state gets a compact key that ignores
-  bottle order, and three pruning rules skip moves that can't change the outcome.
+  bottle order (`StateKey`: one word per classic or sealed bottle; v2 adds variable-length words for other
+  modifiers and a global section where links refer to bottles by canonical rank), and three pruning rules skip
+  moves that can't change the outcome (only on classic/sealed states).
   An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.

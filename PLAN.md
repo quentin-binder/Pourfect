@@ -132,14 +132,15 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - [ ] Tests: same date → same level on every device; streak rules across day boundaries and time zones
 
 ## R4 — Mechanics architecture (prerequisite for R5)
-- [ ] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen…`, `.bubbling`, `.cauldron`, `.switch…`); each modifier can veto or change a pour; `lockedBy` migrates to `.sealed`
-- [ ] Level-wide `links` (twins, overflow pipes, switch → gate) and a `Goal` (`.standard` for now)
-- [ ] `Rules.resolve(afterAction:)` implements the turn order from MECHANICS.md §4 in one place
-- [ ] Counters in `GameState` (per-layer frozen turns, bubbling phase, `moveCount` only while a timed rule needs it)
-- [ ] `StateKey` v2: variable-length encoding that includes modifiers, counters and link state; benchmark vs. v1
-- [ ] JSON v2 (modifiers, links, goal); v1 files still load
-- [ ] `levelgen` "must matter" check: re-solve with the mechanic removed and reject levels where it changed nothing
-- [ ] All 108 existing tests stay green; solver vs. naive BFS cross-check extended to modifiers
+- [x] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen(layer:turns:)`, `.bubbling`, `.cauldron`; switch → gate is a link); each modifier can veto or change a pour (`Rules.apply`); `lockedBy` migrates to `.sealed` (kept as a computed accessor)
+- [x] Level-wide `links` (twins, overflow pipes, switch → gate) and a `Goal` (`.standard` implemented; order / pattern / rescue defined)
+- [x] `Rules.resolve(afterAction:)` implements the turn order from MECHANICS.md §4 in one place (unseal is the only immediate effect; timed steps are empty hooks)
+- [x] Counters in `GameState` (per-layer frozen turns and bubbling phase live in their modifiers, `moveCount` is optional and nil for classic levels)
+- [x] `StateKey` v2: variable-length encoding that includes modifiers, counters and links (endpoints as canonical ranks, ties resolved by minimum); classic/sealed keys unchanged; benchmarked (DECISIONS 110)
+- [x] JSON v2 (modifiers, links, goal); v1 files still load and re-encode byte for byte
+- [x] "Must matter" check generalized: `MechanicImpact` (`LockImpact` is its seal case); `levelgen --report` checks every mechanic instance
+- [x] All existing tests stay green (149 → 180 with the new ones); solver vs. naive BFS cross-check extended to lock levels and the unpruned path
+- Not covered in R4: no R5 rule is implemented (levels using them fail validation and the solver refuses them); `levelgen` has no per-mechanic flags yet; StateKey v2 is ~6× slower per key than v1 (only used by R5 states)
 
 ## R5 — New mechanics, one chapter each (Milestone 3)
 For each: rules, solver/key, generator flag, JSON, art + one visual signal, tutorial level, chapter pack (~30), tests incl. naive-BFS cross-check and a "requires the mechanic" puzzle.
