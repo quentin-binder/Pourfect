@@ -104,10 +104,6 @@ struct PourAnimationView: View {
             * (CGFloat(event.targetBefore.layers.count) + CGFloat(event.amount) * pose.flow)
 
         return ZStack(alignment: .topLeading) {
-            if !event.isKey {
-                stream(from: pourPoint(right: right), toY: surfaceY, right: right, pose: pose)
-            }
-
             bottle(segments: targetSegments(pose.flow), frame: targetFrame, gravity: pose.targetSlosh,
                    lock: event.targetBefore.lockedBy, unlock: unlockProgress(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
@@ -122,6 +118,12 @@ struct PourAnimationView: View {
                 .rotationEffect(.degrees(angle), anchor: right ? .topTrailing : .topLeading)
                 // The rotation anchor is the pouring lip, so place the frame by that corner.
                 .position(x: lip.x + (right ? -width / 2 : width / 2), y: lip.y + height / 2)
+
+            // On top of both bottles: the stream leaves the lip in front of the tilted source and
+            // falls through the target's glass onto its rising surface.
+            if !event.isKey {
+                stream(from: pourPoint(right: right), toY: surfaceY, right: right, pose: pose)
+            }
         }
         .frame(width: boardSize.width, height: boardSize.height, alignment: .topLeading)
     }

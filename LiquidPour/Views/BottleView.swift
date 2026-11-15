@@ -54,6 +54,10 @@ struct BottleView: View {
                                                 removal: .opacity))
                 }
             }
+            // Fill the whole bottle before clipping, so the shape's corners land on the glass and the
+            // liquid surface stays flat (clipping the shorter stack would round the surface's corners).
+            // This matches `TiltedLiquid` in the pour animation.
+            .frame(width: width, height: height, alignment: .bottom)
             .clipShape(shape)
             if let key = bottle.lockedBy {
                 shape.fill(Self.lockedDim)
