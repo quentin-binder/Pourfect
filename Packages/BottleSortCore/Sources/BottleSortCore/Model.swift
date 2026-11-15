@@ -131,3 +131,12 @@ public struct GameState: Hashable, Codable, Sendable, CustomStringConvertible {
 
     public var description: String { bottles.map(\.description).joined(separator: " ") }
 }
+
+extension GameState {
+    /// The same puzzle with its bottles in a random order. Bottle order never changes the puzzle
+    /// (same canonical key, same optimal solution length), so this is purely presentation, e.g. so
+    /// empty bottles aren't always at the end.
+    public func shufflingBottles<G: RandomNumberGenerator>(using rng: inout G) -> GameState {
+        GameState(bottles: bottles.shuffled(using: &rng))
+    }
+}

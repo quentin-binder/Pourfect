@@ -195,7 +195,10 @@ final class GameViewModel {
     func startLevel(_ index: Int) {
         analysisTask?.cancel()
         levelIndex = index
-        session = GameSession(levels[index].gameState, hidden: levels[index].isHidden)
+        // Present the bottles in a fresh random order on every load (Restart/Replay keep it),
+        // so empty bottles aren't always at the end. Order doesn't change the puzzle.
+        var rng = SystemRandomNumberGenerator()
+        session = GameSession(levels[index].gameState.shufflingBottles(using: &rng), hidden: levels[index].isHidden)
         cancelPour()
         minMoves = levels[index].meta?.minMoves
         shakes = Array(repeating: 0, count: session.state.bottles.count)

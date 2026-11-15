@@ -175,3 +175,27 @@ import Testing
         #expect(StarRating.stars(moves: 14, minMoves: 10) == 1)
     }
 }
+
+@Suite struct ShuffleTests {
+    @Test func shufflingKeepsThePuzzle() throws {
+        let start = state([[0, 1, 2, 0], [1, 2, 0, 1], [2, 0, 1, 2], [], []])
+        var rng = SplitMix64(seed: 3)
+        let shuffled = start.shufflingBottles(using: &rng)
+        #expect(shuffled.canonicalKey == start.canonicalKey)
+        #expect(shuffled.validate().isEmpty)
+        let a = try #require(Solver().solve(start).moves?.count)
+        let b = try #require(Solver().solve(shuffled).moves?.count)
+        #expect(a == b)
+    }
+
+    @Test func shufflingMovesEmptyBottles() {
+        let start = state([[0, 1, 0, 1], [1, 0, 1, 0], [], []])
+        // Over a few seeds, at least one order doesn't end with the two empty bottles.
+        let moved = (UInt64(1)...10).contains { seed in
+            var rng = SplitMix64(seed: seed)
+            let s = start.shufflingBottles(using: &rng)
+            return !(s.bottles[2].isEmpty && s.bottles[3].isEmpty)
+        }
+        #expect(moved)
+    }
+}
