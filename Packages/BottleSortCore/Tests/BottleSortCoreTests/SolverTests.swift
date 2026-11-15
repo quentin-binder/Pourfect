@@ -266,12 +266,42 @@ import Testing
         #expect(throws: LevelLoadError.duplicateID("a")) { try LevelLoader.load(Data(dup.utf8)) }
     }
 
-    @Test func starterPackLoadsValidatesAndSolves() throws {
+    static let levelsDir = packURL.deletingLastPathComponent()
+    static let shippedPacks = ["pack_01", "pack_02", "pack_03", "pack_04", "pack_05", "pack_06"]
+
+    @Test func starterPackSize() throws {
         let pack = try LevelLoader.load(contentsOf: Self.packURL)
         #expect((35...45).contains(pack.levels.count))
+        #expect(pack.name == "Starter")
+    }
+
+    @Test func everyPackFileIsListed() throws {
+        let files = try FileManager.default.contentsOfDirectory(atPath: Self.levelsDir.path)
+            .filter { $0.hasPrefix("pack_") && $0.hasSuffix(".json") }
+            .map { String($0.dropLast(5)) }
+        #expect(Set(files) == Set(Self.shippedPacks))
+    }
+
+    /// Every shipped level loads, validates, has a unique id and solves in exactly its recorded
+    /// `minMoves`. Levels whose recorded search was very large are only checked by
+    /// `levelgen --report` (release build) to keep this debug-build test fast.
+    @Test(arguments: LevelFileTests.shippedPacks)
+    func shippedPackLoadsValidatesAndSolves(_ name: String) throws {
+        let pack = try LevelLoader.load(contentsOf: Self.levelsDir.appendingPathComponent(name + ".json"))
+        #expect(pack.name != nil && !pack.levels.isEmpty)
         for level in pack.levels {
+            let meta = try #require(level.meta, "\(level.id) has no meta")
+            guard (meta.statesExplored ?? 0) <= 8_000 else { continue }
             let moves = try #require(Solver().solve(level.gameState).moves, "\(level.id) not solved")
-            #expect(moves.count == level.meta?.minMoves, "\(level.id)")
+            #expect(moves.count == meta.minMoves, "\(level.id)")
+        }
+    }
+
+    @Test func levelIDsAreUniqueAcrossPacks() throws {
+        var seen = Set<String>()
+        for name in Self.shippedPacks {
+            let pack = try LevelLoader.load(contentsOf: Self.levelsDir.appendingPathComponent(name + ".json"))
+            for level in pack.levels { #expect(seen.insert(level.id).inserted, "\(level.id) duplicated") }
         }
     }
 }
