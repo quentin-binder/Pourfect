@@ -225,7 +225,7 @@ import Testing
     static let packURL = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .deletingLastPathComponent().deletingLastPathComponent()
-        .appendingPathComponent("Levels/pack_01.json")
+        .appendingPathComponent("Levels/chapter_01.json")
 
     @Test func decodesSpecExample() throws {
         let json = """
@@ -267,7 +267,7 @@ import Testing
     }
 
     static let levelsDir = packURL.deletingLastPathComponent()
-    static let shippedPacks = ["pack_01", "pack_02", "pack_03", "pack_04", "pack_05", "pack_06"]
+    static let shippedPacks = ["chapter_01", "challenge_challenger", "challenge_expert", "challenge_master"]
 
     @Test func starterPackSize() throws {
         let pack = try LevelLoader.load(contentsOf: Self.packURL)
@@ -275,9 +275,16 @@ import Testing
         #expect(pack.name == "Starter")
     }
 
+    /// Chapter 1 is the original Starter pack: its ids must never change, or saved stars stop counting.
+    @Test func chapterOneKeepsTheStarterIDs() throws {
+        let pack = try LevelLoader.load(contentsOf: Self.packURL)
+        #expect(pack.levels.map(\.id) == (1...40).map { String(format: "p1_%03d", $0) })
+        #expect(pack.levels.first?.meta?.seed == 1)
+    }
+
     @Test func everyPackFileIsListed() throws {
         let files = try FileManager.default.contentsOfDirectory(atPath: Self.levelsDir.path)
-            .filter { $0.hasPrefix("pack_") && $0.hasSuffix(".json") }
+            .filter { $0.hasSuffix(".json") }
             .map { String($0.dropLast(5)) }
         #expect(Set(files) == Set(Self.shippedPacks))
     }
