@@ -35,7 +35,11 @@ final class ProgressModel {
 
     /// Level `index` (in pack order `ids`) is playable once the previous level is cleared.
     func isUnlocked(index: Int, ids: [String]) -> Bool {
-        index == 0 || stars(for: ids[index - 1]) > 0
+        #if DEBUG
+        // Dev aid: launch with `-LPUnlockAll 1` to make every level playable (saved stars are untouched).
+        if UserDefaults.standard.bool(forKey: "LPUnlockAll") { return true }
+        #endif
+        return index == 0 || stars(for: ids[index - 1]) > 0
     }
 
     func record(stars: Int, for id: String) {

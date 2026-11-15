@@ -84,6 +84,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | Argument | Effect |
 |---|---|
 | `-LPOpenLevel N` | Opens pack level N (1-based) directly, ignoring locks. |
+| `-LPUnlockAll 1` | Makes every pack level playable in the grid (saved stars are untouched). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). |
 | `-LPRandomSettings 1` | Opens the Random Level screen. |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
