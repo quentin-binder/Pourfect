@@ -84,7 +84,8 @@ func formatTime(_ d: Duration) -> String {
 // MARK: Report
 
 /// Re-solves every level of one pack file and prints a difficulty table. Returns the number of
-/// problems: minMoves mismatches, and in chapter packs locks that don't matter (`LockImpact`).
+/// problems: minMoves mismatches, and in chapter packs mechanics (e.g. locks) that don't matter
+/// (`MechanicImpact`).
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
@@ -98,9 +99,12 @@ func report(path: String) -> Int {
             log("warning: \(level.id) meta.minMoves=\(expected) but solver says \(r.minMoves)")
             problems += 1
         }
-        if pack.isChapter, !LockImpact.everyLockMatters(state, minMoves: r.minMoves) {
-            log("warning: \(level.id) has a lock that doesn't matter")
-            problems += 1
+        if pack.isChapter {
+            for instance in MechanicImpact.instances(in: state)
+            where !MechanicImpact.matters(instance, in: state, minMoves: r.minMoves) {
+                log("warning: \(level.id): \(instance) doesn't matter")
+                problems += 1
+            }
         }
         let colors = Set(state.bottles.flatMap(\.layers).compactMap(\.colorID)).count
         rows.append(Row(index: i + 1, id: level.id, colors: colors, empty: state.bottles.filter(\.isEmpty).count,

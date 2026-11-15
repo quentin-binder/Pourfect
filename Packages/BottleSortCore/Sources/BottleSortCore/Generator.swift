@@ -170,6 +170,89 @@ public enum Generator {
     }
 }
 
+/// One instance of a mechanic in a level, as something that can be taken out of it.
+public enum MechanicInstance: Hashable, Sendable, CustomStringConvertible {
+    /// A seal and its key (A1).
+    case seal(KeyID)
+    /// One modifier (other than a seal) on bottle `bottle`.
+    case modifier(bottle: Int, BottleModifier)
+    /// One link.
+    case link(Link)
+    /// A non-standard goal (removing it means the standard goal).
+    case goal(Goal)
+
+    public var description: String {
+        switch self {
+        case .seal(let k): return "seal \(k.rawValue)"
+        case let .modifier(b, m): return "\(m) on \(b)"
+        case .link(let l): return "link \(l)"
+        case .goal(let g): return "goal \(g.name)"
+        }
+    }
+}
+
+/// The "must matter" check, for every mechanic: re-solve the level with one mechanic
+/// instance removed and compare.
+///
+/// An instance *matters* when the level without it is unsolvable, or the level with it
+/// needs more than `inherentCost` extra moves. The inherent cost is what the mechanic
+/// costs even when it changes nothing: a seal always costs the key pour (1 move);
+/// everything else costs 0. An undecided solve (limits hit) counts as "doesn't matter".
+public enum MechanicImpact {
+    /// Every mechanic instance in `state`, in a stable order: seals by key, then other
+    /// modifiers by bottle, then links, then the goal.
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        var result: [MechanicInstance] = Set(state.bottles.compactMap(\.lockedBy)).sorted().map(MechanicInstance.seal)
+        for (i, bottle) in state.bottles.enumerated() {
+            result += Bottle.splitSeal(bottle.modifiers).others.map { .modifier(bottle: i, $0) }
+        }
+        result += state.links.map(MechanicInstance.link)
+        if state.goal != .standard { result.append(.goal(state.goal)) }
+        return result
+    }
+
+    /// `state` with `instance` removed. A seal: its bottle starts unsealed and its key
+    /// layer is gone.
+    public static func removing(_ instance: MechanicInstance, from state: GameState) -> GameState {
+        var result = state
+        switch instance {
+        case .seal(let key):
+            for i in result.bottles.indices {
+                if result.bottles[i].lockedBy == key { result.bottles[i].lockedBy = nil }
+                result.bottles[i].layers.removeAll { $0.keyID == key }
+            }
+        case let .modifier(bottle, modifier):
+            if result.bottles.indices.contains(bottle) { result.bottles[bottle].modifiers.removeAll { $0 == modifier } }
+        case .link(let link):
+            if let i = result.links.firstIndex(of: link) { result.links.remove(at: i) }
+        case .goal:
+            result.goal = .standard
+        }
+        return result
+    }
+
+    /// Moves the instance costs even when it changes nothing (a seal: the key pour).
+    public static func inherentCost(of instance: MechanicInstance) -> Int {
+        if case .seal = instance { return 1 }
+        return 0
+    }
+
+    /// Whether `instance` matters in a level whose optimal solution has `minMoves` moves.
+    public static func matters(_ instance: MechanicInstance, in state: GameState, minMoves: Int,
+                               limits: SolverLimits = .default) -> Bool {
+        switch Solver().solve(removing(instance, from: state), limits: limits) {
+        case .unsolvable: return true
+        case .solved(let moves, _): return minMoves > moves.count + inherentCost(of: instance)
+        case .unknown: return false
+        }
+    }
+
+    /// Whether every mechanic instance in the level matters (true for a classic level).
+    public static func everyMechanicMatters(_ state: GameState, minMoves: Int, limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { matters($0, in: state, minMoves: minMoves, limits: limits) }
+    }
+}
+
 /// Whether a lock changes a level (the "must matter" check for sealed flasks).
 ///
 /// Winning always needs every key, so "the key is used" holds trivially. The real test
@@ -177,26 +260,18 @@ public enum Generator {
 /// and its key layer removed. The lock matters when that level is unsolvable, or when the
 /// locked level needs more than one extra move (the key pour itself), i.e. the seal
 /// forces the player to dig for the key or to plan around the closed flask.
+/// This is the seal case of `MechanicImpact` (same results as before it existed).
 public enum LockImpact {
     /// `state` with lock `key` removed: its bottle starts unlocked, its key layer is gone.
     public static func removingLock(_ key: KeyID, from state: GameState) -> GameState {
-        var result = state
-        for i in result.bottles.indices {
-            if result.bottles[i].lockedBy == key { result.bottles[i].lockedBy = nil }
-            result.bottles[i].layers.removeAll { $0.keyID == key }
-        }
-        return result
+        MechanicImpact.removing(.seal(key), from: state)
     }
 
     /// Whether lock `key` matters in a level whose optimal solution has `minMoves` moves.
     /// An undecided solve (limits hit) counts as "doesn't matter".
     public static func lockMatters(_ key: KeyID, in state: GameState, minMoves: Int,
                                    limits: SolverLimits = .default) -> Bool {
-        switch Solver().solve(removingLock(key, from: state), limits: limits) {
-        case .unsolvable: return true
-        case .solved(let moves, _): return minMoves > moves.count + 1
-        case .unknown: return false
-        }
+        MechanicImpact.matters(.seal(key), in: state, minMoves: minMoves, limits: limits)
     }
 
     /// Whether every lock in the level matters (true for a level without locks).
