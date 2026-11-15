@@ -58,3 +58,11 @@ Short entries, newest at the bottom.
 54. **Presets.** `levelgen --preset starter|challenger|expert|locks|hidden|master|all`. Each preset has its own base seed (1, 2000, …, 6000) and id prefix (`p1`…`p6`), so ids are unique across packs and regeneration is reproducible. `starter` reproduces the original `pack_01` levels exactly.
 55. **Shipped-pack test budget.** `swift test` (debug build) solves only levels whose recorded search was ≤ 8 000 states (81 of 180), keeping the suite at ~20 s; every level is re-solved against its `minMoves` by `levelgen --report` in release.
 
+56. **Roadmap direction (user choices).** Product name **Pourfect** with the full Potion Lab theme; code and module names stay neutral. Main path = star-gated chapters, one new mechanic each (MECHANICS.md §3); the current hard packs become an optional Challenges area.
+57. **Roadmap order.** Polish → theme & chapters → daily puzzle → mechanics architecture → mechanics (C1, C2+C4, D1, D2, F1+F2, E1, A3) → challenge modes → orders & story → release. Not planned: A2 corks, B2 scrying glass, C3 cauldron capacity, C5 density, D3 conveyor, D4 evaporation, E2/E3, F3 teleports, items.
+58. **Assets are generated in code.** Sounds are synthesized with AVAudioEngine; art is SwiftUI shapes, gradients and Canvas particles. Real asset files can replace them later behind the same hooks.
+59. **No Game Center, iCloud or notifications.** The user has a developer account but doesn't want them; the daily puzzle works fully offline. TestFlight may come later.
+60. **English only**, but all UI text goes through a String catalog so languages can be added cheaply.
+61. **Design docs are tracked.** `FUTURE_FEATURES.md` and `MECHANICS.md` are committed (they still mention the removed prototype spec by name).
+62. **Daily seed = UTC calendar date** so every player gets the same puzzle on the same day regardless of time zone. *(Default; open to change.)*
+63. **Chapter gate:** a chapter unlocks when the previous chapter has at least half of its possible stars. *(Default; open to change.)*

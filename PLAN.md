@@ -86,3 +86,80 @@ Decisions: `DECISIONS.md`. (The original prototype spec was removed from the rep
 - [x] Five new harder packs (Challenger, Expert, Locks & Keys, Hidden Depths, Master) — 140 new levels
 - [x] App: loads every bundled `pack_*.json`, pack picker with star totals, pack-aware routing, `-LPOpenPack`
 - [x] Tests: every shipped pack loads/validates, unique ids, solvable levels checked; all 180 re-solved by `--report`
+
+---
+
+# Roadmap — Pourfect: Potion Lab (post-prototype)
+
+Sources: `FUTURE_FEATURES.md` (milestones) and `MECHANICS.md` (mechanics catalogue). Decisions behind this plan: `DECISIONS.md` #56–#63.
+Every mechanic still ships as **rules + solver + generator + JSON + UI + tutorial + tests** together, and game logic stays in `BottleSortCore`.
+
+Already done from the docs: pour animation with stream and wobble (M1), sealed flasks & keys (A1), murky/hidden layers (B1), random levels, six generated packs.
+
+Order: **R1 Polish → R2 Pourfect theme & chapters → R3 Daily → R4 Mechanics architecture → R5 Mechanics (one chapter each) → R6 Challenges → R7 Orders & story → R8 Release.**
+Each R-step is sized as one Claude Code task (or one workflow); stop for a checkpoint after each.
+
+## R1 — Polish (finish Milestone 1)
+- [ ] Haptics: light tap on select, soft thud on pour, success pattern on a completed flask (iOS; no-op on Mac)
+- [ ] Sound, synthesized with AVAudioEngine (no files): glass clink, pour gurgle (length follows the pour), cork pop + sparkle chime
+- [ ] Completed flask: cork drops in + small particle burst (SwiftUI Canvas)
+- [ ] Glass highlight and a soft glow on potions
+- [ ] Colorblind runes: one simple vector rune per color (12), drawn on every layer when enabled
+- [ ] Settings screen: sound, haptics, colorblind runes, reduce-motion override; stored behind a `SettingsStore` protocol
+- [ ] Tests: settings persistence; "flask completed" detection lives in core
+
+## R2 — Pourfect theme & chapters (Milestone 2)
+- [ ] Rename to **Pourfect**: display name, window title, in-app titles. Code/module names stay neutral; the target/bundle id rename waits for R8
+- [ ] UI wording: bottles → flasks, levels → recipes, packs → chapters (strings only)
+- [ ] Art drawn in code: wizard's workbench background, 2–3 flask silhouettes, 12-color potion palette with names
+- [ ] String catalog (English only for now, ready for more languages)
+- [ ] Chapter map (main path), star-gated: Ch. 1 Apprentice Cellar (basic), Ch. 2 Rune Vault (A1), Ch. 3 Misty Marsh (B1). Later chapters show as "coming soon" until their mechanic lands
+- [ ] Current Challenger / Expert / Master packs move to an optional **Challenges** area (no gating); Locks & Keys and Hidden Depths content is regenerated as chapters 2–3
+- [ ] Tutorial overlay: one illustrated hint the first time a mechanic appears (seen-state stored per mechanic)
+- [ ] `levelgen` chapter presets with a tuned curve and a tutorial level first
+- [ ] Progress migration: existing stars keep counting (level ids stay unique)
+
+## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
+- [ ] Deterministic daily level: seed = UTC date, generated on device, offline
+- [ ] Difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky)
+- [ ] Streak counter, calendar of solved days, "perfect solve" badge (= solver minimum)
+- [ ] Tests: same date → same level on every device; streak rules across day boundaries and time zones
+
+## R4 — Mechanics architecture (prerequisite for R5)
+- [ ] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen…`, `.bubbling`, `.cauldron`, `.switch…`); each modifier can veto or change a pour; `lockedBy` migrates to `.sealed`
+- [ ] Level-wide `links` (twins, overflow pipes, switch → gate) and a `Goal` (`.standard` for now)
+- [ ] `Rules.resolve(afterAction:)` implements the turn order from MECHANICS.md §4 in one place
+- [ ] Counters in `GameState` (per-layer frozen turns, bubbling phase, `moveCount` only while a timed rule needs it)
+- [ ] `StateKey` v2: variable-length encoding that includes modifiers, counters and link state; benchmark vs. v1
+- [ ] JSON v2 (modifiers, links, goal); v1 files still load
+- [ ] `levelgen` "must matter" check: re-solve with the mechanic removed and reject levels where it changed nothing
+- [ ] All 108 existing tests stay green; solver vs. naive BFS cross-check extended to modifiers
+
+## R5 — New mechanics, one chapter each (Milestone 3)
+For each: rules, solver/key, generator flag, JSON, art + one visual signal, tutorial level, chapter pack (~30), tests incl. naive-BFS cross-check and a "requires the mechanic" puzzle.
+- [ ] **Ch. 4 Glyph Library — C1 Essence flasks** (accepts only its rune's color)
+- [ ] **Ch. 5 Glass Works — C2 Narrow neck + C4 Funnels/taps** (one layer per pour; pour-in-only / pour-from-bottom)
+- [ ] **Ch. 6 Frost Peak — D1 Frozen layers** (thaw counter ≤ 5, ≤ 2 per level; fire-potion variant later)
+- [ ] **Ch. 7 Bubbling Bog — D2 Bubbling flask** (bottom layer rises every K moves)
+- [ ] **Ch. 8 Twin Towers — F1 Twin flasks + F2 Overflow pipes**
+- [ ] **Ch. 9 Alchemist's Hall — E1 Mixing cauldron** (recipes; generator builds backwards from a solved state — the one allowed exception; `validate()` allows changing color counts)
+- [ ] **Ch. 10 Dragon's Hoard — A3 Switch flasks + combos**
+- [ ] After each: solver timing check on the hardest preset; cap counters if needed
+
+## R6 — Challenge modes (Milestone 5, separate from the calm main path)
+- [ ] Move-limit recipes (solver minimum + slack); fail → free retry
+- [ ] Rush: as many generated levels as possible in 3 minutes
+- [ ] Perfect brewer: gold seal for matching the solver minimum
+- [ ] Challenge results stored separately from main-path stars; the existing Random Level screen moves here
+
+## R7 — Orders & story (Milestone 6)
+- [ ] `Goal` variants in core + solver: order (specific flask = specific color), partial order, layered recipe (exact pattern), rescue (free all seals within N moves)
+- [ ] Customer-order levels with villager cards; generator per goal type
+- [ ] Short dialogue between chapters (apprentice + old alchemist)
+- [ ] Cosmetic rewards: workbench themes, flask shapes, potion effects
+
+## R8 — Release readiness (Milestone 7, no iCloud / Game Center / notifications)
+- [ ] Final bundle id + target rename to Pourfect; app icon, launch screen, App Store screenshots
+- [ ] Accessibility pass: VoiceOver labels for flasks and layers, Dynamic Type in menus, reduce-motion everywhere
+- [ ] Optional: TestFlight beta (App Store Connect stats only, no third-party analytics)
+- [ ] Business decision point; `HintService` and `ProgressStore` stay behind protocols
