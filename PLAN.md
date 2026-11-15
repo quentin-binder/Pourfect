@@ -8,13 +8,13 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Verify app builds for macOS (arm64) and iOS Simulator
 
 ## Phase 1 — Core model & rules
-- [ ] Swift package `Packages/BottleSortCore` (library + `levelgen` executable + tests)
-- [ ] `ColorID`, `KeyID`, `Layer`, `Bottle`, `Move`, `GameState`
-- [ ] Rules in one place (`Rules.swift`): canPour / pouring / legalMoves / isSolved
-- [ ] `validate()` → `[ValidationError]`
-- [ ] `GameSession`: apply / undo / restart / moveCount
-- [ ] Tests: pour cases, partial pour, full-run pour, win detection, undo/restart, validation
-- [ ] Checkpoint
+- [x] Swift package `Packages/BottleSortCore` (library + `levelgen` executable + tests)
+- [x] `ColorID`, `KeyID`, `Layer`, `Bottle`, `Move`, `GameState`
+- [x] Rules in one place (`Rules.swift`): canPour / pouring / legalMoves / isSolved
+- [x] `validate()` → `[ValidationError]`
+- [x] `GameSession`: apply / undo / restart / moveCount
+- [x] Tests: pour cases, partial pour, full-run pour, win detection, undo/restart, validation
+- [x] Checkpoint (awaiting "continue")
 
 ## Phase 2 — Solver, difficulty, generator
 - [ ] Canonical state key (bottle-order independent, includes `lockedBy`)
