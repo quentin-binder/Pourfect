@@ -127,14 +127,15 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 
 ## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
 - [x] Core: `DailyDate` (UTC calendar day, ISO string, day arithmetic, weekday)
-- [x] Core: deterministic daily level (`DailyPuzzle`, algorithm `daily-v1`): seed hashed from the UTC date, generated on device, offline, guaranteed fallback
+- [x] Core: deterministic daily level (`DailyPuzzle`, algorithm `daily-v2`): seed hashed from the UTC date, generated on device, offline, guaranteed fallback
 - [x] Core: difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky / murky + seal) — `DailyPlan`
 - [x] Core: `DailyResult`, `DailyHistory`, `DailyStreaks` (current/best streak, solved days, perfect = solver minimum without a hint)
 - [x] Tests: same date → same level (golden value), 60-day generation timing, streak rules across day boundaries and time zones
 - [x] App: Daily screen (today's puzzle, streak, calendar of solved days, perfect badge), persistence of `DailyHistory` (`DailyStore`, UserDefaults)
 - [x] App: entry point on the chapter map / side panel (Daily Brew card; row in the iPhone bottom bar), localized weekday + tier labels
 - [x] App: `DailyModel` (UTC today, refresh on activation and at UTC midnight, level generated off the main thread and cached), daily win card (perfect badge, streak, Share), debug `-LPDailyDate` / `-LPDailySeedResults` / `-LPOpenDaily` / `-LPPlayDaily`
-- Not covered in R3: no app-level unit tests (the app has no test target; the rules are tested in the core); iPhone was checked by screenshots of the home bar and Daily screen only; light mode not checked (the Daily screen is always dark, like the map)
+- [x] Review fixes: a hint is remembered per date (reopening the puzzle no longer restores "perfect"), a clock set back can't fill a streak gap, Gregorian month title, order-independent tie-break, Saturday / Wednesday harder (`daily-v2`), one-line game title (DECISIONS 106–111, 115, 116, 119)
+- Not covered in R3: no app-level unit tests (the app has no test target; the rules are tested in the core); iPhone was checked by screenshots of the home bar and Daily screen only; light mode not checked (the Daily screen is always dark, like the map). Known limits: a device clock set forward can bank future days (DECISIONS 110); undo is allowed for "perfect" (DECISIONS 119)
 
 ## R4 — Mechanics architecture (prerequisite for R5)
 - [ ] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen…`, `.bubbling`, `.cauldron`, `.switch…`); each modifier can veto or change a pour; `lockedBy` migrates to `.sealed`

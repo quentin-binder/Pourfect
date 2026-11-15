@@ -269,11 +269,12 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 - **Daily puzzle (core)**: `DailyDate` is a UTC calendar day (the puzzle changes at UTC midnight for everyone).
   `DailyPlan.spec(for:)` picks the weekday's recipe (Mon Gentle 4 colors → Sun Grand Brew, 7 colors murky + seal),
   and `DailyPuzzle.level(for:)` generates it on device from a seed hashed from the date and `algorithmVersion`
-  (`daily-v1`), so every device gets the same level, offline. `DailyResult` / `DailyHistory` / `DailyStreaks` give
-  the current and best streak, solved days and perfect solves (solver minimum, no hint). See DECISIONS 105–112.
+  (`daily-v2`), so every device gets the same level, offline. `DailyResult` / `DailyHistory` / `DailyStreaks` give
+  the current and best streak, solved days and perfect solves (solver minimum, no hint; undo allowed). See DECISIONS 105–112, 119.
 - **Daily puzzle (app)**: `DailyModel` (injected at the root) holds today's `DailyDate`, re-read when the app
   becomes active and by a timer at the next UTC midnight; it generates today's level in a detached task (cached per
-  date) and keeps the `DailyHistory` behind `DailyStore` (`UserDefaults` key `daily.history.v1`, JSON). The game
+  date) and keeps the `DailyHistory` behind `DailyStore` (`UserDefaults` key `daily.history.v1`, JSON) plus the dates whose
+  puzzle showed a hint (`daily.hinted.v1`, so reopening the puzzle doesn't clear it). The game
   screen plays the daily with `GameViewModel(dailyLevel:date:daily:)`, which records the win (moves, minMoves, hint
   used) instead of stars. See DECISIONS 113–118.
 - **App**: `GameViewModel` wraps `GameSession`. After every move it solves the new state in the background
