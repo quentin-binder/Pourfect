@@ -1,10 +1,6 @@
 import Testing
 @testable import BottleSortCore
 
-private func state(_ bottles: [[Int]], capacity: Int = 4) -> GameState {
-    GameState(bottles: bottles.map { Bottle($0, capacity: capacity) })
-}
-
 @Suite struct BottleTests {
     @Test func computedProperties() {
         let b = Bottle([0, 1, 1], capacity: 4)
