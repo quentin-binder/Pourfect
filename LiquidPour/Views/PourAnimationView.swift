@@ -113,6 +113,7 @@ struct PourAnimationView: View {
 
         return ZStack(alignment: .topLeading) {
             bottle(segments: targetSegments(pose.flow), frame: targetFrame, gravity: pose.targetSlosh,
+                   essence: event.targetBefore.essenceColor, drawsMark: false,
                    lock: event.targetBefore.lockedBy, unlock: unlockProgress(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
 
@@ -121,7 +122,7 @@ struct PourAnimationView: View {
             }
 
             bottle(segments: sourceSegments(pose.flow), frame: sourceFrame,
-                   gravity: angle * .pi / 180 + pose.sourceSlosh,
+                   gravity: angle * .pi / 180 + pose.sourceSlosh, essence: event.sourceBefore.essenceColor,
                    corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
                    opaque: min(1, pose.rise * 1.6))   // opaque before it crosses another flask
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
@@ -134,6 +135,13 @@ struct PourAnimationView: View {
             if !event.isKey {
                 stream(from: pourPoint(right: right), toY: surfaceY, right: right, pose: pose)
             }
+
+            // The target's rune is etched on the front of its glass, so the stream falls behind it.
+            if let essence = event.targetBefore.essenceColor {
+                EssenceMark(color: essence, width: targetFrame.width, glow: essenceGlow(pose))
+                    .frame(width: targetFrame.width, height: targetFrame.height, alignment: .top)
+                    .position(x: targetFrame.midX, y: targetFrame.midY)
+            }
         }
         .frame(width: boardSize.width, height: boardSize.height, alignment: .topLeading)
     }
@@ -142,16 +150,23 @@ struct PourAnimationView: View {
     /// lands; then the lock pops away (`unlock` 0 → 1).
     /// `corkOff`: a cork on a completed source, 0 = seated … 1 = popped off and gone.
     /// `opaque`: 0 = see-through glass like at rest … 1 = frosted backing (a lifted source).
+    /// `essence`: the rune of an essence flask (tinted glass, etched mark; `drawsMark` false
+    /// when the caller draws the mark itself, above the stream).
     private func bottle(segments: [LiquidSegment], frame: CGRect, gravity: Double,
+                        essence: ColorID? = nil, drawsMark: Bool = true,
                         lock: KeyID? = nil, unlock: Double = 0, corkOff: Double? = nil,
                         opaque: Double = 0) -> some View {
         let shape = BottleView.shape(width: frame.width)
+        // Same outline as at rest (`BottleView`): the seal's metal, else the essence color.
+        let plainOutline = essence.map { EssenceMark.outline($0) } ?? BottleView.outlineColor
+        let sealOutline = lock.map { Palette.keyColor($0.rawValue).opacity(0.8) }
         return ZStack {
             // Same smoky backing as at rest; a lifted flask turns to frosted glass so bottles it
             // passes in front of don't show through.
             shape.fill(BottleView.glassBacking)
             shape.fill(BottleView.flightBacking).opacity(opaque)
             shape.fill(BottleView.glassColor)
+            if let essence { shape.fill(EssenceMark.tint(essence)) }
             TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: frame.width),
                          gravity: gravity)
                 .clipShape(shape)
@@ -163,10 +178,19 @@ struct PourAnimationView: View {
                     .scaleEffect(1 + 0.6 * unlock)
                     .opacity(1 - unlock)
             }
-            shape.strokeBorder(BottleView.outlineColor, lineWidth: 2)
+            shape.strokeBorder(plainOutline, lineWidth: 2).opacity(sealOutline == nil ? 1 : unlock)
+            if let sealOutline {
+                // The seal's metal outline fades into the flask's own as the lock pops away.
+                shape.strokeBorder(sealOutline, lineWidth: 2).opacity(1 - unlock)
+            }
         }
         .frame(width: frame.width, height: frame.height)
-        .overlay(alignment: .top) { FlaskRim(width: frame.width, color: BottleView.outlineColor) }
+        .overlay(alignment: .top) {
+            if let essence, drawsMark { EssenceMark(color: essence, width: frame.width) }
+        }
+        .overlay(alignment: .top) {
+            FlaskRim(width: frame.width, color: unlock < 0.5 ? sealOutline ?? plainOutline : plainOutline)
+        }
         .overlay(alignment: .top) {
             // Same place as `BottleView`'s cork; pops up and fades like its removal transition.
             if let corkOff, corkOff < 1 {
@@ -214,6 +238,14 @@ struct PourAnimationView: View {
         if event.isKey { return kept }
         return kept + Array(repeating: LiquidSegment(color: color, fraction: flow, rune: rune(for: event.layer)),
                             count: event.amount)
+    }
+
+    // MARK: Essence
+
+    /// The target's rune glows up while its own color flows in (0 → 1 → 0 over the flow).
+    private func essenceGlow(_ pose: PourPose) -> Double {
+        guard event.targetBefore.essenceColor != nil, !event.isKey else { return 0 }
+        return sin(.pi * pose.flow)
     }
 
     // MARK: Key pour

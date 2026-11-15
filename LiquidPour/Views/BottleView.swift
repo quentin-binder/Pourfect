@@ -14,6 +14,9 @@ struct BottleView: View {
     /// Goes up each time this bottle becomes complete (`GameViewModel.completions`): the cork
     /// drops in and sparkles burst out of the mouth.
     var completions = 0
+    /// Goes up each time this essence flask refuses a pour (`GameViewModel.refusals`): its rune
+    /// flares.
+    var refusals = 0
 
     @Environment(\.colorRunesEnabled) private var runesEnabled
     @Environment(\.effectiveReduceMotion) private var reduceMotion
@@ -63,6 +66,7 @@ struct BottleView: View {
         ZStack(alignment: .bottom) {
             shape.fill(Self.glassBacking)
             shape.fill(Self.glassColor)
+            if let essence = bottle.essenceColor { shape.fill(EssenceMark.tint(essence)) }
             VStack(spacing: 0) {
                 // One view per run of identical visible layers, so a run shares one gradient.
                 ForEach(runs.reversed(), id: \.start) { run in
@@ -89,6 +93,7 @@ struct BottleView: View {
             shape.strokeBorder(outline, lineWidth: isSelected || hintRole != nil ? 3 : 2)
         }
         .frame(width: width, height: height)
+        .overlay(alignment: .top) { essenceMark }
         .overlay(alignment: .top) { FlaskRim(width: width, color: outline) }
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
@@ -105,6 +110,26 @@ struct BottleView: View {
         .animation(.easeInOut(duration: 0.35), value: shakes)
         .shadow(color: hintRole != nil ? .yellow.opacity(0.8) : .clear, radius: 8)
         .contentShape(Rectangle())
+    }
+
+    // MARK: Essence flask
+
+    /// The etched rune of an essence flask. Flares (and the flask shakes) when it refuses a pour;
+    /// with reduce motion it only brightens, without swelling.
+    @ViewBuilder private var essenceMark: some View {
+        if let essence = bottle.essenceColor {
+            let swells = !reduceMotion
+            EssenceMark(color: essence, width: width)
+                .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
+                    EssenceMark(color: essence, width: width, flare: flare, swells: swells)
+                } keyframes: { _ in
+                    KeyframeTrack {
+                        LinearKeyframe(1, duration: 0.12, timingCurve: .easeOut)
+                        LinearKeyframe(1, duration: 0.25)
+                        LinearKeyframe(0, duration: 0.45, timingCurve: .easeIn)
+                    }
+                }
+        }
     }
 
     // MARK: Completed flask
@@ -161,6 +186,7 @@ struct BottleView: View {
         case nil:
             if isSelected { return .accentColor }
             if let key = bottle.lockedBy { return Palette.keyColor(key.rawValue).opacity(0.8) }
+            if let essence = bottle.essenceColor { return EssenceMark.outline(essence) }
             return Self.outlineColor
         }
     }

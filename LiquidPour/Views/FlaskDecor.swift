@@ -1,3 +1,4 @@
+import BottleSortCore
 import SwiftUI
 
 // Shared look of a flask, used identically by `BottleView` (at rest) and `PourAnimationView`
@@ -225,5 +226,69 @@ struct FlaskRim: View {
             .offset(y: -size.height * 0.45)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
+    }
+}
+
+// MARK: Essence rune
+
+/// The mark of an essence flask (C1): its color's rune etched into the glass near the neck,
+/// glowing in that color, inside a thin etched ring. Drawn over the liquid so it reads on any
+/// contents (including its own color). Same view at rest (`BottleView`), in flight
+/// (`PourAnimationView`) and in the tips. Place with `.overlay(alignment: .top)` on the flask's
+/// frame. `glow` 0…1 brightens the halo (a flask receiving its own color); `flare` 0…1 is the
+/// refusal pulse (the rune flashes and swells briefly).
+struct EssenceMark: View {
+    let color: ColorID
+    let width: CGFloat
+    var glow: Double = 0
+    var flare: Double = 0
+    /// Whether a flare also swells the mark (off with reduce motion: it only brightens).
+    var swells = true
+
+    /// Side of the mark's square and its center below the flask's top edge: in the headroom
+    /// above a full flask's liquid, just under the cork.
+    static func side(width: CGFloat) -> CGFloat { width * 0.5 }
+    static func centerY(width: CGFloat) -> CGFloat { width * 0.44 }
+
+    /// Faint tint of the glass in the essence color (behind the liquid).
+    static func tint(_ color: ColorID) -> Color { Palette.color(color.rawValue).opacity(0.2) }
+    /// Outline of an essence flask at rest.
+    static func outline(_ color: ColorID) -> Color { Palette.color(color.rawValue).opacity(0.75) }
+
+    var body: some View {
+        let side = Self.side(width: width)
+        let tint = Palette.color(color.rawValue)
+        let rune = Rune(colorIndex: color.rawValue)
+        Canvas { context, size in
+            let rect = CGRect(origin: .zero, size: size).insetBy(dx: size.width * 0.06, dy: size.height * 0.06)
+            let ring = Path(ellipseIn: rect)
+            let line = max(1, size.width * 0.06)
+            // Dark etched disc so the mark reads over any liquid.
+            context.fill(ring, with: .color(.black.opacity(0.42)))
+            // Halo: the ring and rune blurred in the essence color.
+            var halo = context
+            halo.addFilter(.blur(radius: size.width * (0.08 + 0.06 * glow + 0.08 * flare)))
+            halo.opacity = 0.75 + 0.25 * max(glow, flare)
+            halo.stroke(ring, with: .color(tint), lineWidth: line * 2)
+            if let rune {
+                let inner = rect.insetBy(dx: rect.width * 0.22, dy: rect.height * 0.22)
+                halo.stroke(rune.path(in: inner), with: .color(tint),
+                            style: StrokeStyle(lineWidth: line * 2.4, lineCap: .round, lineJoin: .round))
+                context.stroke(rune.path(in: inner), with: .color(tint),
+                               style: StrokeStyle(lineWidth: line * 1.5, lineCap: .round, lineJoin: .round))
+                // Bright core: the "lit" groove of the etching.
+                context.stroke(rune.path(in: inner),
+                               with: .color(.white.opacity(0.55 + 0.35 * max(glow, flare))),
+                               style: StrokeStyle(lineWidth: max(0.6, line * 0.45), lineCap: .round, lineJoin: .round))
+            }
+            context.stroke(ring, with: .color(tint.opacity(0.95)), lineWidth: line)
+            context.stroke(Path(ellipseIn: rect.insetBy(dx: line, dy: line)),
+                           with: .color(.white.opacity(0.25)), lineWidth: max(0.5, line * 0.35))
+        }
+        .frame(width: side, height: side)
+        .scaleEffect(swells ? 1 + 0.25 * flare : 1)
+        .offset(y: Self.centerY(width: width) - side / 2)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
