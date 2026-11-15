@@ -78,7 +78,10 @@ public struct UserDefaultsSettingsStore: SettingsStore, @unchecked Sendable {
         defaults.set(settings.reduceMotion.rawValue, forKey: Key.reduceMotion)
     }
 
+    /// A stored Bool. Also accepts strings such as "1" / "YES" (launch arguments like
+    /// `-settings.colorRunes 1` arrive as strings), read the way `UserDefaults.bool` does.
     private func bool(_ key: String) -> Bool? {
-        defaults.object(forKey: key) as? Bool
+        guard let value = defaults.object(forKey: key) else { return nil }
+        return value as? Bool ?? defaults.bool(forKey: key)
     }
 }

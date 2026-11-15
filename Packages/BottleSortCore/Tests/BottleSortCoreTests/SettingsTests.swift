@@ -40,6 +40,16 @@ import Testing
         #expect(loaded.hapticsEnabled)
     }
 
+    @Test func stringBoolsFromLaunchArgumentsAreRead() {
+        let (defaults, name) = makeDefaults()
+        defer { defaults.removePersistentDomain(forName: name) }
+        defaults.set("1", forKey: UserDefaultsSettingsStore.Key.colorRunes)
+        defaults.set("NO", forKey: UserDefaultsSettingsStore.Key.sound)
+        let loaded = UserDefaultsSettingsStore(defaults: defaults).load()
+        #expect(loaded.colorRunesEnabled)
+        #expect(!loaded.soundEnabled)
+    }
+
     @Test func reduceMotionResolution() {
         #expect(ReduceMotionPreference.system.resolved(system: true))
         #expect(!ReduceMotionPreference.system.resolved(system: false))
