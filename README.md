@@ -58,7 +58,7 @@ else is a challenge).
 - **Chapter screen:** vignette header with name, subtitle, stars and what they open ("Earn 12 more stars to open
   Misty Marsh"), then the recipe grid (recipes open in order).
 - **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
-- **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions) the game shows a
+- **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks) the game shows a
   short illustrated tip drawn with the real flasks (2–3 steps, **Got it**). The **?** in the game's top bar (⌘/)
   shows the tips for the current recipe again. Seen tips are stored per mechanic (`TutorialStore`, UserDefaults).
 
@@ -128,7 +128,11 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   color and no key (unless it is also sealed and the key is its own: the seal is handled first and opening it leaves
   the rune). It can always be poured from, and may start with other colors, which have to be poured out first. It
   counts as sorted like any flask (empty, or full with one color), so in practice it ends empty or full of its own
-  color. An empty essence flask is not a free empty flask.
+  color. An empty essence flask is not a free empty flask. In the app the flask's glass is faintly tinted and
+  outlined in its color, and the color's rune is etched near the neck in a glowing ring (at rest, in flight, and
+  in front of the stream that fills it, which makes it glow brighter). A refused pour shakes the essence flask,
+  flares its rune, plays a low glassy hum and says "This essence flask only takes ⟨potion⟩". VoiceOver adds
+  "essence flask, accepts ⟨potion⟩ only".
 
 ### Random Brew (random levels)
 
@@ -180,6 +184,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPMapAnchor Y` | Opens the chapter map scrolled to height Y (0 = top / dragon, 1 = bottom / cellar). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). |
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
+| `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour an essence flask refuses (rune flare, message, hum). |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
@@ -354,6 +359,6 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 ## Next steps
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
-2. More chapters as their mechanics land (R5; chapter 4's essence flasks still need their look in the app).
+2. More chapters as their mechanics land (R5: chapters 5–10).
 3. A full accessibility pass (VoiceOver already reads flask contents).
 4. Optional iCloud progress sync.
