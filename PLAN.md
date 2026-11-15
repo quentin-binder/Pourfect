@@ -102,9 +102,9 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 ## R1 — Polish (finish Milestone 1)
 - [x] Haptics: light tap on select, soft thud on pour, success pattern on a completed flask (iOS; no-op on Mac)
 - [x] Sound, synthesized with AVAudioEngine (no files): glass clink, pour gurgle (length follows the pour), cork pop + sparkle chime
-- [ ] Completed flask: cork drops in + small particle burst (SwiftUI Canvas)
-- [ ] Glass highlight and a soft glow on potions
-- [ ] Colorblind runes: one simple vector rune per color (12), drawn on every layer when enabled
+- [x] Completed flask: cork drops in + small particle burst (SwiftUI Canvas)
+- [x] Glass highlight and a soft glow on potions
+- [x] Colorblind runes: one simple vector rune per color (12), drawn on every layer when enabled
 - [x] Settings screen: sound, haptics, colorblind runes, reduce-motion override; stored behind a `SettingsStore` protocol
 - [x] Tests: settings persistence; "flask completed" detection lives in core
 
