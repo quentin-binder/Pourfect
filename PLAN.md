@@ -131,8 +131,10 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - [x] Core: difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky / murky + seal) — `DailyPlan`
 - [x] Core: `DailyResult`, `DailyHistory`, `DailyStreaks` (current/best streak, solved days, perfect = solver minimum without a hint)
 - [x] Tests: same date → same level (golden value), 60-day generation timing, streak rules across day boundaries and time zones
-- [ ] App: Daily screen (today's puzzle, streak, calendar of solved days, perfect badge), persistence of `DailyHistory`
-- [ ] App: entry point on the chapter map / side panel, localized weekday + tier labels
+- [x] App: Daily screen (today's puzzle, streak, calendar of solved days, perfect badge), persistence of `DailyHistory` (`DailyStore`, UserDefaults)
+- [x] App: entry point on the chapter map / side panel (Daily Brew card; row in the iPhone bottom bar), localized weekday + tier labels
+- [x] App: `DailyModel` (UTC today, refresh on activation and at UTC midnight, level generated off the main thread and cached), daily win card (perfect badge, streak, Share), debug `-LPDailyDate` / `-LPDailySeedResults` / `-LPOpenDaily` / `-LPPlayDaily`
+- Not covered in R3: no app-level unit tests (the app has no test target; the rules are tested in the core); iPhone was checked by screenshots of the home bar and Daily screen only; light mode not checked (the Daily screen is always dark, like the map)
 
 ## R4 — Mechanics architecture (prerequisite for R5)
 - [ ] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen…`, `.bubbling`, `.cauldron`, `.switch…`); each modifier can veto or change a pour; `lockedBy` migrates to `.sealed`
