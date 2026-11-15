@@ -1,0 +1,1188 @@
+{
+  "chapter" : 2,
+  "introduces" : [
+    "sealed"
+  ],
+  "kind" : "chapter",
+  "levels" : [
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, 0, 2]
+        },
+        {
+          "layers" : [{"key": 1}, 1, 1]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c2_001",
+      "meta" : {
+        "branchingFactor" : 4.17,
+        "deadEndRatio" : 0,
+        "minMoves" : 6,
+        "score" : 14.8,
+        "seed" : 7005,
+        "statesExplored" : 22
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 1, 1, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, 2, 0, 2]
+        },
+        {
+          "layers" : [{"key": 1}, 1, 2, 0]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_002",
+      "meta" : {
+        "branchingFactor" : 7.3,
+        "deadEndRatio" : 0,
+        "minMoves" : 10,
+        "score" : 24.4,
+        "seed" : 1007002,
+        "statesExplored" : 147
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 0, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 1, 2, 2]
+        },
+        {
+          "layers" : [0, 2, 0, 1]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_003",
+      "meta" : {
+        "branchingFactor" : 8.67,
+        "deadEndRatio" : 0,
+        "minMoves" : 9,
+        "score" : 24.7,
+        "seed" : 1007003,
+        "statesExplored" : 187
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 2, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, {"key": 1}, 0, 1]
+        },
+        {
+          "layers" : [0, 1, 2, 1]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_004",
+      "meta" : {
+        "branchingFactor" : 7.91,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 26.8,
+        "seed" : 1007000,
+        "statesExplored" : 240
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 3, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, {"key": 1}, 0, 0]
+        },
+        {
+          "layers" : [2, 2, 3, 1]
+        },
+        {
+          "layers" : [1, 3, 2, 2]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_005",
+      "meta" : {
+        "branchingFactor" : 9.45,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 29.1,
+        "seed" : 2007003,
+        "statesExplored" : 473
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 3, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 3, 1, 0]
+        },
+        {
+          "layers" : [0, 2, 2, 2]
+        },
+        {
+          "layers" : [{"key": 1}, 2, 3, 0]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_006",
+      "meta" : {
+        "branchingFactor" : 7.67,
+        "deadEndRatio" : 0,
+        "minMoves" : 12,
+        "score" : 29.2,
+        "seed" : 2007004,
+        "statesExplored" : 471
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 0, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, 1, 0, 3]
+        },
+        {
+          "layers" : [3, 2, 2, 0]
+        },
+        {
+          "layers" : [3, {"key": 1}, 1, 3]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_007",
+      "meta" : {
+        "branchingFactor" : 8.85,
+        "deadEndRatio" : 0,
+        "minMoves" : 13,
+        "score" : 32.3,
+        "seed" : 2007000,
+        "statesExplored" : 972
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 3, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 2, 2, 3]
+        },
+        {
+          "layers" : [0, 0, 3, 0]
+        },
+        {
+          "layers" : [3, 1, 0, 2]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_008",
+      "meta" : {
+        "branchingFactor" : 9.31,
+        "deadEndRatio" : 0,
+        "minMoves" : 13,
+        "score" : 32.5,
+        "seed" : 2007002,
+        "statesExplored" : 950
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 1, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [3, 0, 3, 2]
+        },
+        {
+          "layers" : [{"key": 1}, 3, 0, 0]
+        },
+        {
+          "layers" : [2, 1, 2, 1]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_009",
+      "meta" : {
+        "branchingFactor" : 8.92,
+        "deadEndRatio" : 0,
+        "minMoves" : 13,
+        "score" : 33,
+        "seed" : 2007007,
+        "statesExplored" : 1329
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 0, 0, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [3, {"key": 1}, 0, 3]
+        },
+        {
+          "layers" : [2, 4, 1, 0]
+        },
+        {
+          "layers" : [1, 1, 1, 3]
+        },
+        {
+          "layers" : [2, 4, 2, 4]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_010",
+      "meta" : {
+        "branchingFactor" : 9.5,
+        "deadEndRatio" : 0,
+        "minMoves" : 16,
+        "score" : 36.8,
+        "seed" : 3007007,
+        "statesExplored" : 1656
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 3, 2, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 1, 4, 1]
+        },
+        {
+          "layers" : [{"key": 1}, 2, 4, 3]
+        },
+        {
+          "layers" : [2, 1, 3, 0]
+        },
+        {
+          "layers" : [4, 0, 2, 0]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_011",
+      "meta" : {
+        "branchingFactor" : 9.33,
+        "deadEndRatio" : 0,
+        "minMoves" : 15,
+        "score" : 36.9,
+        "seed" : 3007000,
+        "statesExplored" : 2888
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 3, 4, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 1, 0, 4]
+        },
+        {
+          "layers" : [{"key": 1}, 3, 3, 0]
+        },
+        {
+          "layers" : [2, 3, 0, 2]
+        },
+        {
+          "layers" : [4, 4, 0, 2]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_012",
+      "meta" : {
+        "branchingFactor" : 8.94,
+        "deadEndRatio" : 0,
+        "minMoves" : 16,
+        "score" : 37.1,
+        "seed" : 3007001,
+        "statesExplored" : 2150
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 0, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 4, 1, 2]
+        },
+        {
+          "layers" : [3, 1, 2, 1]
+        },
+        {
+          "layers" : [4, 0, 0, 3]
+        },
+        {
+          "layers" : [{"key": 1}, 3, 2, 0]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_013",
+      "meta" : {
+        "branchingFactor" : 8.47,
+        "deadEndRatio" : 0,
+        "minMoves" : 17,
+        "score" : 38,
+        "seed" : 3007015,
+        "statesExplored" : 2308
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 1, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [3, 4, 2, 0]
+        },
+        {
+          "layers" : [2, 3, 4, 1]
+        },
+        {
+          "layers" : [0, 1, 3, 1]
+        },
+        {
+          "layers" : [2, {"key": 1}, 2, 4]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_014",
+      "meta" : {
+        "branchingFactor" : 9.13,
+        "deadEndRatio" : 0,
+        "minMoves" : 16,
+        "score" : 38.4,
+        "seed" : 3007009,
+        "statesExplored" : 3843
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 2, 4, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, 3, 2, 4]
+        },
+        {
+          "layers" : [4, 1, 4, 1]
+        },
+        {
+          "layers" : [0, 3, 2, 0]
+        },
+        {
+          "layers" : [3, 1, {"key": 1}, 0]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_015",
+      "meta" : {
+        "branchingFactor" : 4.21,
+        "deadEndRatio" : 0.113,
+        "minMoves" : 19,
+        "score" : 40.1,
+        "seed" : 5008381,
+        "statesExplored" : 796
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 1, 1, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 0, 2, 0]
+        },
+        {
+          "layers" : [2, 3, 1, 3]
+        },
+        {
+          "layers" : [4, 2, 1, 4]
+        },
+        {
+          "layers" : [0, 3, 0, 4]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_016",
+      "meta" : {
+        "branchingFactor" : 9,
+        "deadEndRatio" : 0,
+        "minMoves" : 18,
+        "score" : 40.7,
+        "seed" : 3007008,
+        "statesExplored" : 4523
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 2, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 2, 1, 4]
+        },
+        {
+          "layers" : [4, 3, 0, 4]
+        },
+        {
+          "layers" : [4, 1, 2, 0]
+        },
+        {
+          "layers" : [1, 3, 0, 3]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_017",
+      "meta" : {
+        "branchingFactor" : 3.67,
+        "deadEndRatio" : 0.259,
+        "minMoves" : 18,
+        "score" : 40.9,
+        "seed" : 5007296,
+        "statesExplored" : 142
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 4, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 2, 3, 1]
+        },
+        {
+          "layers" : [1, 0, 3, 1]
+        },
+        {
+          "layers" : [3, 0, 3, 0]
+        },
+        {
+          "layers" : [{"key": 1}, 0, 4, 4]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_018",
+      "meta" : {
+        "branchingFactor" : 3.63,
+        "deadEndRatio" : 0.263,
+        "minMoves" : 19,
+        "score" : 41,
+        "seed" : 5010294,
+        "statesExplored" : 88
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 1, 2, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 5, 5, 5]
+        },
+        {
+          "layers" : [0, 1, 4, 4]
+        },
+        {
+          "layers" : [0, 2, 1, 2]
+        },
+        {
+          "layers" : [0, 4, 1, 5]
+        },
+        {
+          "layers" : [3, 3, 3, 2]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_019",
+      "meta" : {
+        "branchingFactor" : 11.76,
+        "deadEndRatio" : 0,
+        "minMoves" : 17,
+        "score" : 41.4,
+        "seed" : 4007003,
+        "statesExplored" : 5106
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 1, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, {"key": 1}, 4, 4]
+        },
+        {
+          "layers" : [2, 0, 0, 1]
+        },
+        {
+          "layers" : [0, 1, 0, 5]
+        },
+        {
+          "layers" : [2, 5, 5, 3]
+        },
+        {
+          "layers" : [4, 3, 4, 5]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_020",
+      "meta" : {
+        "branchingFactor" : 9.72,
+        "deadEndRatio" : 0,
+        "minMoves" : 18,
+        "score" : 41.7,
+        "seed" : 4007007,
+        "statesExplored" : 5906
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 0, 5, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, {"key": 1}, 1, 3]
+        },
+        {
+          "layers" : [5, 2, 0, 5]
+        },
+        {
+          "layers" : [1, 3, 4, 3]
+        },
+        {
+          "layers" : [4, 2, 2, 0]
+        },
+        {
+          "layers" : [2, 3, 1, 1]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_021",
+      "meta" : {
+        "branchingFactor" : 9.05,
+        "deadEndRatio" : 0,
+        "minMoves" : 19,
+        "score" : 43.6,
+        "seed" : 4007004,
+        "statesExplored" : 10642
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 3, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 3, 5, 1]
+        },
+        {
+          "layers" : [3, 2, {"key": 1}, 2]
+        },
+        {
+          "layers" : [2, 2, 4, 4]
+        },
+        {
+          "layers" : [4, 5, 3, 1]
+        },
+        {
+          "layers" : [5, 0, 5, 0]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_022",
+      "meta" : {
+        "branchingFactor" : 11.83,
+        "deadEndRatio" : 0,
+        "minMoves" : 18,
+        "score" : 45,
+        "seed" : 4007012,
+        "statesExplored" : 16925
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 0, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 3, 1, 0],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [{"key": 1}, 5, 3, 4]
+        },
+        {
+          "layers" : [4, {"key": 2}, 5, 2]
+        },
+        {
+          "layers" : [5, 1, 1, 2]
+        },
+        {
+          "layers" : [2, 1, 5, 3]
+        },
+        {
+          "layers" : [4, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_023",
+      "meta" : {
+        "branchingFactor" : 8.14,
+        "deadEndRatio" : 0.002,
+        "minMoves" : 22,
+        "score" : 45.5,
+        "seed" : 6007039,
+        "statesExplored" : 7637
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 1, 5, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [5, 2, 3, 4],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [4, 3, 5, 3]
+        },
+        {
+          "layers" : [0, 5, 0, 1]
+        },
+        {
+          "layers" : [0, 2, 0, 2]
+        },
+        {
+          "layers" : [{"key": 1}, 4, {"key": 2}, 4]
+        },
+        {
+          "layers" : [2, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_024",
+      "meta" : {
+        "branchingFactor" : 7.1,
+        "deadEndRatio" : 0,
+        "minMoves" : 21,
+        "score" : 46.7,
+        "seed" : 6007016,
+        "statesExplored" : 27610
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 1, 4, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [3, 1, 5, 1],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [{"key": 1}, 1, 4, 5]
+        },
+        {
+          "layers" : [{"key": 2}, 0, 4, 5]
+        },
+        {
+          "layers" : [2, 0, 3, 2]
+        },
+        {
+          "layers" : [4, 5, 0, 0]
+        },
+        {
+          "layers" : [3, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_025",
+      "meta" : {
+        "branchingFactor" : 9.5,
+        "deadEndRatio" : 0.003,
+        "minMoves" : 22,
+        "score" : 46.8,
+        "seed" : 6007028,
+        "statesExplored" : 9848
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 0, 5, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 3, 4, 2],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [3, 5, {"key": 1}, 1]
+        },
+        {
+          "layers" : [0, 2, 0, 0]
+        },
+        {
+          "layers" : [1, 3, {"key": 2}, 3]
+        },
+        {
+          "layers" : [2, 5, 1, 2]
+        },
+        {
+          "layers" : [4, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_026",
+      "meta" : {
+        "branchingFactor" : 11.33,
+        "deadEndRatio" : 0,
+        "minMoves" : 21,
+        "score" : 48.5,
+        "seed" : 6007005,
+        "statesExplored" : 24221
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 6, 5],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 2, 3, 2],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [2, 6, 1, 0]
+        },
+        {
+          "layers" : [6, 6, {"key": 1}, 0]
+        },
+        {
+          "layers" : [{"key": 2}, 5, 5, 3]
+        },
+        {
+          "layers" : [1, 3, 3, 4]
+        },
+        {
+          "layers" : [1, 4, 1, 0]
+        },
+        {
+          "layers" : [2, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_027",
+      "meta" : {
+        "branchingFactor" : 10.57,
+        "deadEndRatio" : 0.002,
+        "minMoves" : 23,
+        "score" : 50.6,
+        "seed" : 7007038,
+        "statesExplored" : 28757
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 2, 3, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [5, 3, 6, 6],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [5, 1, 4, 4]
+        },
+        {
+          "layers" : [0, 3, 5, 0]
+        },
+        {
+          "layers" : [{"key": 1}, 4, 0, 1]
+        },
+        {
+          "layers" : [0, 4, 1, 2]
+        },
+        {
+          "layers" : [{"key": 2}, 6, 2, 1]
+        },
+        {
+          "layers" : [5, 6]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_028",
+      "meta" : {
+        "branchingFactor" : 8.72,
+        "deadEndRatio" : 0.01,
+        "minMoves" : 25,
+        "score" : 51,
+        "seed" : 7007030,
+        "statesExplored" : 18692
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [6, 6, 6, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 0, 1, 5],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [0, {"key": 1}, 1, 3]
+        },
+        {
+          "layers" : [4, 5, 3, 2]
+        },
+        {
+          "layers" : [0, 3, {"key": 2}, 0]
+        },
+        {
+          "layers" : [2, 4, 3, 6]
+        },
+        {
+          "layers" : [2, 1, 2, 5]
+        },
+        {
+          "layers" : [4, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_029",
+      "meta" : {
+        "branchingFactor" : 11.04,
+        "deadEndRatio" : 0.005,
+        "minMoves" : 24,
+        "score" : 52.2,
+        "seed" : 7007012,
+        "statesExplored" : 32259
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 1, 1, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [3, 0, 4, 0],
+          "lockedBy" : 2
+        },
+        {
+          "layers" : [0, 2, 0, 3]
+        },
+        {
+          "layers" : [{"key": 1}, 2, 6, 1]
+        },
+        {
+          "layers" : [{"key": 2}, 5, 2, 4]
+        },
+        {
+          "layers" : [3, 5, 6, 4]
+        },
+        {
+          "layers" : [6, 3, 2, 5]
+        },
+        {
+          "layers" : [6, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c2_030",
+      "meta" : {
+        "branchingFactor" : 11.4,
+        "deadEndRatio" : 0.018,
+        "minMoves" : 25,
+        "score" : 52.8,
+        "seed" : 7007004,
+        "statesExplored" : 19272
+      }
+    }
+  ],
+  "location" : "Rune Vault",
+  "name" : "Rune Vault",
+  "subtitle" : "Sealed flasks open with a rune-stone key",
+  "version" : 1
+}

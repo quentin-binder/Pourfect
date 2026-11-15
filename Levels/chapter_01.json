@@ -1,4 +1,9 @@
 {
+  "chapter" : 1,
+  "introduces" : [
+    "basic"
+  ],
+  "kind" : "chapter",
   "levels" : [
     {
       "bottles" : [
@@ -1437,7 +1442,8 @@
       }
     }
   ],
-  "name" : "Starter",
-  "subtitle" : "Learn to pour — 3 to 8 colors",
+  "location" : "Apprentice Cellar",
+  "name" : "Apprentice Cellar",
+  "subtitle" : "Sort every potion into its own flask",
   "version" : 1
 }
