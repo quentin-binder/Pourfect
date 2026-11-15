@@ -32,12 +32,12 @@ public enum Difficulty {
     ///
     ///     score = 1.0 × minMoves
     ///           + 1.5 × log2(statesExplored)
-    ///           + 15  × deadEndRatio
+    ///           + 40  × deadEndRatio
     ///           + 0.5 × branchingFactor
     public static func score(minMoves: Int, statesExplored: Int, deadEndRatio: Double, branchingFactor: Double) -> Double {
         let raw = Double(minMoves)
             + 1.5 * log2(Double(max(1, statesExplored)))
-            + 15 * deadEndRatio
+            + 40 * deadEndRatio
             + 0.5 * branchingFactor
         return (raw * 10).rounded() / 10
     }

@@ -118,7 +118,7 @@ struct Tier {
     let moves: ClosedRange<Int>
 }
 
-/// Starter pack: rising difficulty curve (see DECISIONS.md).
+/// Starter pack tiers (see DECISIONS.md). The final pack is sorted by score globally.
 let starterTiers: [Tier] = [
     Tier(count: 2, colors: 3, capacity: 3, empty: 2, moves: 4...6),     //  1–2   tutorial
     Tier(count: 3, colors: 3, capacity: 4, empty: 2, moves: 6...8),     //  3–5   tutorial
@@ -132,26 +132,25 @@ let starterTiers: [Tier] = [
 ]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
-    var levels: [LevelDefinition] = []
+    var all: [GeneratedLevel] = []
     for (t, tier) in tiers.enumerated() {
         // Separate seed space per tier, so editing one tier doesn't change the others.
         let config = GeneratorConfig(colors: tier.colors, capacity: tier.capacity, emptyBottles: tier.empty,
                                      seed: seed &+ UInt64(t) * 1_000_000, minMoves: tier.moves, score: scoreRange)
         let start = ContinuousClock.now
-        let generated: [GeneratedLevel]
         do {
-            generated = try Generator.generate(config, count: tier.count) { level in
+            all += try Generator.generate(config, count: tier.count) { level in
                 log("  seed \(level.seed): minMoves \(level.report.minMoves), score \(level.report.score)")
             }
         } catch { fail("tier \(t + 1) (\(tier.colors) colors): \(error)") }
         log("tier \(t + 1): \(tier.count) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty — \(formatTime(ContinuousClock.now - start))")
-        // Within a tier, order by score so difficulty rises.
-        for level in generated.sorted(by: { $0.report.score < $1.report.score }) {
-            let id = String(format: "%@_%03d", idPrefix, levels.count + 1)
-            levels.append(LevelDefinition(id: id, state: level.state, meta: LevelMeta(seed: level.seed, report: level.report)))
-        }
     }
-    return levels
+    // One global sort by score, so difficulty rises through the whole pack.
+    return all.sorted { ($0.report.score, $0.seed) < ($1.report.score, $1.seed) }
+        .enumerated().map { i, level in
+            LevelDefinition(id: String(format: "%@_%03d", idPrefix, i + 1), state: level.state,
+                            meta: LevelMeta(seed: level.seed, report: level.report))
+        }
 }
 
 func write(_ levels: [LevelDefinition], to path: String) {
