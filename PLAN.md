@@ -30,12 +30,12 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Checkpoint (awaiting "continue")
 
 ## Phase 3 — SwiftUI app (iOS + macOS)
-- [ ] Link local package into `LiquidPour.xcodeproj`; bundle `Levels/pack_01.json`
-- [ ] 12-color palette, bottle view, game screen, HUD, win overlay, stuck banner
-- [ ] Level select + `ProgressStore` (UserDefaults)
-- [ ] `GameViewModel` (@Observable), solver off main thread
-- [ ] Builds & runs on iOS Simulator and macOS
-- [ ] Checkpoint
+- [x] Link local package into `LiquidPour.xcodeproj`; bundle `Levels/pack_01.json`
+- [x] 12-color palette, bottle view, game screen, HUD, win overlay, stuck banner
+- [x] Level select + `ProgressStore` (UserDefaults)
+- [x] `GameViewModel` (@Observable), solver off main thread
+- [x] Builds & runs on iOS Simulator and macOS
+- [x] Verified: iOS Simulator screenshots (level select, game, win, persistence after relaunch); native arm64 macOS app launches
 
 ## Phase 4 — Verification & cleanup
 - [ ] All tests, `levelgen --report` table
