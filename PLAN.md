@@ -177,3 +177,6 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [ ] Accessibility pass: VoiceOver labels for flasks and layers, Dynamic Type in menus, reduce-motion everywhere
 - [ ] Optional: TestFlight beta (App Store Connect stats only, no third-party analytics)
 - [ ] Business decision point; `HintService` and `ProgressStore` stay behind protocols
+
+## Parked ideas (user, not scheduled)
+- [ ] **Different-sized flasks** as a mechanic (mixed capacities in one recipe). Open decisions when it's picked up: win rule (workspace flasks that must end empty / colors sized to a flask / loose sorting) and which chapter introduces it.
