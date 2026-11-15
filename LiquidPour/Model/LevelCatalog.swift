@@ -39,7 +39,7 @@ final class LevelCatalog {
                 errors.append("\(id): \(error)")
             }
         }
-        if urls.isEmpty { errors.append("No level packs found in the app bundle") }
+        if urls.isEmpty { errors.append(String(localized: "No recipe chapters found in the app bundle")) }
         return LevelCatalog(packs: packs, loadErrors: errors)
     }
 }

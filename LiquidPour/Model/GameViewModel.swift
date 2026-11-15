@@ -62,7 +62,7 @@ final class GameViewModel {
     private let progress: ProgressModel?
     /// Set when playing a random level: the options used to make the next one.
     let randomOptions: RandomLevelOptions?
-    /// Generates the next random level ("New Random Level" on the win card).
+    /// Generates the next random level ("New Random Brew" on the win card).
     let randomMaker = RandomLevelMaker()
 
     private(set) var levelIndex: Int
@@ -126,8 +126,8 @@ final class GameViewModel {
 
     var isRandom: Bool { randomOptions != nil }
     var title: String {
-        if let randomOptions { return "Random · \(randomOptions.mode.title)" }
-        return "Level \(levelIndex + 1)"
+        if let randomOptions { return String(localized: "Random Brew · \(randomOptions.mode.title)") }
+        return String(localized: "Recipe \(levelIndex + 1)")
     }
 
     var level: LevelDefinition { levels[levelIndex] }
@@ -200,7 +200,7 @@ final class GameViewModel {
 
     func restart() {
         session.restart()
-        randomMaker.cancel()   // Replay while "New Random Level" runs: keep the replayed board
+        randomMaker.cancel()   // Replay while "New Random Brew" runs: keep the replayed board
         cancelPour()
         selected = nil
         clearHint()
@@ -226,9 +226,9 @@ final class GameViewModel {
             case .solved(let moves, _):
                 if let first = moves.first { self.showHint(first) }
             case .unsolvable:
-                self.flash("No solution from here — undo?")
+                self.flash(String(localized: "No solution from here — undo?"))
             case .unknown:
-                self.flash("Couldn't find a hint in time")
+                self.flash(String(localized: "Couldn't find a hint in time"))
             }
         }
     }

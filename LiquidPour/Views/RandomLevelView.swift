@@ -1,7 +1,7 @@
 import BottleSortCore
 import SwiftUI
 
-/// Random Level settings: mode and board size, then "Generate" (runs in the background).
+/// Random Brew settings: mode and workbench size, then "Brew" (generates in the background).
 struct RandomLevelView: View {
     let onPlay: (LevelDefinition, RandomLevelOptions) -> Void
 
@@ -27,30 +27,30 @@ struct RandomLevelView: View {
 
             Section {
                 Stepper(value: $options.colors, in: RandomLevelOptions.colorRange) {
-                    row("Colors", options.colors)
+                    row("Potions", options.colors)
                 }
                 Stepper(value: $options.capacity, in: RandomLevelOptions.capacityRange) {
-                    row("Bottle size", options.capacity)
+                    row("Flask size", options.capacity)
                 }
                 Stepper(value: $options.emptyBottles, in: RandomLevelOptions.emptyRange) {
-                    row("Empty bottles", options.emptyBottles)
+                    row("Empty flasks", options.emptyBottles)
                 }
                 if options.mode == .locksAndKeys {
                     Stepper(value: $options.locks, in: lockRange) {
-                        row("Locks", options.locks)
+                        row("Rune seals", options.locks)
                     }
                 }
             } header: {
-                Text("Board")
+                Text("Workbench")
             } footer: {
-                Text("\(RandomSettings.bottleCount(options)) bottles in total.")
+                Text("\(RandomSettings.bottleCount(options)) flasks in total.")
             }
 
             Section {
                 Button(action: generate) {
                     HStack {
                         Spacer()
-                        Label(maker.phase == .failed ? "Try Again" : "Generate", systemImage: "dice")
+                        Label(maker.phase == .failed ? "Try Again" : "Brew", systemImage: "dice")
                             .font(.headline)
                         Spacer()
                     }
@@ -63,7 +63,7 @@ struct RandomLevelView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("Random Level")
+        .navigationTitle("Random Brew")
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -87,11 +87,11 @@ struct RandomLevelView: View {
                                                        min(RandomLevelOptions.lockRange.upperBound, options.colors - 1))
     }
 
-    private func row(_ title: String, _ value: Int) -> some View {
+    private func row(_ title: LocalizedStringKey, _ value: Int) -> some View {
         HStack {
             Text(title)
             Spacer()
-            Text("\(value)").monospacedDigit().foregroundStyle(.secondary)
+            Text(value, format: .number).monospacedDigit().foregroundStyle(.secondary)
         }
     }
 

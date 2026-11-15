@@ -23,7 +23,7 @@ struct LevelSelectView: View {
     var body: some View {
         ScrollView {
             ForEach(catalog.loadErrors, id: \.self) { error in
-                ContentUnavailableView("Levels unavailable", systemImage: "exclamationmark.triangle", description: Text(error))
+                ContentUnavailableView("Recipes unavailable", systemImage: "exclamationmark.triangle", description: Text(error))
             }
             randomButton
                 .padding([.horizontal, .top])
@@ -54,11 +54,11 @@ struct LevelSelectView: View {
             }
         }
         .background { WorkbenchBackground(style: .menu) }
-        .navigationTitle("LiquidPour")
+        .navigationTitle("Pourfect")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: onRandom) { Label("Random Level", systemImage: "dice") }
-                    .help("Play a randomly generated level")
+                Button(action: onRandom) { Label("Random Brew", systemImage: "dice") }
+                    .help("Brew a randomly generated recipe")
             }
             ToolbarItem(placement: .primaryAction) {
                 settingsButton
@@ -81,7 +81,7 @@ struct LevelSelectView: View {
         #endif
     }
 
-    /// Horizontal row of pack chips with earned/total stars.
+    /// Horizontal row of chapter chips with earned/total stars.
     private var packPicker: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
@@ -101,7 +101,7 @@ struct LevelSelectView: View {
                         .contentShape(Capsule())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("\(pack.name) pack, \(earned) of \(pack.levels.count * 3) stars")
+                    .accessibilityLabel(Text("\(pack.name) chapter, \(earned) of \(pack.levels.count * 3) stars"))
                     .accessibilityAddTraits(selected ? .isSelected : [])
                 }
             }
@@ -109,14 +109,14 @@ struct LevelSelectView: View {
         }
     }
 
-    /// Large entry point for random levels, visible on every device above the level grid.
+    /// Large entry point for random recipes, visible on every device above the recipe grid.
     private var randomButton: some View {
         Button(action: onRandom) {
             HStack(spacing: 14) {
                 Image(systemName: "dice.fill").font(.title)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Random Level").font(.headline)
-                    Text("Classic · Locks & Keys · Hidden layers")
+                    Text("Random Brew").font(.headline)
+                    Text("Classic · Rune Seals · Murky Layers")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -130,7 +130,7 @@ struct LevelSelectView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Choose a mode and board size, then generate a level")
+        .accessibilityHint(Text("Choose a mode and workbench size, then brew a recipe"))
     }
 }
 
@@ -142,18 +142,18 @@ private struct LevelCell: View {
     var body: some View {
         VStack(spacing: 4) {
             if unlocked {
-                Text("\(number)").font(.title2.bold().monospacedDigit())
+                Text(number, format: .number).font(.title2.bold().monospacedDigit())
                 StarsView(count: stars, size: 10)
             } else {
                 Image(systemName: "lock.fill").font(.title3)
-                Text("\(number)").font(.caption.monospacedDigit())
+                Text(number, format: .number).font(.caption.monospacedDigit())
             }
         }
         .frame(maxWidth: .infinity, minHeight: 72)
         .foregroundStyle(unlocked ? Color.primary : Color.secondary)
         .background(RoundedRectangle(cornerRadius: 14).fill(unlocked ? Color.accentColor.opacity(0.15) : Color.gray.opacity(0.12)))
         .contentShape(Rectangle())
-        .accessibilityLabel(unlocked ? "Level \(number), \(stars) stars" : "Level \(number), locked")
+        .accessibilityLabel(unlocked ? Text("Recipe \(number), \(stars) stars") : Text("Recipe \(number), locked"))
     }
 }
 

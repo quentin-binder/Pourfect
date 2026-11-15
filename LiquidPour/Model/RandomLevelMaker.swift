@@ -5,17 +5,17 @@ import Observation
 extension GameMode {
     var title: String {
         switch self {
-        case .classic: return "Classic"
-        case .locksAndKeys: return "Locks & Keys"
-        case .hidden: return "Hidden layers"
+        case .classic: return String(localized: "Classic", comment: "Random recipe mode")
+        case .locksAndKeys: return String(localized: "Rune Seals", comment: "Random recipe mode with sealed flasks and rune keys")
+        case .hidden: return String(localized: "Murky Layers", comment: "Random recipe mode with hidden layers")
         }
     }
 
     var blurb: String {
         switch self {
-        case .classic: return "Sort every color into its own bottle."
-        case .locksAndKeys: return "Locked bottles open when you pour their key into them. Keys move alone."
-        case .hidden: return "Layers below the top are shown as “?” until you uncover them."
+        case .classic: return String(localized: "Sort every potion into its own flask.")
+        case .locksAndKeys: return String(localized: "Sealed flasks open when you pour their rune key into them. Keys move alone.")
+        case .hidden: return String(localized: "Murky layers below the top show as “?” until you uncover them.")
         }
     }
 }
@@ -51,7 +51,7 @@ enum RandomSettings {
         defaults.set(options.locks, forKey: locksKey)
     }
 
-    /// Bottles a level with these options will have (lock levels get one extra, partly filled bottle).
+    /// Flasks a recipe with these options will have (lock recipes get one extra, partly filled flask).
     static func bottleCount(_ options: RandomLevelOptions) -> Int {
         let o = options.clamped
         return o.colors + o.emptyBottles + (o.mode == .locksAndKeys ? 1 : 0)
@@ -75,7 +75,9 @@ final class RandomLevelMaker {
 
     var isGenerating: Bool { if case .generating = phase { return true } else { return false } }
 
-    static let failureMessage = "Couldn't find a solvable level in \(RandomLevel.defaultMaxAttempts) tries — try more empty bottles or fewer colors"
+    static var failureMessage: String {
+        String(localized: "Couldn't brew a solvable recipe in \(RandomLevel.defaultMaxAttempts) tries — try more empty flasks or fewer potions")
+    }
 
     /// Generates a level and passes it to `completion` (on the main actor). On failure
     /// `phase` becomes `.failed`. `seed` defaults to a fresh random seed.

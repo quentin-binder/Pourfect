@@ -22,18 +22,18 @@ enum Rune: Int, CaseIterable {
 
     var name: String {
         switch self {
-        case .triangle: "Triangle"
-        case .wave: "Wave"
-        case .star: "Star"
-        case .chevron: "Chevron"
-        case .crescent: "Crescent"
-        case .bolt: "Bolt"
-        case .diamond: "Diamond"
-        case .heart: "Heart"
-        case .square: "Square"
-        case .cross: "Cross"
-        case .hexagon: "Hexagon"
-        case .ring: "Ring"
+        case .triangle: String(localized: "Triangle", comment: "Name of a colorblind rune")
+        case .wave: String(localized: "Wave", comment: "Name of a colorblind rune")
+        case .star: String(localized: "Star", comment: "Name of a colorblind rune")
+        case .chevron: String(localized: "Chevron", comment: "Name of a colorblind rune")
+        case .crescent: String(localized: "Crescent", comment: "Name of a colorblind rune")
+        case .bolt: String(localized: "Bolt", comment: "Name of a colorblind rune")
+        case .diamond: String(localized: "Diamond", comment: "Name of a colorblind rune")
+        case .heart: String(localized: "Heart", comment: "Name of a colorblind rune")
+        case .square: String(localized: "Square", comment: "Name of a colorblind rune")
+        case .cross: String(localized: "Cross", comment: "Name of a colorblind rune")
+        case .hexagon: String(localized: "Hexagon", comment: "Name of a colorblind rune")
+        case .ring: String(localized: "Ring", comment: "Name of a colorblind rune")
         }
     }
 

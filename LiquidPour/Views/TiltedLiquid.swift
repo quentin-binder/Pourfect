@@ -95,7 +95,7 @@ struct TiltedLiquid: View {
         context.translateBy(x: point.x, y: point.y)
         switch glyph {
         case .hidden:
-            let text = Text("?")
+            let text = Text(verbatim: "?")
                 .font(.system(size: size * 0.55, weight: .heavy, design: .rounded))
                 .foregroundStyle(.white.opacity(0.9))
             context.draw(context.resolve(text), at: .zero)

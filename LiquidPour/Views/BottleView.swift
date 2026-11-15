@@ -203,14 +203,14 @@ private struct LayerView: View {
                         .rotationEffect(.degrees(-45))
                         .foregroundStyle(Palette.keyColor(key.rawValue))
                 }
-                .accessibilityLabel("Key")
+                .accessibilityLabel(Text("Rune key"))
         }
     }
 
     private var hiddenFace: some View {
         Rectangle().fill(Palette.hiddenLayer.gradient)
             .overlay {
-                Text("?")
+                Text(verbatim: "?")
                     .font(.system(size: height * 0.55, weight: .heavy, design: .rounded))
                     .foregroundStyle(.white.opacity(0.9))
             }

@@ -23,6 +23,27 @@ enum Palette {
         colors.indices.contains(id) ? colors[id] : .black
     }
 
+    /// Potion names of the palette colors (same index as `colors`), spoken by VoiceOver and
+    /// usable in tutorials or legends. Distinct from the rune names on purpose: these name the brew.
+    static let potionNames: [String] = [
+        String(localized: "Dragon's Blood", comment: "Potion name of the red liquid"),
+        String(localized: "Sapphire Draught", comment: "Potion name of the blue liquid"),
+        String(localized: "Liquid Sunlight", comment: "Potion name of the yellow liquid"),
+        String(localized: "Forest Elixir", comment: "Potion name of the green liquid"),
+        String(localized: "Moonshade", comment: "Potion name of the purple liquid"),
+        String(localized: "Phoenix Ember", comment: "Potion name of the orange liquid"),
+        String(localized: "Mermaid Teal", comment: "Potion name of the cyan liquid"),
+        String(localized: "Fairy Blush", comment: "Potion name of the pink liquid"),
+        String(localized: "Mandrake Root", comment: "Potion name of the brown liquid"),
+        String(localized: "Goblin Lime", comment: "Potion name of the lime liquid"),
+        String(localized: "Midnight Ink", comment: "Potion name of the navy liquid"),
+        String(localized: "Ghost Mist", comment: "Potion name of the grey liquid"),
+    ]
+
+    static func potionName(_ id: Int) -> String {
+        potionNames.indices.contains(id) ? potionNames[id] : String(localized: "Unknown potion")
+    }
+
     /// Key / lock colors, by `KeyID.rawValue` (a key and the bottle it opens share one).
     /// Metallic tones so they don't read as liquids.
     static let keyColors: [Color] = [
@@ -35,6 +56,19 @@ enum Palette {
 
     static func keyColor(_ id: Int) -> Color {
         keyColors.indices.contains(id) ? keyColors[id] : .white
+    }
+
+    /// Names of the rune-key metals (same index as `keyColors`), for VoiceOver.
+    static let keyNames: [String] = [
+        String(localized: "Copper", comment: "Metal of a rune key and its seal"),
+        String(localized: "Gold", comment: "Metal of a rune key and its seal"),
+        String(localized: "Steel", comment: "Metal of a rune key and its seal"),
+        String(localized: "Rose Gold", comment: "Metal of a rune key and its seal"),
+        String(localized: "Verdigris", comment: "Metal of a rune key and its seal"),
+    ]
+
+    static func keyName(_ id: Int) -> String {
+        keyNames.indices.contains(id) ? keyNames[id] : String(localized: "Silver", comment: "Metal of a rune key and its seal")
     }
 
     /// Background of a key layer (dark, so the key icon stands out from the liquids).
@@ -50,5 +84,36 @@ extension Layer {
         case .color(let id): return Palette.color(id.rawValue)
         case .key: return Palette.keyLayer
         }
+    }
+
+    /// What VoiceOver says for this layer, e.g. "Dragon's Blood" or "Gold rune key".
+    var spokenName: String {
+        switch self {
+        case .color(let id): return Palette.potionName(id.rawValue)
+        case .key(let key): return String(localized: "\(Palette.keyName(key.rawValue)) rune key")
+        }
+    }
+}
+
+extension Bottle {
+    /// VoiceOver description of a flask's contents, bottom to top, with runs of the same potion
+    /// grouped. The bottom `hiddenLayers` are murky and not named.
+    func spokenContents(hiddenLayers: Int) -> String {
+        var parts: [String] = []
+        if hiddenLayers > 0 {
+            parts.append(String(localized: "\(hiddenLayers) murky", comment: "Count of hidden layers in a flask"))
+        }
+        for run in BottleView.runs(layers, hiddenLayers: hiddenLayers) where !run.hidden {
+            parts.append(run.count == 1 ? run.layer.spokenName
+                                        : String(localized: "\(run.count) \(run.layer.spokenName)",
+                                                 comment: "Layer count and potion name, e.g. 2 Moonshade"))
+        }
+        var text = parts.isEmpty ? String(localized: "Empty") : parts.joined(separator: ", ")
+        if Rules.isCompleted(self) { text += ", " + String(localized: "corked") }
+        if let key = lockedBy {
+            text += ", " + String(localized: "sealed with a \(Palette.keyName(key.rawValue)) rune",
+                                  comment: "A sealed flask; the argument is the key metal")
+        }
+        return text
     }
 }

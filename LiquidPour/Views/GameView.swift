@@ -137,7 +137,8 @@ struct GameView: View {
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }
                         // The pour animation draws these two bottles itself; swap without fading.
                         .animation(nil) { $0.opacity(isPouring(index) ? 0 : 1) }
-                        .accessibilityLabel("Bottle \(index + 1)")
+                        .accessibilityLabel(Text("Flask \(index + 1)"))
+                        .accessibilityValue(bottles[index].spokenContents(hiddenLayers: model.hiddenLayerCount(index)))
                     }
                 }
             }
@@ -177,7 +178,7 @@ struct GameView: View {
         switch showsResult ? model.status : .playing {
         case .won(let stars):
             card {
-                Text("Solved!").font(.largeTitle.bold())
+                Text("Brewed!").font(.largeTitle.bold())
                 StarsView(count: stars, size: 32)
                 Text("\(model.moveCount) moves · best possible \(model.minMoves ?? model.moveCount)")
                     .foregroundStyle(.secondary)
@@ -191,14 +192,14 @@ struct GameView: View {
                         Button {
                             withAnimation { model.newRandomLevel() }
                         } label: {
-                            Label(model.randomMaker.phase == .failed ? "Try Again" : "New Random Level",
+                            Label(model.randomMaker.phase == .failed ? "Try Again" : "New Random Brew",
                                   systemImage: "dice")
                         }
                         .buttonStyle(.borderedProminent)
                         .keyboardShortcut(.defaultAction)
                         .disabled(model.randomMaker.isGenerating)
                     } else if model.hasNextLevel {
-                        Button("Next") { withAnimation { model.nextLevel() } }
+                        Button("Next Recipe") { withAnimation { model.nextLevel() } }
                             .buttonStyle(.borderedProminent)
                             .keyboardShortcut(.defaultAction)
                     }
@@ -223,7 +224,7 @@ struct GameView: View {
         }
     }
 
-    /// Progress / failure of "New Random Level" on the win card.
+    /// Progress / failure of "New Random Brew" on the win card.
     @ViewBuilder private var randomStatus: some View {
         switch model.randomMaker.phase {
         case .generating(let attempt, let total):

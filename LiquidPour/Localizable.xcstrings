@@ -1,0 +1,329 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ chapter, %lld of %lld stars" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ chapter, %2$lld of %#@stars@"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%@ rune key" : {},
+    "%lld %@" : {
+      "comment" : "Layer count and potion name, e.g. 2 Moonshade"
+    },
+    "%lld flasks in total." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld flask in total."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld flasks in total."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld moves · best possible %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@moves@ · best possible %2$lld"
+          },
+          "substitutions" : {
+            "moves" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg move"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg moves"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld murky" : {
+      "comment" : "Count of hidden layers in a flask",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld murky layer"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld murky layers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Accessibility" : {},
+    "Attempt %lld of %lld" : {},
+    "Bolt" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Brew" : {},
+    "Brew a randomly generated recipe" : {},
+    "Brewed!" : {},
+    "Chevron" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Choose a mode and workbench size, then brew a recipe" : {},
+    "Classic" : {
+      "comment" : "Random recipe mode"
+    },
+    "Classic · Rune Seals · Murky Layers" : {},
+    "Color Runes" : {},
+    "Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle change of the potion levels; System follows your device setting." : {},
+    "Copper" : {
+      "comment" : "Metal of a rune key and its seal"
+    },
+    "corked" : {},
+    "Couldn't brew a solvable recipe in %lld tries — try more empty flasks or fewer potions" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Couldn't brew a solvable recipe in %lld try — try more empty flasks or fewer potions"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Couldn't brew a solvable recipe in %lld tries — try more empty flasks or fewer potions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Couldn't find a hint in time" : {},
+    "Crescent" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Cross" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Diamond" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Done" : {},
+    "Dragon's Blood" : {
+      "comment" : "Potion name of the red liquid"
+    },
+    "Empty" : {},
+    "Empty flasks" : {},
+    "Fairy Blush" : {
+      "comment" : "Potion name of the pink liquid"
+    },
+    "Feedback" : {},
+    "Flask %lld" : {},
+    "Flask size" : {},
+    "Forest Elixir" : {
+      "comment" : "Potion name of the green liquid"
+    },
+    "Ghost Mist" : {
+      "comment" : "Potion name of the grey liquid"
+    },
+    "Goblin Lime" : {
+      "comment" : "Potion name of the lime liquid"
+    },
+    "Gold" : {
+      "comment" : "Metal of a rune key and its seal"
+    },
+    "Haptics" : {},
+    "Heart" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Hexagon" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Hint" : {},
+    "Liquid Sunlight" : {
+      "comment" : "Potion name of the yellow liquid"
+    },
+    "Mandrake Root" : {
+      "comment" : "Potion name of the brown liquid"
+    },
+    "Mermaid Teal" : {
+      "comment" : "Potion name of the cyan liquid"
+    },
+    "Midnight Ink" : {
+      "comment" : "Potion name of the navy liquid"
+    },
+    "Mode" : {},
+    "Moonshade" : {
+      "comment" : "Potion name of the purple liquid"
+    },
+    "Moves %lld" : {},
+    "Murky Layers" : {
+      "comment" : "Random recipe mode with hidden layers"
+    },
+    "Murky layers below the top show as “?” until you uncover them." : {},
+    "New Random Brew" : {},
+    "Next Recipe" : {},
+    "No recipe chapters found in the app bundle" : {},
+    "No solution from here — undo?" : {},
+    "Off" : {},
+    "On" : {},
+    "Phoenix Ember" : {
+      "comment" : "Potion name of the orange liquid"
+    },
+    "Potions" : {},
+    "Pourfect" : {},
+    "Random Brew" : {},
+    "Random Brew · %@" : {},
+    "Recipe %lld" : {},
+    "Recipe %lld, %lld stars" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recipe %1$lld, %#@stars@"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Recipe %lld, locked" : {},
+    "Recipes unavailable" : {},
+    "Reduce Motion" : {},
+    "Replay" : {},
+    "Restart" : {},
+    "Ring" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Rose Gold" : {
+      "comment" : "Metal of a rune key and its seal"
+    },
+    "Rune key" : {},
+    "Rune seals" : {},
+    "Rune Seals" : {
+      "comment" : "Random recipe mode with sealed flasks and rune keys"
+    },
+    "Sapphire Draught" : {
+      "comment" : "Potion name of the blue liquid"
+    },
+    "Sealed flasks open when you pour their rune key into them. Keys move alone." : {},
+    "sealed with a %@ rune" : {
+      "comment" : "A sealed flask; the argument is the key metal"
+    },
+    "Settings" : {},
+    "Silver" : {
+      "comment" : "Metal of a rune key and its seal"
+    },
+    "Sort every potion into its own flask." : {},
+    "Sound Effects" : {},
+    "Sound, color runes and motion" : {},
+    "Square" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Star" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Steel" : {
+      "comment" : "Metal of a rune key and its seal"
+    },
+    "Stuck — undo or restart?" : {},
+    "System" : {},
+    "Thinking…" : {},
+    "Triangle" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Try Again" : {},
+    "Undo" : {},
+    "Unknown potion" : {},
+    "Verdigris" : {
+      "comment" : "Metal of a rune key and its seal"
+    },
+    "Wave" : {
+      "comment" : "Name of a colorblind rune"
+    },
+    "Workbench" : {},
+    "· Best %lld" : {},
+    "★ %lld/%lld" : {}
+  },
+  "version" : "1.0"
+}

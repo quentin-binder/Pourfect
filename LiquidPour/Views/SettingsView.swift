@@ -41,7 +41,7 @@ struct SettingsView: View {
             } header: {
                 Text("Accessibility")
             } footer: {
-                Text("Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle level change; System follows your device setting.")
+                Text("Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle change of the potion levels; System follows your device setting.")
             }
         }
         .formStyle(.grouped)
