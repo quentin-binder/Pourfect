@@ -267,7 +267,7 @@ import Testing
     }
 
     static let levelsDir = packURL.deletingLastPathComponent()
-    static let shippedChapters = ["chapter_01", "chapter_02", "chapter_03"]
+    static let shippedChapters = ["chapter_01", "chapter_02", "chapter_03", "chapter_04"]
     static let shippedChallenges = ["challenge_challenger", "challenge_expert", "challenge_master"]
     static let shippedPacks = shippedChapters + shippedChallenges
 
@@ -370,5 +370,47 @@ import Testing
             let pack = try LevelLoader.load(contentsOf: Self.levelsDir.appendingPathComponent(name + ".json"))
             for level in pack.levels { #expect(seen.insert(level.id).inserted, "\(level.id) duplicated") }
         }
+    }
+}
+
+/// Glyph Library (chapter 4): essence flasks.
+@Suite struct GlyphLibraryTests {
+    static func pack() throws -> LevelPack { try LevelFileTests.load("chapter_04") }
+
+    /// ~30 recipes c4_001…, every one with a rune; a tiny tutorial first, seals only at the end.
+    @Test func shape() throws {
+        let pack = try Self.pack()
+        #expect(pack.version == 2)
+        #expect(pack.introduces == [.essence] && pack.location == "Glyph Library" && pack.chapter == 4)
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c4_%03d", $0 + 1) })
+        let runes = pack.levels.map { $0.gameState.bottles.filter { $0.essenceColor != nil }.count }
+        #expect(runes.allSatisfy { (1...2).contains($0) })
+        #expect(pack.levels.allSatisfy { $0.mechanics.contains(.essence) })
+        let locks = pack.levels.map { $0.gameState.bottles.filter { $0.lockedBy != nil }.count }
+        #expect(locks == locks.sorted() && locks.allSatisfy { $0 <= 1 } && locks.last == 1)
+        let tutorial = try #require(pack.levels.first)
+        #expect(tutorial.capacity == 3 && (tutorial.meta?.minMoves ?? 99) <= 8)
+        #expect(runes.first == 1 && !tutorial.isHidden && locks.first == 0)
+        // The score rises from the tutorial to the end (15 → 55, by section).
+        let scores = pack.levels.compactMap { $0.meta?.score }
+        #expect(scores.count == pack.levels.count)
+        #expect(scores.first! < 20 && scores.max()! >= 50 && scores.max()! <= 60)
+    }
+
+    /// Every rune matters: the tutorial's costs at least one move, every later one a detour
+    /// of 2+ (`EssenceImpact.strongCost`); seals are strong as in chapters 2–3. Small
+    /// searches only, like the other shipped-pack tests.
+    @Test func everyMechanicMatters() throws {
+        var checked = 0
+        for (index, level) in try Self.pack().levels.enumerated() {
+            guard let meta = level.meta, let minMoves = meta.minMoves, (meta.statesExplored ?? 0) <= 8_000 else { continue }
+            let s = level.gameState
+            let runeCost = index == 0 ? EssenceImpact.minimumCost : EssenceImpact.strongCost
+            #expect(EssenceImpact.everyEssenceMatters(s, minMoves: minMoves, cost: runeCost), "\(level.id)")
+            #expect(LockImpact.everyLockMatters(s, minMoves: minMoves, cost: LockImpact.strongCost), "\(level.id)")
+            checked += 1
+        }
+        #expect(checked >= 25)
     }
 }

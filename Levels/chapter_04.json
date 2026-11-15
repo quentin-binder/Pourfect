@@ -1,0 +1,1352 @@
+{
+  "chapter" : 4,
+  "introduces" : [
+    "essence"
+  ],
+  "kind" : "chapter",
+  "levels" : [
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 2]
+        },
+        {
+          "layers" : [0, 2, 2]
+        },
+        {
+          "layers" : [0, 1, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c4_001",
+      "meta" : {
+        "branchingFactor" : 3.71,
+        "deadEndRatio" : 0,
+        "minMoves" : 7,
+        "score" : 16.5,
+        "seed" : 9071,
+        "statesExplored" : 34
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 1]
+        },
+        {
+          "layers" : [1, 0, 2]
+        },
+        {
+          "layers" : [2, 1, 3]
+        },
+        {
+          "layers" : [0, 3, 3]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 1,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c4_002",
+      "meta" : {
+        "branchingFactor" : 3.8,
+        "deadEndRatio" : 0,
+        "minMoves" : 10,
+        "score" : 21,
+        "seed" : 1009112,
+        "statesExplored" : 68
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 0]
+        },
+        {
+          "layers" : [2, 3, 1]
+        },
+        {
+          "layers" : [0, 3, 2]
+        },
+        {
+          "layers" : [1, 2, 3]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c4_003",
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0,
+        "minMoves" : 10,
+        "score" : 22.2,
+        "seed" : 1009100,
+        "statesExplored" : 111
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 3, 2]
+        },
+        {
+          "layers" : [0, 1, 1]
+        },
+        {
+          "layers" : [1, 0, 3]
+        },
+        {
+          "layers" : [2, 3, 2]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 1,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c4_004",
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 23.3,
+        "seed" : 1009149,
+        "statesExplored" : 117
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 3, 3, 0]
+        },
+        {
+          "layers" : [2, 2, 0, 2]
+        },
+        {
+          "layers" : [2, 3, 0, 3]
+        },
+        {
+          "layers" : [0, 1, 1, 1]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_005",
+      "meta" : {
+        "branchingFactor" : 3.64,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 24.5,
+        "seed" : 2009385,
+        "statesExplored" : 216
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 3, 0, 1]
+        },
+        {
+          "layers" : [2, 2, 0, 2]
+        },
+        {
+          "layers" : [0, 1, 2, 1]
+        },
+        {
+          "layers" : [0, 3, 3, 1]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_006",
+      "meta" : {
+        "branchingFactor" : 3.75,
+        "deadEndRatio" : 0,
+        "minMoves" : 12,
+        "score" : 25.1,
+        "seed" : 2009059,
+        "statesExplored" : 181
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 2, 1, 3]
+        },
+        {
+          "layers" : [0, 0, 1, 1]
+        },
+        {
+          "layers" : [2, 3, 2, 1]
+        },
+        {
+          "layers" : [0, 2, 3, 0]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 3,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_007",
+      "meta" : {
+        "branchingFactor" : 3.08,
+        "deadEndRatio" : 0,
+        "minMoves" : 13,
+        "score" : 25.2,
+        "seed" : 2009155,
+        "statesExplored" : 136
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 2, 2, 3]
+        },
+        {
+          "layers" : [4, 4, 3, 0]
+        },
+        {
+          "layers" : [4, 3, 0, 1],
+          "modifiers" : [
+            {
+              "color" : 4,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [3, 2, 4, 1]
+        },
+        {
+          "layers" : [0, 1, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_008",
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0.012,
+        "minMoves" : 14,
+        "score" : 29.5,
+        "seed" : 3009120,
+        "statesExplored" : 419
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 3, 4]
+        },
+        {
+          "layers" : [0, 4, 4, 1]
+        },
+        {
+          "layers" : [0, 2, 2, 3]
+        },
+        {
+          "layers" : [1, 2, 1, 1]
+        },
+        {
+          "layers" : [3, 2, 4, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_009",
+      "meta" : {
+        "branchingFactor" : 4.63,
+        "deadEndRatio" : 0.019,
+        "minMoves" : 16,
+        "score" : 31.8,
+        "seed" : 3010529,
+        "statesExplored" : 353
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 2, 0, 3]
+        },
+        {
+          "layers" : [2, 1, 1, 1]
+        },
+        {
+          "layers" : [0, 1, 0, 3]
+        },
+        {
+          "layers" : [4, 3, 4, 0]
+        },
+        {
+          "layers" : [2, 4, 4, 3]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 4,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_010",
+      "meta" : {
+        "branchingFactor" : 4.6,
+        "deadEndRatio" : 0.051,
+        "minMoves" : 15,
+        "score" : 32.9,
+        "seed" : 3011699,
+        "statesExplored" : 515
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 4, 4, 5]
+        },
+        {
+          "layers" : [2, 2, 0, 1]
+        },
+        {
+          "layers" : [0, 5, 1, 4]
+        },
+        {
+          "layers" : [3, 5, 3, 0]
+        },
+        {
+          "layers" : [4, 3, 1, 2]
+        },
+        {
+          "layers" : [5, 2, 1, 3]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 5,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 4,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_011",
+      "meta" : {
+        "branchingFactor" : 4.21,
+        "deadEndRatio" : 0.007,
+        "minMoves" : 19,
+        "score" : 35,
+        "seed" : 5009401,
+        "statesExplored" : 531
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 1, 0, 4]
+        },
+        {
+          "layers" : [4, 2, 1, 2]
+        },
+        {
+          "layers" : [4, 1, 3, 4]
+        },
+        {
+          "layers" : [3, 3, 2, 0]
+        },
+        {
+          "layers" : [0, 2, 1, 0]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 3,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_012",
+      "meta" : {
+        "branchingFactor" : 3.72,
+        "deadEndRatio" : 0.053,
+        "minMoves" : 18,
+        "score" : 36.3,
+        "seed" : 3011003,
+        "statesExplored" : 754
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 3, 1, 0]
+        },
+        {
+          "layers" : [4, 2, 3, 4]
+        },
+        {
+          "layers" : [1, 0, 2, 4]
+        },
+        {
+          "layers" : [2, 0, 1, 0]
+        },
+        {
+          "layers" : [4, 1, 3, 3]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_013",
+      "meta" : {
+        "branchingFactor" : 4.17,
+        "deadEndRatio" : 0.075,
+        "minMoves" : 18,
+        "score" : 36.8,
+        "seed" : 3011516,
+        "statesExplored" : 570
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 4, 1, 0]
+        },
+        {
+          "layers" : [1, 2, 2, 4]
+        },
+        {
+          "layers" : [3, 1, 3, 0]
+        },
+        {
+          "layers" : [2, 5, 0, 3]
+        },
+        {
+          "layers" : [3, 0, 5, 2]
+        },
+        {
+          "layers" : [4, 5, 4, 1]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 4,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 3,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_014",
+      "meta" : {
+        "branchingFactor" : 3.5,
+        "deadEndRatio" : 0.004,
+        "minMoves" : 20,
+        "score" : 37,
+        "seed" : 5009046,
+        "statesExplored" : 1067
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 4, 4, 5]
+        },
+        {
+          "layers" : [1, 5, 2, 0]
+        },
+        {
+          "layers" : [3, 3, 3, 0]
+        },
+        {
+          "layers" : [2, 1, 4, 1]
+        },
+        {
+          "layers" : [5, 4, 2, 1]
+        },
+        {
+          "layers" : [2, 3, 5, 0]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 3,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_015",
+      "meta" : {
+        "branchingFactor" : 4.47,
+        "deadEndRatio" : 0.005,
+        "minMoves" : 19,
+        "score" : 37.4,
+        "seed" : 4009577,
+        "statesExplored" : 1560
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 5, 4]
+        },
+        {
+          "layers" : [1, 2, 5, 4]
+        },
+        {
+          "layers" : [3, 1, 3, 0]
+        },
+        {
+          "layers" : [1, 4, 0, 2]
+        },
+        {
+          "layers" : [4, 2, 5, 0]
+        },
+        {
+          "layers" : [3, 1, 2, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 1,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_016",
+      "meta" : {
+        "branchingFactor" : 3.9,
+        "deadEndRatio" : 0.005,
+        "minMoves" : 21,
+        "score" : 37.7,
+        "seed" : 4010049,
+        "statesExplored" : 856
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 4, 2]
+        },
+        {
+          "layers" : [3, 1, 0, 5]
+        },
+        {
+          "layers" : [5, 2, 3, 3]
+        },
+        {
+          "layers" : [5, 1, 4, 3]
+        },
+        {
+          "layers" : [2, 1, 4, 1]
+        },
+        {
+          "layers" : [0, 0, 4, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 5,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_017",
+      "meta" : {
+        "branchingFactor" : 4.1,
+        "deadEndRatio" : 0.017,
+        "minMoves" : 20,
+        "score" : 38.3,
+        "seed" : 4009883,
+        "statesExplored" : 1337
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 3, 3, 5]
+        },
+        {
+          "layers" : [3, 2, 5, 1]
+        },
+        {
+          "layers" : [0, 2, 0, 5]
+        },
+        {
+          "layers" : [5, 4, 2, 1]
+        },
+        {
+          "layers" : [2, 1, 4, 0]
+        },
+        {
+          "layers" : [4, 0, 3, 1],
+          "modifiers" : [
+            {
+              "color" : 4,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 3,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_018",
+      "meta" : {
+        "branchingFactor" : 4.43,
+        "deadEndRatio" : 0.085,
+        "minMoves" : 21,
+        "score" : 40.2,
+        "seed" : 5009097,
+        "statesExplored" : 545
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 2, 4]
+        },
+        {
+          "layers" : [4, 0, 1, 4]
+        },
+        {
+          "layers" : [4, 3, 3, 2]
+        },
+        {
+          "layers" : [5, 3, 3, 5]
+        },
+        {
+          "layers" : [1, 0, 5, 0]
+        },
+        {
+          "layers" : [2, 1, 1, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 1,
+              "type" : "essence"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_019",
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0.164,
+        "minMoves" : 20,
+        "score" : 41.6,
+        "seed" : 4010257,
+        "statesExplored" : 423
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 6, 0, 1]
+        },
+        {
+          "layers" : [5, 0, 1, 6],
+          "modifiers" : [
+            {
+              "color" : 5,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [3, 6, 3, 0]
+        },
+        {
+          "layers" : [4, 5, 4, 2]
+        },
+        {
+          "layers" : [2, 2, 2, 4]
+        },
+        {
+          "layers" : [1, 6, 5, 1]
+        },
+        {
+          "layers" : [3, 5, 4, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_020",
+      "meta" : {
+        "branchingFactor" : 5.57,
+        "deadEndRatio" : 0.075,
+        "minMoves" : 23,
+        "score" : 45.5,
+        "seed" : 6009994,
+        "statesExplored" : 2291
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 5, 0, 2]
+        },
+        {
+          "layers" : [0, 4, 3, 6]
+        },
+        {
+          "layers" : [4, 5, 0, 6]
+        },
+        {
+          "layers" : [2, 0, 5, 2]
+        },
+        {
+          "layers" : [1, 5, 3, 3]
+        },
+        {
+          "layers" : [2, 1, 3, 4]
+        },
+        {
+          "layers" : [1, 6, 4, 6]
+        },
+        {
+          "layers" : [],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_021",
+      "meta" : {
+        "branchingFactor" : 4.08,
+        "deadEndRatio" : 0.136,
+        "minMoves" : 25,
+        "score" : 47.3,
+        "seed" : 6009710,
+        "statesExplored" : 937
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 3, 0, 4]
+        },
+        {
+          "layers" : [0, 6, 5, 1]
+        },
+        {
+          "layers" : [5, 1, 4, 6]
+        },
+        {
+          "layers" : [4, 3, 1, 5]
+        },
+        {
+          "layers" : [6, 2, 0, 0]
+        },
+        {
+          "layers" : [2, 2, 3, 5]
+        },
+        {
+          "layers" : [2, 6, 3, 1],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_022",
+      "meta" : {
+        "branchingFactor" : 5.87,
+        "deadEndRatio" : 0.155,
+        "minMoves" : 23,
+        "score" : 48.1,
+        "seed" : 6009824,
+        "statesExplored" : 1637
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 0, 1]
+        },
+        {
+          "layers" : [3, 5, 2, 1]
+        },
+        {
+          "layers" : [2, 4, 5, 5]
+        },
+        {
+          "layers" : [2, 0, 0, 4],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 4, 1, 3]
+        },
+        {
+          "layers" : [4, 2, 3, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c4_023",
+      "meta" : {
+        "branchingFactor" : 4.74,
+        "deadEndRatio" : 0.087,
+        "minMoves" : 19,
+        "score" : 40.4,
+        "seed" : 7009277,
+        "statesExplored" : 1349
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 0, 1]
+        },
+        {
+          "layers" : [5, 0, 5, 4]
+        },
+        {
+          "layers" : [1, 2, 4, 2]
+        },
+        {
+          "layers" : [1, 3, 3, 4]
+        },
+        {
+          "layers" : [2, 1, 4, 0]
+        },
+        {
+          "layers" : [3, 5, 2, 3],
+          "modifiers" : [
+            {
+              "color" : 3,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c4_024",
+      "meta" : {
+        "branchingFactor" : 4.75,
+        "deadEndRatio" : 0.011,
+        "minMoves" : 20,
+        "score" : 40.4,
+        "seed" : 7009560,
+        "statesExplored" : 3342
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 4, 3, 5]
+        },
+        {
+          "layers" : [1, 2, 1, 3]
+        },
+        {
+          "layers" : [2, 0, 4, 1]
+        },
+        {
+          "layers" : [5, 2, 0, 5]
+        },
+        {
+          "layers" : [0, 1, 3, 5],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 4, 2, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c4_025",
+      "meta" : {
+        "branchingFactor" : 5.05,
+        "deadEndRatio" : 0.05,
+        "minMoves" : 22,
+        "score" : 43,
+        "seed" : 7009381,
+        "statesExplored" : 1991
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 4, 1, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 0, 0, 2]
+        },
+        {
+          "layers" : [5, 1, 0, 4]
+        },
+        {
+          "layers" : [3, 5, 4, 5]
+        },
+        {
+          "layers" : [2, {"key": 1}, 3, 2]
+        },
+        {
+          "layers" : [1, 4, 5, 3],
+          "modifiers" : [
+            {
+              "color" : 1,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_026",
+      "meta" : {
+        "branchingFactor" : 4.05,
+        "deadEndRatio" : 0.176,
+        "minMoves" : 22,
+        "score" : 44.5,
+        "seed" : 8010009,
+        "statesExplored" : 508
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 5, 4, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [5, 2, 4, 1]
+        },
+        {
+          "layers" : [2, 3, 2, 2],
+          "modifiers" : [
+            {
+              "color" : 2,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [{"key": 1}, 0, 5, 3]
+        },
+        {
+          "layers" : [3, 4, 0, 1]
+        },
+        {
+          "layers" : [5, 1, 4, 1]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_027",
+      "meta" : {
+        "branchingFactor" : 3.77,
+        "deadEndRatio" : 0.269,
+        "minMoves" : 22,
+        "score" : 46.4,
+        "seed" : 8010086,
+        "statesExplored" : 225
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 5, 5, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, 3, {"key": 1}, 3],
+          "modifiers" : [
+            {
+              "color" : 0,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [3, 2, 1, 4]
+        },
+        {
+          "layers" : [1, 0, 2, 4]
+        },
+        {
+          "layers" : [0, 5, 2, 3]
+        },
+        {
+          "layers" : [0, 4, 1, 5]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c4_028",
+      "meta" : {
+        "branchingFactor" : 3.05,
+        "deadEndRatio" : 0.318,
+        "minMoves" : 22,
+        "score" : 49.2,
+        "seed" : 8009109,
+        "statesExplored" : 392
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 3, 5, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [6, 5, 0, 2]
+        },
+        {
+          "layers" : [6, 3, 1, 4],
+          "modifiers" : [
+            {
+              "color" : 6,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 1, 3, 4]
+        },
+        {
+          "layers" : [6, 2, 0, 0]
+        },
+        {
+          "layers" : [5, {"key": 1}, 5, 4]
+        },
+        {
+          "layers" : [1, 4, 2, 6]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c4_029",
+      "meta" : {
+        "branchingFactor" : 3.88,
+        "deadEndRatio" : 0.292,
+        "minMoves" : 25,
+        "score" : 53.2,
+        "seed" : 9010033,
+        "statesExplored" : 831
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [6, 5, 0, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [3, 5, 4, 1]
+        },
+        {
+          "layers" : [5, 2, 0, 2],
+          "modifiers" : [
+            {
+              "color" : 5,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [4, 0, 2, 2]
+        },
+        {
+          "layers" : [5, 3, 4, 1]
+        },
+        {
+          "layers" : [1, 3, 6, 1]
+        },
+        {
+          "layers" : [6, {"key": 1}, 6, 0]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c4_030",
+      "meta" : {
+        "branchingFactor" : 3.73,
+        "deadEndRatio" : 0.32,
+        "minMoves" : 26,
+        "score" : 55.1,
+        "seed" : 9009117,
+        "statesExplored" : 779
+      }
+    }
+  ],
+  "location" : "Glyph Library",
+  "name" : "Glyph Library",
+  "subtitle" : "A flask etched with a rune takes only its own color",
+  "version" : 2
+}

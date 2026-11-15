@@ -69,9 +69,14 @@ enum Golden {
         return lines.joined(separator: "\n")
     }
 
-    /// Canonical keys of every shipped level.
+    /// The packs shipped when the R4 golden keys were recorded (later chapters use new
+    /// mechanics and have their own tests).
+    static let r4Packs = ["chapter_01", "chapter_02", "chapter_03",
+                          "challenge_challenger", "challenge_expert", "challenge_master"]
+
+    /// Canonical keys of every level of `r4Packs`.
     static func dumpKeys() throws -> String {
-        try LevelFileTests.shippedPacks.map { name in
+        try r4Packs.map { name in
             try LevelFileTests.load(name).levels.map { level in
                 "\(level.id) " + level.gameState.canonicalKey.codes.map { String($0, radix: 16) }.joined(separator: ",")
             }.joined(separator: "\n")
