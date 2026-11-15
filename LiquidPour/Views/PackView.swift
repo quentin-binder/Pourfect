@@ -20,11 +20,13 @@ struct PackView: View {
                 LazyVGrid(columns: columns, spacing: 14) {
                     ForEach(pack.levels.indices, id: \.self) { index in
                         let unlocked = progress.isUnlocked(index: index, ids: ids)
-                        Button { onSelect(index) } label: {
+                        // Not `.disabled`: on the Mac that greys the label out a second time and the
+                        // locked cells became unreadable in light mode. The cell draws its own locked look.
+                        Button { if unlocked { onSelect(index) } } label: {
                             LevelCell(number: index + 1, stars: progress.stars(for: ids[index]), unlocked: unlocked)
                         }
                         .buttonStyle(.plain)
-                        .disabled(!unlocked)
+                        .allowsHitTesting(unlocked)
                     }
                 }
             }
@@ -130,9 +132,11 @@ struct LevelCell: View {
             }
         }
         .frame(maxWidth: .infinity, minHeight: 72)
-        .foregroundStyle(unlocked ? Color.primary : Color.secondary)
-        .background(RoundedRectangle(cornerRadius: 14).fill(unlocked ? Color.accentColor.opacity(0.18) : Color.gray.opacity(0.14)))
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+        // Locked cells use a dimmed primary (not .secondary) on a denser material, so the lock and
+        // number stay legible over the washed-out light-mode backdrop.
+        .foregroundStyle(unlocked ? Color.primary : Color.primary.opacity(0.6))
+        .background(RoundedRectangle(cornerRadius: 14).fill(unlocked ? Color.accentColor.opacity(0.18) : Color.gray.opacity(0.18)))
+        .background(unlocked ? .thinMaterial : .regularMaterial, in: RoundedRectangle(cornerRadius: 14))
         .contentShape(Rectangle())
         .accessibilityLabel(unlocked ? Text("Recipe \(number), \(stars) stars") : Text("Recipe \(number), locked"))
     }

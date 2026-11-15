@@ -28,7 +28,7 @@ struct TutorialStep: Identifiable {
         case .sealed:
             return [
                 TutorialStep(id: "sealed.lock", topic: topic, title: String(localized: "Rune seals"),
-                             text: String(localized: "A sealed flask is locked: nothing can be poured into it or out of it."),
+                             text: String(localized: "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out."),
                              scene: .sealed),
                 TutorialStep(id: "sealed.key", topic: topic, title: String(localized: "Rune-stone keys"),
                              text: String(localized: "Pour the rune-stone key of the same color onto the sealed flask to break the seal."),

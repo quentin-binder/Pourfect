@@ -223,7 +223,7 @@
       }
     },
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
-    "A sealed flask is locked: nothing can be poured into it or out of it." : {},
+    "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
     "Accessibility" : {},
     "An alchemist's journey from the cellar to the dragon's hoard." : {},
     "Attempt %lld of %lld" : {},

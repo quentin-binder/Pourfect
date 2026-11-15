@@ -63,7 +63,12 @@ struct RandomLevelView: View {
             }
         }
         .formStyle(.grouped)
+        .scrollContentBackground(.hidden)
+        .background { WorkbenchBackground(style: .menu) }
         .navigationTitle("Random Brew")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) { SettingsButton() }
+        }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
