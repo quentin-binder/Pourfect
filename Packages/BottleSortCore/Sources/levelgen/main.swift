@@ -15,7 +15,9 @@ usage:
   levelgen --colors N [--capacity 4] [--empty 2] [--locks 0] [--count 20] [--seed 1]
            [--min-moves A --max-moves B] [--min-score X --max-score Y]
            [--id-prefix p1] --out FILE
-  levelgen --preset starter [--seed 1] [--id-prefix p1] --out FILE
+           [--hidden] [--pool K] [--name NAME --subtitle TEXT]
+  levelgen --preset starter|challenger|expert|locks|hidden|master [--seed S] --out FILE
+  levelgen --preset all --out-dir DIR      (writes pack_01.json … pack_06.json)
   levelgen --report FILE
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--count 10] [--seed 1]
 """
@@ -35,7 +37,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -118,7 +120,19 @@ struct Tier {
     let capacity: Int
     let empty: Int
     var locks: Int = 0
+    var hidden = false
     let moves: ClosedRange<Int>
+    /// Generate `count × pool` passing levels and keep the `count` with the highest score.
+    var pool = 1
+}
+
+struct PackPreset {
+    let file: String        // e.g. "pack_02"
+    let idPrefix: String    // e.g. "p2"
+    let name: String
+    let subtitle: String
+    let seed: UInt64
+    let tiers: [Tier]
 }
 
 /// Starter pack tiers (see DECISIONS.md). The final pack is sorted by score globally.
@@ -134,33 +148,86 @@ let starterTiers: [Tier] = [
     Tier(count: 5, colors: 8, capacity: 4, empty: 2, moves: 23...27),   // 36–40
 ]
 
+let any = 0...999
+
+/// All shipped packs, easiest first. Tiers are tuned from measured distributions (see DECISIONS.md).
+let packPresets: [String: PackPreset] = [
+    "starter": PackPreset(file: "pack_01", idPrefix: "p1", name: "Starter",
+                          subtitle: "Learn to pour — 3 to 8 colors", seed: 1, tiers: starterTiers),
+    "challenger": PackPreset(file: "pack_02", idPrefix: "p2", name: "Challenger",
+                             subtitle: "8–10 colors, tight spaces", seed: 2_000, tiers: [
+        Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
+        Tier(count: 8, colors: 8, capacity: 4, empty: 2, moves: 24...99, pool: 3),
+        Tier(count: 6, colors: 7, capacity: 5, empty: 2, moves: any, pool: 2),     // taller bottles
+        Tier(count: 6, colors: 9, capacity: 4, empty: 2, moves: 27...99, pool: 2),
+        Tier(count: 4, colors: 10, capacity: 4, empty: 2, moves: 30...99, pool: 2),
+    ]),
+    "expert": PackPreset(file: "pack_03", idPrefix: "p3", name: "Expert",
+                         subtitle: "10–12 colors and tall bottles", seed: 3_000, tiers: [
+        Tier(count: 6, colors: 6, capacity: 5, empty: 1, moves: any, pool: 2),     // one empty, tall
+        Tier(count: 6, colors: 8, capacity: 5, empty: 2, moves: 30...99, pool: 2),
+        Tier(count: 6, colors: 10, capacity: 4, empty: 2, moves: 30...99, pool: 3),
+        Tier(count: 6, colors: 11, capacity: 4, empty: 2, moves: 33...99, pool: 2),
+        Tier(count: 6, colors: 12, capacity: 4, empty: 2, moves: 36...99, pool: 2),
+    ]),
+    "locks": PackPreset(file: "pack_04", idPrefix: "p4", name: "Locks & Keys",
+                        subtitle: "Find the key, open the bottle", seed: 4_000, tiers: [
+        Tier(count: 6, colors: 6, capacity: 4, empty: 2, locks: 1, moves: any, pool: 2),
+        Tier(count: 6, colors: 7, capacity: 4, empty: 2, locks: 1, moves: any, pool: 2),
+        Tier(count: 6, colors: 6, capacity: 4, empty: 1, locks: 1, moves: any, pool: 3),
+        Tier(count: 6, colors: 8, capacity: 4, empty: 2, locks: 2, moves: any, pool: 2),
+        Tier(count: 6, colors: 9, capacity: 4, empty: 2, locks: 2, moves: any, pool: 1),
+    ]),
+    "hidden": PackPreset(file: "pack_05", idPrefix: "p5", name: "Hidden Depths",
+                         subtitle: "Every layer below the top is a mystery", seed: 5_000, tiers: [
+        Tier(count: 6, colors: 6, capacity: 4, empty: 2, hidden: true, moves: any, pool: 2),
+        Tier(count: 6, colors: 7, capacity: 4, empty: 2, hidden: true, moves: any, pool: 2),
+        Tier(count: 6, colors: 5, capacity: 4, empty: 1, hidden: true, moves: any, pool: 3),
+        Tier(count: 6, colors: 8, capacity: 4, empty: 2, hidden: true, moves: 24...99, pool: 2),
+        Tier(count: 6, colors: 7, capacity: 4, empty: 2, locks: 1, hidden: true, moves: any, pool: 2),
+    ]),
+    "master": PackPreset(file: "pack_06", idPrefix: "p6", name: "Master",
+                         subtitle: "Everything at once. Good luck.", seed: 6_000, tiers: [
+        Tier(count: 4, colors: 6, capacity: 5, empty: 1, moves: any, pool: 3),
+        Tier(count: 4, colors: 10, capacity: 5, empty: 2, moves: 40...99, pool: 2),
+        Tier(count: 4, colors: 12, capacity: 4, empty: 2, moves: 38...99, pool: 3),
+        Tier(count: 4, colors: 10, capacity: 4, empty: 2, locks: 2, moves: any, pool: 1),
+        Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
+    ]),
+]
+let presetOrder = ["starter", "challenger", "expert", "locks", "hidden", "master"]
+
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
-    var all: [GeneratedLevel] = []
+    var all: [(level: GeneratedLevel, hidden: Bool)] = []
     for (t, tier) in tiers.enumerated() {
         // Separate seed space per tier, so editing one tier doesn't change the others.
         let config = GeneratorConfig(colors: tier.colors, capacity: tier.capacity, emptyBottles: tier.empty,
                                      locks: tier.locks, seed: seed &+ UInt64(t) * 1_000_000, minMoves: tier.moves, score: scoreRange)
         let start = ContinuousClock.now
+        var generated: [GeneratedLevel] = []
         do {
-            all += try Generator.generate(config, count: tier.count) { level in
+            generated = try Generator.generate(config, count: tier.count * tier.pool) { level in
                 log("  seed \(level.seed): minMoves \(level.report.minMoves), score \(level.report.score)")
             }
         } catch { fail("tier \(t + 1) (\(tier.colors) colors): \(error)") }
-        log("tier \(t + 1): \(tier.count) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks — \(formatTime(ContinuousClock.now - start))")
+        // Keep the hardest `count` of the pool.
+        let kept = generated.sorted { ($0.report.score, $1.seed) > ($1.report.score, $0.seed) }.prefix(tier.count)
+        all += kept.map { ($0, tier.hidden) }
+        log("tier \(t + 1): \(tier.count)\(tier.pool > 1 ? " (best of \(tier.count * tier.pool))" : "") × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
     }
     // One global sort by score, so difficulty rises through the whole pack.
-    return all.sorted { ($0.report.score, $0.seed) < ($1.report.score, $1.seed) }
-        .enumerated().map { i, level in
-            LevelDefinition(id: String(format: "%@_%03d", idPrefix, i + 1), state: level.state,
-                            meta: LevelMeta(seed: level.seed, report: level.report))
+    return all.sorted { ($0.level.report.score, $0.level.seed) < ($1.level.report.score, $1.level.seed) }
+        .enumerated().map { i, entry in
+            LevelDefinition(id: String(format: "%@_%03d", idPrefix, i + 1), state: entry.level.state,
+                            hidden: entry.hidden, meta: LevelMeta(seed: entry.level.seed, report: entry.level.report))
         }
 }
 
-func write(_ levels: [LevelDefinition], to path: String) {
+func write(_ levels: [LevelDefinition], to path: String, name: String? = nil, subtitle: String? = nil) {
     do {
         let url = URL(fileURLWithPath: path)
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        try LevelLoader.encode(LevelPack(levels: levels)).write(to: url)
+        try LevelLoader.encode(LevelPack(name: name, subtitle: subtitle, levels: levels)).write(to: url)
         _ = try LevelLoader.load(contentsOf: url)  // round-trip + validate
         log("wrote \(levels.count) levels to \(path)")
     } catch { fail("writing \(path): \(error)") }
@@ -203,21 +270,30 @@ if let path = options["--report"] {
 } else if flags.contains("--bench") {
     bench()
 } else {
-    guard let out = options["--out"] else { fail(usage) }
-    let seed = UInt64(int("--seed", default: 1)!)
-    let prefix = options["--id-prefix"] ?? "p1"
     let scores = range(double("--min-score"), double("--max-score"), name: "score")
-    let tiers: [Tier]
-    if let preset = options["--preset"] {
-        guard preset == "starter" else { fail("unknown preset \(preset)") }
-        tiers = starterTiers
+    if let name = options["--preset"] {
+        let names = name == "all" ? presetOrder : [name]
+        for n in names {
+            guard let preset = packPresets[n] else { fail("unknown preset \(n); choose from \(presetOrder.joined(separator: ", ")) or all") }
+            let out: String
+            if let dir = options["--out-dir"] { out = dir + "/" + preset.file + ".json" }
+            else if names.count == 1, let file = options["--out"] { out = file }
+            else { fail("--preset all needs --out-dir DIR") }
+            log("== \(preset.name)")
+            let seed = options["--seed"].map { _ in UInt64(int("--seed")!) } ?? preset.seed
+            write(generate(tiers: preset.tiers, seed: seed, idPrefix: options["--id-prefix"] ?? preset.idPrefix, scoreRange: scores),
+                  to: out, name: preset.name, subtitle: preset.subtitle)
+        }
     } else {
-        guard let colors = int("--colors") else { fail(usage) }
+        guard let out = options["--out"], let colors = int("--colors") else { fail(usage) }
+        let seed = UInt64(int("--seed", default: 1)!)
         let moves = range(int("--min-moves"), int("--max-moves"), name: "moves") ?? 0...Int.max
         let locks = int("--locks", default: 0)!
         guard locks >= 0, locks < colors else { fail("--locks must be between 0 and colors - 1") }
-        tiers = [Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
-                      empty: int("--empty", default: 2)!, locks: locks, moves: moves)]
+        let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
+                        empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
+                        pool: int("--pool", default: 1)!)
+        write(generate(tiers: [tier], seed: seed, idPrefix: options["--id-prefix"] ?? "p1", scoreRange: scores), to: out,
+              name: options["--name"], subtitle: options["--subtitle"])
     }
-    write(generate(tiers: tiers, seed: seed, idPrefix: prefix, scoreRange: scores), to: out)
 }

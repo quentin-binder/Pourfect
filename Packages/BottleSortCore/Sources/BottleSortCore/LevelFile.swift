@@ -4,10 +4,17 @@ import Foundation
 public struct LevelPack: Codable, Sendable, Hashable {
     public static let currentVersion = 1
     public var version: Int
+    /// Display name, e.g. "Starter". Optional; the app falls back to the file name.
+    public var name: String?
+    /// One-line description shown under the name.
+    public var subtitle: String?
     public var levels: [LevelDefinition]
 
-    public init(version: Int = LevelPack.currentVersion, levels: [LevelDefinition]) {
+    public init(version: Int = LevelPack.currentVersion, name: String? = nil, subtitle: String? = nil,
+                levels: [LevelDefinition]) {
         self.version = version
+        self.name = name
+        self.subtitle = subtitle
         self.levels = levels
     }
 }
