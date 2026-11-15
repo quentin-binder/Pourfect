@@ -6,6 +6,9 @@ struct GameView: View {
     @Environment(AppSettings.self) private var settings
     /// Reduce Motion after the in-app override.
     @Environment(\.effectiveReduceMotion) private var reduceMotion
+    @Environment(TutorialModel.self) private var tutorials
+    /// The tip on screen, if any (first time a mechanic appears, or the "?" button).
+    @State private var tip: [TutorialTopic]?
 
     private let maxPerRow = 7
 
@@ -22,6 +25,23 @@ struct GameView: View {
         .padding()
         .overlay { overlay }
         .overlay(alignment: .top) { message }
+        .overlay {
+            if let tip {
+                TutorialOverlay(topics: tip) {
+                    tutorials.markSeen(tip)
+                    withAnimation { self.tip = nil }
+                }
+                .id(tip)
+                .transition(.opacity)
+            }
+        }
+        .task(id: model.level.id) {
+            // First time a mechanic appears: show its tip once the screen has settled.
+            let unseen = tutorials.unseen(model.tutorialTopics)
+            guard tip == nil, !unseen.isEmpty else { return }
+            try? await Task.sleep(for: .milliseconds(350))
+            withAnimation { tip = unseen }
+        }
         // The workbench is a dark scene: glass outlines, text and materials use the dark look.
         .background { WorkbenchBackground(style: .game) }
         .environment(\.colorScheme, .dark)
@@ -73,6 +93,15 @@ struct GameView: View {
             if let best = model.minMoves {
                 Text("· Best \(best)").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
             }
+            Button { withAnimation { tip = model.tutorialTopics } } label: {
+                Image(systemName: "questionmark.circle")
+                    .font(.title3)
+            }
+            .buttonStyle(.plain)
+            .padding(.leading, 6)
+            .keyboardShortcut("/", modifiers: .command)
+            .help("How this recipe works")
+            .accessibilityLabel(Text("How to play this recipe"))
         }
         .padding(.horizontal, 16).padding(.vertical, 10)
         .background(.ultraThinMaterial, in: Capsule())

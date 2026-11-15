@@ -105,8 +105,12 @@ final class GameViewModel {
 
     nonisolated static let solverLimits = SolverLimits(maxStates: 1_000_000, timeout: .seconds(4))
 
-    init(levels: [LevelDefinition], index: Int, progress: ProgressModel) {
+    /// Mechanics the pack introduces (its first recipe teaches them).
+    let introduces: [Mechanic]
+
+    init(levels: [LevelDefinition], index: Int, progress: ProgressModel, introduces: [Mechanic] = []) {
         self.levels = levels
+        self.introduces = introduces
         self.progress = progress
         self.randomOptions = nil
         self.levelIndex = index
@@ -117,6 +121,7 @@ final class GameViewModel {
     /// Plays one generated level; the win card then offers a new one with the same options.
     init(randomLevel: LevelDefinition, options: RandomLevelOptions) {
         self.levels = [randomLevel]
+        self.introduces = []
         self.progress = nil
         self.randomOptions = options
         self.levelIndex = 0
@@ -131,6 +136,10 @@ final class GameViewModel {
     }
 
     var level: LevelDefinition { levels[levelIndex] }
+    /// Mechanics the current recipe uses, for the first-time tips and the "?" button.
+    var tutorialTopics: [TutorialTopic] {
+        TutorialTopic.topics(in: level, introduces: levelIndex == 0 ? introduces : [])
+    }
     var state: GameState { session.state }
     var moveCount: Int { session.moveCount }
     var canUndo: Bool { session.canUndo }
