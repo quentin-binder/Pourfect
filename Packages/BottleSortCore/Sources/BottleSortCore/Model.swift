@@ -21,9 +21,28 @@ public struct KeyID: RawRepresentable, Hashable, Codable, Comparable, Sendable, 
 }
 
 /// One unit of content in a bottle.
+///
+/// JSON form (level files): a color layer is a plain integer. Later layer
+/// types will use objects, e.g. `{"key": 1}`.
 public enum Layer: Hashable, Codable, Sendable, CustomStringConvertible {
     case color(ColorID)
     // case key(KeyID)  — Phase 5
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        if let n = try? container.decode(Int.self) {
+            self = .color(ColorID(n))
+        } else {
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported layer value")
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .color(let c): try container.encode(c.rawValue)
+        }
+    }
 
     /// The color of this layer, or nil if it is not a color layer.
     public var colorID: ColorID? {
