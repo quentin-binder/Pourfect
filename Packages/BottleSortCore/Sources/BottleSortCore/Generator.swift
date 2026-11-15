@@ -15,12 +15,26 @@ public struct GeneratorConfig: Sendable, Hashable {
     public var requireLocksMatter: Bool
     /// Moves each lock must add for `requireLocksMatter` (see `LockImpact.lockMatters`).
     public var lockCost: Int
+    /// Number of essence flasks (C1), each marked with a different color. 0 = none.
+    /// See `Generator.candidate` for the placement.
+    public var essence: Int
+    /// How many of the `essence` flasks are empty ones (the rest are filled flasks marked
+    /// with their bottom color). nil = any mix, as the shuffle falls.
+    public var essenceEmpty: Int?
+    /// Reject levels where some essence flask doesn't matter (`MechanicImpact`, cost
+    /// `essenceCost`).
+    public var requireEssenceMatter: Bool
+    /// Moves each essence flask must add for `requireEssenceMatter`
+    /// (`EssenceImpact.minimumCost` or `.strongCost`).
+    public var essenceCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
     public init(colors: Int, capacity: Int = 4, emptyBottles: Int = 2, locks: Int = 0, seed: UInt64 = 1,
                 minMoves: ClosedRange<Int>? = nil, score: ClosedRange<Double>? = nil,
                 requireLocksMatter: Bool = false, lockCost: Int = LockImpact.minimumCost,
+                essence: Int = 0, essenceEmpty: Int? = nil, requireEssenceMatter: Bool = false,
+                essenceCost: Int = EssenceImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -31,6 +45,10 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.score = score
         self.requireLocksMatter = requireLocksMatter
         self.lockCost = lockCost
+        self.essence = essence
+        self.essenceEmpty = essenceEmpty
+        self.requireEssenceMatter = requireEssenceMatter
+        self.essenceCost = essenceCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -71,6 +89,15 @@ public enum Generator {
     ///    order) become keys 1...L; the color layers fill the other slots in
     ///    their shuffled order. So every key sits below at least one layer.
     /// 4. `emptyBottles` empty bottles are appended.
+    ///
+    /// Essence flasks (`essence = E`), drawn after all of the above from the same random
+    /// stream, so the layout is exactly the one without essence flasks:
+    /// 5. The bottle indices are shuffled. Walking that order, an empty flask gets a random
+    ///    color no other essence flask has; a filled flask gets the color of its bottom
+    ///    layer (skipped if that is a key or already taken), so it is the color the flask
+    ///    naturally ends with once the layers above are poured out. Sealed flasks qualify
+    ///    too (seal and rune together). `essenceEmpty` fixes how many are empty flasks.
+    ///    Fewer than `E` flasks are marked only if the level has too few candidates.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         var rng = SplitMix64(seed: seed)
         let capacity = config.capacity
@@ -118,7 +145,36 @@ public enum Generator {
         }
         // 4. Empty bottles.
         bottles += Array(repeating: Bottle(capacity: capacity), count: config.emptyBottles)
+        // 5. Essence flasks.
+        if config.essence > 0 { markEssence(&bottles, config: config, rng: &rng) }
         return GameState(bottles: bottles)
+    }
+
+    /// Step 5 of `candidate`.
+    static func markEssence(_ bottles: inout [Bottle], config: GeneratorConfig, rng: inout SplitMix64) {
+        var order = Array(bottles.indices)
+        rng.shuffle(&order)
+        var used: Set<ColorID> = []
+        var emptyLeft = config.essenceEmpty ?? Int.max
+        var filledLeft = config.essenceEmpty.map { config.essence - $0 } ?? Int.max
+        var marked = 0
+        for i in order where marked < config.essence {
+            let color: ColorID
+            if bottles[i].isEmpty {
+                guard emptyLeft > 0 else { continue }
+                let free = (0..<config.colors).map { ColorID($0) }.filter { !used.contains($0) }
+                guard !free.isEmpty else { continue }
+                color = free[rng.nextInt(below: free.count)]
+                emptyLeft -= 1
+            } else {
+                guard filledLeft > 0, let bottom = bottles[i].layers.first?.colorID, !used.contains(bottom) else { continue }
+                color = bottom
+                filledLeft -= 1
+            }
+            used.insert(color)
+            bottles[i].modifiers.append(.essence(color))
+            marked += 1
+        }
     }
 
     /// Whether `bottle` holds content that is already sorted: solved and
@@ -140,6 +196,9 @@ public enum Generator {
         if config.requireLocksMatter,
            !LockImpact.everyLockMatters(state, minMoves: moves.count, cost: config.lockCost,
                                         limits: config.solverLimits) { return nil }
+        if config.requireEssenceMatter,
+           !EssenceImpact.everyEssenceMatters(state, minMoves: moves.count, cost: config.essenceCost,
+                                              limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -302,5 +361,32 @@ public enum LockImpact {
                                         limits: SolverLimits = .default) -> Bool {
         let keys = Set(state.bottles.compactMap(\.lockedBy)).sorted()
         return keys.allSatisfy { lockMatters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+}
+
+/// Whether an essence flask changes a level (the "must matter" check for C1).
+///
+/// An essence flask only takes moves away (it refuses what a plain flask would take), so
+/// the level without the rune is never harder: the check is how many moves the rune adds.
+/// It is the `.modifier(_, .essence)` case of `MechanicImpact`.
+public enum EssenceImpact {
+    /// Smallest cost that counts as "matters": one extra move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Cost required in the chapter 4 recipes after the tutorial: the rune forces a detour
+    /// of at least two moves.
+    public static let strongCost = 2
+
+    /// The essence instances of `state` (one per marked flask).
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        MechanicImpact.instances(in: state).filter {
+            if case .modifier(_, .essence) = $0 { return true }
+            return false
+        }
+    }
+
+    /// Whether every essence flask matters (true for a level without one).
+    public static func everyEssenceMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                           limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
     }
 }

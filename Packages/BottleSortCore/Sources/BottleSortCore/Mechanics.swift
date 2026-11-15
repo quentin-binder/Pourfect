@@ -30,7 +30,8 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is
     /// its compatibility accessor.
     case sealed(KeyID)
-    /// C1 essence flask: only receives this color. (R5)
+    /// C1 essence flask: only receives layers of this color (pours out normally, may
+    /// start with other colors). Implemented (chapter 4, Glyph Library).
     case essence(ColorID)
     /// C2 narrow neck: one layer per pour, in or out. (R5)
     case narrowNeck
@@ -52,8 +53,8 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// validation and the solver refuses them (`.unsupportedState`).
     public var isImplemented: Bool {
         switch self {
-        case .sealed: return true
-        case .essence, .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return false
+        case .sealed, .essence: return true
+        case .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return false
         }
     }
 

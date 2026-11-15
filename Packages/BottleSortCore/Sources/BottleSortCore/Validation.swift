@@ -27,6 +27,11 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     case multipleSeals(bottle: Int)
     /// A link points at a missing bottle, or both ends are the same bottle.
     case invalidLink(Link)
+    /// A flask carries more than one essence rune (it could never receive anything).
+    case multipleEssences(bottle: Int)
+    /// An essence rune names a color the level doesn't contain, so the flask could
+    /// never receive anything (also catches out-of-range color ids).
+    case essenceColorAbsent(bottle: Int, color: ColorID)
 
     public var description: String {
         switch self {
@@ -46,6 +51,8 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .unsupportedMechanic(name): return "mechanic \(name) is not supported yet"
         case let .multipleSeals(b): return "bottle \(b) has more than one seal"
         case let .invalidLink(link): return "link \(link) doesn't connect two different existing bottles"
+        case let .multipleEssences(b): return "bottle \(b) has more than one essence rune"
+        case let .essenceColorAbsent(b, c): return "bottle \(b) is an essence flask of color \(c.rawValue), which the level doesn't contain"
         }
     }
 }
@@ -56,8 +63,9 @@ extension GameState {
     /// key ids fit the solver's encoding, keys and locks pair up one-to-one (each
     /// key id at most once as a layer and once as a lock), and every lock's key can
     /// be reached (not behind its own lock, directly or through a cycle of locks).
-    /// Mechanics: at most one seal per flask, links connect two different existing
-    /// bottles, and every modifier, link and goal is implemented by `Rules`.
+    /// Mechanics: at most one seal and one essence rune per flask, an essence rune names
+    /// a color of the level, links connect two different existing bottles, and every
+    /// modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
         var errors: [ValidationError] = []
@@ -94,6 +102,16 @@ extension GameState {
                     keyCounts[k, default: 0] += 1
                     keyHomes.append((k, bottle.lockedBy))
                 }
+            }
+        }
+        for (i, bottle) in bottles.enumerated() {
+            let runes = bottle.modifiers.compactMap { m -> ColorID? in
+                if case .essence(let c) = m { return c }
+                return nil
+            }
+            if runes.count > 1 { errors.append(.multipleEssences(bottle: i)) }
+            for color in runes where counts[color] == nil {
+                errors.append(.essenceColorAbsent(bottle: i, color: color))
             }
         }
         for (color, n) in counts.sorted(by: { $0.key < $1.key }) {

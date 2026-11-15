@@ -78,7 +78,7 @@ enum LegacyRules {
     }
 
     @Test func unimplementedModifiersDontTouchThePlan() {
-        let modifiers: [BottleModifier] = [.essence(0), .narrowNeck, .funnel, .tap, .frozen(layer: 0, turns: 1),
+        let modifiers: [BottleModifier] = [.narrowNeck, .funnel, .tap, .frozen(layer: 0, turns: 1),
                                            .bubbling(every: 2, phase: 0), .cauldron([])]
         for m in modifiers {
             for side in [PourSide.source, .target] {
@@ -88,7 +88,7 @@ enum LegacyRules {
             }
             #expect(!m.isImplemented)
         }
-        #expect(BottleModifier.sealed(0).isImplemented)
+        #expect(BottleModifier.sealed(0).isImplemented && BottleModifier.essence(0).isImplemented)
     }
 
     @Test func keyPourOpensTheSealAsAnImmediateEffect() throws {

@@ -107,45 +107,62 @@ public struct Solver: Sendable {
     /// Every pruned move leads to a state that is canonically identical to the
     /// current one (a no-op) or to a sibling that is already generated.
     ///
-    /// Locks & keys: the canonical key includes each bottle's lock, and a key
-    /// layer has its own token, so "canonically identical" still means "same
-    /// position for the rules". The rules below only ever skip *unlocked*
-    /// empty targets, which a key can never be poured into anyway, so no key
-    /// move is ever pruned except by rule 1 (which can't apply to a bottle
-    /// that holds a key).
+    /// The rules hold for states without links, goal or counter whose flasks share one
+    /// capacity (as `validate()` requires) and carry only *gate* modifiers (`BottleModifier.isGate`: a seal, an
+    /// essence rune), which decide what a flask accepts but not how a pour moves layers.
+    /// Two flasks are *alike* when their modifier sets are equal (`Bottle.storage`): an
+    /// empty flask is then interchangeable with any other empty flask alike. Any other
+    /// state gets every legal move (later mechanics add their own safe pruning here).
     ///
-    /// The pruning rules assume classic flasks: same capacity, no modifier but a seal,
-    /// no links, no move counter. Any other state gets every legal move (R5 mechanics
-    /// can add their own safe pruning here).
+    /// - Rule 3: pouring into an empty unsealed flask gives the same canonical state as
+    ///   pouring into the first empty flask alike, so only that one is tried. An empty
+    ///   flask that is *not* alike (an essence rune vs. a plain flask, two different
+    ///   runes) is a different target and is tried on its own (DECISIONS 133).
+    /// - Rule 2: if everything in the source moves together, pouring it into an empty
+    ///   flask alike just relocates the flask (a canonical no-op). Into an empty flask
+    ///   that is not alike it is a real move (e.g. a plain flask's finished color into
+    ///   its essence flask) and is kept.
+    /// - Rule 1 (shortcut of rule 2): a full single-color flask holds all `capacity`
+    ///   layers of its color, so its only legal targets are empty flasks; when every
+    ///   empty unsealed flask is alike to it they're all no-ops and the source is skipped.
+    ///
+    /// Seals: the key includes each seal and a key layer has its own token, so
+    /// "canonically identical" still means "same position for the rules"; only unsealed
+    /// empty targets are ever skipped, and a key can't go into those, so no key move is
+    /// pruned. For classic and sealed states (all unsealed flasks plain) these are exactly
+    /// the rules from before essence flasks existed.
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
-        guard state.isBottlesOnly, bottles.allSatisfy(\.hasOnlySeal) else {
+        guard state.isBottlesOnly, bottles.allSatisfy(\.hasOnlyGateModifiers) else {
             return state.legalMoves()
         }
-        // Rule 3: unlocked empty bottles are interchangeable (same capacity, no
-        // content, no lock), so pouring into any of them gives the same
-        // canonical state as pouring into the first one. A *locked* empty
-        // bottle is not interchangeable (its key may target it), so it is
-        // never skipped here.
-        let firstEmpty = bottles.firstIndex { $0.isEmpty && $0.isPlain }
+        // The first plain empty flask; flasks with other modifiers are rare and are
+        // compared one by one (`isFirstEmptyAlike`).
+        let firstPlainEmpty = bottles.firstIndex { $0.isEmpty && $0.isPlain }
+        let hasMarkedEmpty = bottles.contains { $0.isEmpty && !$0.isPlain && !$0.isSealed }
+        func isFirstEmptyAlike(_ index: Int) -> Bool {
+            let target = bottles[index]
+            return !bottles[..<index].contains { $0.isEmpty && $0.storage == target.storage }
+        }
         var result: [Move] = []
         for from in bottles.indices {
             let source = bottles[from]
             if source.isEmpty { continue }
-            // Rule 1: a full, single-color bottle (unlocked, no key — see
-            // `Rules.isSolved`) holds all `capacity` layers of its color, so no
-            // other bottle can have that color on top; the only legal target is
-            // an unlocked empty bottle, which just relocates the bottle (a
-            // canonical no-op).
-            if source.isFull && Rules.isSolved(source) { continue }
-            // Rule 2: if everything in the source moves together, pouring it into
-            // an unlocked empty bottle (same capacity) moves it all — again a
-            // canonical no-op. (A lone key moves "whole" too, but it can't be
-            // poured into an unlocked bottle at all, so this never hides a key move.)
+            // Rule 1.
+            if source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
+            // Rule 2.
             let movesWhole = Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
-                if target.isEmpty && target.isPlain && (to != firstEmpty || movesWhole) { continue }
+                if target.isEmpty {
+                    if target.isPlain {
+                        if to != firstPlainEmpty || (movesWhole && source.isPlain) { continue }  // rules 3, 2
+                    } else if !target.isSealed {
+                        if !isFirstEmptyAlike(to) || (movesWhole && target.storage == source.storage) { continue }
+                    }
+                }
+                // `Rules.actionPlan` without its index checks: in a state of bottles only it
+                // is exactly the two-bottle plan (the one legality check, DECISIONS 125).
                 if Rules.plan(from: source, to: target) != nil {
                     result.append(Move(from: from, to: to))
                 }

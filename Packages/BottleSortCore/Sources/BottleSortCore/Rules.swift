@@ -52,8 +52,12 @@ public enum Rules {
     ///
     /// - `.sealed(k)`: a sealed flask can't be poured from. As a target it accepts only
     ///   key `k`, which opens it (needs no free slot); nothing else goes in.
+    /// - `.essence(c)` (C1): as a target it receives only color `c`: any other color and
+    ///   any key is vetoed, except the key of its own seal, which the seal (earlier in
+    ///   the canonical order) has already accepted. As a source it changes nothing: it
+    ///   may start with other colors, which are poured out normally.
     ///
-    /// R5 plan: `.essence(c)` target → veto unless `layer == .color(c)`; `.narrowNeck`
+    /// R5 plan: `.narrowNeck`
     /// either side → `limit = 1`; `.funnel` source → veto; `.frozen(i, _)` source →
     /// `limit` = `source.layers.count - 1 - i` layers above it (veto at 0). Mechanics that
     /// change *what* the base rule does need a plan field it reads, added with the
@@ -72,7 +76,13 @@ public enum Rules {
             guard plan.layer == .key(key) else { return false }
             plan.opensSeal = key
             return true
-        case (.essence, _), (.narrowNeck, _), (.funnel, _), (.tap, _), (.frozen, _), (.bubbling, _), (.cauldron, _):
+        case (.essence, .source):
+            return true
+        case (.essence(let color), .target):
+            // A seal runs first (canonical order): its own key opens it and needs no slot.
+            // Otherwise only the essence color goes in (no other color, no key).
+            return plan.opensSeal != nil || plan.layer == .color(color)
+        case (.narrowNeck, _), (.funnel, _), (.tap, _), (.frozen, _), (.bubbling, _), (.cauldron, _):
             // Not implemented yet: levels using them fail validation and the solver refuses them.
             return true
         }
@@ -214,6 +224,24 @@ public enum Rules {
         if applyTimedEffects(&next) { applyImmediateEffects(&next, opened: nil) }
         // 6. Goal.
         return Turn(state: next, isWon: isWon(next))
+    }
+
+    /// The flask modifier that refuses `move`, for the app's feedback (e.g. "this essence
+    /// flask only takes its own color"): the bottle and the first modifier of the pipeline
+    /// (source side, then target side) that vetoes the pour. nil if the move is legal, or
+    /// illegal for a base reason (same flask, empty source, full target, colors differ).
+    public static func refusal(of move: Move, in state: GameState) -> (bottle: Int, modifier: BottleModifier)? {
+        guard move.from != move.to, state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
+              let top = state.bottles[move.from].topLayer else { return nil }
+        let source = state.bottles[move.from], target = state.bottles[move.to]
+        var plan = PourPlan(layer: top)
+        for (side, bottle) in [(PourSide.source, move.from), (.target, move.to)] {
+            for modifier in state.bottles[bottle].modifiers
+            where !apply(modifier, as: side, to: &plan, source: source, target: target) {
+                return (bottle, modifier)
+            }
+        }
+        return nil
     }
 
     /// Whether `move` is legal in `state`: step 1 of `resolve` succeeds (same check).

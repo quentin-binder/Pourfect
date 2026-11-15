@@ -136,10 +136,21 @@ public struct Bottle: Hashable, Sendable, CustomStringConvertible {
         return false
     }
 
-    /// Whether the flask carries nothing but (at most) one seal: the classic rules.
-    var hasOnlySeal: Bool {
-        if case .list = storage { return false }
+    /// Whether every modifier is a *gate* (`BottleModifier.isGate`): the flask follows the
+    /// classic pour rules except for what it accepts. True for a plain flask.
+    var hasOnlyGateModifiers: Bool {
+        if case .list(let list) = storage { return list.allSatisfy(\.isGate) }
         return true
+    }
+
+    /// The color of this flask's essence rune (C1): it receives only this color. nil for a
+    /// flask without one. For the app's rune and tint.
+    public var essenceColor: ColorID? {
+        guard case .list(let list) = storage else { return nil }
+        for modifier in list {
+            if case .essence(let color) = modifier { return color }
+        }
+        return nil
     }
 
     /// The key of this flask's seal (its `.sealed` modifier), or nil if it isn't sealed.
@@ -210,6 +221,16 @@ extension BottleModifier {
     var isSeal: Bool {
         if case .sealed = self { return true }
         return false
+    }
+
+    /// A modifier that only decides what its flask accepts or gives (seal, essence): no
+    /// state of its own, no change to how many layers move or from where. The solver's
+    /// pruning rules hold for flasks that carry only these (`Solver.candidateMoves`).
+    var isGate: Bool {
+        switch self {
+        case .sealed, .essence: return true
+        case .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return false
+        }
     }
 }
 

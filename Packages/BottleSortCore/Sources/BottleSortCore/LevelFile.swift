@@ -91,6 +91,9 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     public static let sealed: Mechanic = "sealed"
     /// Murky potions: layers below the top run show as "?" (`hidden`; chapter 3).
     public static let murky: Mechanic = "murky"
+    /// Essence flasks: a flask with a color rune receives only that color
+    /// (`BottleModifier.essence`; chapter 4).
+    public static let essence: Mechanic = "essence"
 
     public var description: String { rawValue }
 }
@@ -130,6 +133,17 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
 
     /// Whether the level is played with hidden layers.
     public var isHidden: Bool { hidden ?? false }
+
+    /// The mechanics this level actually uses, in chapter order (sealed, murky, essence),
+    /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
+    public var mechanics: [Mechanic] {
+        let all = bottles.flatMap(\.allModifiers)
+        var result: [Mechanic] = []
+        if all.contains(where: \.isSeal) { result.append(.sealed) }
+        if isHidden { result.append(.murky) }
+        if all.contains(where: { if case .essence = $0 { return true } else { return false } }) { result.append(.essence) }
+        return result
+    }
 
     /// Whether the level uses something format version 1 can't express.
     public var needsVersion2: Bool {

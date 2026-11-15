@@ -50,7 +50,7 @@ public struct StateKey: Hashable, Sendable {
             codes.reserveCapacity(state.bottles.count)
             for bottle in state.bottles {
                 guard let code = StateKey.classicCode(for: bottle) else {
-                    self.codes = StateKey.extendedCodes(state)
+                    self.codes = StateKey.pairCodes(state) ?? StateKey.extendedCodes(state)
                     return
                 }
                 codes.append(code)
@@ -59,6 +59,55 @@ public struct StateKey: Hashable, Sendable {
             self.codes = codes
         } else {
             self.codes = StateKey.extendedCodes(state)
+        }
+    }
+
+    /// Fast path of `extendedCodes` for a state of bottles only in which each bottle has
+    /// at most one modifier besides its seal, encoded in one word (e.g. an essence rune):
+    /// every group is `[v1]` or `[v1 | extensionFlag, 1, word]`, so sorting (v1 word,
+    /// modifier word or 0) pairs gives the same order as sorting the groups (a group's
+    /// first word decides unless both carry the flag; modifier words are never 0) and the
+    /// same codes, without building an array per bottle. nil if the state doesn't fit.
+    static func pairCodes(_ state: GameState) -> [UInt64]? {
+        var pairs: [(UInt64, UInt64)] = []
+        pairs.reserveCapacity(state.bottles.count)
+        for bottle in state.bottles {
+            if let code = classicCode(for: bottle) {
+                pairs.append((code, 0))
+                continue
+            }
+            var extra: UInt64 = 0
+            var sealed = false
+            for modifier in bottle.modifiers {
+                if modifier.isSeal && !sealed {
+                    sealed = true   // the first seal is in the v1 word
+                    continue
+                }
+                guard extra == 0, let word = singleWord(for: modifier) else { return nil }
+                extra = word
+            }
+            pairs.append((code(for: bottle) | extensionFlag, extra))
+        }
+        pairs.sort { $0 < $1 }
+        var codes: [UInt64] = []
+        codes.reserveCapacity(state.bottles.count + 4)
+        for (first, extra) in pairs {
+            codes.append(first)
+            if extra != 0 {
+                codes.append(1)
+                codes.append(extra)
+            }
+        }
+        return codes
+    }
+
+    /// `words(for:)` of a modifier that encodes in one word (all but a cauldron).
+    @inline(__always)
+    static func singleWord(for modifier: BottleModifier) -> UInt64? {
+        switch modifier {
+        case .essence(let c): return modifier.tag << 56 | UInt64(truncatingIfNeeded: c.rawValue) & 0xFF_FFFF
+        case .cauldron: return nil
+        default: return words(for: modifier)[0]
         }
     }
 
