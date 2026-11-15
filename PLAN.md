@@ -100,13 +100,13 @@ Order: **R1 Polish → R2 Pourfect theme & chapters → R3 Daily → R4 Mechanic
 Each R-step is sized as one Claude Code task (or one workflow); stop for a checkpoint after each.
 
 ## R1 — Polish (finish Milestone 1)
-- [ ] Haptics: light tap on select, soft thud on pour, success pattern on a completed flask (iOS; no-op on Mac)
-- [ ] Sound, synthesized with AVAudioEngine (no files): glass clink, pour gurgle (length follows the pour), cork pop + sparkle chime
+- [x] Haptics: light tap on select, soft thud on pour, success pattern on a completed flask (iOS; no-op on Mac)
+- [x] Sound, synthesized with AVAudioEngine (no files): glass clink, pour gurgle (length follows the pour), cork pop + sparkle chime
 - [ ] Completed flask: cork drops in + small particle burst (SwiftUI Canvas)
 - [ ] Glass highlight and a soft glow on potions
 - [ ] Colorblind runes: one simple vector rune per color (12), drawn on every layer when enabled
-- [ ] Settings screen: sound, haptics, colorblind runes, reduce-motion override; stored behind a `SettingsStore` protocol
-- [ ] Tests: settings persistence; "flask completed" detection lives in core
+- [x] Settings screen: sound, haptics, colorblind runes, reduce-motion override; stored behind a `SettingsStore` protocol
+- [x] Tests: settings persistence; "flask completed" detection lives in core
 
 ## R2 — Pourfect theme & chapters (Milestone 2)
 - [ ] Rename to **Pourfect**: display name, window title, in-app titles. Code/module names stay neutral; the target/bundle id rename waits for R8

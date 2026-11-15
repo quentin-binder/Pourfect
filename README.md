@@ -24,11 +24,12 @@ Pick a pack from the chips on the level-select screen. Inside a pack, clearing a
 ```
 LiquidPour.xcodeproj         Xcode project (one multiplatform app target: iOS 17+ / macOS 14+)
 LiquidPour/                  SwiftUI app
-  Model/                     GameViewModel, LevelCatalog, ProgressStore, Palette, RandomLevelMaker
+  Model/                     GameViewModel, LevelCatalog, ProgressStore, AppSettings, Palette, RandomLevelMaker
   Views/                     RootView, LevelSelectView, GameView, BottleView, RandomLevelView,
-                             PourAnimationView, TiltedLiquid
+                             PourAnimationView, TiltedLiquid, SettingsView
+  Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
 Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
-  Sources/BottleSortCore/    Model, Rules, Solver, Difficulty, Generator, LevelFile, GameSession, RandomLevel
+  Sources/BottleSortCore/    Model, Rules, Solver, Difficulty, Generator, LevelFile, GameSession, RandomLevel, Settings
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
 Levels/pack_01…06.json       The six bundled level packs (synchronized folder: any pack_*.json is bundled)
@@ -104,6 +105,8 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
 | `-LPRandomSeed S` | Seed for `-LPRandomMode` (default 1), so the same level comes back every time. |
+| `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
+| `-LPExportSounds DIR` | Writes every synthesized sound to `DIR` as WAV files (to listen to or inspect them). |
 | `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Level settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
 
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
@@ -178,6 +181,13 @@ with `LevelCatalog.loadBundled(named:)`.
   to detect dead ends ("Stuck — undo or restart?") and to keep the next hint ready instantly.
   It applies each move first and then publishes a `PourEvent`; the view only animates it.
   Hidden layers come from `GameSession.isHidden` / `hiddenDepths`; views contain no rule logic.
+- **Feedback**: the view model publishes `FeedbackEvent`s (select, illegal, pour, flask completed, level won);
+  `FeedbackPlayer` turns them into sound and haptics, timed to the pour animation. "Flask completed" is
+  `Rules.completedBottles(before:after:)` in the core and fires when the pour lands.
+- **Sound**: `SoundEngine` synthesizes every sound into PCM buffers at launch (glass clinks, bubbly gurgles,
+  cork pop + chime, success arpeggio, muted tap) and plays them with `AVAudioEngine`; no audio files.
+- **Settings** (gear in the level list, or ⌘, on the Mac): sound, haptics (iOS), color runes, reduce motion
+  (system / on / off). Stored behind `SettingsStore` (`UserDefaults` keys `settings.*`).
 
 ## Known limitations
 
@@ -191,8 +201,8 @@ with `LevelCatalog.loadBundled(named:)`.
 - One empty bottle makes almost every puzzle with 6+ colors (bottle size 4) unsolvable, so one-empty levels stay at
   5 colors, or 6 colors with size-5 bottles.
 - Progress lives in `UserDefaults` on each device, with no iCloud sync.
-- No sound, settings screen, tutorial overlay or accessibility pass beyond basic labels. Colors alone tell
-  layers apart, which is hard for color-blind players.
+- No tutorial overlay or accessibility pass beyond basic labels. The color-runes setting exists, but runes are
+  not drawn yet (planned in R1).
 - The difficulty score's weights are hand-picked and haven't been calibrated with playtest data.
 - The solver's packed state key supports capacity ≤ 9, color ids 0–46 and key ids 0–15.
 - The app has no UI tests. Gameplay was checked with screenshots taken via the debug launch arguments.
