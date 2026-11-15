@@ -74,6 +74,12 @@ struct RandomLevelView: View {
             if maker.phase == .failed { maker.cancel() }
         }
         .onDisappear { maker.cancel() }
+        #if DEBUG
+        // Dev aid: `-LPRandomGenerate 1` presses Generate once when the screen opens.
+        .task {
+            if UserDefaults.standard.bool(forKey: "LPRandomGenerate"), maker.phase == .idle { generate() }
+        }
+        #endif
     }
 
     private var lockRange: ClosedRange<Int> {
