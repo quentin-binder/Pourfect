@@ -1,12 +1,15 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@ chapter, %lld of %lld stars" : {
+    "%@ is coming soon" : {},
+    "%@ is open" : {},
+    "%@ rune key" : {},
+    "%@, %lld of %lld stars" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ chapter, %2$lld of %#@stars@"
+            "value" : "%1$@, %2$lld of %#@stars@"
           },
           "substitutions" : {
             "stars" : {
@@ -33,9 +36,18 @@
         }
       }
     },
-    "%@ rune key" : {},
     "%lld %@" : {
       "comment" : "Layer count and potion name, e.g. 2 Moonshade"
+    },
+    "%lld / %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld / %2$lld"
+          }
+        }
+      }
     },
     "%lld flasks in total." : {
       "localizations" : {
@@ -55,6 +67,16 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld more %@ needed" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld more %2$@ needed"
           }
         }
       }
@@ -114,14 +136,192 @@
         }
       }
     },
+    "%lld of %lld stars" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %#@stars@"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld of %lld stars on the main path" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %#@stars@ on the main path"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld recipes" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld recipe"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld recipes"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
+    "A sealed flask is locked: nothing can be poured into it or out of it." : {},
     "Accessibility" : {},
+    "An alchemist's journey from the cellar to the dragon's hoard." : {},
     "Attempt %lld of %lld" : {},
+    "Back" : {},
     "Bolt" : {
       "comment" : "Name of a colorblind rune"
     },
     "Brew" : {},
-    "Brew a randomly generated recipe" : {},
+    "Brew the recipe" : {},
     "Brewed!" : {},
+    "Challenge" : {},
+    "Challenge recipes and Random Brew" : {},
+    "Challenges" : {},
+    "Chapter %lld" : {},
+    "Chapter %lld, %@, %lld of %lld stars" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chapter %1$lld, %2$@, %3$lld of %#@stars@"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 4,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Chapter %lld, %@, coming soon" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Chapter %1$lld, %2$@, coming soon"
+          }
+        }
+      }
+    },
+    "Chapter %lld, %@, locked" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Chapter %1$lld, %2$@, locked"
+          }
+        }
+      }
+    },
+    "Chapter %lld, %@, locked. Earn %lld more stars in %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chapter %1$lld, %2$@, locked. Earn %#@stars@ in %4$@"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 3,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg more star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg more stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Chevron" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -130,8 +330,22 @@
       "comment" : "Random recipe mode"
     },
     "Classic · Rune Seals · Murky Layers" : {},
+    "Clear the mist" : {},
     "Color Runes" : {},
     "Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle change of the potion levels; System follows your device setting." : {},
+    "Coming soon" : {},
+    "Continue" : {},
+    "Continue chapter %lld, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Continue chapter %1$lld, %2$@"
+          }
+        }
+      }
+    },
+    "Continue · Chapter %lld" : {},
     "Copper" : {
       "comment" : "Metal of a rune key and its seal"
     },
@@ -172,12 +386,45 @@
     "Dragon's Blood" : {
       "comment" : "Potion name of the red liquid"
     },
+    "Earn %lld more stars to open %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Earn %#@stars@ to open %2$@"
+          },
+          "substitutions" : {
+            "stars" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg more star"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg more stars"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "Empty" : {},
     "Empty flasks" : {},
     "Fairy Blush" : {
       "comment" : "Potion name of the pink liquid"
     },
     "Feedback" : {},
+    "Fill every flask with a single potion. Undo, Restart and Hint are always there to help." : {},
     "Flask %lld" : {},
     "Flask size" : {},
     "Forest Elixir" : {
@@ -192,7 +439,10 @@
     "Gold" : {
       "comment" : "Metal of a rune key and its seal"
     },
+    "Got it" : {},
     "Haptics" : {},
+    "Hard recipe books and Random Brew, open any time" : {},
+    "Hard recipe books for practiced alchemists. Always open; they don't count toward the chapter map." : {},
     "Heart" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -200,12 +450,17 @@
       "comment" : "Name of a colorblind rune"
     },
     "Hint" : {},
+    "How this recipe works" : {},
+    "How to play" : {},
+    "How to play this recipe" : {},
     "Liquid Sunlight" : {
       "comment" : "Potion name of the yellow liquid"
     },
+    "Locked" : {},
     "Mandrake Root" : {
       "comment" : "Potion name of the brown liquid"
     },
+    "Matching potions" : {},
     "Mermaid Teal" : {
       "comment" : "Potion name of the cyan liquid"
     },
@@ -217,11 +472,16 @@
       "comment" : "Potion name of the purple liquid"
     },
     "Moves %lld" : {},
+    "Murky flasks hide what lies beneath. Only the top potion is visible." : {},
     "Murky Layers" : {
       "comment" : "Random recipe mode with hidden layers"
     },
     "Murky layers below the top show as “?” until you uncover them." : {},
+    "Murky potions" : {},
     "New Random Brew" : {},
+    "New: murky potions" : {},
+    "New: sealed flasks" : {},
+    "Next" : {},
     "Next Recipe" : {},
     "No recipe chapters found in the app bundle" : {},
     "No solution from here — undo?" : {},
@@ -231,6 +491,9 @@
       "comment" : "Potion name of the orange liquid"
     },
     "Potions" : {},
+    "Pour" : {},
+    "Pour off the top potion to reveal the layer below it. Hints still work." : {},
+    "Pour the rune-stone key of the same color onto the sealed flask to break the seal." : {},
     "Pourfect" : {},
     "Random Brew" : {},
     "Random Brew · %@" : {},
@@ -268,7 +531,6 @@
       }
     },
     "Recipe %lld, locked" : {},
-    "Recipes unavailable" : {},
     "Reduce Motion" : {},
     "Replay" : {},
     "Restart" : {},
@@ -283,6 +545,7 @@
     "Rune Seals" : {
       "comment" : "Random recipe mode with sealed flasks and rune keys"
     },
+    "Rune-stone keys" : {},
     "Sapphire Draught" : {
       "comment" : "Potion name of the blue liquid"
     },
@@ -306,8 +569,19 @@
     "Steel" : {
       "comment" : "Metal of a rune key and its seal"
     },
+    "Step %lld of %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Step %1$lld of %2$lld"
+          }
+        }
+      }
+    },
     "Stuck — undo or restart?" : {},
     "System" : {},
+    "Tap a flask to pick it up, then tap another flask to pour into it." : {},
     "Thinking…" : {},
     "Triangle" : {
       "comment" : "Name of a colorblind rune"
@@ -322,8 +596,7 @@
       "comment" : "Name of a colorblind rune"
     },
     "Workbench" : {},
-    "· Best %lld" : {},
-    "★ %lld/%lld" : {}
+    "· Best %lld" : {}
   },
   "version" : "1.0"
 }
