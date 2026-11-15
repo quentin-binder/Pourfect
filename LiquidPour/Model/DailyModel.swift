@@ -26,6 +26,8 @@ final class DailyModel {
         case alreadySolved(DailyResult)
         /// Finished after that puzzle's UTC day ended: it doesn't count (DECISIONS 110).
         case dayEnded
+        /// Solved earlier, by the device clock, than a result already saved (clock set back): refused.
+        case clockBehind
     }
 
     @ObservationIgnored private let store: DailyStore
@@ -35,6 +37,9 @@ final class DailyModel {
     private(set) var today: DailyDate
     private(set) var history: DailyHistory
     private(set) var levelState: LevelState = .idle
+    /// Dates whose puzzle showed a hint (saved, so leaving and reopening the puzzle doesn't
+    /// clear it: a hint forfeits "perfect" for that day, DECISIONS 109 / 115).
+    @ObservationIgnored private var hintedDates: Set<DailyDate>
 
     @ObservationIgnored private var cache: [DailyDate: LevelDefinition] = [:]
     @ObservationIgnored private var generatingDate: DailyDate?
@@ -45,7 +50,10 @@ final class DailyModel {
         self.store = store
         self.clockOffset = clockOffset
         self.history = store.loadHistory()
-        self.today = DailyDate(Date().addingTimeInterval(clockOffset))
+        let today = DailyDate(Date().addingTimeInterval(clockOffset))
+        self.today = today
+        // Only today's (and a just-ended day's) puzzle can still be won: drop older dates.
+        self.hintedDates = store.loadHintedDates().filter { $0 >= today.previous }
         scheduleMidnightRefresh()
         prepareLevel()
     }
@@ -134,13 +142,23 @@ final class DailyModel {
 
     // MARK: Results
 
+    /// Whether a hint was shown on the puzzle of `date` (in any game screen).
+    func hintUsed(on date: DailyDate) -> Bool { hintedDates.contains(date) }
+
+    /// Remembers that the puzzle of `date` showed a hint.
+    func markHintUsed(on date: DailyDate) {
+        guard hintedDates.insert(date).inserted else { return }
+        store.saveHintedDates(hintedDates)
+    }
+
     /// Records a won daily of `date`. Only the first solve finished on that UTC day counts.
     func record(date: DailyDate, moves: Int, minMoves: Int, usedHint: Bool) -> RecordOutcome {
         refresh()
-        let result = DailyResult(date: date, moves: moves, minMoves: minMoves, usedHint: usedHint, solvedAt: now())
+        let result = DailyResult(date: date, moves: moves, minMoves: minMoves,
+                                 usedHint: usedHint || hintUsed(on: date), solvedAt: now())
         guard result.counts else { return .dayEnded }
         if let existing = history.result(for: date) { return .alreadySolved(existing) }
-        history.record(result)
+        guard history.record(result) else { return .clockBehind }
         store.saveHistory(history)
         return .recorded(result)
     }

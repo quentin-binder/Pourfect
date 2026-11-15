@@ -90,6 +90,8 @@ struct GameView: View {
     private var hud: some View {
         HStack {
             Text(model.title).font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Spacer()
             Text("Moves \(model.moveCount)").font(.headline.monospacedDigit())
             if let best = model.minMoves {
@@ -282,6 +284,12 @@ struct GameView: View {
                 ShareLink(item: DailyText.share(first, streak: daily.stats.currentStreak)) {
                     Label("Share Result", systemImage: "square.and.arrow.up")
                 }
+            case .clockBehind:
+                Text("Brewed!").font(.largeTitle.bold())
+                Text("Your device's clock is earlier than a brew you already solved, so this one doesn't count.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: 340)
             case .dayEnded, nil:
                 Text("Brewed!").font(.largeTitle.bold())
                 Text("This brew's day ended at midnight UTC, so it no longer counts. Today's new brew is waiting.")

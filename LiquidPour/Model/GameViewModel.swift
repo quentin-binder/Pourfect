@@ -69,7 +69,8 @@ final class GameViewModel {
     private let daily: DailyModel?
     /// The daily's result after a win (first solve, replay, or too late to count).
     private(set) var dailyOutcome: DailyModel.RecordOutcome?
-    /// A hint was shown on this daily (kept across Restart): it forfeits "perfect" (DECISIONS 109).
+    /// A hint was shown on this daily (kept across Restart, and saved per date in `DailyModel`, so
+    /// reopening the puzzle keeps it): it forfeits "perfect" (DECISIONS 109, 115).
     private(set) var usedHint = false
 
     private(set) var levelIndex: Int
@@ -148,6 +149,7 @@ final class GameViewModel {
         self.randomOptions = nil
         self.dailyDate = date
         self.daily = daily
+        self.usedHint = daily.hintUsed(on: date)
         self.levelIndex = 0
         self.session = GameSession(dailyLevel.gameState, hidden: dailyLevel.isHidden)
         startLevel(0)
@@ -401,7 +403,10 @@ final class GameViewModel {
     }
 
     private func showHint(_ move: Move) {
-        if isDaily { usedHint = true }
+        if let dailyDate {
+            usedHint = true
+            daily?.markHintUsed(on: dailyDate)
+        }
         hint = move
         hintMessage = nil
         scheduleHintClear()

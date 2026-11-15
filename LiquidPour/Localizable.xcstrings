@@ -857,6 +857,9 @@
       "comment" : "Weekday of the daily puzzle"
     },
     "Workbench" : {},
+    "Your device's clock is earlier than a brew you already solved, so this one doesn't count." : {
+      "comment" : "Daily win card when the device clock was set back"
+    },
     "· Best %lld" : {}
   },
   "version" : "1.0"

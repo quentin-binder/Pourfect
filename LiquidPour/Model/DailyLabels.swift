@@ -93,13 +93,16 @@ enum DailyText {
     static func monthTitle(_ date: DailyDate) -> String {
         var style = Date.FormatStyle(date: .omitted, time: .omitted).month(.wide).year()
         style.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        // The grid is a Gregorian month: name it in the same calendar, whatever the device uses.
+        style.calendar = Calendar(identifier: .gregorian)
         return date.startDate.formatted(style)
     }
 
-    /// A full date for VoiceOver ("15 November 2026"), for a UTC day.
+    /// A full date for VoiceOver ("15 November 2026"), for a UTC day (Gregorian, like the calendar grid).
     static func longDate(_ date: DailyDate) -> String {
         var style = Date.FormatStyle(date: .long, time: .omitted)
         style.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        style.calendar = Calendar(identifier: .gregorian)
         return date.startDate.formatted(style)
     }
 }
