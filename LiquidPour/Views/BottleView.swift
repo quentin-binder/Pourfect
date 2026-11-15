@@ -11,17 +11,25 @@ struct BottleView: View {
 
     enum HintRole { case source, target }
 
-    private var layerHeight: CGFloat { width * 0.78 }
-    private var neck: CGFloat { width * 0.45 }
-    private var height: CGFloat { CGFloat(bottle.capacity) * layerHeight + neck }
-    private var shape: UnevenRoundedRectangle {
+    // Bottle geometry, shared with the pour animation so both draw identical bottles.
+    static func layerHeight(width: CGFloat) -> CGFloat { width * 0.78 }
+    static func height(width: CGFloat, capacity: Int) -> CGFloat {
+        CGFloat(capacity) * layerHeight(width: width) + width * 0.45
+    }
+    static func shape(width: CGFloat) -> UnevenRoundedRectangle {
         UnevenRoundedRectangle(topLeadingRadius: width * 0.12, bottomLeadingRadius: width * 0.45,
                                bottomTrailingRadius: width * 0.45, topTrailingRadius: width * 0.12)
     }
+    static let outlineColor = Color.primary.opacity(0.45)
+    static let glassColor = Color.primary.opacity(0.05)
+
+    private var layerHeight: CGFloat { Self.layerHeight(width: width) }
+    private var height: CGFloat { Self.height(width: width, capacity: bottle.capacity) }
+    private var shape: UnevenRoundedRectangle { Self.shape(width: width) }
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            shape.fill(Color.primary.opacity(0.05))
+            shape.fill(Self.glassColor)
             VStack(spacing: 0) {
                 ForEach(Array(bottle.layers.enumerated().reversed()), id: \.offset) { _, layer in
                     LayerView(layer: layer)
@@ -45,7 +53,7 @@ struct BottleView: View {
         switch hintRole {
         case .source: return .yellow
         case .target: return .orange
-        case nil: return isSelected ? .accentColor : .primary.opacity(0.45)
+        case nil: return isSelected ? .accentColor : Self.outlineColor
         }
     }
 }
