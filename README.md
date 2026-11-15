@@ -70,7 +70,8 @@ colors (2–12), the bottle size (2–6), empty bottles (0–4) and, in Locks & 
 **Generate**. The settings are remembered.
 
 The level is generated off the main thread with a fresh random seed. Up to 6 candidates are tried ("Attempt k of 6");
-a candidate is rejected if a bottle is already sorted or the solver can't prove it solvable within 1M states / 4 s.
+a candidate is rejected if a bottle is already sorted or the solver can't prove it solvable within 1M states
+(no time limit, so a seed gives the same level on every device).
 If all 6 fail you get "Couldn't find a solvable level in 6 tries — try more empty bottles or fewer colors".
 Boards with no empty bottle are almost always unsolvable. Random levels are played in the normal game screen
 (Hint and stuck detection included). They don't change saved progress, and the win card offers
@@ -163,10 +164,10 @@ with `LevelCatalog.loadBundled(named:)`.
 
 - Locks & Keys and Hidden layers exist only as random levels. There's no hand-curated pack for them.
 - Random levels can take a few seconds for the largest settings (up to ~2.5 s per level in a release build on an
-  M-series Mac, longer on a phone or in a debug build). A running generation can't be cancelled; leaving the screen
-  just discards its result.
+  M-series Mac, longer on a phone or in a debug build; a hard attempt can take ~5 s). Leaving the screen, Replay or Undo
+  cancels a running generation.
 - Pour animation: a pour between rows makes the flying bottle cover the upper row; near the top of a short screen
-  the tilted bottle can overlap the header. While a bottle flies, its "?" layers are drawn plain grey (no "?").
+  the tilted bottle can overlap the header.
 - Only one level pack. There's no menu for choosing packs, and progress is keyed by level id.
 - Progress lives in `UserDefaults` on each device, with no iCloud sync.
 - No sound, settings screen, tutorial overlay or accessibility pass beyond basic labels. Colors alone tell
