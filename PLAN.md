@@ -43,4 +43,15 @@ Source of truth: `BOTTLE_SORT_PROTOTYPE_SPEC.md`. Decisions: `DECISIONS.md`.
 - [x] Review pass, limitations & next steps
 - [x] Checkpoint
 
-## Phase 5 — Locks & keys (only on request)
+## Phase 5 — Locks & keys, hidden layers, random levels (core)
+- [x] `Layer.key(KeyID)`, JSON `{"key": n}`, `Layer.colorID` nil for keys, description `k1`
+- [x] `Rules.pour(from:to:)` — single function for all move effects (color run, key → unlock + consume)
+- [x] Win requires no keys and no locks
+- [x] Validation: duplicate key / duplicate lock / lock without key / key without lock
+- [x] `StateKey` key tokens (colors 0…46, keys 0…15)
+- [x] Solver pruning re-checked for keys (rule 3 skips only unlocked empties)
+- [x] Generator `locks` option + `levelgen --locks N` (pack_01 unchanged)
+- [x] Tests: every key/lock rule, JSON round-trip, validation, canonical key, puzzle that needs the key, solver vs reference BFS on lock levels, generator determinism
+- [x] Hidden layers: `LevelDefinition.hidden`, `GameSession(_:hidden:)`, `isHidden(bottle:layer:)`, undo/restart restore
+- [x] `RandomLevel.generate` (6-attempt cap, progress callback, `GameMode` classic / locks & keys / hidden) + tests
+- [ ] App: lock icon on bottles, key layer, "?" for hidden layers, Random Level button (separate task)
