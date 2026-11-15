@@ -13,12 +13,14 @@ public struct GeneratorConfig: Sendable, Hashable {
     public var score: ClosedRange<Double>?
     /// Reject lock levels where some lock doesn't matter (see `LockImpact.everyLockMatters`).
     public var requireLocksMatter: Bool
+    /// Moves each lock must add for `requireLocksMatter` (see `LockImpact.lockMatters`).
+    public var lockCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
     public init(colors: Int, capacity: Int = 4, emptyBottles: Int = 2, locks: Int = 0, seed: UInt64 = 1,
                 minMoves: ClosedRange<Int>? = nil, score: ClosedRange<Double>? = nil,
-                requireLocksMatter: Bool = false,
+                requireLocksMatter: Bool = false, lockCost: Int = LockImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -28,6 +30,7 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.minMoves = minMoves
         self.score = score
         self.requireLocksMatter = requireLocksMatter
+        self.lockCost = lockCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -135,7 +138,8 @@ public enum Generator {
         // Cheap filter before the (more expensive) full report.
         if let range = config.minMoves, !range.contains(moves.count) { return nil }
         if config.requireLocksMatter,
-           !LockImpact.everyLockMatters(state, minMoves: moves.count, limits: config.solverLimits) { return nil }
+           !LockImpact.everyLockMatters(state, minMoves: moves.count, cost: config.lockCost,
+                                        limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -188,20 +192,28 @@ public enum LockImpact {
         return result
     }
 
-    /// Whether lock `key` matters in a level whose optimal solution has `minMoves` moves.
-    /// An undecided solve (limits hit) counts as "doesn't matter".
+    /// Smallest lock cost that counts as "matters": the key pour plus at least one more move.
+    public static let minimumCost = 2
+    /// Cost required in the chapter recipes after the tutorial: the key pour plus a detour
+    /// of at least two moves (user decision: stronger locks).
+    public static let strongCost = 3
+
+    /// Whether lock `key` matters in a level whose optimal solution has `minMoves` moves:
+    /// the level without that lock (and its key) is unsolvable, or solves in at least
+    /// `cost` fewer moves. An undecided solve (limits hit) counts as "doesn't matter".
     public static func lockMatters(_ key: KeyID, in state: GameState, minMoves: Int,
-                                   limits: SolverLimits = .default) -> Bool {
+                                   cost: Int = minimumCost, limits: SolverLimits = .default) -> Bool {
         switch Solver().solve(removingLock(key, from: state), limits: limits) {
         case .unsolvable: return true
-        case .solved(let moves, _): return minMoves > moves.count + 1
+        case .solved(let moves, _): return minMoves - moves.count >= cost
         case .unknown: return false
         }
     }
 
     /// Whether every lock in the level matters (true for a level without locks).
-    public static func everyLockMatters(_ state: GameState, minMoves: Int, limits: SolverLimits = .default) -> Bool {
+    public static func everyLockMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                        limits: SolverLimits = .default) -> Bool {
         let keys = Set(state.bottles.compactMap(\.lockedBy)).sorted()
-        return keys.allSatisfy { lockMatters($0, in: state, minMoves: minMoves, limits: limits) }
+        return keys.allSatisfy { lockMatters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
     }
 }

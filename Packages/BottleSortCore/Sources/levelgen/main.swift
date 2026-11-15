@@ -150,6 +150,9 @@ struct Tier {
     var score: ClosedRange<Double>? = nil
     /// Reject levels with a lock that doesn't matter (`LockImpact`).
     var locksMatter = false
+    /// With `locksMatter`: each lock must add at least `LockImpact.strongCost` moves
+    /// (the key pour plus a detour of two or more), instead of the minimum.
+    var strongLocks = false
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
@@ -198,14 +201,14 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 1, colors: 3, capacity: 3, empty: 1, locks: 1, moves: any, pool: 8, locksMatter: true,
              keepEasiest: true, section: 0),
         // One seal (every lock must matter).
-        Tier(count: 3, colors: 3, capacity: 4, empty: 2, locks: 1, moves: any, score: 20...27, locksMatter: true, section: 1),
-        Tier(count: 5, colors: 4, capacity: 4, empty: 2, locks: 1, moves: any, score: 27...34, locksMatter: true, section: 1),
-        Tier(count: 6, colors: 5, capacity: 4, empty: 2, locks: 1, moves: any, score: 33...41, locksMatter: true, section: 1),
-        Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 1, moves: 17...99, score: 39...45, locksMatter: true, section: 1),
-        Tier(count: 3, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 40...46, locksMatter: true, section: 1),
+        Tier(count: 3, colors: 3, capacity: 4, empty: 2, locks: 1, moves: any, score: 20...27, locksMatter: true, strongLocks: true, section: 1),
+        Tier(count: 5, colors: 4, capacity: 4, empty: 2, locks: 1, moves: any, score: 27...34, locksMatter: true, strongLocks: true, section: 1),
+        Tier(count: 6, colors: 5, capacity: 4, empty: 2, locks: 1, moves: any, score: 33...41, locksMatter: true, strongLocks: true, section: 1),
+        Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 1, moves: 17...99, score: 39...45, locksMatter: true, strongLocks: true, section: 1),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 40...46, locksMatter: true, strongLocks: true, section: 1),
         // Two seals.
-        Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 2, moves: 19...99, score: 45...51, locksMatter: true, section: 2),
-        Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 2, moves: 21...99, score: 50...58, locksMatter: true, section: 2),
+        Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 2, moves: 19...99, score: 45...51, locksMatter: true, strongLocks: true, section: 2),
+        Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 2, moves: 21...99, score: 50...58, locksMatter: true, strongLocks: true, section: 2),
     ]),
     "chapter3": PackPreset(file: "chapter_03", idPrefix: "c3", name: "Misty Marsh",
                            subtitle: "Murky potions hide what lies beneath", kind: .chapter, chapter: 3,
@@ -219,9 +222,9 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 3, colors: 5, capacity: 4, empty: 1, hidden: true, moves: any, score: 38...44, section: 1),
         // Murky + one seal (every lock must matter).
         Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 1, hidden: true, moves: 17...99, score: 43...49,
-             locksMatter: true, section: 2),
+             locksMatter: true, strongLocks: true, section: 2),
         Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 1, hidden: true, moves: 20...99, score: 49...57,
-             locksMatter: true, section: 2),
+             locksMatter: true, strongLocks: true, section: 2),
     ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
@@ -256,7 +259,8 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
         // Separate seed space per tier, so editing one tier doesn't change the others.
         let config = GeneratorConfig(colors: tier.colors, capacity: tier.capacity, emptyBottles: tier.empty,
                                      locks: tier.locks, seed: seed &+ UInt64(t) * 1_000_000, minMoves: tier.moves,
-                                     score: tier.score ?? scoreRange, requireLocksMatter: tier.locksMatter)
+                                     score: tier.score ?? scoreRange, requireLocksMatter: tier.locksMatter,
+                                     lockCost: tier.strongLocks ? LockImpact.strongCost : LockImpact.minimumCost)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
