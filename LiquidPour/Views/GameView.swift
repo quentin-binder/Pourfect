@@ -22,6 +22,9 @@ struct GameView: View {
         .padding()
         .overlay { overlay }
         .overlay(alignment: .top) { message }
+        // The workbench is a dark scene: glass outlines, text and materials use the dark look.
+        .background { WorkbenchBackground(style: .game) }
+        .environment(\.colorScheme, .dark)
         .onChange(of: model.feedback.last?.id) { previous, _ in
             for item in model.feedback(after: previous) {
                 FeedbackPlayer.play(item.event, settings: settings.value, reduceMotion: reduceMotion)
@@ -36,6 +39,10 @@ struct GameView: View {
         }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+        // Light bar content over the dark workbench, on a faint dark wash.
+        .toolbarBackground(Color.black.opacity(0.25), for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarColorScheme(.dark, for: .navigationBar)
         #endif
         #if DEBUG
         // Dev aid: `-LPDemoMoves K` plays the first K optimal moves via taps (0 = off).
@@ -67,6 +74,8 @@ struct GameView: View {
                 Text("· Best \(best)").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
             }
         }
+        .padding(.horizontal, 16).padding(.vertical, 10)
+        .background(.ultraThinMaterial, in: Capsule())
     }
 
     private var controls: some View {
@@ -91,6 +100,8 @@ struct GameView: View {
         }
         .buttonStyle(.bordered)
         .controlSize(.large)
+        .padding(8)
+        .background(.ultraThinMaterial, in: Capsule())
     }
 
     // MARK: Board
@@ -246,7 +257,7 @@ struct GameView: View {
     private func card<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
         VStack(spacing: 14, content: content)
             .padding(24)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+            .background(.thickMaterial, in: RoundedRectangle(cornerRadius: 20))
             .shadow(radius: 12)
             .transition(.scale.combined(with: .opacity))
     }

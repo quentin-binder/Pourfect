@@ -53,6 +53,7 @@ struct LevelSelectView: View {
                 .id(pack.id)
             }
         }
+        .background { WorkbenchBackground(style: .menu) }
         .navigationTitle("LiquidPour")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -125,6 +126,7 @@ struct LevelSelectView: View {
             .padding(14)
             .frame(maxWidth: .infinity)
             .background(RoundedRectangle(cornerRadius: 14).fill(Color.accentColor.opacity(0.22)))
+            .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

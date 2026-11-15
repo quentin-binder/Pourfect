@@ -122,7 +122,8 @@ struct PourAnimationView: View {
 
             bottle(segments: sourceSegments(pose.flow), frame: sourceFrame,
                    gravity: angle * .pi / 180 + pose.sourceSlosh,
-                   corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil)
+                   corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
+                   opaque: min(1, pose.rise * 1.6))   // opaque before it crosses another flask
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
                 .rotationEffect(.degrees(angle), anchor: right ? .topTrailing : .topLeading)
                 // The rotation anchor is the pouring lip, so place the frame by that corner.
@@ -140,12 +141,16 @@ struct PourAnimationView: View {
     /// `lock`/`unlock`: a locked target shows its lock (and dimmed contents) until the key
     /// lands; then the lock pops away (`unlock` 0 → 1).
     /// `corkOff`: a cork on a completed source, 0 = seated … 1 = popped off and gone.
+    /// `opaque`: 0 = see-through glass like at rest … 1 = frosted backing (a lifted source).
     private func bottle(segments: [LiquidSegment], frame: CGRect, gravity: Double,
-                        lock: KeyID? = nil, unlock: Double = 0, corkOff: Double? = nil) -> some View {
+                        lock: KeyID? = nil, unlock: Double = 0, corkOff: Double? = nil,
+                        opaque: Double = 0) -> some View {
         let shape = BottleView.shape(width: frame.width)
         return ZStack {
-            // Opaque backing so bottles the flying one passes in front of don't show through.
-            shape.fill(.background)
+            // Same smoky backing as at rest; a lifted flask turns to frosted glass so bottles it
+            // passes in front of don't show through.
+            shape.fill(BottleView.glassBacking)
+            shape.fill(BottleView.flightBacking).opacity(opaque)
             shape.fill(BottleView.glassColor)
             TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: frame.width),
                          gravity: gravity)
@@ -161,6 +166,7 @@ struct PourAnimationView: View {
             shape.strokeBorder(BottleView.outlineColor, lineWidth: 2)
         }
         .frame(width: frame.width, height: frame.height)
+        .overlay(alignment: .top) { FlaskRim(width: frame.width, color: BottleView.outlineColor) }
         .overlay(alignment: .top) {
             // Same place as `BottleView`'s cork; pops up and fades like its removal transition.
             if let corkOff, corkOff < 1 {

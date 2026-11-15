@@ -35,6 +35,12 @@ struct BottleView: View {
     }
     static let outlineColor = Color.primary.opacity(0.45)
     static let glassColor = Color.primary.opacity(0.05)
+    /// Smoky tint behind the glass, so an empty flask still reads on the painted workbench.
+    /// The pour animation blends a lifted flask from this to `flightBacking`.
+    static let glassBacking = Color.black.opacity(0.3)
+    /// Backing of a flask in flight: frosted glass, so flasks it passes in front of don't show
+    /// through crisply.
+    static let flightBacking = Material.regularMaterial
     /// Dims a locked bottle's contents.
     static let lockedDim = Color.black.opacity(0.4)
 
@@ -55,6 +61,7 @@ struct BottleView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
+            shape.fill(Self.glassBacking)
             shape.fill(Self.glassColor)
             VStack(spacing: 0) {
                 // One view per run of identical visible layers, so a run shares one gradient.
@@ -82,6 +89,7 @@ struct BottleView: View {
             shape.strokeBorder(outline, lineWidth: isSelected || hintRole != nil ? 3 : 2)
         }
         .frame(width: width, height: height)
+        .overlay(alignment: .top) { FlaskRim(width: width, color: outline) }
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
         .onChange(of: completions) {

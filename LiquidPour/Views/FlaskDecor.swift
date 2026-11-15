@@ -203,3 +203,27 @@ struct SparkleBurst: View {
         }
     }
 }
+
+// MARK: Rim
+
+/// The flask's lip: a thin glass ring a little wider than the neck, at the top edge. Purely
+/// decorative and drawn over the flask, so the liquid's shape and clipping are unchanged.
+/// Place with `.overlay(alignment: .top)` on the flask's frame; `color` follows the outline.
+struct FlaskRim: View {
+    let width: CGFloat
+    let color: Color
+
+    static func size(width: CGFloat) -> CGSize { CGSize(width: width * 1.1, height: max(4, width * 0.1)) }
+
+    var body: some View {
+        let size = Self.size(width: width)
+        let rim = RoundedRectangle(cornerRadius: size.height / 2)
+        rim.fill(LinearGradient(colors: [.white.opacity(0.32), .white.opacity(0.08)],
+                                startPoint: .top, endPoint: .bottom))
+            .overlay(rim.strokeBorder(color, lineWidth: 1.5))
+            .frame(width: size.width, height: size.height)
+            .offset(y: -size.height * 0.45)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+}
