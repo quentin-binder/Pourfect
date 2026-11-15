@@ -22,38 +22,53 @@ public struct KeyID: RawRepresentable, Hashable, Codable, Comparable, Sendable, 
 
 /// One unit of content in a bottle.
 ///
-/// JSON form (level files): a color layer is a plain integer. Later layer
-/// types will use objects, e.g. `{"key": 1}`.
+/// JSON form (level files): a color layer is a plain integer, a key layer is
+/// an object `{"key": n}`.
 public enum Layer: Hashable, Codable, Sendable, CustomStringConvertible {
     case color(ColorID)
-    // case key(KeyID)  — Phase 5
+    /// A key: occupies one slot, moves alone, and opens the bottle locked by the same id.
+    case key(KeyID)
+
+    private enum CodingKeys: String, CodingKey { case key }
 
     public init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let n = try? container.decode(Int.self) {
+        if let container = try? decoder.singleValueContainer(), let n = try? container.decode(Int.self) {
             self = .color(ColorID(n))
-        } else {
-            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported layer value")
+            return
         }
+        let object = try decoder.container(keyedBy: CodingKeys.self)
+        self = .key(KeyID(try object.decode(Int.self, forKey: .key)))
     }
 
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
         switch self {
-        case .color(let c): try container.encode(c.rawValue)
+        case .color(let c):
+            var container = encoder.singleValueContainer()
+            try container.encode(c.rawValue)
+        case .key(let k):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            try container.encode(k.rawValue, forKey: .key)
         }
     }
 
     /// The color of this layer, or nil if it is not a color layer.
     public var colorID: ColorID? {
-        switch self {
-        case .color(let c): return c
-        }
+        if case .color(let c) = self { return c }
+        return nil
     }
+
+    /// The key id of this layer, or nil if it is not a key layer.
+    public var keyID: KeyID? {
+        if case .key(let k) = self { return k }
+        return nil
+    }
+
+    public var isKey: Bool { keyID != nil }
 
     public var description: String {
         switch self {
         case .color(let c): return "\(c.rawValue)"
+        case .key(let k): return k.description
         }
     }
 }
@@ -81,6 +96,7 @@ public struct Bottle: Hashable, Codable, Sendable, CustomStringConvertible {
     public var topLayer: Layer? { layers.last }
 
     /// Number of contiguous identical layers at the top (0 if empty).
+    /// Note: what actually moves in a pour is `Rules.movableRunCount` (a key always moves alone).
     public var topRunCount: Int {
         guard let top = layers.last else { return 0 }
         var n = 0

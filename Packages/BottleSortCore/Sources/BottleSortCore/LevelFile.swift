@@ -16,21 +16,28 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var id: String
     public var capacity: Int
     public var bottles: [BottleDefinition]
+    /// Hidden-layers mode (display only). JSON key `"hidden"`, omitted when false.
+    public var hidden: Bool?
     public var meta: LevelMeta?
 
-    public init(id: String, capacity: Int, bottles: [BottleDefinition], meta: LevelMeta? = nil) {
+    public init(id: String, capacity: Int, bottles: [BottleDefinition], hidden: Bool = false, meta: LevelMeta? = nil) {
         self.id = id
         self.capacity = capacity
         self.bottles = bottles
+        self.hidden = hidden ? true : nil
         self.meta = meta
     }
 
-    public init(id: String, state: GameState, meta: LevelMeta? = nil) {
+    public init(id: String, state: GameState, hidden: Bool = false, meta: LevelMeta? = nil) {
         self.init(id: id,
                   capacity: state.bottles.first?.capacity ?? 0,
                   bottles: state.bottles.map { BottleDefinition(layers: $0.layers, lockedBy: $0.lockedBy) },
+                  hidden: hidden,
                   meta: meta)
     }
+
+    /// Whether the level is played with hidden layers.
+    public var isHidden: Bool { hidden ?? false }
 
     public var gameState: GameState {
         GameState(bottles: bottles.map { Bottle(layers: $0.layers, capacity: capacity, lockedBy: $0.lockedBy) })
@@ -38,7 +45,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
 }
 
 public struct BottleDefinition: Codable, Sendable, Hashable {
-    /// Bottom → top. Color layers are plain integers.
+    /// Bottom → top. Color layers are plain integers, keys are `{"key": n}`.
     public var layers: [Layer]
     public var lockedBy: KeyID?
 
@@ -111,10 +118,11 @@ public enum LevelLoader {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
         let text = String(decoding: try encoder.encode(pack), as: UTF8.self)
-        // Collapse arrays of plain numbers (layer lists) onto a single line.
-        let compact = text.replacing(/\[[\s\d,\-]*\]/) { match in
-            let numbers = match.output.split(whereSeparator: { "[], \n".contains($0) })
-            return "[" + numbers.joined(separator: ", ") + "]"
+        // Collapse layer lists (numbers and `{"key": n}` objects) onto a single line.
+        let compact = text.replacing(/\[(?:[\s\d,\-]|\{\s*"key"\s*:\s*-?\d+\s*\})*\]/) { match in
+            String(match.output).filter { !$0.isWhitespace }
+                .replacingOccurrences(of: ",", with: ", ")
+                .replacingOccurrences(of: ":", with: ": ")
         }
         return Data((compact + "\n").utf8)
     }

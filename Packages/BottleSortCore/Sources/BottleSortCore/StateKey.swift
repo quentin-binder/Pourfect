@@ -1,8 +1,9 @@
 /// A compact, bottle-order-independent key for a game state.
 ///
 /// Each bottle is packed into one `UInt64`:
-/// - bits 0..<54: up to 9 layers, 6 bits each, bottom first (0 = no layer,
-///   a color layer is `color + 1`, so colors 0...61 fit),
+/// - bits 0..<54: up to 9 layers, 6 bits each, bottom first. Tokens:
+///   0 = no layer, 1...47 = color `token - 1` (colors 0...46),
+///   48...63 = key `token - 48` (keys 0...15),
 /// - bits 56..<64: `lockedBy + 1` (0 = unlocked), so lock identity is part of the key.
 /// The bottle codes are then sorted, so two states that differ only in the
 /// order of their bottles produce the same key.
@@ -10,8 +11,9 @@ public struct StateKey: Hashable, Sendable {
     public let codes: [UInt64]
 
     public static let maxCapacity = 9
-    public static let maxColorID = 61
-    public static let maxKeyID = 254
+    public static let maxColorID = 46
+    public static let maxKeyID = 15
+    static let keyTokenBase: UInt64 = 48
 
     public init(_ state: GameState) {
         var codes = state.bottles.map(StateKey.code(for:))
@@ -28,6 +30,7 @@ public struct StateKey: Hashable, Sendable {
                 && bottle.layers.allSatisfy { layer in
                     switch layer {
                     case .color(let c): return (0...maxColorID).contains(c.rawValue)
+                    case .key(let k): return (0...maxKeyID).contains(k.rawValue)
                     }
                 }
         }
@@ -36,6 +39,7 @@ public struct StateKey: Hashable, Sendable {
     static func token(for layer: Layer) -> UInt64 {
         switch layer {
         case .color(let c): return UInt64(c.rawValue + 1)
+        case .key(let k): return keyTokenBase + UInt64(k.rawValue)
         }
     }
 
