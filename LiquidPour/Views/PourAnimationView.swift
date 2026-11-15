@@ -149,9 +149,14 @@ struct PourAnimationView: View {
         .frame(width: frame.width, height: frame.height)
     }
 
-    /// Display color of layer `index` of a bottle whose bottom `hidden` layers show as "?".
-    private func segmentColor(_ layer: Layer, index: Int, hidden: Int) -> Color {
-        index < hidden ? Palette.hiddenLayer : layer.liquidColor
+    /// Layer `index` of a bottle whose bottom `hidden` layers show as "?", drawn like `BottleView`
+    /// (grey "?" card, or a key slot with its icon).
+    private func segment(_ layer: Layer, index: Int, hidden: Int, fraction: CGFloat) -> LiquidSegment {
+        if index < hidden { return LiquidSegment(color: Palette.hiddenLayer, fraction: fraction, glyph: .hidden) }
+        if case .key(let key) = layer {
+            return LiquidSegment(color: layer.liquidColor, fraction: fraction, glyph: .key(Palette.keyColor(key.rawValue)))
+        }
+        return LiquidSegment(color: layer.liquidColor, fraction: fraction)
     }
 
     /// Source keeps its layers; the poured top layers shrink as `flow` grows.
@@ -160,8 +165,8 @@ struct PourAnimationView: View {
         let layers = event.sourceBefore.layers
         let leaving = event.isKey ? (flow > 0.001 ? 0 : 1) : 1 - flow
         return layers.enumerated().map { i, layer in
-            LiquidSegment(color: segmentColor(layer, index: i, hidden: event.sourceHiddenBefore),
-                          fraction: i >= layers.count - event.amount ? leaving : 1)
+            segment(layer, index: i, hidden: event.sourceHiddenBefore,
+                    fraction: i >= layers.count - event.amount ? leaving : 1)
         }
     }
 
@@ -169,7 +174,7 @@ struct PourAnimationView: View {
     /// (none for a key: it is consumed by the lock).
     private func targetSegments(_ flow: Double) -> [LiquidSegment] {
         let kept = event.targetBefore.layers.enumerated().map { i, layer in
-            LiquidSegment(color: segmentColor(layer, index: i, hidden: event.targetHiddenBefore), fraction: 1)
+            segment(layer, index: i, hidden: event.targetHiddenBefore, fraction: 1)
         }
         if event.isKey { return kept }
         return kept + Array(repeating: LiquidSegment(color: color, fraction: flow), count: event.amount)

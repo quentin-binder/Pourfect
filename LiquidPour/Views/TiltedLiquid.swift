@@ -1,10 +1,19 @@
 import BottleSortCore
 import SwiftUI
 
-/// One band of liquid: a color and its height in layers (1 = a full layer, 0.5 = half drained).
+/// One band of liquid: a color and its height in layers (1 = a full layer, 0.5 = half drained),
+/// plus the glyph `BottleView` shows on that layer, if any.
 struct LiquidSegment {
+    enum Glyph {
+        /// "?" of a hidden layer.
+        case hidden
+        /// Key icon in the key's color.
+        case key(Color)
+    }
+
     var color: Color
     var fraction: CGFloat
+    var glyph: Glyph? = nil
 }
 
 /// Liquid inside a bottle whose surface stays level with the world while the bottle tilts.
@@ -39,13 +48,42 @@ struct TiltedLiquid: View {
                 if band.count >= 3 {
                     context.fill(Path { $0.addLines(band); $0.closeSubpath() },
                                  with: .style(segment.color.gradient))
+                    if let glyph = segment.glyph {
+                        drawGlyph(glyph, at: Self.center(of: band), size: layerHeight * min(segment.fraction, 1),
+                                  in: context)
+                    }
                 }
                 bottom = top
             }
         }
     }
 
+    /// Same glyphs as `BottleView`'s layers, drawn upright in bottle space (they tilt with the bottle).
+    private func drawGlyph(_ glyph: LiquidSegment.Glyph, at point: CGPoint, size: CGFloat, in context: GraphicsContext) {
+        var context = context
+        context.translateBy(x: point.x, y: point.y)
+        switch glyph {
+        case .hidden:
+            let text = Text("?")
+                .font(.system(size: size * 0.55, weight: .heavy, design: .rounded))
+                .foregroundStyle(.white.opacity(0.9))
+            context.draw(context.resolve(text), at: .zero)
+        case .key(let color):
+            context.rotate(by: .degrees(-45))
+            let icon = Text(Image(systemName: "key.fill"))
+                .font(.system(size: size * 0.5, weight: .bold))
+                .foregroundStyle(color)
+            context.draw(context.resolve(icon), at: .zero)
+        }
+    }
+
     // MARK: Geometry
+
+    /// Average of the polygon's corners: inside a convex band, good enough to place a glyph.
+    private static func center(of polygon: [CGPoint]) -> CGPoint {
+        let n = CGFloat(polygon.count)
+        return CGPoint(x: polygon.map(\.x).reduce(0, +) / n, y: polygon.map(\.y).reduce(0, +) / n)
+    }
 
     private static func corners(of r: CGRect) -> [CGPoint] {
         [CGPoint(x: r.minX, y: r.minY), CGPoint(x: r.maxX, y: r.minY),
