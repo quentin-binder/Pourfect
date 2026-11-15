@@ -196,6 +196,23 @@ import Testing
         #expect(!LockImpact.everyLockMatters(s, minMoves: moves.count))
     }
 
+    /// The tutorial seal adds more than the key pour, but how much decides "strong".
+    @Test func costThreshold() throws {
+        let s = GameState(bottles: [
+            Bottle(layers: [.color(1), .color(2), .color(0)], capacity: 3, lockedBy: 1),
+            Bottle([0, 0, 2], capacity: 3),
+            Bottle(layers: [.key(1), .color(1), .color(1)], capacity: 3),
+            Bottle([2], capacity: 3),
+            Bottle(capacity: 3),
+        ])
+        let moves = try #require(Solver().solve(s).moves).count
+        let unsealed = try #require(Solver().solve(LockImpact.removingLock(1, from: s)).moves).count
+        let added = moves - unsealed
+        #expect(LockImpact.lockMatters(1, in: s, minMoves: moves, cost: added))
+        #expect(!LockImpact.lockMatters(1, in: s, minMoves: moves, cost: added + 1))
+        #expect(LockImpact.minimumCost == 2 && LockImpact.strongCost == 3)
+    }
+
     @Test func noLocksAlwaysPasses() {
         #expect(LockImpact.everyLockMatters(state([[0, 1], [1, 0], []], capacity: 2), minMoves: 3))
     }

@@ -92,8 +92,10 @@ enum Golden {
         #expect(Golden.fnv(Golden.dumpSolver()) == 15_055_881_682_117_601_570)
     }
 
+    /// Re-recorded after merging main's stronger-lock chapters 2–3 (DECISIONS 104), from
+    /// main's pre-R4 code on the same files, so it still pins "keys unchanged by R4".
     @Test func shippedCanonicalKeysUnchanged() throws {
-        #expect(Golden.fnv(try Golden.dumpKeys()) == 8_666_975_487_309_533_487)
+        #expect(Golden.fnv(try Golden.dumpKeys()) == 1_417_387_073_722_927_598)
     }
 
     /// Re-encoding a shipped pack reproduces the file byte for byte.

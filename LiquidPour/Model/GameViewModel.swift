@@ -64,6 +64,14 @@ final class GameViewModel {
     let randomOptions: RandomLevelOptions?
     /// Generates the next random level ("New Random Brew" on the win card).
     let randomMaker = RandomLevelMaker()
+    /// Set when playing the daily puzzle: its UTC date and where the result is recorded.
+    let dailyDate: DailyDate?
+    private let daily: DailyModel?
+    /// The daily's result after a win (first solve, replay, or too late to count).
+    private(set) var dailyOutcome: DailyModel.RecordOutcome?
+    /// A hint was shown on this daily (kept across Restart, and saved per date in `DailyModel`, so
+    /// reopening the puzzle keeps it): it forfeits "perfect" (DECISIONS 109, 115).
+    private(set) var usedHint = false
 
     private(set) var levelIndex: Int
     private(set) var session: GameSession
@@ -113,6 +121,8 @@ final class GameViewModel {
         self.introduces = introduces
         self.progress = progress
         self.randomOptions = nil
+        self.dailyDate = nil
+        self.daily = nil
         self.levelIndex = index
         self.session = GameSession(levels[index].gameState, hidden: levels[index].isHidden)
         startLevel(index)
@@ -124,13 +134,33 @@ final class GameViewModel {
         self.introduces = []
         self.progress = nil
         self.randomOptions = options
+        self.dailyDate = nil
+        self.daily = nil
         self.levelIndex = 0
         self.session = GameSession(randomLevel.gameState, hidden: randomLevel.isHidden)
         startLevel(0)
     }
 
+    /// Plays the daily puzzle of `date`. A win is recorded in `daily`, never in chapter stars.
+    init(dailyLevel: LevelDefinition, date: DailyDate, daily: DailyModel) {
+        self.levels = [dailyLevel]
+        self.introduces = []
+        self.progress = nil
+        self.randomOptions = nil
+        self.dailyDate = date
+        self.daily = daily
+        self.usedHint = daily.hintUsed(on: date)
+        self.levelIndex = 0
+        self.session = GameSession(dailyLevel.gameState, hidden: dailyLevel.isHidden)
+        startLevel(0)
+    }
+
     var isRandom: Bool { randomOptions != nil }
+    var isDaily: Bool { dailyDate != nil }
     var title: String {
+        if let dailyDate {
+            return String(localized: "Daily Brew · \(dailyDate.weekday.localizedName)")
+        }
         if let randomOptions { return String(localized: "Random Brew · \(randomOptions.mode.title)") }
         return String(localized: "Recipe \(levelIndex + 1)")
     }
@@ -210,6 +240,7 @@ final class GameViewModel {
     func restart() {
         session.restart()
         randomMaker.cancel()   // Replay while "New Random Brew" runs: keep the replayed board
+        dailyOutcome = nil     // a replayed daily is checked again on its win (it won't replace the first)
         cancelPour()
         selected = nil
         clearHint()
@@ -331,6 +362,9 @@ final class GameViewModel {
             let earned = StarRating.stars(moves: moveCount, minMoves: best)
             status = .won(stars: earned)
             progress?.record(stars: earned, for: level.id)
+            if let daily, let dailyDate, dailyOutcome == nil {
+                dailyOutcome = daily.record(date: dailyDate, moves: moveCount, minMoves: best, usedHint: usedHint)
+            }
             return
         }
         if state.legalMoves().isEmpty {
@@ -369,6 +403,10 @@ final class GameViewModel {
     }
 
     private func showHint(_ move: Move) {
+        if let dailyDate {
+            usedHint = true
+            daily?.markHintUsed(on: dailyDate)
+        }
         hint = move
         hintMessage = nil
         scheduleHintClear()

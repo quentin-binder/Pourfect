@@ -13,12 +13,14 @@ public struct GeneratorConfig: Sendable, Hashable {
     public var score: ClosedRange<Double>?
     /// Reject lock levels where some lock doesn't matter (see `LockImpact.everyLockMatters`).
     public var requireLocksMatter: Bool
+    /// Moves each lock must add for `requireLocksMatter` (see `LockImpact.lockMatters`).
+    public var lockCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
     public init(colors: Int, capacity: Int = 4, emptyBottles: Int = 2, locks: Int = 0, seed: UInt64 = 1,
                 minMoves: ClosedRange<Int>? = nil, score: ClosedRange<Double>? = nil,
-                requireLocksMatter: Bool = false,
+                requireLocksMatter: Bool = false, lockCost: Int = LockImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -28,6 +30,7 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.minMoves = minMoves
         self.score = score
         self.requireLocksMatter = requireLocksMatter
+        self.lockCost = lockCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -135,7 +138,8 @@ public enum Generator {
         // Cheap filter before the (more expensive) full report.
         if let range = config.minMoves, !range.contains(moves.count) { return nil }
         if config.requireLocksMatter,
-           !LockImpact.everyLockMatters(state, minMoves: moves.count, limits: config.solverLimits) { return nil }
+           !LockImpact.everyLockMatters(state, minMoves: moves.count, cost: config.lockCost,
+                                        limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -195,9 +199,11 @@ public enum MechanicInstance: Hashable, Sendable, CustomStringConvertible {
 /// instance removed and compare.
 ///
 /// An instance *matters* when the level without it is unsolvable, or the level with it
-/// needs more than `inherentCost` extra moves. The inherent cost is what the mechanic
-/// costs even when it changes nothing: a seal always costs the key pour (1 move);
-/// everything else costs 0. An undecided solve (limits hit) counts as "doesn't matter".
+/// needs at least `cost` more moves. The default cost is `minimumCost(of:)`: the
+/// instance's inherent cost (what it costs even when it changes nothing: a seal always
+/// costs the key pour, 1 move; everything else 0) plus one. A caller may ask for more
+/// (stronger locks: `LockImpact.strongCost`, DECISIONS 104). An undecided solve (limits
+/// hit) counts as "doesn't matter".
 public enum MechanicImpact {
     /// Every mechanic instance in `state`, in a stable order: seals by key, then other
     /// modifiers by bottle, then links, then the goal.
@@ -237,17 +243,27 @@ public enum MechanicImpact {
         return 0
     }
 
-    /// Whether `instance` matters in a level whose optimal solution has `minMoves` moves.
+    /// Smallest cost that counts as "matters": the inherent cost plus one move
+    /// (2 for a seal = `LockImpact.minimumCost`, 1 otherwise).
+    public static func minimumCost(of instance: MechanicInstance) -> Int {
+        inherentCost(of: instance) + 1
+    }
+
+    /// Whether `instance` matters in a level whose optimal solution has `minMoves` moves:
+    /// without it the level is unsolvable, or solves in at least `cost` fewer moves
+    /// (`nil` = `minimumCost(of:)`).
     public static func matters(_ instance: MechanicInstance, in state: GameState, minMoves: Int,
-                               limits: SolverLimits = .default) -> Bool {
+                               cost: Int? = nil, limits: SolverLimits = .default) -> Bool {
+        let cost = cost ?? minimumCost(of: instance)
         switch Solver().solve(removing(instance, from: state), limits: limits) {
         case .unsolvable: return true
-        case .solved(let moves, _): return minMoves > moves.count + inherentCost(of: instance)
+        case .solved(let moves, _): return minMoves - moves.count >= cost
         case .unknown: return false
         }
     }
 
-    /// Whether every mechanic instance in the level matters (true for a classic level).
+    /// Whether every mechanic instance in the level matters at its minimum cost (true for a
+    /// classic level).
     public static func everyMechanicMatters(_ state: GameState, minMoves: Int, limits: SolverLimits = .default) -> Bool {
         instances(in: state).allSatisfy { matters($0, in: state, minMoves: minMoves, limits: limits) }
     }
@@ -258,8 +274,8 @@ public enum MechanicImpact {
 /// Winning always needs every key, so "the key is used" holds trivially. The real test
 /// compares with the same level *without* that lock: the bottle unlocked from the start
 /// and its key layer removed. The lock matters when that level is unsolvable, or when the
-/// locked level needs more than one extra move (the key pour itself), i.e. the seal
-/// forces the player to dig for the key or to plan around the closed flask.
+/// locked level needs at least `cost` more moves (the key pour plus a detour), i.e. the
+/// seal forces the player to dig for the key or to plan around the closed flask.
 /// This is the seal case of `MechanicImpact` (same results as before it existed).
 public enum LockImpact {
     /// `state` with lock `key` removed: its bottle starts unlocked, its key layer is gone.
@@ -267,16 +283,24 @@ public enum LockImpact {
         MechanicImpact.removing(.seal(key), from: state)
     }
 
-    /// Whether lock `key` matters in a level whose optimal solution has `minMoves` moves.
-    /// An undecided solve (limits hit) counts as "doesn't matter".
+    /// Smallest lock cost that counts as "matters": the key pour plus at least one more move.
+    public static let minimumCost = 2
+    /// Cost required in the chapter recipes after the tutorial: the key pour plus a detour
+    /// of at least two moves (user decision: stronger locks).
+    public static let strongCost = 3
+
+    /// Whether lock `key` matters in a level whose optimal solution has `minMoves` moves:
+    /// the level without that lock (and its key) is unsolvable, or solves in at least
+    /// `cost` fewer moves. An undecided solve (limits hit) counts as "doesn't matter".
     public static func lockMatters(_ key: KeyID, in state: GameState, minMoves: Int,
-                                   limits: SolverLimits = .default) -> Bool {
-        MechanicImpact.matters(.seal(key), in: state, minMoves: minMoves, limits: limits)
+                                   cost: Int = minimumCost, limits: SolverLimits = .default) -> Bool {
+        MechanicImpact.matters(.seal(key), in: state, minMoves: minMoves, cost: cost, limits: limits)
     }
 
     /// Whether every lock in the level matters (true for a level without locks).
-    public static func everyLockMatters(_ state: GameState, minMoves: Int, limits: SolverLimits = .default) -> Bool {
+    public static func everyLockMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                        limits: SolverLimits = .default) -> Bool {
         let keys = Set(state.bottles.compactMap(\.lockedBy)).sorted()
-        return keys.allSatisfy { lockMatters($0, in: state, minMoves: minMoves, limits: limits) }
+        return keys.allSatisfy { lockMatters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
     }
 }

@@ -126,17 +126,23 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - Open design question: chapter locks only have to add more than one move (DECISIONS 91, 103); most add exactly one. A stricter threshold would mean regenerating chapters 2–3
 
 ## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
-- [ ] Deterministic daily level: seed = UTC date, generated on device, offline
-- [ ] Difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky)
-- [ ] Streak counter, calendar of solved days, "perfect solve" badge (= solver minimum)
-- [ ] Tests: same date → same level on every device; streak rules across day boundaries and time zones
+- [x] Core: `DailyDate` (UTC calendar day, ISO string, day arithmetic, weekday)
+- [x] Core: deterministic daily level (`DailyPuzzle`, algorithm `daily-v2`): seed hashed from the UTC date, generated on device, offline, guaranteed fallback
+- [x] Core: difficulty by weekday (Mon easy → Sun hard), mode varies (classic / sealed / murky / murky + seal) — `DailyPlan`
+- [x] Core: `DailyResult`, `DailyHistory`, `DailyStreaks` (current/best streak, solved days, perfect = solver minimum without a hint)
+- [x] Tests: same date → same level (golden value), 60-day generation timing, streak rules across day boundaries and time zones
+- [x] App: Daily screen (today's puzzle, streak, calendar of solved days, perfect badge), persistence of `DailyHistory` (`DailyStore`, UserDefaults)
+- [x] App: entry point on the chapter map / side panel (Daily Brew card; row in the iPhone bottom bar), localized weekday + tier labels
+- [x] App: `DailyModel` (UTC today, refresh on activation and at UTC midnight, level generated off the main thread and cached), daily win card (perfect badge, streak, Share), debug `-LPDailyDate` / `-LPDailySeedResults` / `-LPOpenDaily` / `-LPPlayDaily`
+- [x] Review fixes: a hint is remembered per date (reopening the puzzle no longer restores "perfect"), a clock set back can't fill a streak gap, Gregorian month title, order-independent tie-break, Saturday / Wednesday harder (`daily-v2`), one-line game title (DECISIONS 106–111, 115, 116, 119)
+- Not covered in R3: no app-level unit tests (the app has no test target; the rules are tested in the core); iPhone was checked by screenshots of the home bar and Daily screen only; light mode not checked (the Daily screen is always dark, like the map). Known limits: a device clock set forward can bank future days (DECISIONS 110); undo is allowed for "perfect" (DECISIONS 119)
 
 ## R4 — Mechanics architecture (prerequisite for R5)
 - [x] `Bottle.modifiers: [BottleModifier]` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`, `.tap`, `.frozen(layer:turns:)`, `.bubbling`, `.cauldron`; switch → gate is a link); each modifier can veto or change a pour (`Rules.apply`); `lockedBy` migrates to `.sealed` (kept as a computed accessor)
 - [x] Level-wide `links` (twins, overflow pipes, switch → gate) and a `Goal` (`.standard` implemented; order / pattern / rescue defined)
 - [x] `Rules.resolve(afterAction:)` implements the turn order from MECHANICS.md §4 in one place (unseal is the only immediate effect; timed steps are empty hooks)
 - [x] Counters in `GameState` (per-layer frozen turns and bubbling phase live in their modifiers, `moveCount` is optional and nil for classic levels)
-- [x] `StateKey` v2: variable-length encoding that includes modifiers, counters and links (endpoints as canonical ranks, ties resolved by minimum); classic/sealed keys unchanged; benchmarked (DECISIONS 110)
+- [x] `StateKey` v2: variable-length encoding that includes modifiers, counters and links (endpoints as canonical ranks, ties resolved by minimum); classic/sealed keys unchanged; benchmarked (DECISIONS 126)
 - [x] JSON v2 (modifiers, links, goal); v1 files still load and re-encode byte for byte
 - [x] "Must matter" check generalized: `MechanicImpact` (`LockImpact` is its seal case); `levelgen --report` checks every mechanic instance
 - [x] All existing tests stay green (149 → 180 with the new ones); solver vs. naive BFS cross-check extended to lock levels and the unpruned path

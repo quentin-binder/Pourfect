@@ -45,6 +45,15 @@ else is a challenge).
   or "coming soon". The map opens scrolled to the chapter you're on, which glows. On wide windows (Mac, iPad) the
   map is a framed column beside a panel with the total stars, a **Continue** card and **Challenges**; on narrow
   ones it fills the width with a Continue / Challenges bar at the bottom. The toolbar has Challenges and Settings.
+  A **Daily Brew** card sits at the top of the panel (and as a row in the bottom bar on iPhone): today's weekday
+  and difficulty, mode, solved / perfect state, the streak flame and "New brew in 3 h 12 m" (UTC midnight).
+- **Daily Brew:** today's puzzle (weekday · difficulty, mode, difficulty pips, **Play** / **Replay**), current and
+  best streak, brews solved and perfect count, and a month calendar (Monday first, navigable back to your first
+  result) with solved days in amber, perfect days in gold with a seal, today ringed and future days dimmed. All
+  days are UTC dates ("Resets at midnight UTC"). Playing uses the normal game screen; the win card shows
+  "Daily solved!", the **Perfect** badge (fewest moves, no hint), the streak and a **Share Result** button with
+  spoiler-free text such as `Pourfect Daily 2026-11-15 · 22 moves (perfect) · 🔥 6`. Daily results never touch
+  chapter stars.
 - **Chapter screen:** vignette header with name, subtitle, stars and what they open ("Earn 12 more stars to open
   Misty Marsh"), then the recipe grid (recipes open in order).
 - **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
@@ -169,12 +178,18 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
 | `-LPRandomSeed S` | Seed for `-LPRandomMode` (default 1), so the same level comes back every time. |
+| `-LPOpenDaily 1` | Opens the Daily Brew screen. |
+| `-LPPlayDaily 1` | Opens the Daily Brew screen and starts today's puzzle (once it is generated). |
+| `-LPDailyDate YYYY-MM-DD` | Pretends today is that UTC date (the clock is shifted by whole days, so the countdown and "solved today" still work). Results stay in memory only. |
+| `-LPDailySeedResults N` | Adds fake results for the N days before today (a few gaps, mostly perfect, a 5-day run ending yesterday), for calendar screenshots. Results stay in memory only: nothing is saved and the real history is untouched. |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
 | `-LPExportSounds DIR` | Writes every synthesized sound to `DIR` as WAV files (to listen to or inspect them). |
 | `-settings.colorRunes 1`, `-settings.sound 0`, `-settings.reduceMotion always\|never\|system` | Override a setting for this run (not saved unless changed in Settings). |
 | `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Brew settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
 
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
+Daily win card: `open -n LiquidPour.app --args -LPDailySeedResults 40 -LPPlayDaily 1 -LPSkipTutorials 1 -LPDemoMoves 99`.
+On the Mac, if a killed debug run left no window to restore, add `-ApplePersistenceIgnoreState YES`.
 
 ## Run the tests
 
@@ -183,10 +198,11 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 180 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 208 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
-the chapter gate (including the exact-50 % boundary), the lock-impact check, and the shipped files (every level
+the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
+UTC+14 and UTC−12, leap days, a golden level, 60 days of generation) and streak rules, and the shipped files (every level
 loads and validates, ids are unique across files, chapter 1 keeps the Starter ids, chapters have the expected
 shape, every lock in a chapter matters, and every level whose recorded search is small solves in its recorded
 `minMoves` — the larger ones are re-solved by `levelgen --report` in release). The mechanics architecture has its own
@@ -270,6 +286,17 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.
+- **Daily puzzle (core)**: `DailyDate` is a UTC calendar day (the puzzle changes at UTC midnight for everyone).
+  `DailyPlan.spec(for:)` picks the weekday's recipe (Mon Gentle 4 colors → Sun Grand Brew, 7 colors murky + seal),
+  and `DailyPuzzle.level(for:)` generates it on device from a seed hashed from the date and `algorithmVersion`
+  (`daily-v2`), so every device gets the same level, offline. `DailyResult` / `DailyHistory` / `DailyStreaks` give
+  the current and best streak, solved days and perfect solves (solver minimum, no hint; undo allowed). See DECISIONS 105–112, 119.
+- **Daily puzzle (app)**: `DailyModel` (injected at the root) holds today's `DailyDate`, re-read when the app
+  becomes active and by a timer at the next UTC midnight; it generates today's level in a detached task (cached per
+  date) and keeps the `DailyHistory` behind `DailyStore` (`UserDefaults` key `daily.history.v1`, JSON) plus the dates whose
+  puzzle showed a hint (`daily.hinted.v1`, so reopening the puzzle doesn't clear it). The game
+  screen plays the daily with `GameViewModel(dailyLevel:date:daily:)`, which records the win (moves, minMoves, hint
+  used) instead of stars. See DECISIONS 113–118.
 - **App**: `GameViewModel` wraps `GameSession`. After every move it solves the new state in the background
   to detect dead ends ("Stuck — undo or restart?") and to keep the next hint ready instantly.
   It applies each move first and then publishes a `PourEvent`; the view only animates it.
@@ -298,7 +325,9 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 - The chapter map's button positions are hand-placed for this painting; new map art needs new `ChapterArt.mapSpots`.
 - One empty bottle makes almost every puzzle with 6+ colors (bottle size 4) unsolvable, so one-empty levels stay at
   5 colors, or 6 colors with size-5 bottles.
-- Progress lives in `UserDefaults` on each device, with no iCloud sync.
+- Progress and daily results live in `UserDefaults` on each device, with no iCloud sync.
+- The daily calendar and countdown use UTC days, so for players far from UTC the puzzle changes during their
+  day (by design, same puzzle for everyone).
 - No full accessibility pass beyond labels and VoiceOver flask contents (color runes are available in Settings).
 - The difficulty score's weights are hand-picked and haven't been calibrated with playtest data.
 - The solver's packed state key supports capacity ≤ 9, color ids 0–46 and key ids 0–15.

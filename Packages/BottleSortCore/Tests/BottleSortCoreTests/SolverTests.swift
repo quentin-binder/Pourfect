@@ -324,11 +324,14 @@ import Testing
     }
 
     /// Every lock in a chapter changes the level (`LockImpact`); small searches only, like the solve test.
+    /// After the tutorial recipe, locks must be strong: the key pour plus a detour of 2+ moves,
+    /// or the recipe is unsolvable without opening the seal.
     @Test(arguments: ["chapter_02", "chapter_03"])
     func chapterLocksMatter(_ name: String) throws {
-        for level in try Self.load(name).levels {
+        for (index, level) in try Self.load(name).levels.enumerated() {
             guard let meta = level.meta, let minMoves = meta.minMoves, (meta.statesExplored ?? 0) <= 8_000 else { continue }
-            #expect(LockImpact.everyLockMatters(level.gameState, minMoves: minMoves), "\(level.id)")
+            let cost = index == 0 ? LockImpact.minimumCost : LockImpact.strongCost
+            #expect(LockImpact.everyLockMatters(level.gameState, minMoves: minMoves, cost: cost), "\(level.id)")
         }
     }
 

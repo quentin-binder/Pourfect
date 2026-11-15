@@ -7,6 +7,7 @@ struct LiquidPourApp: App {
     @State private var progress = ProgressModel(store: UserDefaultsProgressStore())
     @State private var settings = AppSettings(store: UserDefaultsSettingsStore())
     @State private var tutorials = TutorialModel(store: UserDefaultsTutorialStore())
+    @State private var daily = DailyModel.makeDefault()
 
     var body: some Scene {
         WindowGroup("Pourfect") {
@@ -14,6 +15,7 @@ struct LiquidPourApp: App {
                 .environment(catalog)
                 .environment(progress)
                 .environment(tutorials)
+                .environment(daily)
                 .settingsEnvironment(settings)
         }
         #if os(macOS)

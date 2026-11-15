@@ -4,6 +4,9 @@
     "%@ is coming soon" : {},
     "%@ is open" : {},
     "%@ rune key" : {},
+    "%@ · %@" : {
+      "comment" : "Daily puzzle label: weekday · difficulty, e.g. Sunday · Grand Brew"
+    },
     "%@, %lld of %lld stars" : {
       "localizations" : {
         "en" : {
@@ -81,6 +84,74 @@
         }
       }
     },
+    "%lld moves" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves"
+                }
+              }
+            }
+          }
+        }
+      },
+      "comment" : "Shared daily result"
+    },
+    "%lld moves (perfect)" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move (perfect)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves (perfect)"
+                }
+              }
+            }
+          }
+        }
+      },
+      "comment" : "Shared daily result"
+    },
+    "%lld moves this time. Your first solve of the day is the one that counts." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move this time. Your first solve of the day is the one that counts."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves this time. Your first solve of the day is the one that counts."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld moves · best possible %lld" : {
       "localizations" : {
         "en" : {
@@ -106,6 +177,60 @@
                       "value" : "%arg moves"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld moves · perfect is %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@moves@ · perfect is %2$lld"
+          },
+          "substitutions" : {
+            "moves" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg move"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg moves"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld moves, the fewest possible" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move, the fewest possible"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves, the fewest possible"
                 }
               }
             }
@@ -222,18 +347,32 @@
         }
       }
     },
+    "A hint was used, so this brew can't be perfect" : {},
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
     "Accessibility" : {},
     "An alchemist's journey from the cellar to the dragon's hoard." : {},
     "Attempt %lld of %lld" : {},
     "Back" : {},
+    "Best %lld" : {
+      "comment" : "Best daily streak"
+    },
+    "Best streak" : {},
     "Bolt" : {
       "comment" : "Name of a colorblind rune"
     },
     "Brew" : {},
     "Brew the recipe" : {},
+    "Brewed again!" : {
+      "comment" : "Win card of a replayed daily puzzle"
+    },
     "Brewed!" : {},
+    "Brewing…" : {
+      "comment" : "Today's daily puzzle is being generated"
+    },
+    "Brews solved" : {
+      "comment" : "Number of daily puzzles solved"
+    },
     "Challenge" : {},
     "Challenge recipes and Random Brew" : {},
     "Challenges" : {},
@@ -379,9 +518,25 @@
     "Cross" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Current streak" : {},
+    "Daily Brew" : {
+      "comment" : "The daily puzzle"
+    },
+    "Daily Brew · %@" : {
+      "comment" : "Game title for the daily puzzle; %@ = weekday"
+    },
+    "Daily Brew, %@, %@, streak %lld" : {
+      "comment" : "VoiceOver: daily card (label, state, streak)"
+    },
+    "Daily solved!" : {},
+    "Days follow UTC. A new brew appears at midnight UTC." : {},
+    "Deep Seal" : {
+      "comment" : "Daily puzzle difficulty (Saturday)"
+    },
     "Diamond" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Difficulty %lld of 7" : {},
     "Done" : {},
     "Dragon's Blood" : {
       "comment" : "Potion name of the red liquid"
@@ -430,6 +585,15 @@
     "Forest Elixir" : {
       "comment" : "Potion name of the green liquid"
     },
+    "Fr" : {
+      "comment" : "Calendar column: Friday"
+    },
+    "Friday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
+    "Gentle" : {
+      "comment" : "Daily puzzle difficulty (Monday)"
+    },
     "Ghost Mist" : {
       "comment" : "Potion name of the grey liquid"
     },
@@ -440,6 +604,9 @@
       "comment" : "Metal of a rune key and its seal"
     },
     "Got it" : {},
+    "Grand Brew" : {
+      "comment" : "Daily puzzle difficulty (Sunday)"
+    },
     "Haptics" : {},
     "Hard recipe books and Random Brew, open any time" : {},
     "Hard recipe books for practiced alchemists. Always open; they don't count toward the chapter map." : {},
@@ -467,34 +634,64 @@
     "Midnight Ink" : {
       "comment" : "Potion name of the navy liquid"
     },
+    "Mo" : {
+      "comment" : "Calendar column: Monday"
+    },
     "Mode" : {},
+    "Monday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
     "Moonshade" : {
       "comment" : "Potion name of the purple liquid"
     },
     "Moves %lld" : {},
+    "Murky" : {
+      "comment" : "Daily puzzle difficulty (Thursday)"
+    },
     "Murky flasks hide what lies beneath. Only the top potion is visible." : {},
     "Murky Layers" : {
       "comment" : "Random recipe mode with hidden layers"
     },
+    "Murky Layers + Rune Seal" : {
+      "comment" : "Daily puzzle mode"
+    },
     "Murky layers below the top show as “?” until you uncover them." : {},
     "Murky potions" : {},
+    "New brew in %lld h %lld m" : {
+      "comment" : "Countdown to the next daily puzzle, hours and minutes"
+    },
+    "New brew in %lld m" : {
+      "comment" : "Countdown to the next daily puzzle, minutes"
+    },
     "New Random Brew" : {},
     "New: murky potions" : {},
     "New: sealed flasks" : {},
     "Next" : {},
+    "Next month" : {},
     "Next Recipe" : {},
     "No recipe chapters found in the app bundle" : {},
     "No solution from here — undo?" : {},
     "Off" : {},
     "On" : {},
+    "Perfect" : {
+      "comment" : "Daily puzzle solved in the fewest possible moves without a hint"
+    },
+    "Perfect solve" : {},
     "Phoenix Ember" : {
       "comment" : "Potion name of the orange liquid"
+    },
+    "Play" : {
+      "comment" : "Start today's daily puzzle"
     },
     "Potions" : {},
     "Pour" : {},
     "Pour off the top potion to reveal the layer below it. Hints still work." : {},
     "Pour the rune-stone key of the same color onto the sealed flask to break the seal." : {},
     "Pourfect" : {},
+    "Pourfect Daily %@ · %@ · 🔥 %lld" : {
+      "comment" : "Shared daily result: date, moves, streak"
+    },
+    "Previous month" : {},
     "Random Brew" : {},
     "Random Brew · %@" : {},
     "Recipe %lld" : {},
@@ -533,6 +730,7 @@
     "Recipe %lld, locked" : {},
     "Reduce Motion" : {},
     "Replay" : {},
+    "Resets at midnight UTC" : {},
     "Restart" : {},
     "Ring" : {
       "comment" : "Name of a colorblind rune"
@@ -541,21 +739,43 @@
       "comment" : "Metal of a rune key and its seal"
     },
     "Rune key" : {},
+    "Rune Seal" : {
+      "comment" : "Daily puzzle mode: one sealed flask"
+    },
     "Rune seals" : {},
     "Rune Seals" : {
       "comment" : "Random recipe mode with sealed flasks and rune keys"
     },
     "Rune-stone keys" : {},
+    "Sa" : {
+      "comment" : "Calendar column: Saturday"
+    },
     "Sapphire Draught" : {
       "comment" : "Potion name of the blue liquid"
+    },
+    "Saturday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
+    "Sealed" : {
+      "comment" : "Daily puzzle difficulty (Wednesday)"
     },
     "Sealed flasks open when you pour their rune key into them. Keys move alone." : {},
     "sealed with a %@ rune" : {
       "comment" : "A sealed flask; the argument is the key metal"
     },
     "Settings" : {},
+    "Share Result" : {},
     "Silver" : {
       "comment" : "Metal of a rune key and its seal"
+    },
+    "Solved" : {
+      "comment" : "Daily puzzle solved today"
+    },
+    "solved" : {
+      "comment" : "VoiceOver: state of today's daily puzzle"
+    },
+    "solved perfectly" : {
+      "comment" : "VoiceOver: state of today's daily puzzle"
     },
     "Sort every potion into its own flask." : {},
     "Sound Effects" : {},
@@ -565,6 +785,9 @@
     },
     "Star" : {
       "comment" : "Name of a colorblind rune"
+    },
+    "Steady" : {
+      "comment" : "Daily puzzle difficulty (Tuesday)"
     },
     "Steel" : {
       "comment" : "Metal of a rune key and its seal"
@@ -579,14 +802,46 @@
         }
       }
     },
+    "Streak %lld" : {
+      "comment" : "Current daily streak (consecutive days solved)"
+    },
     "Stuck — undo or restart?" : {},
+    "Su" : {
+      "comment" : "Calendar column: Sunday"
+    },
+    "Sunday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
     "System" : {},
     "Tap a flask to pick it up, then tap another flask to pour into it." : {},
+    "Th" : {
+      "comment" : "Calendar column: Thursday"
+    },
     "Thinking…" : {},
+    "This brew's day ended at midnight UTC, so it no longer counts. Today's new brew is waiting." : {},
+    "Thursday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
+    "Today" : {
+      "comment" : "Calendar legend"
+    },
+    "Today · %@" : {
+      "comment" : "Daily screen: today's date"
+    },
+    "Today, not solved yet" : {},
     "Triangle" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Tricky" : {
+      "comment" : "Daily puzzle difficulty (Friday)"
+    },
     "Try Again" : {},
+    "Tu" : {
+      "comment" : "Calendar column: Tuesday"
+    },
+    "Tuesday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
     "Undo" : {},
     "Unknown potion" : {},
     "Verdigris" : {
@@ -595,7 +850,16 @@
     "Wave" : {
       "comment" : "Name of a colorblind rune"
     },
+    "We" : {
+      "comment" : "Calendar column: Wednesday"
+    },
+    "Wednesday" : {
+      "comment" : "Weekday of the daily puzzle"
+    },
     "Workbench" : {},
+    "Your device's clock is earlier than a brew you already solved, so this one doesn't count." : {
+      "comment" : "Daily win card when the device clock was set back"
+    },
     "· Best %lld" : {}
   },
   "version" : "1.0"
