@@ -77,6 +77,7 @@ struct MapChapter: Identifiable {
 struct ChapterMapView: View {
     let onOpenChapter: (_ packID: String) -> Void
     let onChallenges: () -> Void
+    let onDaily: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
@@ -183,6 +184,7 @@ struct ChapterMapView: View {
             ForEach(catalog.loadErrors, id: \.self) { error in
                 Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(.orange)
             }
+            DailyHomeCard(action: onDaily)
             if let current, let pack = current.pack {
                 continueCard(current, pack: pack)
             }
@@ -253,6 +255,18 @@ struct ChapterMapView: View {
     }
 
     private func compactBar(current: MapChapter?) -> some View {
+        VStack(spacing: 8) {
+            DailyBarRow(action: onDaily)
+            compactButtons(current: current)
+        }
+        .controlSize(.large)
+        .padding(10)
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+    }
+
+    private func compactButtons(current: MapChapter?) -> some View {
         HStack(spacing: 10) {
             if let current, let pack = current.pack {
                 Button { onOpenChapter(pack.id) } label: {
@@ -268,11 +282,6 @@ struct ChapterMapView: View {
             }
             .buttonStyle(.bordered)
         }
-        .controlSize(.large)
-        .padding(10)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 22))
-        .padding(.horizontal, 16)
-        .padding(.bottom, 8)
     }
 }
 

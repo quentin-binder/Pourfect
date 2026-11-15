@@ -9,11 +9,15 @@ enum Route: Hashable {
     case level(pack: String, index: Int)
     case randomSettings
     case random(LevelDefinition, RandomLevelOptions)
+    case daily
+    case dailyPlay(LevelDefinition, DailyDate)
 }
 
 struct RootView: View {
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
+    @Environment(DailyModel.self) private var daily
+    @Environment(\.scenePhase) private var scenePhase
     @State private var path: [Route] = []
     #if DEBUG && os(macOS)
     @Environment(\.openSettings) private var openSettings
@@ -22,7 +26,8 @@ struct RootView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ChapterMapView(onOpenChapter: { path.append(.pack($0)) },
-                           onChallenges: { path.append(.challenges) })
+                           onChallenges: { path.append(.challenges) },
+                           onDaily: { path.append(.daily) })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .pack(let packID):
@@ -41,9 +46,15 @@ struct RootView: View {
                         RandomLevelView { level, options in path.append(.random(level, options)) }
                     case .random(let level, let options):
                         GameView(model: GameViewModel(randomLevel: level, options: options))
+                    case .daily:
+                        DailyView { level, date in path.append(.dailyPlay(level, date)) }
+                    case .dailyPlay(let level, let date):
+                        GameView(model: GameViewModel(dailyLevel: level, date: date, daily: daily))
                     }
                 }
         }
+        // A new UTC day may have started while the app was in the background.
+        .onChange(of: scenePhase) { _, phase in if phase == .active { daily.refresh() } }
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
         .task { await openFromLaunchArguments() }
@@ -59,9 +70,18 @@ struct RootView: View {
     ///   Expert, Master (default 1).
     /// - `-LPRandomSettings 1` opens the Random Brew screen; `-LPRandomMode classic|locks|hidden`
     ///   (+ optional `-LPRandomSeed S`) generates a random recipe with the saved settings and opens it.
+    /// - `-LPOpenDaily 1` opens the Daily Brew screen; `-LPPlayDaily 1` also starts today's puzzle
+    ///   (pretend date and fake results: `-LPDailyDate`, `-LPDailySeedResults`, see `DailyModel`).
     private func openFromLaunchArguments() async {
         guard path.isEmpty else { return }
         let defaults = UserDefaults.standard
+        if defaults.bool(forKey: "LPOpenDaily") || defaults.bool(forKey: "LPPlayDaily") {
+            path = [.daily]
+            guard defaults.bool(forKey: "LPPlayDaily") else { return }
+            while daily.level == nil { try? await Task.sleep(for: .milliseconds(100)) }
+            if let level = daily.level { path.append(.dailyPlay(level, daily.today)) }
+            return
+        }
         #if os(macOS)
         if defaults.bool(forKey: "LPOpenSettings") { openSettings() }
         #endif
