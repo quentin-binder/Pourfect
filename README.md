@@ -30,16 +30,37 @@ Optional **Challenges** (never gated):
 
 Each chapter starts with a tiny tutorial recipe and then rises in difficulty score; challenges keep only the
 highest-scoring levels from a larger generated pool. Level ids of the original packs are unchanged, so saved
-stars keep counting. (The old Locks & Keys and Hidden Depths packs were replaced by chapters 2 and 3.)
+stars keep counting. (The old Locks & Keys and Hidden Depths packs were replaced by chapters 2 and 3; stars saved
+for their `p4_`/`p5_` ids are ignored.)
+
+The app loads every `chapter_*.json`, `challenge_*.json` and (older) `pack_*.json` in the bundle. Kind and chapter
+number come from the pack metadata; a file without it falls back to its name (`chapter_NN` = chapter NN, anything
+else is a challenge).
+
+### Screens
+
+- **Chapter map** (home): the painted `chapter_map` scrolls from the cellar (chapter 1, bottom) up to the dragon
+  (chapter 10, top). Each chapter is a round vignette button on a clearing of the path, placed by hand as fractions
+  of the image size (`ChapterArt.mapSpots`), with its number, name and stars, a lock with the stars still needed,
+  or "coming soon". The map opens scrolled to the chapter you're on, which glows. On wide windows (Mac, iPad) the
+  map is a framed column beside a panel with the total stars, a **Continue** card and **Challenges**; on narrow
+  ones it fills the width with a Continue / Challenges bar at the bottom. The toolbar has Challenges and Settings.
+- **Chapter screen:** vignette header with name, subtitle, stars and what they open ("Earn 12 more stars to open
+  Misty Marsh"), then the recipe grid (recipes open in order).
+- **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
+- **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions) the game shows a
+  short illustrated tip drawn with the real flasks (2–3 steps, **Got it**). The **?** in the game's top bar (⌘/)
+  shows the tips for the current recipe again. Seen tips are stored per mechanic (`TutorialStore`, UserDefaults).
 
 ## Layout
 
 ```
 LiquidPour.xcodeproj         Xcode project (one multiplatform app target: iOS 17+ / macOS 14+)
 LiquidPour/                  SwiftUI app
-  Model/                     GameViewModel, LevelCatalog, ProgressStore, AppSettings, Palette, RandomLevelMaker
-  Views/                     RootView, LevelSelectView, GameView, BottleView, RandomLevelView,
-                             PourAnimationView, TiltedLiquid, FlaskDecor, WorkbenchBackground, SettingsView
+  Model/                     GameViewModel, LevelCatalog, ProgressStore, Tutorials, AppSettings, Palette, RandomLevelMaker
+  Views/                     RootView, ChapterMapView (home), PackView (chapter / challenge recipes), ChallengesView,
+                             GameView, TutorialOverlay, BottleView, RandomLevelView, PourAnimationView,
+                             TiltedLiquid, FlaskDecor, WorkbenchBackground, SettingsView
   Assets.xcassets            Optimized painted art (workbench backgrounds, chapter map, chapter vignettes)
   Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
@@ -77,24 +98,25 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
 - You can pour onto an empty bottle or onto the same color, as long as there's room. The whole top run pours, or as much as fits.
 - **Undo** (⌘Z), **Restart** (⌘R) and **Hint** (⇧⌘H) are at the bottom of the screen.
 - Finish in the optimal number of moves for 3 stars, within 3 extra moves for 2 stars, and in any number of moves for 1 star.
-  Clearing a level unlocks the next one. Progress is saved on the device.
+  Clearing a recipe unlocks the next one in its chapter; a chapter opens once the previous chapter has half of its
+  stars. Progress is saved on the device.
 - A pour is animated: the bottle flies over the target, tilts, and a stream fills the target. Taps made during
   a pour are queued. With *Reduce Motion* on, the levels just change in place.
 
 ### Modes
 
-- **Classic**: the 40 levels of the starter pack, and random levels.
-- **Locks & Keys** (random levels): a locked bottle shows a lock in its key's color and its contents are dimmed.
+- **Classic**: chapter 1 (Apprentice Cellar), the challenges and random levels.
+- **Rune seals / Locks & Keys** (chapter 2, the end of chapter 3, Master, random levels): a locked bottle shows a lock in its key's color and its contents are dimmed.
   It can't be poured from or into. A key is a dark layer with a key icon. It always moves alone, and only into the
   bottle with the matching lock. That bottle unlocks (the key drops into the lock and the lock pops off) and the key
   disappears. You win when every bottle is sorted, so all keys must be used.
-- **Hidden layers** (random levels): every layer below a bottle's top run is shown as a grey "?". A layer flips over
+- **Murky / Hidden layers** (chapter 3, Master, random levels): every layer below a bottle's top run is shown as a grey "?". A layer flips over
   to its real color once it becomes part of the top run, and stays revealed. Undo and restart restore the "?" layers.
   This is display-only; the rules and the solver see every layer.
 
 ### Random Brew (random levels)
 
-Tap **Random Brew** (dice) at the top of the level list, or the dice in the toolbar. Pick a mode, the number of
+Open **Challenges** (trophy) from the chapter map and tap **Random Brew**. Pick a mode, the number of
 colors (2–12), the flask size (2–6), empty flasks (0–4) and, in Rune Seals (locks & keys), the number of seals (1–2), then
 **Brew**. The settings are remembered.
 
@@ -109,9 +131,10 @@ Boards with no empty bottle are almost always unsolvable. Random levels are play
 ### Theme, art and strings
 
 - **Art:** the game screen stands on the painted workbench (`bg_workbench_landscape` for wide windows,
-  `bg_workbench_portrait` for tall ones), dimmed in the middle so the flasks read clearly; the level list has a
+  `bg_workbench_portrait` for tall ones), dimmed in the middle so the flasks read clearly; the Challenges list has a
   blurred, washed copy. Both come from `WorkbenchBackground(style: .game / .menu)`. The chapter map
-  (`chapter_map`) and chapter vignettes (`chapter_01`…`chapter_10`) are in the catalog for the chapter screens.
+  (`chapter_map`) is the home screen; the chapter vignettes (`chapter_01`…`chapter_10`) are the map buttons and the
+  chapter headers. `PaintedBackdrop(image:)` blurs any painting into a backdrop.
   These are JPEG copies made with `sips` from the full-resolution originals in `Art/` (kept local, see
   `Art/README.md`); about 6 MB in total.
 - **Potion names:** the 12 palette colors have potion names (`Palette.potionNames`, e.g. Dragon's Blood,
@@ -129,19 +152,26 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 
 | Argument | Effect |
 |---|---|
-| `-LPOpenLevel N` | Opens level N (1-based) directly, ignoring locks. |
-| `-LPOpenPack P` | With `-LPOpenLevel`: which pack (1-based, default 1 = Starter). |
-| `-LPUnlockAll 1` | Makes every pack level playable in the grid (saved stars are untouched). |
+| `-LPOpenChapter N` | Opens chapter N's recipe list (works for locked chapters). |
+| `-LPOpenChallenge NAME` | Opens a challenge book: `challenger`, `expert` or `master` (file or display name). |
+| `-LPOpenChallenges 1` | Opens the Challenges area. |
+| `-LPOpenLevel N` | Opens recipe N (1-based) directly, ignoring locks: of `-LPOpenChapter` / `-LPOpenChallenge` if given, else of pack `-LPOpenPack`. |
+| `-LPOpenPack P` | With `-LPOpenLevel` alone: pack by position, chapters first, then challenges: 1–3 = chapters 1–3, 4 = Challenger, 5 = Expert, 6 = Master (default 1). |
+| `-LPUnlockAll 1` | Opens every chapter on the map and every recipe in the grids (saved stars are untouched). |
+| `-LPResetTutorials 1` | Forgets which tips were seen (at launch), so they show again. |
+| `-LPSkipTutorials 1` | Never shows a tip on its own this run (nothing saved); for screenshots. |
+| `-LPTutorialPage N` | Opens tips on step N (1-based). |
+| `-LPMapAnchor Y` | Opens the chapter map scrolled to height Y (0 = top / dragon, 1 = bottom / cellar). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). |
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
-| `-LPRandomSettings 1` | Opens the Random Level screen. |
+| `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
 | `-LPRandomSeed S` | Seed for `-LPRandomMode` (default 1), so the same level comes back every time. |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
 | `-LPExportSounds DIR` | Writes every synthesized sound to `DIR` as WAV files (to listen to or inspect them). |
 | `-settings.colorRunes 1`, `-settings.sound 0`, `-settings.reduceMotion always\|never\|system` | Override a setting for this run (not saved unless changed in Settings). |
-| `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Level settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
+| `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Brew settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
 
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
 
@@ -234,7 +264,7 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 - **Flask look**: a completed flask gets a cork that drops in with a bounce and a sparkle burst in the potion's
   color; glass sheen and a soft potion glow on every flask. With *Color Runes* on, every layer shows one of 12
   runes (one per color) so colors can be told apart without hue.
-- **Settings** (gear in the level list, or ⌘, on the Mac): sound, haptics (iOS), color runes, reduce motion
+- **Settings** (gear in the toolbar of the map, chapter and Challenges screens, or ⌘, on the Mac): sound, haptics (iOS), color runes, reduce motion
   (system / on / off). Stored behind `SettingsStore` (`UserDefaults` keys `settings.*`).
 
 ## Known limitations
@@ -244,12 +274,12 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   cancels a running generation.
 - Pour animation: a pour between rows makes the flying bottle cover the upper row; near the top of a short screen
   the tilted bottle can overlap the header.
-- All packs are open from the start (levels unlock only within a pack). Progress is keyed by level id, so
-  regenerating a pack with different content keeps old stars on the new levels.
+- Progress is keyed by level id, so regenerating a pack with different content keeps old stars on the new levels.
+- The chapter map's button positions are hand-placed for this painting; new map art needs new `ChapterArt.mapSpots`.
 - One empty bottle makes almost every puzzle with 6+ colors (bottle size 4) unsolvable, so one-empty levels stay at
   5 colors, or 6 colors with size-5 bottles.
 - Progress lives in `UserDefaults` on each device, with no iCloud sync.
-- No tutorial overlay or accessibility pass beyond basic labels (color runes are available in Settings).
+- No full accessibility pass beyond labels and VoiceOver flask contents (color runes are available in Settings).
 - The difficulty score's weights are hand-picked and haven't been calibrated with playtest data.
 - The solver's packed state key supports capacity ≤ 9, color ids 0–46 and key ids 0–15.
 - The app has no UI tests. Gameplay was checked with screenshots taken via the debug launch arguments.
@@ -258,5 +288,5 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
 2. More chapters as their mechanics land (R5).
-3. VoiceOver descriptions of bottle contents.
-4. More packs and a pack picker; optional iCloud progress sync.
+3. A full accessibility pass (VoiceOver already reads flask contents).
+4. Optional iCloud progress sync.

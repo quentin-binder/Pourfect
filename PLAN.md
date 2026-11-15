@@ -111,16 +111,17 @@ Each R-step is sized as one Claude Code task (or one workflow); stop for a check
 - Not covered in R1: light-mode and iOS-device screenshots were not checked (iOS builds only); haptics are untested on hardware
 
 ## R2 — Pourfect theme & chapters (Milestone 2)
-- [ ] Rename to **Pourfect**: display name, window title, in-app titles. Code/module names stay neutral; the target/bundle id rename waits for R8
-- [ ] UI wording: bottles → flasks, levels → recipes, packs → chapters (strings only)
-- [ ] Art drawn in code: wizard's workbench background, 2–3 flask silhouettes, 12-color potion palette with names
-- [ ] String catalog (English only for now, ready for more languages)
-- [ ] Chapter map (main path), star-gated: Ch. 1 Apprentice Cellar (basic), Ch. 2 Rune Vault (A1), Ch. 3 Misty Marsh (B1). Later chapters show as "coming soon" until their mechanic lands
-- [ ] Current Challenger / Expert / Master packs move to an optional **Challenges** area (no gating); Locks & Keys and Hidden Depths content is regenerated as chapters 2–3
-- [ ] Tutorial overlay: one illustrated hint the first time a mechanic appears (seen-state stored per mechanic)
+- [x] Rename to **Pourfect**: display name, window title, in-app titles. Code/module names stay neutral; the target/bundle id rename waits for R8
+- [x] UI wording: bottles → flasks, levels → recipes, packs → chapters (strings only)
+- [x] Art: painted workbench backgrounds, chapter map and chapter vignettes (generated, optimized copies in the asset catalog); flask rim, smoky glass; 12-color potion palette with names. (Only one flask silhouette so far: the bottle shape is unchanged.)
+- [x] String catalog (English only for now, ready for more languages)
+- [x] Chapter map (main path), star-gated: Ch. 1 Apprentice Cellar (basic), Ch. 2 Rune Vault (A1), Ch. 3 Misty Marsh (B1). Later chapters show as "coming soon" until their mechanic lands. Map buttons sit on the painted path; chapter screen with vignette header, stars and what they open
+- [x] Current Challenger / Expert / Master packs move to an optional **Challenges** area (no gating), together with Random Brew; Locks & Keys and Hidden Depths content is regenerated as chapters 2–3
+- [x] Tutorial overlay: one illustrated hint the first time a mechanic appears (seen-state stored per mechanic); "?" in the game re-opens it
 - [x] `levelgen` chapter presets with a tuned curve and a tutorial level first (`chapter1|chapter2|chapter3|challenger|expert|master`; every lock in a chapter must matter)
 - [x] Core: pack metadata (`kind`, `chapter`, `location`, `introduces`), `ChapterGate` / `ChapterProgress` (50 % star gate, recipes in order), `ChapterOutline.plan`; files renamed to `chapter_0N.json` / `challenge_*.json`; chapters 2 Rune Vault and 3 Misty Marsh generated (30 recipes each)
-- [ ] Progress migration: existing stars keep counting (level ids stay unique) — core side done: chapter 1 and the challenges keep their `p1/p2/p3/p6` ids (tested); the app still has to load the new file names
+- [x] Progress migration: existing stars keep counting (level ids stay unique; chapter 1 and the challenges keep their `p1/p2/p3/p6` ids); stars of the removed `p4_`/`p5_` recipes are ignored
+- Not covered in R2: light mode on the Mac and iPad layouts were not checked; tutorial steps were checked by screenshots only (no UI tests)
 
 ## R3 — Daily puzzle & streaks (Milestone 4, without Game Center / notifications)
 - [ ] Deterministic daily level: seed = UTC date, generated on device, offline
