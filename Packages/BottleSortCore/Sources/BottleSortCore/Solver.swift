@@ -96,27 +96,40 @@ public struct Solver: Sendable {
     /// Legal moves minus the ones that can never be needed on an optimal path.
     /// Every pruned move leads to a state that is canonically identical to the
     /// current one (a no-op) or to a sibling that is already generated.
+    ///
+    /// Locks & keys: the canonical key includes each bottle's lock, and a key
+    /// layer has its own token, so "canonically identical" still means "same
+    /// position for the rules". The rules below only ever skip *unlocked*
+    /// empty targets, which a key can never be poured into anyway, so no key
+    /// move is ever pruned except by rule 1 (which can't apply to a bottle
+    /// that holds a key).
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
-        // Rule 3: empty bottles are interchangeable, so pouring into any empty
-        // bottle gives the same canonical state as pouring into the first one.
+        // Rule 3: unlocked empty bottles are interchangeable (same capacity, no
+        // content, no lock), so pouring into any of them gives the same
+        // canonical state as pouring into the first one. A *locked* empty
+        // bottle is not interchangeable (its key may target it), so it is
+        // never skipped here.
         let firstEmpty = bottles.firstIndex { $0.isEmpty && $0.lockedBy == nil }
         var result: [Move] = []
         for from in bottles.indices {
             let source = bottles[from]
             if source.isEmpty { continue }
-            // Rule 1: a full, single-color bottle holds all `capacity` layers of
-            // its color, so no other bottle can have that color on top; the only
-            // legal target is an empty bottle, which just relocates the
-            // bottle (a canonical no-op).
+            // Rule 1: a full, single-color bottle (unlocked, no key — see
+            // `Rules.isSolved`) holds all `capacity` layers of its color, so no
+            // other bottle can have that color on top; the only legal target is
+            // an unlocked empty bottle, which just relocates the bottle (a
+            // canonical no-op).
             if source.isFull && Rules.isSolved(source) { continue }
             // Rule 2: if everything in the source moves together, pouring it into
-            // an empty bottle (same capacity) moves it all — again a canonical no-op.
+            // an unlocked empty bottle (same capacity) moves it all — again a
+            // canonical no-op. (A lone key moves "whole" too, but it can't be
+            // poured into an unlocked bottle at all, so this never hides a key move.)
             let movesWhole = Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
-                if target.isEmpty && (to != firstEmpty || movesWhole) { continue }
-                if Rules.pourAmount(from: source, to: target) > 0 {
+                if target.isEmpty && target.lockedBy == nil && (to != firstEmpty || movesWhole) { continue }
+                if Rules.pour(from: source, to: target) != nil {
                     result.append(Move(from: from, to: to))
                 }
             }

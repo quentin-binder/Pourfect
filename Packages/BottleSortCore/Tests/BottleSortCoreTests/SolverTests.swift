@@ -230,10 +230,15 @@ import Testing
 
     @Test func roundTrip() throws {
         var s = state([[0, 1, 0, 1], [1, 0, 1, 0], [], []])
+        s.bottles[2].layers = [.key(2)]
         s.bottles[3].lockedBy = 2
         let pack = LevelPack(levels: [LevelDefinition(id: "x", state: s, meta: LevelMeta(seed: 1, minMoves: 7))])
         let data = try LevelLoader.encode(pack)
-        #expect(String(decoding: data, as: UTF8.self).contains("[0, 1, 0, 1]"))
+        let text = String(decoding: data, as: UTF8.self)
+        #expect(text.contains("[0, 1, 0, 1]"))
+        #expect(text.contains(#"[{"key": 2}]"#))
+        #expect(text.contains(#""lockedBy" : 2"#))
+        #expect(!text.contains("hidden"))
         #expect(try LevelLoader.load(data) == pack)
     }
 
