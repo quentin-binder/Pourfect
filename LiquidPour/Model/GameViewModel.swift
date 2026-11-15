@@ -29,8 +29,32 @@ final class GameViewModel {
         let sourceHiddenBefore: Int
         let targetHiddenBefore: Int
 
+        /// Bottles that became complete (full, one color) through this move. Reported as
+        /// `.flaskCompleted` when the animation lands.
+        let completed: [Int]
+
         /// A key pour: the key drops into the target's lock instead of liquid flowing.
         var isKey: Bool { layer.isKey }
+    }
+
+    /// Something the player should hear or feel. Published in order through `feedback`.
+    enum FeedbackEvent: Equatable {
+        /// A bottle was picked up as the pour source.
+        case select(bottle: Int)
+        /// A tap that can't do anything (empty bottle selected, or an illegal pour).
+        case illegal(bottle: Int)
+        /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved.
+        case pour(from: Int, to: Int, amount: Int, isKey: Bool)
+        /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
+        case flaskCompleted(bottles: [Int])
+        /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
+        case levelWon(stars: Int)
+    }
+
+    struct Feedback: Identifiable, Equatable {
+        /// Increments by one per event, never reused within a model.
+        let id: Int
+        let event: FeedbackEvent
     }
 
     private(set) var levels: [LevelDefinition]
@@ -54,8 +78,12 @@ final class GameViewModel {
     private(set) var isThinking = false
     /// Incremented per bottle on an illegal move (drives the shake animation).
     private(set) var shakes: [Int] = []
-    /// Incremented on every illegal move (drives haptics).
-    private(set) var invalidMoveCount = 0
+    /// Recent feedback events, oldest first (only the last few are kept). Observe
+    /// `feedback.last?.id` and read `feedback(after:)` so events published in one update
+    /// (e.g. a completion followed by a queued tap) are never lost.
+    private(set) var feedback: [Feedback] = []
+    /// Incremented per bottle each time it becomes complete (drives the cork / burst visuals).
+    private(set) var completions: [Int] = []
     /// The pour being animated, if any. While set, taps are queued (not applied) so the
     /// board the view shows and the session can't drift apart.
     private(set) var pour: PourEvent?
@@ -66,6 +94,7 @@ final class GameViewModel {
     private var hintTask: Task<Void, Never>?
     private var hintClearTask: Task<Void, Never>?
     private var pourCount = 0
+    private var feedbackCount = 0
     /// Taps received while a pour animates; replayed in order when it ends.
     private var queuedTaps: [Int] = []
     /// Safety net: ends a pour even if the view never reports back (e.g. it went off screen).
@@ -121,8 +150,12 @@ final class GameViewModel {
         }
         clearHint()
         guard let from = selected else {
-            if !state.bottles[index].isEmpty { selected = index }
-            else { reject(index) }
+            if !state.bottles[index].isEmpty {
+                selected = index
+                emit(.select(bottle: index))
+            } else {
+                reject(index)
+            }
             return
         }
         selected = nil
@@ -140,9 +173,14 @@ final class GameViewModel {
 
     /// Called by the view when the pour animation `id` has finished. Replays queued taps.
     func finishPour(_ id: Int) {
-        guard pour?.id == id else { return }
+        guard let landed = pour, landed.id == id else { return }
         pour = nil
         pourTimeout?.cancel()
+        if !landed.completed.isEmpty {
+            for index in landed.completed where completions.indices.contains(index) { completions[index] += 1 }
+            emit(.flaskCompleted(bottles: landed.completed))
+        }
+        if case .won(let stars) = status { emit(.levelWon(stars: stars)) }
         while pour == nil, !queuedTaps.isEmpty {
             tap(bottle: queuedTaps.removeFirst())
         }
@@ -202,6 +240,7 @@ final class GameViewModel {
         cancelPour()
         minMoves = levels[index].meta?.minMoves
         shakes = Array(repeating: 0, count: session.state.bottles.count)
+        completions = Array(repeating: 0, count: session.state.bottles.count)
         selected = nil
         solution = nil
         clearHint()
@@ -236,7 +275,9 @@ final class GameViewModel {
         let id = pourCount
         pour = PourEvent(id: id, from: move.from, to: move.to, layer: layer, amount: amount,
                          sourceBefore: source, targetBefore: before.bottles[move.to],
-                         sourceHiddenBefore: hiddenBefore[move.from], targetHiddenBefore: hiddenBefore[move.to])
+                         sourceHiddenBefore: hiddenBefore[move.from], targetHiddenBefore: hiddenBefore[move.to],
+                         completed: Rules.completedBottles(before: before, after: state))
+        emit(.pour(from: move.from, to: move.to, amount: amount, isKey: layer.isKey))
         pourTimeout?.cancel()
         pourTimeout = Task {
             try? await Task.sleep(for: .seconds(3))
@@ -253,7 +294,19 @@ final class GameViewModel {
 
     private func reject(_ bottle: Int) {
         shakes[bottle] += 1
-        invalidMoveCount += 1
+        emit(.illegal(bottle: bottle))
+    }
+
+    /// Events newer than `id` (all kept events for nil), oldest first.
+    func feedback(after id: Int?) -> [Feedback] {
+        guard let id else { return feedback }
+        return feedback.filter { $0.id > id }
+    }
+
+    private func emit(_ event: FeedbackEvent) {
+        feedbackCount += 1
+        feedback.append(Feedback(id: feedbackCount, event: event))
+        if feedback.count > 16 { feedback.removeFirst(feedback.count - 16) }
     }
 
     private func afterStateChange() {

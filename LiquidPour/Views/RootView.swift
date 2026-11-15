@@ -12,6 +12,9 @@ struct RootView: View {
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
     @State private var path: [Route] = []
+    #if DEBUG && os(macOS)
+    @Environment(\.openSettings) private var openSettings
+    #endif
 
     var body: some View {
         NavigationStack(path: $path) {
@@ -43,6 +46,12 @@ struct RootView: View {
     private func openFromLaunchArguments() async {
         guard path.isEmpty else { return }
         let defaults = UserDefaults.standard
+        #if os(macOS)
+        if defaults.bool(forKey: "LPOpenSettings") { openSettings() }
+        #endif
+        if let dir = defaults.string(forKey: "LPExportSounds") {
+            SoundEngine.shared.debugExport(to: URL(fileURLWithPath: dir))
+        }
         let n = defaults.integer(forKey: "LPOpenLevel")
         let p = max(1, defaults.integer(forKey: "LPOpenPack"))
         if n > 0, p <= catalog.packs.count, n <= catalog.packs[p - 1].levels.count {

@@ -3,7 +3,9 @@ import SwiftUI
 
 struct GameView: View {
     @State var model: GameViewModel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(AppSettings.self) private var settings
+    /// Reduce Motion after the in-app override.
+    @Environment(\.effectiveReduceMotion) private var reduceMotion
 
     private let maxPerRow = 7
 
@@ -20,8 +22,12 @@ struct GameView: View {
         .padding()
         .overlay { overlay }
         .overlay(alignment: .top) { message }
-        .sensoryFeedback(.impact(weight: .light), trigger: model.invalidMoveCount)
-        .sensoryFeedback(.success, trigger: showsResult && isWon) { _, won in won }
+        .onChange(of: model.feedback.last?.id) { previous, _ in
+            for item in model.feedback(after: previous) {
+                FeedbackPlayer.play(item.event, settings: settings.value, reduceMotion: reduceMotion)
+            }
+        }
+        .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }
         .navigationTitle(model.title)
         .onDisappear { model.randomMaker.cancel() }   // left the screen: stop generating
         #if os(iOS)

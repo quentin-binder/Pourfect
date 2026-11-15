@@ -7,6 +7,10 @@ struct LevelSelectView: View {
     let onSelect: (_ pack: String, _ index: Int) -> Void
     let onRandom: () -> Void
 
+    #if os(iOS)
+    @State private var showsSettings = false
+    #endif
+
     /// Last viewed pack (a per-device convenience).
     @AppStorage("levelSelect.pack") private var selectedPackID = ""
 
@@ -55,7 +59,25 @@ struct LevelSelectView: View {
                 Button(action: onRandom) { Label("Random Level", systemImage: "dice") }
                     .help("Play a randomly generated level")
             }
+            ToolbarItem(placement: .primaryAction) {
+                settingsButton
+            }
         }
+        #if os(iOS)
+        .sheet(isPresented: $showsSettings) {
+            NavigationStack { SettingsView(showsDone: true) }
+        }
+        #endif
+    }
+
+    /// Opens Settings: the Settings window on the Mac (same as ⌘,), a sheet on iOS.
+    @ViewBuilder private var settingsButton: some View {
+        #if os(macOS)
+        SettingsLink { Label("Settings", systemImage: "gearshape") }
+            .help("Sound, color runes and motion")
+        #else
+        Button { showsSettings = true } label: { Label("Settings", systemImage: "gearshape") }
+        #endif
     }
 
     /// Horizontal row of pack chips with earned/total stars.

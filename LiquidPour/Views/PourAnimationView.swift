@@ -24,6 +24,10 @@ struct PourPose {
 
     static let duration = 1.1
     static let reducedDuration = 0.4
+    /// When liquid moves from source to target (seconds after the pour starts); sound and
+    /// haptics time themselves on this. With reduce motion the flow is 0…`reducedDuration`.
+    static let flowStart = 0.34
+    static let flowEnd = 0.74
 
     /// The choreography. Lift & fly (0–0.32 s), tilt, stream + flow (0.32–0.74 s),
     /// straighten & return (0.72–1.0 s), surfaces settle (to 1.1 s).
@@ -38,7 +42,7 @@ struct PourPose {
         p.travel = p.returning ? 1 - ease(t, 0.76, 0.96) : ease(t, 0.06, 0.32)
         p.rise = p.returning ? 1 - ease(t, 0.84, 1.0) : ease(t, 0, 0.24)
         p.tilt = t < 0.6 ? ease(t, 0.12, 0.36) : 1 - ease(t, 0.72, 0.95)
-        p.flow = ease(t, 0.34, 0.74)
+        p.flow = ease(t, flowStart, flowEnd)
         p.streamHead = ease(t, 0.30, 0.42)
         p.streamTail = ease(t, 0.64, 0.78)   // leaves the lip before the bottle moves away
         let settle = 1 - ease(t, 1.0, duration)   // guarantees a flat surface at the end
