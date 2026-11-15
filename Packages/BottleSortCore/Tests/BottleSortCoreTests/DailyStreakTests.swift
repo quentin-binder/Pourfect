@@ -91,14 +91,47 @@ struct DailyStreakTests {
         var history = DailyHistory()
         let first = history.record(solve(today))
         let replay = history.record(solve(today, moves: 10, hour: 20))
-        let older = history.record(solve(today.adding(days: -2)))
         let late = history.record(DailyResult(date: today.previous, moves: 10, minMoves: 10, usedHint: false,
                                               solvedAt: today.startDate))  // finished after its day: doesn't count
-        #expect(first && !replay && older && !late)
+        #expect(first && !replay && !late)
+        // Loaded or merged data may hold older days; recording itself only moves forward.
+        history = DailyHistory(results: history.results + [solve(today.adding(days: -2))])
         #expect(history.results.map(\.date) == [today.adding(days: -2), today])
         #expect(history.stats(today: today).currentStreak == 1)
         #expect(history.stats(today: today).bestStreak == 1)
         let data = try JSONEncoder().encode(history)
+        #expect(history.results.count == 2)
         #expect(try JSONDecoder().decode(DailyHistory.self, from: data) == history)
+    }
+
+    /// Setting the clock back to a missed day can't fill a streak gap: a solve earlier than a
+    /// saved one is refused. (A clock set forward can't be detected offline, DECISIONS 110.)
+    @Test func clockSetBackCannotFillAGap() {
+        var history = DailyHistory()
+        let d3 = history.record(solve(today.adding(days: -3)))
+        let d2 = history.record(solve(today.adding(days: -2)))
+        let d0 = history.record(solve(today))
+        let missed = history.record(solve(today.previous))   // clock moved back to yesterday
+        #expect(d3 && d2 && d0 && !missed)
+        #expect(history.stats(today: today).currentStreak == 1)
+        // Same instant as the newest result is fine (not earlier).
+        var other = DailyHistory()
+        let a = other.record(solve(today.previous, hour: 23.99))
+        let b = other.record(DailyResult(date: today, moves: 10, minMoves: 10, usedHint: false,
+                                         solvedAt: today.startDate))
+        #expect(a && b)
+    }
+
+    /// Same date and same `solvedAt`: the result doesn't depend on the input order.
+    @Test func tieIsOrderIndependent() {
+        let perfect = solve(today, moves: 10, minMoves: 10)
+        let hinted = solve(today, moves: 12, minMoves: 10, hint: true)
+        let ab = DailyStreaks.firstSolves([perfect, hinted])[today]
+        let ba = DailyStreaks.firstSolves([hinted, perfect])[today]
+        #expect(ab == ba)
+        #expect(ab == hinted)
+        let noHintA = solve(today, moves: 11, minMoves: 10)
+        let noHintB = solve(today, moves: 13, minMoves: 10)
+        #expect(DailyStreaks.firstSolves([noHintA, noHintB])[today] == DailyStreaks.firstSolves([noHintB, noHintA])[today])
     }
 }

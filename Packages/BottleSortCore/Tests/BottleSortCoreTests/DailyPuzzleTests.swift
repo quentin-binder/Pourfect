@@ -39,18 +39,18 @@ struct DailyPuzzleTests {
 
     /// Golden values: if these change, the daily generation changed and
     /// `DailyPuzzle.algorithmVersion` must be bumped (see DECISIONS).
-    let goldenSeed: UInt64 = 15_047_463_234_586_175_337
-    let goldenLayout = "L1:4210|1334|4162|k1351|6654|0526|5200|3|"
-    let goldenMinMoves = 22
+    let goldenSeed: UInt64 = 15_850_784_904_836_853_840
+    let goldenLayout = "L1:5213|2k110|0634|1265|3246|4406|1505|3|"
+    let goldenMinMoves = 23
 
     @Test func goldenLevel() throws {
-        #expect(DailyPuzzle.algorithmVersion == "daily-v1")
+        #expect(DailyPuzzle.algorithmVersion == "daily-v2")
         let g = try DailyPuzzle.generate(for: day(2026, 11, 15))
         #expect(g.level.id == "daily-2026-11-15")
         #expect(g.level.isHidden)
         #expect(g.phase == .spec)
-        #expect(g.attempts == 3)
-        #expect(g.level.meta?.seed == goldenSeed &+ 2)
+        #expect(g.attempts == 1)
+        #expect(g.level.meta?.seed == goldenSeed)
         #expect(g.level.meta?.minMoves == goldenMinMoves)
         #expect(layout(g.level) == goldenLayout)
     }

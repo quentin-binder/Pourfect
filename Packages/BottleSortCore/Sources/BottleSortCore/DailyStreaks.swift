@@ -46,13 +46,24 @@ public struct DailyStats: Sendable, Hashable {
 /// doesn't matter, and nothing depends on the device time zone.
 public enum DailyStreaks {
     /// The counted result for each date: the earliest `solvedAt` among results that count.
+    /// Ties (only possible in imported or merged data) go to the less flattering result
+    /// (a hint, then more moves), so the input order never decides.
     public static func firstSolves(_ results: [DailyResult]) -> [DailyDate: DailyResult] {
         var byDate: [DailyDate: DailyResult] = [:]
         for result in results where result.counts {
-            if let existing = byDate[result.date], existing.solvedAt <= result.solvedAt { continue }
+            if let existing = byDate[result.date], !keeps(result, over: existing) { continue }
             byDate[result.date] = result
         }
         return byDate
+    }
+
+    /// Whether `candidate` replaces `existing` as the day's counted result (a strict total order
+    /// on everything that affects the stats).
+    static func keeps(_ candidate: DailyResult, over existing: DailyResult) -> Bool {
+        if candidate.solvedAt != existing.solvedAt { return candidate.solvedAt < existing.solvedAt }
+        if candidate.usedHint != existing.usedHint { return candidate.usedHint }
+        if candidate.moves != existing.moves { return candidate.moves > existing.moves }
+        return candidate.minMoves < existing.minMoves
     }
 
     public static func stats(_ results: [DailyResult], today: DailyDate) -> DailyStats {
@@ -93,11 +104,13 @@ public struct DailyHistory: Sendable, Hashable, Codable {
         self.results = DailyStreaks.firstSolves(results).values.sorted { $0.date < $1.date }
     }
 
-    /// Adds a solve. Returns false (and changes nothing) if it doesn't count or its date
-    /// already has a result.
+    /// Adds a solve. Returns false (and changes nothing) if it doesn't count, its date
+    /// already has a result, or it was solved before a result already saved (the device clock
+    /// went back, e.g. to fill a missed day of a streak).
     @discardableResult
     public mutating func record(_ result: DailyResult) -> Bool {
         guard result.counts, self.result(for: result.date) == nil else { return false }
+        guard results.allSatisfy({ $0.solvedAt <= result.solvedAt }) else { return false }
         results.append(result)
         results.sort { $0.date < $1.date }
         return true

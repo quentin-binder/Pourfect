@@ -82,7 +82,7 @@ public enum DailyPlan {
                              emptyBottles: 2, locks: 0, minMoves: 13...16)
         case .wednesday:
             return DailySpec(weekday: weekday, tier: .sealed, mode: .sealed, colors: 5, capacity: 4,
-                             emptyBottles: 1, locks: 1, minMoves: 14...18)
+                             emptyBottles: 1, locks: 1, minMoves: 15...18)
         case .thursday:
             return DailySpec(weekday: weekday, tier: .murky, mode: .murky, colors: 5, capacity: 4,
                              emptyBottles: 2, locks: 0, minMoves: 13...17)
@@ -90,8 +90,8 @@ public enum DailyPlan {
             return DailySpec(weekday: weekday, tier: .tricky, mode: .classic, colors: 7, capacity: 4,
                              emptyBottles: 2, locks: 0, minMoves: 20...24)
         case .saturday:
-            return DailySpec(weekday: weekday, tier: .deepSeal, mode: .sealed, colors: 6, capacity: 4,
-                             emptyBottles: 1, locks: 1, minMoves: 17...21)
+            return DailySpec(weekday: weekday, tier: .deepSeal, mode: .sealed, colors: 7, capacity: 4,
+                             emptyBottles: 1, locks: 1, minMoves: 20...24)
         case .sunday:
             return DailySpec(weekday: weekday, tier: .grand, mode: .murkySealed, colors: 7, capacity: 4,
                              emptyBottles: 1, locks: 1, minMoves: 20...24)
@@ -141,7 +141,7 @@ public struct DailyGeneration: Sendable, Hashable {
 /// procedure must bump `algorithmVersion`** (the golden test fails as a reminder) —
 /// otherwise players on different app versions get different puzzles for the same day.
 public enum DailyPuzzle {
-    public static let algorithmVersion = "daily-v1"
+    public static let algorithmVersion = "daily-v2"
     /// Per-solve state cap. Daily configs solve in far fewer states; this only bounds
     /// pathological candidates. Deterministic (no timeout).
     public static let solverLimits = SolverLimits(maxStates: 300_000)
