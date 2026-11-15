@@ -3,6 +3,10 @@
 A liquid-sorting puzzle game for **iPhone, iPad and Mac** (native Apple silicon), built with SwiftUI.
 Pour colored layers between bottles until every bottle is empty or full with one color.
 
+The app is shown to players as **Pourfect**, a potion-lab game: in the UI bottles are *flasks*, levels are *recipes*
+and packs are *chapters*. Code, module and target names stay neutral (`LiquidPour`, `BottleSortCore`) until the
+release rename (R8).
+
 Progress is tracked in [`PLAN.md`](PLAN.md); design choices are in [`DECISIONS.md`](DECISIONS.md).
 
 ## Level packs
@@ -26,7 +30,9 @@ LiquidPour.xcodeproj         Xcode project (one multiplatform app target: iOS 17
 LiquidPour/                  SwiftUI app
   Model/                     GameViewModel, LevelCatalog, ProgressStore, AppSettings, Palette, RandomLevelMaker
   Views/                     RootView, LevelSelectView, GameView, BottleView, RandomLevelView,
-                             PourAnimationView, TiltedLiquid, SettingsView
+                             PourAnimationView, TiltedLiquid, FlaskDecor, WorkbenchBackground, SettingsView
+  Assets.xcassets            Optimized painted art (workbench backgrounds, chapter map, chapter vignettes)
+  Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
 Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
   Sources/BottleSortCore/    Model, Rules, Solver, Difficulty, Generator, LevelFile, GameSession, RandomLevel, Settings
@@ -77,19 +83,36 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   to its real color once it becomes part of the top run, and stays revealed. Undo and restart restore the "?" layers.
   This is display-only; the rules and the solver see every layer.
 
-### Random Level
+### Random Brew (random levels)
 
-Tap **Random Level** (dice) at the top of the level list, or the dice in the toolbar. Pick a mode, the number of
-colors (2–12), the bottle size (2–6), empty bottles (0–4) and, in Locks & Keys, the number of locks (1–2), then
-**Generate**. The settings are remembered.
+Tap **Random Brew** (dice) at the top of the level list, or the dice in the toolbar. Pick a mode, the number of
+colors (2–12), the flask size (2–6), empty flasks (0–4) and, in Rune Seals (locks & keys), the number of seals (1–2), then
+**Brew**. The settings are remembered.
 
 The level is generated off the main thread with a fresh random seed. Up to 6 candidates are tried ("Attempt k of 6");
 a candidate is rejected if a bottle is already sorted or the solver can't prove it solvable within 1M states
 (no time limit, so a seed gives the same level on every device).
-If all 6 fail you get "Couldn't find a solvable level in 6 tries — try more empty bottles or fewer colors".
+If all 6 fail you get "Couldn't brew a solvable recipe in 6 tries — try more empty flasks or fewer potions".
 Boards with no empty bottle are almost always unsolvable. Random levels are played in the normal game screen
 (Hint and stuck detection included). They don't change saved progress, and the win card offers
-**New Random Level** with the same settings instead of *Next*.
+**New Random Brew** with the same settings instead of *Next Recipe*.
+
+### Theme, art and strings
+
+- **Art:** the game screen stands on the painted workbench (`bg_workbench_landscape` for wide windows,
+  `bg_workbench_portrait` for tall ones), dimmed in the middle so the flasks read clearly; the level list has a
+  blurred, washed copy. Both come from `WorkbenchBackground(style: .game / .menu)`. The chapter map
+  (`chapter_map`) and chapter vignettes (`chapter_01`…`chapter_10`) are in the catalog for the chapter screens.
+  These are JPEG copies made with `sips` from the full-resolution originals in `Art/` (kept local, see
+  `Art/README.md`); about 6 MB in total.
+- **Potion names:** the 12 palette colors have potion names (`Palette.potionNames`, e.g. Dragon's Blood,
+  Mermaid Teal) and the key metals have names (`Palette.keyNames`); VoiceOver reads a flask as
+  "Flask 3, 2 Dragon's Blood, Moonshade, corked".
+- **Strings:** SwiftUI `Text`/`Button`/`Label` literals are localized automatically; every other user-facing
+  string uses `String(localized:)`, and numbers-only text uses `Text(value, format: .number)` or
+  `Text(verbatim:)`. Xcode adds new keys to `Localizable.xcstrings` when you build in the IDE; a command-line
+  build does not, so after adding UI text from the command line, build in Xcode once (or merge the build's
+  `*.stringsdata` into the catalog) before committing. Plural forms are catalog variations.
 
 ### Debug launch arguments
 
