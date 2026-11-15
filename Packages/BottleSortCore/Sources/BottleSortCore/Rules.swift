@@ -70,6 +70,21 @@ public enum Rules {
     public static func isWon(_ state: GameState) -> Bool {
         state.bottles.allSatisfy(isSolved)
     }
+
+    /// A bottle is *completed* when it is solved and not empty: full with a single color.
+    public static func isCompleted(_ bottle: Bottle) -> Bool {
+        !bottle.isEmpty && isSolved(bottle)
+    }
+
+    /// Indices (ascending) of bottles that are completed in `after` but weren't in `before`,
+    /// e.g. the target of a pour that filled it with its last matching layer. Bottles that
+    /// were already completed, or that don't exist in `before`, are not reported.
+    public static func completedBottles(before: GameState, after: GameState) -> [Int] {
+        after.bottles.indices.filter { i in
+            isCompleted(after.bottles[i])
+                && !(before.bottles.indices.contains(i) && isCompleted(before.bottles[i]))
+        }
+    }
 }
 
 extension GameState {
