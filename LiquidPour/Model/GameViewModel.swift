@@ -12,6 +12,21 @@ final class GameViewModel {
         case stuck
     }
 
+    /// One legal pour that was just applied to the session. The view animates it, then calls
+    /// `finishPour(_:)`. Holds the two bottles as they were *before* the move, so the
+    /// animation can draw the transfer without re-deriving any rule.
+    struct PourEvent: Identifiable, Equatable {
+        let id: Int
+        let from: Int
+        let to: Int
+        /// The layer kind that moved (all moved layers are identical).
+        let layer: Layer
+        /// Number of layers that moved.
+        let amount: Int
+        let sourceBefore: Bottle
+        let targetBefore: Bottle
+    }
+
     let levels: [LevelDefinition]
     private let progress: ProgressModel
 
@@ -30,11 +45,19 @@ final class GameViewModel {
     private(set) var shakes: [Int] = []
     /// Incremented on every illegal move (drives haptics).
     private(set) var invalidMoveCount = 0
+    /// The pour being animated, if any. While set, taps are queued (not applied) so the
+    /// board the view shows and the session can't drift apart.
+    private(set) var pour: PourEvent?
 
     /// Latest optimal solution, valid for `solutionState`. Lets Hint answer instantly.
     private var solution: (state: GameState, moves: [Move])?
     private var analysisTask: Task<Void, Never>?
     private var hintClearTask: Task<Void, Never>?
+    private var pourCount = 0
+    /// Taps received while a pour animates; replayed in order when it ends.
+    private var queuedTaps: [Int] = []
+    /// Safety net: ends a pour even if the view never reports back (e.g. it went off screen).
+    private var pourTimeout: Task<Void, Never>?
 
     nonisolated static let solverLimits = SolverLimits(maxStates: 1_000_000, timeout: .seconds(4))
 
@@ -56,6 +79,10 @@ final class GameViewModel {
 
     func tap(bottle index: Int) {
         guard !isWon else { return }
+        if pour != nil {
+            if queuedTaps.count < 2 { queuedTaps.append(index) }
+            return
+        }
         clearHint()
         guard let from = selected else {
             if !state.bottles[index].isEmpty { selected = index }
@@ -65,15 +92,28 @@ final class GameViewModel {
         selected = nil
         if from == index { return }   // tapping the same bottle deselects
         let move = Move(from: from, to: index)
+        let before = state
         if session.apply(move) {
+            startPour(move, before: before)
             afterStateChange()
         } else {
             reject(from)
         }
     }
 
+    /// Called by the view when the pour animation `id` has finished. Replays queued taps.
+    func finishPour(_ id: Int) {
+        guard pour?.id == id else { return }
+        pour = nil
+        pourTimeout?.cancel()
+        while pour == nil, !queuedTaps.isEmpty {
+            tap(bottle: queuedTaps.removeFirst())
+        }
+    }
+
     func undo() {
         guard session.undo() else { return }
+        cancelPour()
         selected = nil
         clearHint()
         afterStateChange()
@@ -81,6 +121,7 @@ final class GameViewModel {
 
     func restart() {
         session.restart()
+        cancelPour()
         selected = nil
         clearHint()
         afterStateChange()
@@ -115,6 +156,7 @@ final class GameViewModel {
         analysisTask?.cancel()
         levelIndex = index
         session = GameSession(levels[index].gameState)
+        cancelPour()
         minMoves = levels[index].meta?.minMoves
         shakes = Array(repeating: 0, count: session.state.bottles.count)
         selected = nil
@@ -131,6 +173,28 @@ final class GameViewModel {
     // MARK: Helpers
 
     private var isWon: Bool { if case .won = status { return true } else { return false } }
+
+    private func startPour(_ move: Move, before: GameState) {
+        let source = before.bottles[move.from]
+        let amount = source.layers.count - state.bottles[move.from].layers.count
+        guard amount > 0, let layer = source.topLayer else { return }
+        pourCount += 1
+        let id = pourCount
+        pour = PourEvent(id: id, from: move.from, to: move.to, layer: layer, amount: amount,
+                         sourceBefore: source, targetBefore: before.bottles[move.to])
+        pourTimeout?.cancel()
+        pourTimeout = Task {
+            try? await Task.sleep(for: .seconds(3))
+            guard !Task.isCancelled else { return }
+            self.finishPour(id)
+        }
+    }
+
+    private func cancelPour() {
+        pour = nil
+        queuedTaps.removeAll()
+        pourTimeout?.cancel()
+    }
 
     private func reject(_ bottle: Int) {
         shakes[bottle] += 1
@@ -211,6 +275,7 @@ final class GameViewModel {
     func debugPlayOptimal(moves: Int) async {
         guard case .solved(let solution, _) = await Self.solve(state) else { return }
         for move in solution.prefix(moves) {
+            while pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
             try? await Task.sleep(for: .milliseconds(450))
             tap(bottle: move.from)
             try? await Task.sleep(for: .milliseconds(250))
