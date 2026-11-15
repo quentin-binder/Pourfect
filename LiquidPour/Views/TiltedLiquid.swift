@@ -7,11 +7,6 @@ struct LiquidSegment {
     var fraction: CGFloat
 }
 
-extension Layer {
-    /// Display color of a layer (gray for layer kinds that have no color).
-    var liquidColor: Color { colorID.map { Palette.color($0.rawValue) } ?? .gray }
-}
-
 /// Liquid inside a bottle whose surface stays level with the world while the bottle tilts.
 ///
 /// Drawn in bottle space: `gravity` is the angle (radians) of "down" relative to the bottle's own

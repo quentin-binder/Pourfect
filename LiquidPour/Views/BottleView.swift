@@ -1,10 +1,13 @@
 import BottleSortCore
 import SwiftUI
 
-/// One bottle: rounded outline with stacked colored layers (bottom → top).
+/// One bottle: rounded outline with stacked layers (bottom → top). Draws key layers,
+/// a lock badge on locked bottles, and "?" for layers the session reports as hidden.
 struct BottleView: View {
     let bottle: Bottle
     let width: CGFloat
+    /// Number of bottom layers shown as "?" (from `GameSession.hiddenDepths`).
+    var hiddenLayers = 0
     var isSelected = false
     var hintRole: HintRole?
     var shakes = 0
@@ -22,6 +25,19 @@ struct BottleView: View {
     }
     static let outlineColor = Color.primary.opacity(0.45)
     static let glassColor = Color.primary.opacity(0.05)
+    /// Dims a locked bottle's contents.
+    static let lockedDim = Color.black.opacity(0.4)
+
+    /// The lock drawn over a locked bottle, in its key's color.
+    static func lockBadge(_ key: KeyID, width: CGFloat) -> some View {
+        Image(systemName: "lock.fill")
+            .font(.system(size: width * 0.36, weight: .bold))
+            .foregroundStyle(Palette.keyColor(key.rawValue))
+            .frame(width: width * 0.72, height: width * 0.72)
+            .background(Circle().fill(Color.black.opacity(0.7)))
+            .overlay(Circle().strokeBorder(Palette.keyColor(key.rawValue), lineWidth: max(1.5, width * 0.04)))
+            .shadow(color: .black.opacity(0.3), radius: 2, y: 1)
+    }
 
     private var layerHeight: CGFloat { Self.layerHeight(width: width) }
     private var height: CGFloat { Self.height(width: width, capacity: bottle.capacity) }
@@ -31,14 +47,20 @@ struct BottleView: View {
         ZStack(alignment: .bottom) {
             shape.fill(Self.glassColor)
             VStack(spacing: 0) {
-                ForEach(Array(bottle.layers.enumerated().reversed()), id: \.offset) { _, layer in
-                    LayerView(layer: layer)
+                ForEach(Array(bottle.layers.enumerated().reversed()), id: \.offset) { index, layer in
+                    LayerView(layer: layer, hidden: index < hiddenLayers, height: layerHeight)
                         .frame(height: layerHeight)
                         .transition(.asymmetric(insertion: .move(edge: .top).combined(with: .opacity),
                                                 removal: .opacity))
                 }
             }
             .clipShape(shape)
+            if let key = bottle.lockedBy {
+                shape.fill(Self.lockedDim)
+                Self.lockBadge(key, width: width)
+                    .frame(maxHeight: .infinity)   // centered on the bottle
+                    .transition(.scale(scale: 1.6).combined(with: .opacity))
+            }
             shape.strokeBorder(outline, lineWidth: isSelected || hintRole != nil ? 3 : 2)
         }
         .frame(width: width, height: height)
@@ -53,19 +75,70 @@ struct BottleView: View {
         switch hintRole {
         case .source: return .yellow
         case .target: return .orange
-        case nil: return isSelected ? .accentColor : Self.outlineColor
+        case nil:
+            if isSelected { return .accentColor }
+            if let key = bottle.lockedBy { return Palette.keyColor(key.rawValue).opacity(0.8) }
+            return Self.outlineColor
         }
     }
 }
 
+/// One layer. A hidden layer is a grey "?" card that flips over to its real face when revealed.
 private struct LayerView: View {
     let layer: Layer
+    let hidden: Bool
+    let height: CGFloat
 
     var body: some View {
+        face
+            .modifier(FlipReveal(angle: hidden ? 180 : 0, hiddenFace: hiddenFace))
+            .animation(.easeInOut(duration: 0.45), value: hidden)
+    }
+
+    @ViewBuilder private var face: some View {
         switch layer {
         case .color(let id):
             Rectangle().fill(Palette.color(id.rawValue).gradient)
+        case .key(let key):
+            Rectangle().fill(Palette.keyLayer)
+                .overlay {
+                    Image(systemName: "key.fill")
+                        .font(.system(size: height * 0.5, weight: .bold))
+                        .rotationEffect(.degrees(-45))
+                        .foregroundStyle(Palette.keyColor(key.rawValue))
+                }
+                .accessibilityLabel("Key")
         }
+    }
+
+    private var hiddenFace: some View {
+        Rectangle().fill(Palette.hiddenLayer.gradient)
+            .overlay {
+                Text("?")
+                    .font(.system(size: height * 0.55, weight: .heavy, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+            .overlay(alignment: .top) { Rectangle().fill(.black.opacity(0.12)).frame(height: 1) }
+    }
+}
+
+/// Flips around the vertical axis: 0° shows the content, 180° shows `hiddenFace`
+/// (swapped at 90°, when the card is edge-on).
+private struct FlipReveal<Back: View>: ViewModifier, Animatable {
+    var angle: Double
+    let hiddenFace: Back
+
+    var animatableData: Double {
+        get { angle }
+        set { angle = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        ZStack {
+            if angle < 90 { content } else { hiddenFace }
+        }
+        .rotation3DEffect(.degrees(angle < 90 ? angle : 180 - angle), axis: (x: 0, y: 1, z: 0),
+                          perspective: 0.4)
     }
 }
 

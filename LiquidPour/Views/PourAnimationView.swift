@@ -104,10 +104,17 @@ struct PourAnimationView: View {
             * (CGFloat(event.targetBefore.layers.count) + CGFloat(event.amount) * pose.flow)
 
         return ZStack(alignment: .topLeading) {
-            stream(from: pourPoint(right: right), toY: surfaceY, right: right, pose: pose)
+            if !event.isKey {
+                stream(from: pourPoint(right: right), toY: surfaceY, right: right, pose: pose)
+            }
 
-            bottle(segments: targetSegments(pose.flow), frame: targetFrame, gravity: pose.targetSlosh)
+            bottle(segments: targetSegments(pose.flow), frame: targetFrame, gravity: pose.targetSlosh,
+                   lock: event.targetBefore.lockedBy, unlock: unlockProgress(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
+
+            if event.isKey {
+                fallingKey(from: pourPoint(right: right), pose: pose)
+            }
 
             bottle(segments: sourceSegments(pose.flow), frame: sourceFrame,
                    gravity: angle * .pi / 180 + pose.sourceSlosh)
@@ -119,7 +126,10 @@ struct PourAnimationView: View {
         .frame(width: boardSize.width, height: boardSize.height, alignment: .topLeading)
     }
 
-    private func bottle(segments: [LiquidSegment], frame: CGRect, gravity: Double) -> some View {
+    /// `lock`/`unlock`: a locked target shows its lock (and dimmed contents) until the key
+    /// lands; then the lock pops away (`unlock` 0 → 1).
+    private func bottle(segments: [LiquidSegment], frame: CGRect, gravity: Double,
+                        lock: KeyID? = nil, unlock: Double = 0) -> some View {
         let shape = BottleView.shape(width: frame.width)
         return ZStack {
             // Opaque backing so bottles the flying one passes in front of don't show through.
@@ -128,24 +138,66 @@ struct PourAnimationView: View {
             TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: frame.width),
                          gravity: gravity)
                 .clipShape(shape)
+            if let lock {
+                shape.fill(BottleView.lockedDim.opacity(1 - unlock))
+                BottleView.lockBadge(lock, width: frame.width)
+                    .scaleEffect(1 + 0.6 * unlock)
+                    .opacity(1 - unlock)
+            }
             shape.strokeBorder(BottleView.outlineColor, lineWidth: 2)
         }
         .frame(width: frame.width, height: frame.height)
     }
 
+    /// Display color of layer `index` of a bottle whose bottom `hidden` layers show as "?".
+    private func segmentColor(_ layer: Layer, index: Int, hidden: Int) -> Color {
+        index < hidden ? Palette.hiddenLayer : layer.liquidColor
+    }
+
     /// Source keeps its layers; the poured top layers shrink as `flow` grows.
+    /// A key leaves in one piece as soon as it starts to fall.
     private func sourceSegments(_ flow: Double) -> [LiquidSegment] {
         let layers = event.sourceBefore.layers
+        let leaving = event.isKey ? (flow > 0.001 ? 0 : 1) : 1 - flow
         return layers.enumerated().map { i, layer in
-            LiquidSegment(color: layer.liquidColor,
-                          fraction: i >= layers.count - event.amount ? 1 - flow : 1)
+            LiquidSegment(color: segmentColor(layer, index: i, hidden: event.sourceHiddenBefore),
+                          fraction: i >= layers.count - event.amount ? leaving : 1)
         }
     }
 
-    /// Target keeps its layers and gains `amount` layers that grow with `flow`.
+    /// Target keeps its layers and gains `amount` layers that grow with `flow`
+    /// (none for a key: it is consumed by the lock).
     private func targetSegments(_ flow: Double) -> [LiquidSegment] {
-        event.targetBefore.layers.map { LiquidSegment(color: $0.liquidColor, fraction: 1) }
-            + Array(repeating: LiquidSegment(color: color, fraction: flow), count: event.amount)
+        let kept = event.targetBefore.layers.enumerated().map { i, layer in
+            LiquidSegment(color: segmentColor(layer, index: i, hidden: event.targetHiddenBefore), fraction: 1)
+        }
+        if event.isKey { return kept }
+        return kept + Array(repeating: LiquidSegment(color: color, fraction: flow), count: event.amount)
+    }
+
+    // MARK: Key pour
+
+    /// 0 → 1 while the lock pops off, after the key has dropped in.
+    private func unlockProgress(_ pose: PourPose) -> Double {
+        guard event.isKey else { return 0 }
+        let x = min(max((pose.flow - 0.75) / 0.25, 0), 1)
+        return x * x
+    }
+
+    /// The key falls from the lip into the lock at the target's center, shrinking as it enters.
+    @ViewBuilder
+    private func fallingKey(from lip: CGPoint, pose: PourPose) -> some View {
+        if case .key(let key) = event.layer, pose.flow > 0.001, pose.flow < 0.8 {
+            let p = min(pose.flow / 0.75, 1)
+            let end = CGPoint(x: targetFrame.midX, y: targetFrame.midY)
+            Image(systemName: "key.fill")
+                .font(.system(size: width * 0.42, weight: .bold))
+                .foregroundStyle(Palette.keyColor(key.rawValue))
+                .rotationEffect(.degrees(-45 + 135 * p))
+                .scaleEffect(1 - 0.5 * p)
+                .shadow(color: .black.opacity(0.35), radius: 2, y: 1)
+                .position(x: lip.x + (end.x - lip.x) * p, y: lip.y + (end.y - lip.y) * p * p)
+        }
     }
 
     // MARK: Positions

@@ -22,7 +22,7 @@ struct GameView: View {
         .overlay(alignment: .top) { message }
         .sensoryFeedback(.impact(weight: .light), trigger: model.invalidMoveCount)
         .sensoryFeedback(.success, trigger: showsResult && isWon) { _, won in won }
-        .navigationTitle("Level \(model.levelIndex + 1)")
+        .navigationTitle(model.title)
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
         #endif
@@ -43,7 +43,7 @@ struct GameView: View {
 
     private var hud: some View {
         HStack {
-            Text("Level \(model.levelIndex + 1)").font(.headline)
+            Text(model.title).font(.headline)
             Spacer()
             Text("Moves \(model.moveCount)").font(.headline.monospacedDigit())
             if let best = model.minMoves {
@@ -98,6 +98,7 @@ struct GameView: View {
                             withAnimation(.easeInOut(duration: 0.3)) { model.tap(bottle: index) }
                         } label: {
                             BottleView(bottle: bottles[index], width: width,
+                                       hiddenLayers: model.hiddenLayerCount(index),
                                        isSelected: model.selected == index,
                                        hintRole: hintRole(for: index),
                                        shakes: model.shakes.indices.contains(index) ? model.shakes[index] : 0)
@@ -150,10 +151,23 @@ struct GameView: View {
                 StarsView(count: stars, size: 32)
                 Text("\(model.moveCount) moves · best possible \(model.minMoves ?? model.moveCount)")
                     .foregroundStyle(.secondary)
+                if model.isRandom {
+                    randomStatus
+                }
                 HStack {
                     Button("Replay") { withAnimation { model.restart() } }
                         .buttonStyle(.bordered)
-                    if model.hasNextLevel {
+                    if model.isRandom {
+                        Button {
+                            withAnimation { model.newRandomLevel() }
+                        } label: {
+                            Label(model.randomMaker.phase == .failed ? "Try Again" : "New Random Level",
+                                  systemImage: "dice")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .keyboardShortcut(.defaultAction)
+                        .disabled(model.randomMaker.isGenerating)
+                    } else if model.hasNextLevel {
                         Button("Next") { withAnimation { model.nextLevel() } }
                             .buttonStyle(.borderedProminent)
                             .keyboardShortcut(.defaultAction)
@@ -175,6 +189,26 @@ struct GameView: View {
                 .padding(.bottom, 70)
             }
         case .playing:
+            EmptyView()
+        }
+    }
+
+    /// Progress / failure of "New Random Level" on the win card.
+    @ViewBuilder private var randomStatus: some View {
+        switch model.randomMaker.phase {
+        case .generating(let attempt, let total):
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Attempt \(attempt) of \(total)").monospacedDigit()
+            }
+            .foregroundStyle(.secondary)
+        case .failed:
+            Text(RandomLevelMaker.failureMessage)
+                .font(.callout)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.orange)
+                .frame(maxWidth: 320)
+        case .idle:
             EmptyView()
         }
     }
