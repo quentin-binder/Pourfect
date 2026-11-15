@@ -18,6 +18,9 @@ struct BottleView: View {
     @Environment(\.colorRunesEnabled) private var runesEnabled
     @Environment(\.effectiveReduceMotion) private var reduceMotion
     @State private var burst: Date?
+    /// Replays the cork drop. Follows `completions` only with motion on, so toggling Reduce
+    /// Motion never replays a drop.
+    @State private var corkDrops = 0
 
     enum HintRole { case source, target }
 
@@ -82,8 +85,12 @@ struct BottleView: View {
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
         .onChange(of: completions) {
-            // Sparkles start as the cork lands.
-            if !reduceMotion { burst = Date().addingTimeInterval(0.12) }
+            guard !reduceMotion else { return }
+            // The completing pour lands inside `withAnimation`; start the drop outside it.
+            var plain = Transaction()
+            plain.disablesAnimations = true
+            withTransaction(plain) { corkDrops += 1 }
+            burst = Date().addingTimeInterval(0.12)   // sparkles start as the cork lands
         }
         .offset(y: isSelected ? -width * 0.3 : 0)
         .modifier(ShakeEffect(animatableData: CGFloat(shakes)))
@@ -101,7 +108,7 @@ struct BottleView: View {
     @ViewBuilder private var cork: some View {
         if isCompleted {
             Cork(width: width)
-                .corkDrop(width: width, trigger: reduceMotion ? 0 : completions)
+                .corkDrop(width: width, trigger: corkDrops)
                 .offset(y: Cork.offsetY(width: width))
                 .transition(reduceMotion ? .opacity : .asymmetric(
                     insertion: .opacity,

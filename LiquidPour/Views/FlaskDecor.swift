@@ -100,8 +100,9 @@ struct CorkDrop {
 }
 
 extension View {
-    /// Drops the cork in with a small bounce each time `trigger` changes (0.4 s). `trigger` should
-    /// stay constant with reduce motion, so the cork just sits there.
+    /// Drops the cork in with a small bounce each time `trigger` changes (0.4 s). Change `trigger`
+    /// without animation (see `BottleView`): an ambient `withAnimation` would also ease the jump to
+    /// the first keyframe, and its leftover pushes the cork down into the liquid.
     func corkDrop(width: CGFloat, trigger: Int) -> some View {
         keyframeAnimator(initialValue: CorkDrop(), trigger: trigger) { content, drop in
             content
@@ -109,17 +110,18 @@ extension View {
                 .offset(y: drop.y)
                 .opacity(drop.opacity)
         } keyframes: { _ in
+            // Eased linear segments: a cubic spline through the seat would dip slightly below it.
             KeyframeTrack(\.y) {
                 MoveKeyframe(-width * 1.1)
-                CubicKeyframe(0, duration: 0.14)                 // falls into the mouth
-                CubicKeyframe(-width * 0.12, duration: 0.1)      // small bounce
-                CubicKeyframe(0, duration: 0.12)
+                LinearKeyframe(0, duration: 0.14, timingCurve: .easeIn)            // falls into the mouth
+                LinearKeyframe(-width * 0.12, duration: 0.1, timingCurve: .easeOut) // small bounce
+                LinearKeyframe(0, duration: 0.12, timingCurve: .easeIn)
             }
             KeyframeTrack(\.squash) {
                 MoveKeyframe(1)
                 LinearKeyframe(1, duration: 0.14)
-                CubicKeyframe(0.88, duration: 0.05)
-                CubicKeyframe(1, duration: 0.12)
+                LinearKeyframe(0.88, duration: 0.05, timingCurve: .easeOut)
+                LinearKeyframe(1, duration: 0.12, timingCurve: .easeInOut)
             }
             KeyframeTrack(\.opacity) {
                 MoveKeyframe(0)
