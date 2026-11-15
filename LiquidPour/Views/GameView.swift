@@ -7,6 +7,8 @@ struct GameView: View {
     /// Reduce Motion after the in-app override.
     @Environment(\.effectiveReduceMotion) private var reduceMotion
     @Environment(TutorialModel.self) private var tutorials
+    @Environment(DailyModel.self) private var daily
+    @Environment(\.dismiss) private var dismiss
     /// The tip on screen, if any (first time a mechanic appears, or the "?" button).
     @State private var tip: [TutorialTopic]?
 
@@ -205,6 +207,8 @@ struct GameView: View {
 
     @ViewBuilder private var overlay: some View {
         switch showsResult ? model.status : .playing {
+        case .won where model.isDaily:
+            dailyWinCard
         case .won(let stars):
             card {
                 Text("Brewed!").font(.largeTitle.bold())
@@ -250,6 +254,76 @@ struct GameView: View {
             }
         case .playing:
             EmptyView()
+        }
+    }
+
+    // MARK: Daily win
+
+    /// The daily's win card: solved / perfect, streak, share. Never shows chapter stars.
+    private var dailyWinCard: some View {
+        card {
+            switch model.dailyOutcome {
+            case .recorded(let result):
+                Label("Daily solved!", systemImage: "sparkles")
+                    .font(.largeTitle.bold())
+                dailyBadge(result)
+                streakLine
+                ShareLink(item: DailyText.share(result, streak: daily.stats.currentStreak)) {
+                    Label("Share Result", systemImage: "square.and.arrow.up")
+                }
+            case .alreadySolved(let first):
+                Text("Brewed again!").font(.largeTitle.bold())
+                Text("\(model.moveCount) moves this time. Your first solve of the day is the one that counts.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: 340)
+                dailyBadge(first)
+                streakLine
+                ShareLink(item: DailyText.share(first, streak: daily.stats.currentStreak)) {
+                    Label("Share Result", systemImage: "square.and.arrow.up")
+                }
+            case .dayEnded, nil:
+                Text("Brewed!").font(.largeTitle.bold())
+                Text("This brew's day ended at midnight UTC, so it no longer counts. Today's new brew is waiting.")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: 340)
+            }
+            HStack {
+                Button("Replay") { withAnimation { model.restart() } }
+                    .buttonStyle(.bordered)
+                Button("Done") { dismiss() }
+                    .buttonStyle(.borderedProminent)
+                    .keyboardShortcut(.defaultAction)
+            }
+            .controlSize(.large)
+        }
+    }
+
+    /// Perfect badge, or the moves against the minimum (and why a hint cost the badge).
+    @ViewBuilder private func dailyBadge(_ result: DailyResult) -> some View {
+        if result.isPerfect {
+            PerfectBadge(large: true)
+            Text("\(result.moves) moves, the fewest possible")
+                .foregroundStyle(.secondary)
+        } else {
+            Text("\(result.moves) moves · perfect is \(result.minMoves)")
+                .font(.headline.monospacedDigit())
+            if result.usedHint {
+                Label("A hint was used, so this brew can't be perfect", systemImage: "lightbulb")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private var streakLine: some View {
+        let stats = daily.stats
+        return HStack(spacing: 14) {
+            StreakFlame(count: stats.currentStreak)
+            Text("Best \(stats.bestStreak)")
+                .font(.subheadline.monospacedDigit())
+                .foregroundStyle(.secondary)
         }
     }
 
