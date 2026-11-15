@@ -5,6 +5,7 @@ struct LevelSelectView: View {
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
     let onSelect: (Int) -> Void
+    let onRandom: () -> Void
 
     private let columns = [GridItem(.adaptive(minimum: 72, maximum: 96), spacing: 14)]
 
@@ -13,6 +14,8 @@ struct LevelSelectView: View {
             if let error = catalog.loadError {
                 ContentUnavailableView("Levels unavailable", systemImage: "exclamationmark.triangle", description: Text(error))
             }
+            randomButton
+                .padding([.horizontal, .top])
             let ids = catalog.levels.map(\.id)
             LazyVGrid(columns: columns, spacing: 14) {
                 ForEach(catalog.levels.indices, id: \.self) { index in
@@ -27,6 +30,35 @@ struct LevelSelectView: View {
             .padding()
         }
         .navigationTitle("LiquidPour")
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: onRandom) { Label("Random Level", systemImage: "dice") }
+                    .help("Play a randomly generated level")
+            }
+        }
+    }
+
+    /// Large entry point for random levels, visible on every device above the level grid.
+    private var randomButton: some View {
+        Button(action: onRandom) {
+            HStack(spacing: 14) {
+                Image(systemName: "dice.fill").font(.title)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Random Level").font(.headline)
+                    Text("Classic · Locks & Keys · Hidden layers")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").foregroundStyle(.secondary)
+            }
+            .padding(14)
+            .frame(maxWidth: .infinity)
+            .background(RoundedRectangle(cornerRadius: 14).fill(Color.accentColor.opacity(0.22)))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityHint("Choose a mode and board size, then generate a level")
     }
 }
 
