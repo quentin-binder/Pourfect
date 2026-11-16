@@ -71,6 +71,14 @@ extension Generator {
     ///    sealed, and each key goes into another unsealed flask with room, below at least one
     ///    layer. The solver then decides whether the level is still solvable.
     ///
+    /// 5. `switches` switch links (A3), after the seals and only when asked (nothing is drawn
+    ///    otherwise, so every cauldron level without a switch is unchanged): the same step as
+    ///    step 10 of `candidate` (`makeSwitches`, `switchPlacement`) over the plain flasks, so
+    ///    the cauldron (never plain) is never a switch or a gate and stays free of links
+    ///    (`linkedCauldron`). The walk itself ignores the gates (it reverses ordinary pours and
+    ///    un-mixes); whether the level is still solvable with them closed, and how much they
+    ///    cost, is the solver's to measure (`SwitchImpact`).
+    ///
     /// The solver verifies every candidate as usual (`evaluate`), so the walk only shapes
     /// the start; minimum moves and score are measured, not assumed. The bottles come out in
     /// a fixed order (final colors, empties, cauldron); the app shuffles them anyway.
@@ -192,6 +200,10 @@ extension Generator {
         }
         // 4. Seals.
         if config.locks > 0 { addSeals(&state, count: config.locks, cauldron: cauldron, rng: &rng) }
+        // 5. Switches.
+        if config.switches > 0 {
+            state.links += makeSwitches(state.bottles, linked: state.links, config: config, rng: &rng)
+        }
         return state
     }
 

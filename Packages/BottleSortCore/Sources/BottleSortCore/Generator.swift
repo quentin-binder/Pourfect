@@ -568,6 +568,10 @@ public enum Generator {
         if config.requireMixing,
            !CauldronImpact.everyCauldronMatters(state, minMoves: moves.count, limits: config.solverLimits)
             || CauldronImpact.mixedPairs(in: state, solution: moves) == 0 { return nil }
+        // A cauldron level with a switch: the optimal solution found must open a gate as well as
+        // mix (both mechanics are played, not just present).
+        if config.cauldron > 0, config.switches > 0,
+           SwitchImpact.gateOpenings(in: state, solution: moves).isEmpty { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report

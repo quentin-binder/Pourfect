@@ -533,6 +533,36 @@ private func cauldron(_ values: [Int], _ capacity: Int, _ recipes: [Recipe] = [p
         #expect(sealed > 15)
     }
 
+    /// Step 5 of the backwards walk: switches over the plain flasks after the walk and the
+    /// seals; the walk itself (and so every cauldron level without a switch) is unchanged.
+    @Test func switchesAfterTheWalk() {
+        for seed in UInt64(1)...20 {
+            let plain = GeneratorConfig(colors: 5, emptyBottles: 1, cauldron: 1, mixPairs: 2, scramble: 60)
+            var config = plain
+            config.switches = 1
+            let s = Generator.candidate(config, seed: seed)
+            #expect(s.bottles == Generator.candidate(plain, seed: seed).bottles)
+            #expect(s.links.count == 1)
+            for case let .switchGate(sw, gate) in s.links {
+                #expect(sw != gate && s.bottles[sw].isPlain && s.bottles[gate].isPlain)
+                #expect(!s.bottles[sw].isEmpty && !s.bottles[gate].isEmpty)   // `.closed`
+            }
+            #expect(!s.validate().contains { if case .linkedCauldron = $0 { true } else { false } })
+        }
+    }
+
+    @Test func cauldronWithASwitchMixesAndOpensTheGate() throws {
+        let config = GeneratorConfig(colors: 4, emptyBottles: 1, seed: 1, cauldron: 1, mixPairs: 2, scramble: 60,
+                                     requireMixing: true, switches: 1, requireSwitchMatter: true,
+                                     switchCost: SwitchImpact.strongCost)
+        for level in try Generator.generate(config, count: 2) {
+            let moves = try #require(Solver().solve(level.state).moves)
+            #expect(CauldronImpact.mixedPairs(in: level.state, solution: moves) > 0)
+            #expect(!SwitchImpact.gateOpenings(in: level.state, solution: moves).isEmpty)
+            #expect(SwitchImpact.everySwitchMatters(level.state, minMoves: level.report.minMoves, cost: SwitchImpact.strongCost))
+        }
+    }
+
     @Test func impactWithoutACauldron() {
         let classic = state([[0, 1], [1, 0], []], capacity: 2)
         #expect(CauldronImpact.instances(in: classic).isEmpty)
