@@ -65,7 +65,8 @@ else is a challenge).
   Misty Marsh"), then the recipe grid (recipes open in order).
 - **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
 - **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow
-  necks, funnels, taps, frozen layers, bubbling flasks, twin flasks, overflow pipes, the mixing cauldron) the game shows a
+  necks, funnels, taps, frozen layers, bubbling flasks, twin flasks, overflow pipes, the mixing cauldron, switches and
+  gates) the game shows a
   short illustrated tip drawn with the real flasks (2–3 steps, **Got it**). The **?** in the game's top bar (⌘/)
   shows the tips for the current recipe again. Seen tips are stored per mechanic (`TutorialStore`, UserDefaults).
 
@@ -78,7 +79,7 @@ LiquidPour/                  SwiftUI app
   Views/                     RootView, ChapterMapView (home), PackView (chapter / challenge recipes), ChallengesView,
                              GameView, TutorialOverlay, BottleView, RandomLevelView, PourAnimationView,
                              TiltedLiquid, FlaskDecor, GlassDecor, FrostDecor, BubbleDecor, LinkDecor, CauldronDecor,
-                             WorkbenchBackground, SettingsView
+                             SwitchDecor, WorkbenchBackground, SettingsView
   Assets.xcassets            Optimized painted art (workbench backgrounds, chapter map, chapter vignettes)
   Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
@@ -200,6 +201,14 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   at most one link (a switch drives one gate, a flask is never both, and no switch carries a tap). Turn events:
   `TurnEvent.gateOpened(switch:gate:)` / `.gateClosed(switch:gate:)`, after the pour's `.mixed` (step 2) or after
   the thaw / bubbling that caused them (step 5). Undo restores everything (nothing new is stored).
+  On screen: the switch wears a gem in a brass mount on its shoulder (dark while off, glowing gold while it is full of
+  one potion), a brass rod with a red-knobbed lever arches from it to a brass housing above the gate's mouth, and a
+  shut gate has an iron portcullis hanging over its mouth. When a pour lands that fills the switch, the gem lights,
+  the lever swings over towards the gate and the bars slide up into the housing with a ratchet and a clank; when a
+  pour empties the switch they drop back with a heavier clank (Reduce Motion: the bars fade). A gate opened by a thaw
+  or a mix on its switch waits for that to play. Picking up a shut gate, or pouring into one, shakes it, rattles the
+  bars and says "The gate is shut. Fill flask N with one potion to open it." VoiceOver names each switch and gate and
+  announces gates opening and shutting.
 
 ### Random Brew (random levels)
 
@@ -251,10 +260,10 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPMapAnchor Y` | Opens the chapter map scrolled to height Y (0 = top / dragon, 1 = bottom / cellar). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). A demo win saves no stars and no daily result. |
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
-| `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask, else a pour a twin chain refuses. |
+| `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask, else a pour a twin chain or a shut gate refuses (picking up a shut gate). |
 | `-LPDemoIcePour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a legal pour out of a flask that holds ice (the potion above the ice pours, the ice stays pinned). |
 | `-LPDemoLinkPour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a pour that uses a link: one that runs through an overflow pipe if any (e.g. chapter 8 recipe 17), else one split between twins. |
-| `-LPSlowMotion F` | Plays the pour, thaw, bubble-up and cauldron mix animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
+| `-LPSlowMotion F` | Plays the pour, thaw, bubble-up, cauldron mix and gate animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
