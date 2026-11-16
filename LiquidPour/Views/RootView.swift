@@ -70,22 +70,10 @@ struct RootView: View {
                     }
                 }
         }
+        // A story scene is modal: the screen under it (the win card's Return default, Cmd-R,
+        // Cmd-Z...) takes no keyboard shortcuts while it shows.
+        .disabled(story.scene != nil)
         .cosmetics(cosmetics)
-        .overlay(alignment: .top) {
-            if let toast {
-                RewardToast(rewards: toast) {
-                    self.toast = nil
-                    showsLabStyle = true
-                }
-                .padding(.top, 8)
-                .padding(.horizontal, 16)
-                .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
-                .task(id: toast.map(\.id)) {
-                    try? await Task.sleep(for: .seconds(5))
-                    withAnimation { self.toast = nil }
-                }
-            }
-        }
         .overlay {
             if let scene = story.scene {
                 StoryOverlay(scene: scene, startLine: story.startLine) {
@@ -94,6 +82,25 @@ struct RootView: View {
                 }
                 .id(scene)
                 .transition(.opacity)
+            }
+        }
+        .overlay(alignment: .top) {
+            // Waits under a story scene (the ending can follow the win that unlocked a reward) and
+            // gets its full time once the scene is gone; only a toast seen counts as announced.
+            if let toast, story.scene == nil {
+                RewardToast(rewards: toast) {
+                    progress.markAnnounced(Set(toast.map(\.id)))
+                    self.toast = nil
+                    showsLabStyle = true
+                }
+                .padding(.top, 8)
+                .padding(.horizontal, 16)
+                .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                .task(id: toast.map(\.id)) {
+                    do { try await Task.sleep(for: .seconds(5)) } catch { return }   // covered by a scene
+                    progress.markAnnounced(Set(toast.map(\.id)))
+                    withAnimation { self.toast = nil }
+                }
             }
         }
         .sheet(isPresented: $showsLabStyle) {
@@ -113,10 +120,12 @@ struct RootView: View {
     private func announce(_ unlocked: Set<String>) {
         guard !ProgressModel.unlockAll else { return }
         let fresh = Rewards.newlyUnlocked(unlocked, announced: progress.announcedRewards)
-        guard !fresh.isEmpty else { return }
-        progress.markAnnounced(Set(fresh.map(\.id)))
-        withAnimation(reduceMotion ? nil : .spring(duration: 0.4)) { toast = fresh }
-        let text = String(localized: "New reward: \(RewardToast.summary(fresh))", comment: "VoiceOver announcement when rewards unlock")
+        // Not yet in a toast (one waiting under a story scene keeps its rewards and adds these).
+        let pending = toast ?? []
+        let added = fresh.filter { reward in !pending.contains { $0.id == reward.id } }
+        guard !added.isEmpty else { return }
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.4)) { toast = pending + added }
+        let text = String(localized: "New reward: \(RewardToast.summary(added))", comment: "VoiceOver announcement when rewards unlock")
         AccessibilityNotification.Announcement(text).post()
     }
 
