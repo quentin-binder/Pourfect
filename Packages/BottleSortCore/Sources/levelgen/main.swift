@@ -568,8 +568,9 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 46...56, twins: 1, overflow: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, needsSplit: true, section: 4, maxAttempts: 8_000),
         // Pipe tutorial, first of the pipe section: 3 colors in size-3 flasks, one empty flask, a pipe
-        // between two filled flasks; the pipe saves 2+ moves, an optimal solution pushes without parking
-        // a flask, and no first move is a dead end.
+        // from a filled flask into the empty one (`.mixed`); the pipe saves 2+ moves (the shipped one is
+        // unsolvable without it), an optimal solution pushes without parking a flask, and no first move
+        // is a dead end.
         Tier(count: 1, colors: 3, capacity: 3, empty: 1, moves: any, pool: 16, overflow: 1, linkPlacement: .mixed,
              linkCost: LinkImpact.strongCost, keepEasiest: true, teachesLinks: true, section: 2),
         // …and 5 colors.
