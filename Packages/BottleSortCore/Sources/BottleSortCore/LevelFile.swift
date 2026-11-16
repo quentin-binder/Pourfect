@@ -109,8 +109,8 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     /// Twin flasks: two flasks on a silver chain share every pour into either one, split
     /// evenly (`Link.twins`; chapter 8).
     public static let twins: Mechanic = "twins"
-    /// Overflow pipes: what doesn't fit into a full flask runs on through its pipe into
-    /// another flask (`Link.overflow`; chapter 8).
+    /// Pressure pipes (id "overflow"): a pour into a flask that doesn't fit pushes its bottom
+    /// layers through a pipe into the bottom of another flask (`Link.overflow`; chapter 8).
     public static let overflow: Mechanic = "overflow"
     /// Mixing cauldrons: pouring one ingredient of a recipe onto the other inside a cauldron
     /// brews the result (`BottleModifier.cauldron`; chapter 9).

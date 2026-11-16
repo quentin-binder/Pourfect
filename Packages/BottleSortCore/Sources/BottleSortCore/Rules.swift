@@ -53,19 +53,30 @@ public struct PourEvent: Hashable, Sendable {
     public var fromBottom: Bool
     /// The key opened the target's seal (A1): it was used up and never lands in the target.
     public var openedSeal: KeyID?
-    /// Where else the poured layers landed, besides `move.to` (F1, F2): the twin of the
-    /// target (`.twin`: half of the pour), or the far end of the target's overflow pipe
-    /// (`.overflow`: what didn't fit into the target). Empty for a pour between two bottles.
+    /// What the pour did besides landing in `move.to`, as the plan had it: F1, the twin of
+    /// the target (`.twin`: half of the pour landed there); F2, a push (`.push`: that many of
+    /// the target's bottom layers went through its pressure pipe into the far end; every
+    /// poured layer landed in the target). Empty for a pour between two bottles. Read `push`
+    /// and `landings` rather than this list. (A push is kept here, not in a field of its own:
+    /// a bigger `PourEvent` made every solver step slower.)
     public var shares: [PourShare]
 
     public init(move: Move, layer: Layer, amount: Int, fromBottom: Bool = false, openedSeal: KeyID? = nil,
-                shares: [PourShare] = []) {
+                shares: [PourShare] = [], push: PipePush? = nil) {
         self.move = move
         self.layer = layer
         self.amount = amount
         self.fromBottom = fromBottom
         self.openedSeal = openedSeal
-        self.shares = shares
+        self.shares = shares + (push.map { [PourShare(bottle: $0.bottle, amount: $0.amount, route: .push)] } ?? [])
+    }
+
+    /// F2: the pour pushed the target's bottom layers through its pressure pipe into the
+    /// bottom of the pipe's far end (all `amount` poured layers landed in `move.to`). nil for
+    /// a pour that pushed nothing.
+    public var push: PipePush? {
+        guard let share = shares.first(where: { $0.route == .push }) else { return nil }
+        return PipePush(bottle: share.bottle, amount: share.amount)
     }
 
     /// Indices (0 = bottom) the moved layers occupied in the source before the pour.
@@ -73,17 +84,34 @@ public struct PourEvent: Hashable, Sendable {
         fromBottom ? 0..<amount : (count - amount)..<count
     }
 
-    /// How many of the `amount` layers landed in `move.to` (all of them, unless some went on
-    /// to a twin or through an overflow pipe; 0 when an overflow pour found the target full).
-    /// A key that opened a seal is counted here although it never lands (`openedSeal`).
-    public var targetAmount: Int { amount - shares.reduce(0) { $0 + $1.amount } }
+    /// How many of the `amount` layers landed in `move.to` (all of them, unless half went on
+    /// to a twin; a push lands every poured layer in the target). A key that opened a seal is
+    /// counted here although it never lands (`openedSeal`).
+    public var targetAmount: Int { amount - shares.reduce(0) { $0 + ($1.route == .push ? 0 : $1.amount) } }
 
     /// Every bottle the pour filled and how many layers landed there: the target first (if
-    /// anything landed there), then the shares in order. Empty when a key opened a seal.
+    /// anything landed there), then a twin. Empty when a key opened a seal. (A push is not a
+    /// landing: the poured layers all land in the target; see `push`.)
     public var landings: [(bottle: Int, amount: Int)] {
         guard openedSeal == nil else { return [] }
         let direct = targetAmount
-        return (direct > 0 ? [(move.to, direct)] : []) + shares.map { ($0.bottle, $0.amount) }
+        return (direct > 0 ? [(move.to, direct)] : []) + shares.filter { $0.route != .push }.map { ($0.bottle, $0.amount) }
+    }
+}
+
+/// F2: what a pour pushed through the target's pressure pipe (`Link.overflow`): the
+/// target's `amount` bottom layers left through its base, one by one, into the bottom of
+/// `bottle` (the pipe's far end), whose stack rose by `amount`. The bottommost layer left
+/// first, so it ends up highest of the pushed layers in `bottle` (`Rules.pushed`).
+public struct PipePush: Hashable, Sendable {
+    /// The far end of the pipe (the flask the layers entered from below).
+    public var bottle: Int
+    /// How many layers went through the pipe.
+    public var amount: Int
+
+    public init(bottle: Int, amount: Int) {
+        self.bottle = bottle
+        self.amount = amount
     }
 }
 
@@ -92,8 +120,12 @@ public struct PourShare: Hashable, Sendable {
     public enum Route: Hashable, Sendable {
         /// The twin of the target (F1): the pour was split evenly between the two.
         case twin
-        /// Through the target's overflow pipe (F2): what didn't fit into the full target.
+        /// No longer produced: rim overflow (DECISIONS 180) became the pressure pipe's push
+        /// (DECISIONS 300, `PourEvent.push`). Kept until the app stops matching on it.
         case overflow
+        /// F2: `amount` bottom layers of the target were pushed through its pressure pipe into
+        /// the bottom of `bottle` (not a landing of the poured layers; `PourEvent.push`).
+        case push
     }
     /// The bottle the layers landed in.
     public var bottle: Int
@@ -145,8 +177,10 @@ public struct PourPlan: Hashable, Sendable {
     public var opensSeal: KeyID?
     /// How many layers leave the source; set last, by the base rule (1 for a key).
     public var amount: Int = 0
-    /// Set by a link (F1 twins, F2 overflow, `Rules.linkedPlan`): the part of `amount` that
-    /// lands in another bottle than the target. Empty for a pour between two bottles.
+    /// Set by a link (`Rules.linkedPlan`): F1, the part of `amount` that lands in the twin;
+    /// F2, a `.push` share: how many of the target's bottom layers the pour pushes through
+    /// its pressure pipe (every poured layer lands in the target). Empty for a pour between
+    /// two bottles.
     public var shares: [PourShare] = []
 
     /// Whether the pour mixes in its target cauldron (E1).
@@ -201,7 +235,7 @@ public enum Rules {
     ///   color, no recipe, a key) it changes nothing. As a source it changes nothing: a
     ///   cauldron pours out like a plain flask.
     ///
-    /// Links act on more than two bottles: twins (F1) and overflow pipes (F2) are worked out
+    /// Links act on more than two bottles: twins (F1) and pressure pipes (F2) are worked out
     /// in `linkedPlan(for:link:in:)`, which runs these same hooks for every bottle that
     /// receives (switch gates, A3, will go there too). A cauldron is never a link end
     /// (`validate()`), so a linked pour never mixes.
@@ -351,7 +385,7 @@ public enum Rules {
     /// Step 1 of `resolve` for a pour: the finished plan for `move` in `state`, or nil if
     /// the move is illegal. This is the single legality check: `resolve` and `isLegal`
     /// (hence `canPour` and `legalMoves`) both use it, so they can't disagree. Links that
-    /// veto or extend a pour into their flask (twins, overflow) are worked out here
+    /// veto or extend a pour into their flask (twins, pressure pipes) are worked out here
     /// (`linkedPlan`); a pour into any other flask is the two-bottle `plan`.
     @inline(__always)
     static func actionPlan(for move: Move, in state: GameState) -> PourPlan? {
@@ -390,13 +424,19 @@ public enum Rules {
     ///   twin's own limit)`; `2k` layers leave the source and `k` land in each twin. Illegal if
     ///   `k` is 0 (a single layer, a key, a full twin), and from one twin into the other. A
     ///   key never splits, so a sealed twin could never open (`validate()` rejects it).
-    /// - `.overflow(from: a, to: b)` (F2), pouring into `a`: the pour into `a` must be legal
-    ///   except for space (a key into `a`'s seal opens it as usual). As many layers as fit go
-    ///   into `a`; when that is fewer than `run` because `a` is full, the rest flows on into
-    ///   `b`, as many as `b` legally takes (empty or the same top, no veto, free space, its own
-    ///   limit), and anything left stays in the source. One hop only: `b`'s own pipe (if any)
-    ///   is never followed, and nothing flows back into the source. Illegal if nothing moves.
-    ///   A pour into `b` is an ordinary pour.
+    /// - `.overflow(from: a, to: b)` (F2, a *pressure pipe* from `a`'s base to `b`'s base),
+    ///   pouring into `a`: the pour into `a` follows `a`'s normal target rules (empty or the
+    ///   same top, no veto; a key into `a`'s seal opens it as usual and pushes nothing). With
+    ///   `run` the source's movable run (after every limit) and `f` the free space of `a`:
+    ///   if `run <= f` it is an ordinary pour. Otherwise up to `run - f` more layers enter `a`
+    ///   by pushing `a`'s bottom layers through the pipe into the bottom of `b`, one per layer
+    ///   (`p = min(run - f, free space of b, layers in a)`); `f + p` layers leave the source and
+    ///   all land in `a`, the rest stays in the source. Color never matters for a push (keys
+    ///   are pushed like colors). A push needs both pipe ends without any modifier (a seal,
+    ///   rune, neck, funnel, tap, ice or bubbles on either end: no push, the pour is ordinary),
+    ///   and never pushes into the source itself (pouring from `b` into `a` is ordinary). So a
+    ///   pour into a full `a` with the color on top is legal iff `b` has room. One hop only
+    ///   (`b`'s own links are never followed); a pour into `b` is an ordinary pour.
     static func linkedPlan(for move: Move, link: Link, in state: GameState) -> PourPlan? {
         let source = state.bottles[move.from], target = state.bottles[move.to]
         guard let top = source.topLayer else { return nil }
@@ -420,33 +460,48 @@ public enum Rules {
             return plan
         case let .overflow(from: pipeStart, to: pipeEnd):
             guard pipeStart == move.to else { return Self.plan(from: source, to: target) }
-            guard applyModifiers(as: .source, to: &plan, source: source, target: target) else { return nil }
-            let sourcePlan = plan
-            guard applyModifiers(as: .target, to: &plan, source: source, target: target) else { return nil }
+            guard applyModifiers(as: .source, to: &plan, source: source, target: target),
+                  applyModifiers(as: .target, to: &plan, source: source, target: target) else { return nil }
             if plan.opensSeal != nil {
                 plan.amount = 1
                 return plan
             }
             guard !plan.layer.isKey, stacks(plan.layer, on: target) else { return nil }
             let run = run(of: source, under: plan)
-            let direct = min(run, target.freeSpace)
-            var spilled = 0
-            if direct < run, pipeEnd != move.from, state.bottles.indices.contains(pipeEnd) {
+            let free = target.freeSpace
+            var pushed = 0
+            if run > free, pipeEnd != move.from, target.isPlain, state.bottles.indices.contains(pipeEnd) {
                 let end = state.bottles[pipeEnd]
-                var intoEnd = sourcePlan
-                if applyModifiers(as: .target, to: &intoEnd, source: source, target: end),
-                   intoEnd.opensSeal == nil, stacks(plan.layer, on: end) {
-                    spilled = max(0, min(run - direct, end.freeSpace, intoEnd.limit))
-                }
+                if end.isPlain { pushed = max(0, min(run - free, end.freeSpace, target.layers.count)) }
             }
-            guard direct + spilled > 0 else { return nil }
-            plan.amount = direct + spilled
-            if spilled > 0 { plan.shares = [PourShare(bottle: pipeEnd, amount: spilled, route: .overflow)] }
+            plan.amount = min(run, free) + pushed
+            guard plan.amount > 0 else { return nil }
+            if pushed > 0 { plan.shares = [PourShare(bottle: pipeEnd, amount: pushed, route: .push)] }
             return plan
         case .switchGate:
             // Not implemented yet: levels using it fail validation and the solver refuses them.
             return Self.plan(from: source, to: target)
         }
+    }
+
+    /// F2, the push through a pressure pipe: `from` (the pipe's flask, bottom → top) after its
+    /// `count` bottom layers left through its base, and `into` (the far end) after they
+    /// entered its bottom one by one: the bottommost layer leaves first and each later one
+    /// enters below it, so `into` becomes `from[count - 1], …, from[0]` + `into` (its stack
+    /// rises by `count`, its top doesn't change). Generic, so the app moves murky masks and
+    /// drawn layers the same way. `count` is clamped to `0...from.count`.
+    public static func pushed<T>(from: [T], into: [T], count: Int) -> (from: [T], into: [T]) {
+        let n = max(0, min(count, from.count))
+        guard n > 0 else { return (from, into) }
+        return (Array(from.dropFirst(n)), Array(from.prefix(n).reversed()) + into)
+    }
+
+    /// F2: what `move` would push through its target's pressure pipe in `state`, or nil (an
+    /// illegal move, a target without a pipe, a pour that fits). For the app's preview.
+    public static func push(of move: Move, in state: GameState) -> PipePush? {
+        guard let plan = actionPlan(for: move, in: state),
+              let share = plan.shares.first(where: { $0.route == .push }) else { return nil }
+        return PipePush(bottle: share.bottle, amount: share.amount)
     }
 
     /// The source and target bottles after pouring `source` into `target`, or nil if
@@ -636,9 +691,10 @@ public enum Rules {
     /// (`GameState.pouring`), the solver and the generator all go through it.
     ///
     /// 1. The action (a pour, from the top or, through a tap, from the bottom; a pour into a
-    ///    twin is split with its twin, a pour into a full flask with an overflow pipe runs on
-    ///    into the pipe's far end, `linkedPlan`). The turn reports it as a `PourEvent`, with
-    ///    the extra destinations in `shares`.
+    ///    twin is split with its twin, a pour into a flask with a pressure pipe that doesn't
+    ///    fit pushes its bottom layers through the pipe into the bottom of the far end,
+    ///    `linkedPlan`). The turn reports it as a `PourEvent`, with the twin's share and a
+    ///    push in `shares` (read `landings` and `push`).
     ///    A pour into a cauldron whose recipe mixes the poured color with its top layer mixes
     ///    as it lands (E1, `mixed`; `TurnEvent.mixed`, the turn's first event): mixing is
     ///    driven by the pour (how many layers landed on which run), so it is applied with it,
@@ -676,7 +732,8 @@ public enum Rules {
                 // E1: the pour mixed as it landed (an immediate effect of the pour, before any timer).
                 if plan.mixes { events.append(mixedEvent(plan, into: move.to, of: state)) }
             } else {
-                // A linked pour (F1, F2): the layers leave the source once and land in several bottles.
+                // A linked pour (F1, F2): the layers leave the source once and land in one or two
+                // bottles; a push first moves the target's bottom layers into the pipe's far end.
                 if plan.fromBottom {
                     next.bottles[move.from].layers.removeFirst(plan.amount)
                 } else {
@@ -684,8 +741,15 @@ public enum Rules {
                 }
                 var direct = plan.amount
                 for share in plan.shares {
-                    next.bottles[share.bottle].layers.append(contentsOf: repeatElement(plan.layer, count: share.amount))
-                    direct -= share.amount
+                    if share.route == .push {
+                        let moved = pushed(from: next.bottles[move.to].layers, into: next.bottles[share.bottle].layers,
+                                           count: share.amount)
+                        next.bottles[move.to].layers = moved.from
+                        next.bottles[share.bottle].layers = moved.into
+                    } else {
+                        next.bottles[share.bottle].layers.append(contentsOf: repeatElement(plan.layer, count: share.amount))
+                        direct -= share.amount
+                    }
                 }
                 next.bottles[move.to].layers.append(contentsOf: repeatElement(plan.layer, count: direct))
             }
@@ -738,18 +802,30 @@ public enum Rules {
         return nil
     }
 
-    /// The link that refuses `move`, for the app's feedback ("twins share every pour"): a
-    /// twin link when the pour into one twin is illegal although it would be legal between
-    /// the two bottles alone (from one twin into the other, a single layer that can't be
-    /// split, a twin that is full or has another color on top). nil if the move is legal or
-    /// illegal for a base or modifier reason. An overflow pipe never refuses a pour (it only
-    /// takes what a full flask can't).
+    /// The link that refuses `move`, for the app's feedback: a twin link when the pour into
+    /// one twin is illegal although it would be legal between the two bottles alone (from
+    /// one twin into the other, a single layer that can't be split, a twin that is full or
+    /// has another color on top) ("twins share every pour"); a pressure pipe when its flask is
+    /// full with the poured color on top and nothing can be pushed (the far end is full,
+    /// carries a modifier, or is the source) although the pour would be legal if the flask
+    /// had room ("the pipe can't push"). nil if the move is legal or illegal for a base or
+    /// modifier reason.
     public static func linkRefusal(of move: Move, in state: GameState) -> Link? {
         guard move.from != move.to, state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
-              let link = state.link(at: move.to), case .twins = link,
-              !isLegal(move, in: state),
-              plan(from: state.bottles[move.from], to: state.bottles[move.to]) != nil else { return nil }
-        return link
+              let link = state.link(at: move.to), !isLegal(move, in: state) else { return nil }
+        let source = state.bottles[move.from], target = state.bottles[move.to]
+        switch link {
+        case .twins:
+            return plan(from: source, to: target) != nil ? link : nil
+        case let .overflow(from: pipeStart, _):
+            guard pipeStart == move.to, target.isFull else { return nil }
+            // The same flask with one more slot: the pour would be legal if it had room.
+            var roomy = Bottle(layers: target.layers, capacity: target.capacity + 1)
+            roomy.storage = target.storage
+            return plan(from: source, to: roomy) != nil ? link : nil
+        case .switchGate:
+            return nil
+        }
     }
 
     /// Whether `modifier`, when it refuses a pour on `side`, refuses it whatever the other

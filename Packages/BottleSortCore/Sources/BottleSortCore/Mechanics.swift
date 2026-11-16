@@ -179,8 +179,10 @@ public enum Link: Hashable, Sendable, CustomStringConvertible {
     /// pours out of a twin are normal, and one twin can't pour into the other. Symmetric.
     /// Implemented (chapter 8, Twin Towers; `Rules.linkedPlan`).
     case twins(Int, Int)
-    /// F2 overflow pipe from `from`'s rim to `to`: what doesn't fit into a full `from` flows
-    /// on into `to` (if `to` can take it; one hop only). Implemented (chapter 8).
+    /// F2 pressure pipe from `from`'s base to `to`'s base (JSON id "overflow", kept from the
+    /// rim overflow it replaced, DECISIONS 300): a pour into `from` that doesn't fit pushes
+    /// `from`'s bottom layers through the pipe into the bottom of `to`, one per extra layer,
+    /// while `to` has room (one hop; `Rules.linkedPlan`). Implemented (chapter 8).
     case overflow(from: Int, to: Int)
     /// A3 switch → gate: while `switch` is complete, `gate` is open. The gate's state is
     /// derived from the switch's content, so it needs no stored state. (R5)

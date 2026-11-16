@@ -111,9 +111,15 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(Rules.linkRefusal(of: Move(from: 1, to: 2), in: twinToTwin) == .twins(1, 2))
         #expect(s.canPour(Move(from: 3, to: 1)) && Rules.linkRefusal(of: Move(from: 3, to: 1), in: s) == nil)
         #expect(Rules.linkRefusal(of: Move(from: 0, to: 3), in: s) == nil)               // base reason
-        let pipe = GameState(bottles: [flask([0, 0], 3), flask([1, 0, 0], 3), flask([1, 1], 3)],
+        // A pressure pipe that can't push: its flask is full and the far end is full too.
+        let pipe = GameState(bottles: [flask([0, 0], 3), flask([1, 0, 0], 3), flask([1, 1, 2], 3), flask([2, 2], 3)],
                              links: [.overflow(from: 1, to: 2)])
-        #expect(Rules.linkRefusal(of: Move(from: 0, to: 1), in: pipe) == nil)
+        #expect(!pipe.canPour(Move(from: 0, to: 1)))
+        #expect(Rules.linkRefusal(of: Move(from: 0, to: 1), in: pipe) == .overflow(from: 1, to: 2))
+        #expect(Rules.linkRefusal(of: Move(from: 3, to: 1), in: pipe) == nil)              // another color on top
+        var roomy = pipe
+        roomy.bottles[2].layers = layers([1, 1])
+        #expect(roomy.canPour(Move(from: 0, to: 1)) && Rules.linkRefusal(of: Move(from: 0, to: 1), in: roomy) == nil)
     }
 
     @Test func displayHelpers() {
@@ -129,7 +135,8 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(ChapterOutline.plan[7].introduces == [.twins, .overflow] && ChapterOutline.plan[7].location == "Twin Towers")
         #expect(Link.twins(0, 1).isImplemented && Link.overflow(from: 0, to: 1).isImplemented)
         #expect(!Link.switchGate(switch: 0, gate: 1).isImplemented)
-        #expect(MechanicImpact.isTwoSided(.link(.twins(0, 1))) && MechanicImpact.isTwoSided(.link(.overflow(from: 0, to: 1))))
+        #expect(MechanicImpact.isTwoSided(.link(.twins(0, 1))) && !MechanicImpact.isTwoSided(.link(.overflow(from: 0, to: 1))))
+        #expect(MechanicImpact.isHelper(.link(.overflow(from: 0, to: 1))) && !MechanicImpact.isHelper(.link(.twins(0, 1))))
         #expect(LinkImpact.minimumCost == 1 && LinkImpact.strongCost == 2)
     }
 
@@ -158,85 +165,133 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
     }
 }
 
-/// F2 overflow pipes: the rule cases.
-@Suite struct OverflowRuleTests {
-    /// Source 0, pipe 1 → 2, a spare flask 3 (capacity 3).
+/// F2 pressure pipes: the rule cases.
+@Suite struct PressurePipeRuleTests {
+    /// Source 0, pipe 1 → 2 (base to base), a spare flask 3 (capacity 3).
     static func board(_ source: [Int], _ a: [Int], _ b: [Int], extra: [Int] = []) -> GameState {
         GameState(bottles: [flask(source, 3), flask(a, 3), flask(b, 3), flask(extra, 3)],
                   links: [.overflow(from: 1, to: 2)])
     }
 
-    @Test func whatDoesntFitRunsOn() throws {
-        let s = Self.board([1, 0, 0], [1, 0], [])
+    @Test func aPourThatFitsIsOrdinary() throws {
+        let s = Self.board([1, 0, 0], [0], [2])
         let turn = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 1))))
-        #expect(turn.state.bottles.map(\.layers) == [layers([1]), layers([1, 0, 0]), layers([0]), []])
+        #expect(turn.state.bottles.map(\.layers) == [layers([1]), layers([0, 0, 0]), layers([2]), []])
+        #expect(turn.pour?.push == nil && turn.pour?.shares == [] && turn.pour?.targetAmount == 2)
+        #expect(Rules.push(of: Move(from: 0, to: 1), in: s) == nil)
+    }
+
+    @Test func whatDoesntFitPushesTheBottomThroughThePipe() throws {
+        // f = 1, r = 2: one layer of A's bottom (the 1) is pushed into B's bottom, under its 2.
+        let s = Self.board([2, 0, 0], [1, 0], [2])
+        let turn = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 1))))
+        #expect(turn.state.bottles.map(\.layers) == [layers([2]), layers([0, 0, 0]), layers([1, 2]), []])
         let pour = try #require(turn.pour)
-        #expect(pour.amount == 2 && pour.targetAmount == 1)
-        #expect(pour.shares == [PourShare(bottle: 2, amount: 1, route: .overflow)])
+        #expect(pour.amount == 2 && pour.targetAmount == 2 && pour.shares == [PourShare(bottle: 2, amount: 1, route: .push)])
+        #expect(pour.push == PipePush(bottle: 2, amount: 1))
+        #expect(pour.landings.map(\.bottle) == [1] && pour.landings.map(\.amount) == [2])
+        #expect(Rules.push(of: Move(from: 0, to: 1), in: s) == PipePush(bottle: 2, amount: 1))
         // Without the pipe the second 0 stays in the source.
         var plain = s
         plain.links = []
-        #expect(plain.pouring(Move(from: 0, to: 1))?.bottles[0].layers == layers([1, 0]))
+        #expect(plain.pouring(Move(from: 0, to: 1))?.bottles.map(\.layers) == [layers([2, 0]), layers([1, 0, 0]), layers([2]), []])
     }
 
-    @Test func aFullFlaskPassesEverythingOn() throws {
-        let s = Self.board([2, 0, 0], [1, 2, 0], [0])
+    @Test func aFullFlaskPushesWhileTheFarEndHasRoom() throws {
+        // Full A with the color on top: legal iff B has room. Colors never matter for the push.
+        let s = Self.board([1, 0, 0], [1, 2, 0], [])
         let turn = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 1))))
-        #expect(turn.state.bottles.map(\.layers) == [layers([2]), layers([1, 2, 0]), layers([0, 0, 0]), []])
-        #expect(turn.pour?.targetAmount == 0 && turn.pour?.landings.map(\.bottle) == [2])
-        // The full flask's top must still match: liquid of another color can't go in.
+        // Two pushed, one by one: the 1 leaves first, then the 2 enters below it.
+        #expect(turn.state.bottles.map(\.layers) == [layers([1]), layers([0, 0, 0]), layers([2, 1]), []])
+        #expect(turn.pour?.push == PipePush(bottle: 2, amount: 2) && turn.pour?.amount == 2)
+        // Pushing goes on as long as the run does: A's own 0 at the bottom goes through too.
+        let all = try #require(Self.board([0, 0, 0], [1, 2, 0], []).pouring(Move(from: 0, to: 1)))
+        #expect(all.bottles.map(\.layers) == [[], layers([0, 0, 0]), layers([0, 2, 1]), []])
+        // B with one free slot: one push, the rest stays in the source.
+        let tight = try #require(Self.board([0, 0, 0], [1, 2, 0], [2, 2]).pouring(Move(from: 0, to: 1)))
+        #expect(tight.bottles.map(\.layers) == [layers([0, 0]), layers([2, 0, 0]), layers([1, 2, 2]), []])
+        // Full B: nothing can be pushed, the pour is illegal (and the pipe is the reason).
+        let blocked = Self.board([0, 0, 0], [1, 2, 0], [2, 1, 1])
+        #expect(!blocked.canPour(Move(from: 0, to: 1)))
+        #expect(Rules.linkRefusal(of: Move(from: 0, to: 1), in: blocked) == .overflow(from: 1, to: 2))
+        // A's top must still match: liquid of another color can't go in.
         #expect(!Self.board([2, 1, 1], [1, 2, 0], []).canPour(Move(from: 0, to: 1)))
+        #expect(Rules.linkRefusal(of: Move(from: 0, to: 1), in: Self.board([2, 1, 1], [1, 2, 0], [])) == nil)
+        // A layer pushed onto nothing: B was empty, so its top is the pushed layer now.
+        #expect(turn.state.bottles[2].topLayer == .color(1))
     }
 
-    @Test func theFarEndMustAccept() throws {
-        // The far end has another color on top: the rest stays in the source.
-        let s = Self.board([1, 0, 0], [1, 0], [2])
-        let turn = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 1))))
-        #expect(turn.state.bottles.map(\.layers) == [layers([1, 0]), layers([1, 0, 0]), layers([2]), []])
-        #expect(turn.pour?.shares == [])
-        // Full far end, nothing fits into the full flask: illegal.
-        #expect(!Self.board([2, 0, 0], [1, 2, 0], [2, 1, 1]).canPour(Move(from: 0, to: 1)))
-        // The far end takes only what fits.
-        let tight = try #require(Self.board([0, 0, 0], [1, 2, 0], [1, 0]).pouring(Move(from: 0, to: 1)))
-        #expect(tight.bottles.map(\.layers) == [layers([0, 0]), layers([1, 2, 0]), layers([1, 0, 0]), []])
-        // A rune on the far end vetoes other colors.
-        var rune = Self.board([1, 0, 0], [1, 0], [])
-        rune.bottles[2].modifiers = [.essence(1)]
-        #expect(rune.pouring(Move(from: 0, to: 1))?.bottles[0].layers == layers([1, 0]))
-        // A narrow neck on the far end takes one layer.
-        var neck = Self.board([2, 0, 0], [1, 0], [])
-        neck.bottles[2].modifiers = [.narrowNeck]
-        #expect(neck.pouring(Move(from: 0, to: 1))?.bottles.map(\.layers) == [layers([2]), layers([1, 0, 0]), layers([0]), []])
+    @Test func pushingKeepsTheFarEndsTop() throws {
+        let s = Self.board([1, 0], [1, 0, 0], [2])
+        let next = try #require(s.pouring(Move(from: 0, to: 1)))
+        #expect(next.bottles[2].layers == layers([1, 2]) && next.bottles[2].topLayer == .color(2))
+        #expect(next.bottles[0].layers == layers([1]) && next.bottles[1].layers == layers([0, 0, 0]))
+    }
+
+    @Test func keysArePushedLikeColors() throws {
+        let s = GameState(bottles: [flask([0, 0], 3), flask([-1, 0], 3), flask([], 3), flask([1, 1, 1], 3, [.sealed(1)])],
+                          links: [.overflow(from: 1, to: 2)])
+        let next = try #require(s.pouring(Move(from: 0, to: 1)))
+        #expect(next.bottles[2].layers == layers([-1]) && next.bottles[1].layers == layers([0, 0, 0]))
+        // The pushed key pours on from the far end into its seal.
+        #expect(next.canPour(Move(from: 2, to: 3)))
+    }
+
+    @Test func pushesNeedPlainEnds() throws {
+        // Any modifier on the far end: no push (a rune, a neck, a seal…); the pour is ordinary.
+        for modifier: BottleModifier in [.essence(1), .narrowNeck, .sealed(1), .funnel, .bubbling(every: 3, phase: 0)] {
+            var s = Self.board([2, 0, 0], [1, 0], [])
+            s.bottles[2].modifiers = [modifier]
+            #expect(s.pouring(Move(from: 0, to: 1))?.bottles[2].layers == [], "\(modifier)")
+            #expect(s.pouring(Move(from: 0, to: 1))?.bottles[0].layers == layers([2, 0]), "\(modifier)")
+        }
+        // A modifier on the pipe's own flask: no push either (a narrow neck still takes one layer).
+        var neck = Self.board([2, 0, 0], [1, 0, 0], [])
+        neck.bottles[1].modifiers = [.narrowNeck]
+        #expect(!neck.canPour(Move(from: 0, to: 1)))
+        var rune = Self.board([2, 0, 0], [1, 0], [])
+        rune.bottles[1].modifiers = [.essence(0)]
+        #expect(rune.pouring(Move(from: 0, to: 1))?.bottles.map(\.layers) == [layers([2, 0]), layers([1, 0, 0]), [], []])
+        // A seal on the pipe's flask: its key opens it as usual and pushes nothing.
+        let sealed = GameState(bottles: [flask([0, -1], 3), flask([1, 1, 1], 3, [.sealed(1)]), flask([], 3), flask([0, 0], 3)],
+                               links: [.overflow(from: 1, to: 2)])
+        let turn = try #require(Rules.resolve(sealed, afterAction: .pour(Move(from: 0, to: 1))))
+        #expect(!turn.state.bottles[1].isSealed && turn.pour?.openedSeal == 1 && turn.pour?.push == nil)
+        #expect(turn.state.bottles[2].isEmpty && turn.pour?.landings.isEmpty == true)
+        // Once open (plain), a full flask pushes.
+        #expect(turn.state.canPour(Move(from: 3, to: 1)) == false)   // 1 on top, 0 poured: colors differ
     }
 
     @Test func pipesRunOneWayAndOneHop() throws {
-        // Pouring into the far end is an ordinary pour.
-        let s = Self.board([1, 0, 0], [0, 0], [0])
-        #expect(s.pouring(Move(from: 0, to: 2))?.bottles.map(\.layers) == [layers([1]), layers([0, 0]), layers([0, 0, 0]), []])
-        // From the far end into the pipe's flask: nothing flows back into the source.
-        let back = Self.board([], [1, 0], [0, 0])
-        #expect(back.pouring(Move(from: 2, to: 1))?.bottles.map(\.layers) == [[], layers([1, 0, 0]), layers([0]), []])
+        // Pouring into the far end is an ordinary pour (nothing is pushed back).
+        let s = Self.board([1, 0, 0], [2, 1, 1], [0])
+        #expect(s.pouring(Move(from: 0, to: 2))?.bottles.map(\.layers) == [layers([1]), layers([2, 1, 1]), layers([0, 0, 0]), []])
+        #expect(!Self.board([0, 0], [2, 1, 0], [0, 0, 0]).canPour(Move(from: 0, to: 2)))
+        // From the far end into the pipe's flask: never pushes into the source itself.
+        let back = Self.board([], [1, 0, 0], [2, 0])
+        #expect(!back.canPour(Move(from: 2, to: 1)))
+        let backRoomy = Self.board([], [1, 0], [2, 0, 0])
+        #expect(backRoomy.pouring(Move(from: 2, to: 1))?.bottles.map(\.layers) == [[], layers([1, 0, 0]), layers([2, 0]), []])
         // One hop: the far end's own pipe isn't followed (invalid level, but the rule is safe).
-        let chain = GameState(bottles: [flask([0, 0, 0], 3), flask([1, 0], 3), flask([2, 2, 0], 3), flask([], 3)],
+        let chain = GameState(bottles: [flask([0, 0, 0], 3), flask([1, 0, 0], 3), flask([2, 2, 1], 3), flask([], 3)],
                               links: [.overflow(from: 1, to: 2), .overflow(from: 2, to: 3)])
-        #expect(chain.pouring(Move(from: 0, to: 1))?.bottles.map(\.layers)
-                == [layers([0, 0]), layers([1, 0, 0]), layers([2, 2, 0]), []])
+        #expect(!chain.canPour(Move(from: 0, to: 1)))
+        // Twins never push: a split pour into a twin that is a pipe's far end is just a split.
+        let twins = GameState(bottles: [flask([0, 0], 3), flask([1, 2, 1], 3), flask([], 3), flask([], 3)],
+                              links: [.twins(2, 3)])
+        #expect(twins.pouring(Move(from: 0, to: 2))?.bottles.map(\.layers) == [[], layers([1, 2, 1]), layers([0]), layers([0])])
     }
 
-    @Test func aKeyOpensTheSealAsUsual() throws {
-        let s = GameState(bottles: [flask([0, -1], 3), flask([1, 1, 1], 3, [.sealed(1)]), flask([], 3), flask([0, 0], 3)],
-                          links: [.overflow(from: 1, to: 2)])
-        let turn = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 1))))
-        #expect(!turn.state.bottles[1].isSealed && turn.pour?.openedSeal == 1 && turn.pour?.shares == [])
-        #expect(turn.state.bottles[2].isEmpty && turn.pour?.landings.isEmpty == true)
-        // A key can't run through a pipe: it only goes into its own seal.
-        let other = GameState(bottles: [flask([0, -1], 3), flask([1, 1, 1], 3), flask([], 3, [.sealed(1)]), flask([0, 0], 3)],
-                              links: [.overflow(from: 1, to: 2)])
-        #expect(!other.canPour(Move(from: 0, to: 1)))
+    @Test func pushedHelperMovesAnything() {
+        let moved = Rules.pushed(from: ["a", "b", "c"], into: ["x"], count: 2)
+        #expect(moved.from == ["c"] && moved.into == ["b", "a", "x"])
+        #expect(Rules.pushed(from: [1, 2], into: [3], count: 0) == ([1, 2], [3]))
+        #expect(Rules.pushed(from: [1], into: [], count: 5) == ([], [1]))
     }
 
-    @Test func aPipeNeverRefuses() {
-        // Everything legal without the pipe stays legal with it.
+    /// Every pour legal without the pipe stays legal with it, except into a pipe's flask
+    /// whose far end can't take the push (a full flask is still full).
+    @Test func aPipeOnlyAddsPours() {
         for s in LinkKeyTests.randomStates() where s.links.contains(where: { if case .overflow = $0 { true } else { false } }) {
             var plain = s
             plain.links = s.links.filter { if case .overflow = $0 { false } else { true } }
@@ -280,46 +335,48 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(referenceMinMoves(next) == 2 && !next.canPour(Move(from: 1, to: 2)))
     }
 
-    /// A pipe's flask full with the right color on top passes the pour straight through.
-    @Test func throughAFullFlask() throws {
-        let s = GameState(bottles: [flask([1, 0, 0], 3), flask([2, 1, 0], 3), flask([0], 3), flask([2, 2, 1], 3), flask([], 3)],
-                          links: [.overflow(from: 1, to: 2)])
-        let turn = try #require(Rules.resolve(s, afterAction: .pour(Move(from: 0, to: 1))))
-        #expect(turn.state.bottles[2].layers == layers([0, 0, 0]) && turn.pour?.targetAmount == 0)
-        #expect(Solver().solve(s).moves?.count == referenceMinMoves(s))
-    }
+    /// The push is needed: every flask is full except B (two 1s) and D (one 2), and no pour is
+    /// legal without the pipe. Pouring the source's 0 into full A (1 under two 0s) pushes the
+    /// buried 1 through the pipe into B's bottom: A and B are sorted, and one more pour wins.
+    static let pushNeeded = GameState(bottles: [flask([2, 2, 0], 3), flask([1, 0, 0], 3), flask([1, 1], 3), flask([2], 3)],
+                                      links: [.overflow(from: 1, to: 2)])
 
-    /// An overflow pipe that sets a spill trap: from a still-solvable position, a pour into the
-    /// pipe's flask spills the rest of its run into the far end and loses the level, while the
-    /// same pour without the pipe would not (`MechanicImpact.spillDepth`). It never changes
-    /// the optimal length (DECISIONS 181), so this is how it matters.
-    @Test func aSpillTrap() throws {
-        let config = GeneratorConfig(colors: 6, capacity: 3, emptyBottles: 2, overflow: 1, linkPlacement: .mixed)
-        let s = Generator.candidate(config, seed: LinkPuzzleTests.spillSeed)
-        let pipe = try #require(s.links.first)
+    @Test func thePushIsRequired() throws {
+        let s = Self.pushNeeded
+        #expect(s.validate().isEmpty)
         let moves = try #require(Solver().solve(s).moves)
-        let without = MechanicImpact.removing(.link(pipe), from: s)
-        #expect(Solver().solve(without).moves?.count == moves.count)
-        let depth = try #require(MechanicImpact.spillDepth(of: .link(pipe), in: s))
-        #expect(depth >= 1)
-        #expect(MechanicImpact.matters(.link(pipe), in: s, minMoves: moves.count, cost: LinkImpact.strongCost))
-        // A pipe that can't spill anything harmful doesn't matter.
-        let calm = Generator.candidate(GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 2, overflow: 1), seed: 1)
-        let calmMoves = try #require(Solver().solve(calm).moves)
-        #expect(MechanicImpact.spillDepth(of: .link(calm.links[0]), in: calm) == nil)
-        #expect(!LinkImpact.everyLinkMatters(calm, minMoves: calmMoves.count))
+        #expect(moves.count == 2 && referenceMinMoves(s) == 2 && moves[0] == Move(from: 0, to: 1))
+        let turn = try #require(Rules.resolve(s, afterAction: .pour(moves[0])))
+        #expect(turn.pour?.push == PipePush(bottle: 2, amount: 1))
+        #expect(turn.state.bottles.map(\.layers) == [layers([2, 2]), layers([0, 0, 0]), layers([1, 1, 1]), layers([2])])
+        let without = MechanicImpact.removing(.link(.overflow(from: 1, to: 2)), from: s)
+        #expect(without.legalMoves().isEmpty && referenceMinMoves(without) == nil)
+        if case .unsolvable = Solver().solve(without) {} else { Issue.record("solvable without the pipe") }
+        #expect(LinkImpact.everyLinkMatters(s, minMoves: 2, cost: LinkImpact.strongCost))
+        #expect(LinkImpact.solvesUsingEveryLink(s, in: 2) && !LinkImpact.solvesUsingEveryLink(s, in: 1))
+        #expect(LinkImpact.pushes(in: s, solution: moves) == 1)
+        #expect(MechanicImpact.everyFirstMoveSolvable(s))
     }
 
-    /// `spillDepth` re-solves only the losing pours the pipe changes: a losing pour that
-    /// leaves the same flasks with or without the pipe doesn't use up the check budget. In
-    /// this level many such pours come before the spill trap (with every losing pour
-    /// re-solved, the 40-check budget ran out first and the trap was missed).
-    @Test func spillChecksSkipPoursThePipeDoesNotChange() throws {
-        let s = GameState(bottles: [flask([1, 4, 5], 3), flask([4, 3, 5], 3), flask([1, 5, 3], 3), flask([2, 3, 2], 3),
-                                    flask([1, 0, 0], 3), flask([2, 0, 4], 3), flask([], 3), flask([], 3)],
-                          links: [.overflow(from: 4, to: 7)])
-        let pipe = try #require(s.links.first)
-        #expect(MechanicImpact.spillDepth(of: .link(pipe), in: s) != nil)
+    /// A bigger hand-made puzzle: two buried colors, each freed by a push.
+    @Test func pushesShortenTheSolution() throws {
+        let s = GameState(bottles: [flask([0, 1, 1], 3), flask([1, 0, 0], 3), flask([2, 2], 3), flask([2], 3)],
+                          links: [.overflow(from: 1, to: 2)])
+        let moves = try #require(Solver().solve(s).moves)
+        #expect(moves.count == referenceMinMoves(s))
+        #expect(LinkImpact.pushes(in: s, solution: moves) >= 1)
+        let without = MechanicImpact.removing(.link(.overflow(from: 1, to: 2)), from: s)
+        let plainMoves = referenceMinMoves(without)
+        #expect(plainMoves == nil || plainMoves! > moves.count)
+    }
+
+    /// A pipe that only changes pours the player wouldn't make doesn't matter: it must help.
+    @Test func aPipeMustHelp() throws {
+        // The far end is full and never empties before the end: the pipe can't push at all.
+        let idle = GameState(bottles: [flask([0, 1], 2), flask([1, 0], 2), flask([2, 2], 2), flask([], 2)],
+                             links: [.overflow(from: 0, to: 2)])
+        let minMoves = try #require(Solver().solve(idle).moves?.count)
+        #expect(!LinkImpact.everyLinkMatters(idle, minMoves: minMoves))
     }
 
     /// `LinkImpact.solvesWithoutSplitting`: twins the player can ignore, and the generator's
@@ -336,9 +393,6 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         let level = try Generator.generate(config)
         #expect(LinkImpact.solvesWithoutSplitting(level.state, in: level.report.minMoves) == false)
     }
-
-    /// A seed of `aSpillTrap`'s configuration whose pipe sets a spill trap (found by search).
-    static let spillSeed: UInt64 = 26
 }
 
 /// The solver with links: exact, and its pruning stays safe.
@@ -356,6 +410,12 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 2, essence: 1, overflow: 1),
         GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 2, narrowNecks: 1, funnels: 1, twins: 1, linkPlacement: .filled),
         GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 1, locks: 1, overflow: 1, linkPlacement: .mixed),
+        // Pressure pipes between filled flasks push often.
+        GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 1, overflow: 1, linkPlacement: .filled),
+        GeneratorConfig(colors: 4, capacity: 3, emptyBottles: 1, overflow: 1, linkPlacement: .filled),
+        GeneratorConfig(colors: 3, capacity: 4, emptyBottles: 2, overflow: 1, linkPlacement: .filled),
+        GeneratorConfig(colors: 4, capacity: 2, emptyBottles: 2, overflow: 2, linkPlacement: .filled),
+        GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 1, locks: 1, overflow: 1, linkPlacement: .filled),
     ]
 
     /// The configurations' levels, plus copies with a modifier on a linked flask (the
@@ -431,6 +491,30 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         var plain = whole
         plain.links = []
         #expect(Solver.candidateMoves(plain).isEmpty)
+    }
+}
+
+/// The random pipe levels of `LinkSolverTests` really exercise pushes (so the reference
+/// checks cover them): over their whole reachable graphs, many pours push, many of them
+/// into a full flask, some push a key, and `Rules.push` previews each one.
+@Suite struct PushCoverageTests {
+    @Test func reachableGraphsPush() throws {
+        var pushes = 0, full = 0, keys = 0
+        for config in LinkSolverTests.configs where config.overflow > 0 {
+            for s in LinkSolverTests.levels(config, seeds: 1...6) {
+                let graph = try #require(StateGraph.explore(from: s, maxStates: 50_000, keepStates: true))
+                for state in graph.states {
+                    for move in state.legalMoves() {
+                        guard let turn = Rules.resolve(state, afterAction: .pour(move)), let push = turn.pour?.push else { continue }
+                        pushes += 1
+                        if state.bottles[move.to].isFull { full += 1 }
+                        if state.bottles[move.to].layers.prefix(push.amount).contains(where: \.isKey) { keys += 1 }
+                        #expect(Rules.push(of: move, in: state) == push)
+                    }
+                }
+            }
+        }
+        #expect(pushes > 1_000 && full > 300 && keys > 0, "\(pushes) pushes, \(full) into full flasks, \(keys) keys")
     }
 }
 
@@ -609,13 +693,22 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(session.hiddenMasks[0] == [true, false] && session.hiddenMasks[1] == [false] && session.hiddenMasks[2] == [false])
         session.undo()
         #expect(session.hiddenMasks[0] == [true, true, false, false] && session.hiddenMasks[1] == [] && session.hiddenMasks[2] == [])
-        let pipe = GameState(bottles: [flask([2, 1, 0, 0], 4), flask([2, 1, 2, 0], 4), flask([], 4), flask([0, 2, 1, 1], 4),
-                                       flask([], 4)],
+        // A push carries the flags with the layers: A's hidden bottom layers stay hidden at B's
+        // bottom (under B's visible top run), revealed ones stay revealed.
+        let pipe = GameState(bottles: [flask([2, 1, 0, 0], 4), flask([2, 1, 2, 0], 4), flask([1, 3, 3], 4), flask([0, 2, 1, 1], 4),
+                                       flask([3, 3], 4)],
                              links: [.overflow(from: 1, to: 2)])
         var murky = GameSession(pipe, hidden: true)
-        murky.apply(Move(from: 0, to: 1))
-        #expect(murky.state.bottles[2].layers == layers([0, 0]) && murky.hiddenMasks[2] == [false, false])
-        #expect(murky.hiddenMasks[0] == [true, false])
+        #expect(murky.hiddenMasks[1] == [true, true, true, false] && murky.hiddenMasks[2] == [true, false, false])
+        let played = murky.play(Move(from: 0, to: 1))
+        #expect(played?.pour?.push == PipePush(bottle: 2, amount: 1))
+        #expect(murky.state.bottles.map(\.layers) == [layers([2, 1, 0]), layers([1, 2, 0, 0]), layers([2, 1, 3, 3]),
+                                                        layers([0, 2, 1, 1]), layers([3, 3])])
+        #expect(murky.hiddenMasks[2] == [true, true, false, false])   // the pushed 2 stays hidden down there
+        #expect(murky.hiddenMasks[1] == [true, true, false, false])
+        #expect(murky.hiddenMasks[0] == [true, true, false])
+        murky.undo()
+        #expect(murky.state == pipe && murky.hiddenMasks[1] == [true, true, true, false] && murky.hiddenMasks[2] == [true, false, false])
     }
 }
 
@@ -671,6 +764,22 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         }
     }
 
+    /// Pressure pipes: deterministic, and every pipe saves 2+ moves, so the solution pushes.
+    @Test func pipeGenerationIsDeterministicAndPipesHelp() throws {
+        let config = GeneratorConfig(colors: 4, capacity: 4, emptyBottles: 2, seed: 7, overflow: 1, linkPlacement: .filled,
+                                     requireLinksMatter: true, linkCost: LinkImpact.strongCost)
+        let a = try Generator.generate(config, count: 2)
+        #expect(try Generator.generate(config, count: 2) == a)
+        for level in a {
+            let pipe = try #require(level.state.links.first)
+            let without = MechanicImpact.removing(.link(pipe), from: level.state)
+            let plain = Solver().solve(without).moves?.count
+            #expect(plain == nil || plain! >= level.report.minMoves + LinkImpact.strongCost)
+            let moves = try #require(Solver().solve(level.state).moves)
+            #expect(LinkImpact.pushes(in: level.state, solution: moves) >= 1)
+        }
+    }
+
     @Test func tutorialChecks() {
         #expect(LinkImpact.solvesUsingEveryLink(LinkPuzzleTests.twinsNeeded, in: 4))
         // A level whose solution never needs to pour into its twins.
@@ -718,6 +827,15 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         // Twins first, then pipes, then both and earlier mechanics.
         let firstPipe = try #require(pack.levels.firstIndex { $0.mechanics.contains(.overflow) })
         #expect(firstPipe >= 12 && pack.levels[..<firstPipe].allSatisfy { $0.mechanics == [.twins] })
+        // The pipe tutorial opens the pipe section: tiny, one pipe from a filled flask into the only
+        // empty one, a push part of an optimal solution without parking a flask, no dead-end first move.
+        let pipeTutorial = pack.levels[firstPipe]
+        let pipeStart = pipeTutorial.gameState
+        #expect(pipeTutorial.capacity == 3 && pipeTutorial.mechanics == [.overflow] && (pipeTutorial.meta?.minMoves ?? 99) <= 6)
+        #expect(pipeStart.links.allSatisfy { !pipeStart.bottles[$0.endpoints.0].isEmpty && pipeStart.bottles[$0.endpoints.1].isEmpty })
+        #expect(LinkImpact.solvesUsingEveryLink(pipeStart, in: pipeTutorial.meta?.minMoves ?? 0))
+        #expect(MechanicImpact.everyFirstMoveSolvable(pipeStart))
+        #expect(pack.levels[firstPipe...].prefix(5).allSatisfy { $0.mechanics == [.overflow] })
         // The chapter ends with both links in one recipe.
         let last = try #require(pack.levels.last)
         #expect(last.mechanics.contains(.twins) && last.mechanics.contains(.overflow))
@@ -732,8 +850,8 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(scores.first! < 22 && scores.max()! >= 48 && scores.max()! <= 62)
     }
 
-    /// Every link matters (a twin chain by 2+ moves either way, a pipe by 2+ moves or by the
-    /// spill trap it sets), seals as in chapter 2. Small searches only.
+    /// Every link matters (a twin chain by 2+ moves either way, a pressure pipe by saving 2+
+    /// moves), seals as in chapter 2. Small searches only.
     @Test func everyMechanicMatters() throws {
         var checked = 0
         for level in try Self.pack().levels {
@@ -744,5 +862,19 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
             checked += 1
         }
         #expect(checked >= 10)
+    }
+
+    /// Every pipe recipe's optimal solution pushes (round 5's pipes never worked in optimal
+    /// play, DECISIONS 181; the pressure pipe must).
+    @Test func everyPipeRecipePushes() throws {
+        var pipes = 0
+        for level in try Self.pack().levels where level.mechanics.contains(.overflow) {
+            let s = level.gameState
+            let moves = try #require(Solver().solve(s).moves, "\(level.id)")
+            #expect(moves.count == level.meta?.minMoves, "\(level.id)")
+            #expect(LinkImpact.pushes(in: s, solution: moves) >= 1, "\(level.id)")
+            pipes += 1
+        }
+        #expect(pipes >= 8)
     }
 }
