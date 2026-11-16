@@ -182,14 +182,17 @@ public enum Link: Hashable, Sendable, CustomStringConvertible {
     /// F2 overflow pipe from `from`'s rim to `to`: what doesn't fit into a full `from` flows
     /// on into `to` (if `to` can take it; one hop only). Implemented (chapter 8).
     case overflow(from: Int, to: Int)
-    /// A3 switch → gate: while `switch` is complete, `gate` is open. The gate's state is
-    /// derived from the switch's content, so it needs no stored state. (R5)
+    /// A3 switch → gate, joined by a brass lever: while flask `switch` is *complete* (full with
+    /// a single color, unsealed and without ice: `Rules.isSwitchOn`), flask `gate` is open and
+    /// works like any flask; otherwise the gate is closed and nothing can be poured into or out
+    /// of it (its layers stay). The gate's state is derived from the switch's content every
+    /// time it is needed, so it needs no stored state. Implemented (chapter 10, Dragon's Hoard;
+    /// `Rules.isGateClosed`).
     case switchGate(switch: Int, gate: Int)
 
     public var isImplemented: Bool {
         switch self {
-        case .twins, .overflow: return true
-        case .switchGate: return false
+        case .twins, .overflow, .switchGate: return true
         }
     }
 

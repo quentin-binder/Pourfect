@@ -163,6 +163,18 @@ public struct Solver: Sendable {
     /// index is tried. With a timed modifier and a link together every legal move is tried
     /// (no level combines them yet; DECISIONS 179).
     ///
+    /// Switches and gates (A3; no stored state, the gate follows its switch): both ends are
+    /// linked flasks, so the link rules above already cover them, and they are safe. A switch
+    /// is never relocated or skipped as a full one-color source (rules 1, 2: it is linked),
+    /// although pouring out of a complete switch closes its gate: that is a real choice, and it
+    /// leads to a different state (the link stays on the emptied flask). An empty switch or
+    /// gate is a target of its own (rule 3), and while one could receive, rule 1 is off (a
+    /// full flask poured into an empty switch completes it and opens its gate). Rule 1 for an
+    /// unlinked full one-color source still holds: all of its color is in it, so its only
+    /// targets are empty flasks, and an unlinked empty one only swaps two unlinked flasks
+    /// (the gates, derived from linked flasks only, don't change). Rules 2 and 3 only permute
+    /// unlinked flasks, which no gate reads (DECISIONS 202).
+    ///
     /// Cauldrons (E1; no state of their own): rule 1 is off in a state with a cauldron. Its
     /// premise fails twice: mixing changes color counts, so a full one-color flask need not
     /// hold every layer of its color (another flask may take part of it on the same color),
@@ -184,8 +196,7 @@ public struct Solver: Sendable {
                 guard bottles.indices.contains(a), bottles.indices.contains(b), a != b else { return state.legalMoves() }
                 switch link {
                 case .twins: secondTwin |= 1 << UInt64(max(a, b))
-                case .overflow: break
-                case .switchGate: return state.legalMoves()
+                case .overflow, .switchGate: break
                 }
                 linked |= 1 << UInt64(a) | 1 << UInt64(b)
             }

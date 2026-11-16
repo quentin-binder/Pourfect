@@ -115,6 +115,9 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     /// Mixing cauldrons: pouring one ingredient of a recipe onto the other inside a cauldron
     /// brews the result (`BottleModifier.cauldron`; chapter 9).
     public static let cauldron: Mechanic = "cauldron"
+    /// Switch flasks and gates: a gate flask opens only while its switch flask is complete
+    /// (full with one color) (`Link.switchGate`; chapter 10).
+    public static let switches: Mechanic = "switch"
 
     public var description: String { rawValue }
 }
@@ -156,7 +159,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var isHidden: Bool { hidden ?? false }
 
     /// The mechanics this level actually uses, in chapter order (sealed, murky, essence,
-    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow, cauldron),
+    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow, cauldron, switch),
     /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
     public var mechanics: [Mechanic] {
         let all = bottles.flatMap(\.allModifiers)
@@ -173,6 +176,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
         if links.contains(where: { if case .twins = $0 { return true } else { return false } }) { result.append(.twins) }
         if links.contains(where: { if case .overflow = $0 { return true } else { return false } }) { result.append(.overflow) }
         if all.contains(where: { if case .cauldron = $0 { return true } else { return false } }) { result.append(.cauldron) }
+        if links.contains(where: { if case .switchGate = $0 { return true } else { return false } }) { result.append(.switches) }
         return result
     }
 

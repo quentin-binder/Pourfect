@@ -21,7 +21,6 @@ public struct Turn: Hashable, Sendable {
 }
 
 /// An automatic effect of a turn (a timed or immediate rule, not the player's pour).
-/// Switches (A3) add their cases here.
 public enum TurnEvent: Hashable, Sendable {
     /// E1: the pour into cauldron `bottle` mixed: `pairs` of the poured layers (the pour's
     /// `layer`) each combined with one layer of the run they landed on into two layers of
@@ -38,6 +37,14 @@ public enum TurnEvent: Hashable, Sendable {
     /// empty flask, one layer, or one color); the phase resets either way. The layers
     /// before the rise are `Rules.sunk(_:)` of the flask's layers after the turn.
     case bubbled(bottle: Int)
+    /// A3: gate flask `gate` opened because its switch flask `switch` became complete
+    /// (`Rules.isSwitchOn`). Reported in step 2 (the pour completed the switch, or a key
+    /// unsealed a full one-color switch) after any `.mixed`, or in step 5 (a timed effect
+    /// completed it, e.g. its last ice thawed) after the `.thawed` / `.bubbled` of that turn.
+    case gateOpened(switch: Int, gate: Int)
+    /// A3: gate flask `gate` closed because its switch flask `switch` stopped being complete
+    /// (a pour took layers out of it). Same order as `.gateOpened`.
+    case gateClosed(switch: Int, gate: Int)
 }
 
 /// What one pour moved, as `Rules.resolve` applied it: the app animates from this instead
@@ -203,8 +210,9 @@ public enum Rules {
     ///
     /// Links act on more than two bottles: twins (F1) and overflow pipes (F2) are worked out
     /// in `linkedPlan(for:link:in:)`, which runs these same hooks for every bottle that
-    /// receives (switch gates, A3, will go there too). A cauldron is never a link end
-    /// (`validate()`), so a linked pour never mixes.
+    /// receives. A switch gate (A3) is checked before any of them in `actionPlan`: a closed
+    /// gate refuses every pour into or out of it, whatever its modifiers. A cauldron is never
+    /// a link end (`validate()`), so a linked pour never mixes.
     public static func apply(_ modifier: BottleModifier, as side: PourSide, to plan: inout PourPlan,
                              source: Bottle, target: Bottle) -> Bool {
         switch (modifier, side) {
@@ -350,18 +358,78 @@ public enum Rules {
 
     /// Step 1 of `resolve` for a pour: the finished plan for `move` in `state`, or nil if
     /// the move is illegal. This is the single legality check: `resolve` and `isLegal`
-    /// (hence `canPour` and `legalMoves`) both use it, so they can't disagree. Links that
-    /// veto or extend a pour into their flask (twins, overflow) are worked out here
+    /// (hence `canPour` and `legalMoves`) both use it, so they can't disagree. A closed
+    /// switch gate (A3) on either end refuses the pour first (`touchesClosedGate`); links
+    /// that veto or extend a pour into their flask (twins, overflow) are worked out here
     /// (`linkedPlan`); a pour into any other flask is the two-bottle `plan`.
     @inline(__always)
     static func actionPlan(for move: Move, in state: GameState) -> PourPlan? {
         guard move.from != move.to,
               state.bottles.indices.contains(move.from),
               state.bottles.indices.contains(move.to) else { return nil }
-        if state.hasLinks, let link = state.link(at: move.to) {
-            return linkedPlan(for: move, link: link, in: state)
+        if state.hasLinks {
+            if touchesClosedGate(move, in: state) { return nil }
+            if let link = state.link(at: move.to) { return linkedPlan(for: move, link: link, in: state) }
         }
         return plan(from: state.bottles[move.from], to: state.bottles[move.to])
+    }
+
+    // MARK: - Switches and gates (A3)
+
+    /// A3: whether `bottle` holds its gate open as a switch flask: it is *complete*, i.e. full
+    /// with a single color and counted as sorted (`isCompleted`: no seal, no ice on it). A
+    /// sealed switch therefore opens its gate only when its key unseals it (step 2 of
+    /// `resolve`, unseal first), an iced one when its last ice thaws (step 5). Pure: the
+    /// gate's state is always derived from this, never stored.
+    public static func isSwitchOn(_ bottle: Bottle) -> Bool {
+        isCompleted(bottle)
+    }
+
+    /// A3: whether flask `bottle` is a gate whose switch is off (`isSwitchOn`), so nothing can
+    /// be poured into or out of it right now. false for any flask that isn't a gate.
+    public static func isGateClosed(_ bottle: Int, in state: GameState) -> Bool {
+        guard state.hasLinks else { return false }
+        for case let .switchGate(s, g) in state.links where g == bottle {
+            return state.bottles.indices.contains(s) && !isSwitchOn(state.bottles[s])
+        }
+        return false
+    }
+
+    /// Whether either end of `move` is a closed gate (one pass over the links).
+    @inline(__always)
+    static func touchesClosedGate(_ move: Move, in state: GameState) -> Bool {
+        for case let .switchGate(s, g) in state.links where g == move.from || g == move.to {
+            if !state.bottles.indices.contains(s) || !isSwitchOn(state.bottles[s]) { return true }
+        }
+        return false
+    }
+
+    /// A3: bit `i` set when link `i` of `state` is a switch gate that is open (its switch is
+    /// on); 0 when the state has no switch. Compared before and after the steps of `resolve`
+    /// to report `.gateOpened` / `.gateClosed`.
+    static func openGates(_ state: GameState) -> UInt64 {
+        guard state.hasLinks else { return 0 }
+        var mask: UInt64 = 0
+        for (i, link) in state.links.enumerated() where i < 64 {
+            guard case let .switchGate(s, _) = link, state.bottles.indices.contains(s) else { continue }
+            if isSwitchOn(state.bottles[s]) { mask |= 1 << UInt64(i) }
+        }
+        return mask
+    }
+
+    /// Whether `state` has any switch link (the gate events are worked out only then).
+    static func hasSwitches(_ state: GameState) -> Bool {
+        state.hasLinks && state.links.contains { if case .switchGate = $0 { return true } else { return false } }
+    }
+
+    /// Appends `.gateOpened` / `.gateClosed` for every switch link whose bit differs between
+    /// `before` and `after` (`openGates`), in link order.
+    static func gateEvents(from before: UInt64, to after: UInt64, links: [Link], into events: inout [TurnEvent]) {
+        guard before != after else { return }
+        for (i, link) in links.enumerated() where i < 64 && (before ^ after) & (1 << UInt64(i)) != 0 {
+            guard case let .switchGate(s, g) = link else { continue }
+            events.append(after & (1 << UInt64(i)) != 0 ? .gateOpened(switch: s, gate: g) : .gateClosed(switch: s, gate: g))
+        }
     }
 
     /// Whether `layer` may land on `bottle` by the base rule: the flask is empty or its top
@@ -444,7 +512,8 @@ public enum Rules {
             if spilled > 0 { plan.shares = [PourShare(bottle: pipeEnd, amount: spilled, route: .overflow)] }
             return plan
         case .switchGate:
-            // Not implemented yet: levels using it fail validation and the solver refuses them.
+            // A3: an open gate (or the switch itself) pours and receives like any flask; a closed
+            // gate was refused before (`actionPlan`).
             return Self.plan(from: source, to: target)
         }
     }
@@ -643,7 +712,9 @@ public enum Rules {
     ///    as it lands (E1, `mixed`; `TurnEvent.mixed`, the turn's first event): mixing is
     ///    driven by the pour (how many layers landed on which run), so it is applied with it,
     ///    before every later step.
-    /// 2. Immediate effects: unseal (A1). R5: switch gates (A3). Murky reveals (B1) are
+    /// 2. Immediate effects: unseal (A1), then switch gates (A3): a gate is open exactly while
+    ///    its switch is complete (`isSwitchOn`), derived from the state, never stored; the turn
+    ///    reports each gate that opened or closed (`.gateOpened` / `.gateClosed`). Murky reveals (B1) are
     ///    display state in `GameSession` (mixing only touches the cauldron's top run and the
     ///    layers that just landed, which are all in view).
     /// 3. `moveCount += 1`, only if the state stores a move counter, and only up to
@@ -655,12 +726,16 @@ public enum Rules {
     ///    bubbling flask's phase goes up by 1, and when it reaches the period the bottom
     ///    layer rises to the top and the phase resets (`TurnEvent.bubbled`). Only player
     ///    actions count: the counters tick once per turn, after the pour.
-    /// 5. Immediate effects again if a timed effect changed anything.
+    /// 5. Immediate effects again if a timed effect changed anything (a thaw can complete a
+    ///    switch: its gate opens now, reported after the timed events).
     /// 6. Goal check.
     ///
     /// Returns nil if the action is illegal.
     public static func resolve(_ state: GameState, afterAction action: Action) -> Turn? {
         var next = state
+        // A3: the gates as they were before the action (0 and no work without a switch).
+        let switches = hasSwitches(state)
+        var gates = switches ? openGates(state) : 0
         // 1. The player's action (`actionPlan` is also what `isLegal` checks).
         var opened: (bottle: Int, key: KeyID)?
         let event: PourEvent
@@ -694,12 +769,26 @@ public enum Rules {
         }
         // 2. Immediate effects (unseal, then everything that follows from the state).
         applyImmediateEffects(&next, opened: opened)
+        if switches { reportGates(next, since: &gates, events: &events) }
         // 3. Move counter.
         if let n = next.moveCount, n < moveCountLimit(next) { next.moveCount = n + 1 }
         // 4. + 5. Timed effects, then immediate effects again.
-        if applyTimedEffects(&next, events: &events) { applyImmediateEffects(&next, opened: nil) }
+        if applyTimedEffects(&next, events: &events) {
+            applyImmediateEffects(&next, opened: nil)
+            if switches { reportGates(next, since: &gates, events: &events) }
+        }
         // 6. Goal.
         return Turn(state: next, isWon: isWon(next), pour: event, events: events)
+    }
+
+    /// A3, the gate half of steps 2 and 5: the gates of `state` (derived from its switches)
+    /// compared with `gates`, the gates as last reported; appends the changes and updates
+    /// `gates`. Out of line: only switch levels pay for it.
+    @inline(never)
+    static func reportGates(_ state: GameState, since gates: inout UInt64, events: inout [TurnEvent]) {
+        let now = openGates(state)
+        gateEvents(from: gates, to: now, links: state.links, into: &events)
+        gates = now
     }
 
     /// `TurnEvent.mixed` for a mixing pour into bottle `index` of `state` (out of line, like
@@ -738,17 +827,21 @@ public enum Rules {
         return nil
     }
 
-    /// The link that refuses `move`, for the app's feedback ("twins share every pour"): a
-    /// twin link when the pour into one twin is illegal although it would be legal between
-    /// the two bottles alone (from one twin into the other, a single layer that can't be
-    /// split, a twin that is full or has another color on top). nil if the move is legal or
-    /// illegal for a base or modifier reason. An overflow pipe never refuses a pour (it only
-    /// takes what a full flask can't).
+    /// The link that refuses `move`, for the app's feedback ("twins share every pour", "the
+    /// gate is shut"): a switch link when either end of the pour is its closed gate (A3) and
+    /// the pour would be legal between the two bottles alone, or a twin link when the pour into
+    /// one twin is illegal although it would be legal between the two bottles alone (from one
+    /// twin into the other, a single layer that can't be split, a twin that is full or has
+    /// another color on top). nil if the move is legal or illegal for a base or modifier
+    /// reason. An overflow pipe never refuses a pour (it only takes what a full flask can't).
     public static func linkRefusal(of move: Move, in state: GameState) -> Link? {
         guard move.from != move.to, state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
-              let link = state.link(at: move.to), case .twins = link,
-              !isLegal(move, in: state),
+              state.hasLinks, !isLegal(move, in: state),
               plan(from: state.bottles[move.from], to: state.bottles[move.to]) != nil else { return nil }
+        for bottle in [move.from, move.to] where isGateClosed(bottle, in: state) {
+            return state.link(at: bottle)
+        }
+        guard let link = state.link(at: move.to), case .twins = link else { return nil }
         return link
     }
 
@@ -794,7 +887,9 @@ public enum Rules {
     /// Immediate effects, steps 2 and 5 of `resolve` (both run this same function, so an
     /// effect added here applies after every pour, not only after timed effects).
     /// Unseal (A1) is driven by the pour (`opened`: the bottle and the key poured into
-    /// its seal; nil in step 5). Switch gates (A3) go after it. Mixing (E1) is driven by
+    /// its seal; nil in step 5). Switch gates (A3) go after it, but have nothing to apply: a
+    /// gate's state is derived from its switch whenever a pour is checked (`isGateClosed`), so
+    /// `resolve` only reports the changes (`reportGates`). Mixing (E1) is driven by
     /// the pour too, but needs what landed where, so `transfer` applies it in step 1.
     @inline(__always)
     static func applyImmediateEffects(_ state: inout GameState, opened: (bottle: Int, key: KeyID)?) {

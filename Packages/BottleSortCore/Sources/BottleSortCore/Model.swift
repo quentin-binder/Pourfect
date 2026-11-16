@@ -506,6 +506,23 @@ public struct GameState: Hashable, Sendable, CustomStringConvertible {
         return from
     }
 
+    /// A3: the gate flask that switch flask `bottle` opens (the other end of its brass lever),
+    /// or nil if `bottle` isn't a switch.
+    public func gate(of bottle: Int) -> Int? {
+        guard case let .switchGate(s, g)? = link(at: bottle), s == bottle else { return nil }
+        return g
+    }
+
+    /// A3: the switch flask that opens gate flask `bottle`, or nil if `bottle` isn't a gate.
+    public func switchFlask(of bottle: Int) -> Int? {
+        guard case let .switchGate(s, g)? = link(at: bottle), g == bottle else { return nil }
+        return s
+    }
+
+    /// A3: whether `bottle` is a gate whose switch isn't complete, so it can't be poured into
+    /// or out of now (`Rules.isGateClosed`). For the app's portcullis; false for other flasks.
+    public func isGateClosed(_ bottle: Int) -> Bool { Rules.isGateClosed(bottle, in: self) }
+
     public var description: String {
         var text = bottles.map(\.description).joined(separator: " ")
         if !links.isEmpty { text += " links[" + links.map(\.description).joined(separator: " ") + "]" }

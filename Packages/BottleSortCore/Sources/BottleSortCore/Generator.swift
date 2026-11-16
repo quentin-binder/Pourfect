@@ -96,6 +96,16 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Reject levels that can be won without mixing, or whose cauldron doesn't matter
     /// (`CauldronImpact.everyCauldronMatters`).
     public var requireMixing: Bool
+    /// Switch links (A3): a switch flask and the gate flask it opens. 0 = none. Placed after
+    /// the twins and pipes (step 10 of `candidate`).
+    public var switches: Int
+    /// Which flasks become switches and gates (`SwitchPlacement`).
+    public var switchPlacement: SwitchPlacement
+    /// Reject levels where some switch doesn't matter (`SwitchImpact`, cost `switchCost`).
+    public var requireSwitchMatter: Bool
+    /// Moves each switch must add for `requireSwitchMatter` (`SwitchImpact.minimumCost` or
+    /// `.strongCost`).
+    public var switchCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -115,6 +125,8 @@ public struct GeneratorConfig: Sendable, Hashable {
                 requireSplit: Bool = false,
                 cauldron: Int = 0, recipes: Int = 1, ingredients: CauldronIngredients = .fresh, mixPairs: Int = 1,
                 scramble: Int = 40, requireMixing: Bool = false,
+                switches: Int = 0, switchPlacement: SwitchPlacement = .closed, requireSwitchMatter: Bool = false,
+                switchCost: Int = SwitchImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -155,6 +167,10 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.mixPairs = mixPairs
         self.scramble = scramble
         self.requireMixing = requireMixing
+        self.switches = switches
+        self.switchPlacement = switchPlacement
+        self.requireSwitchMatter = requireSwitchMatter
+        self.switchCost = switchCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -170,6 +186,23 @@ public enum LinkPlacement: String, Sendable, Hashable, CaseIterable {
     case empty
     /// Twins on empty flasks; an overflow pipe from a filled flask into an empty one.
     case mixed
+}
+
+/// Which flasks the generator joins as switch and gate (A3, `GeneratorConfig.switchPlacement`).
+/// The switch is never presolved (`Generator.evaluate` rejects that), so every gate starts
+/// closed.
+public enum SwitchPlacement: String, Sendable, Hashable, CaseIterable {
+    /// Switch and gate both start with layers: the gate's potion is locked away until the
+    /// switch is complete.
+    case closed
+    /// The switch starts with layers, the gate is an empty flask: spare room that opens only
+    /// once the switch is complete.
+    case empty
+    /// The switch is an empty flask that must be filled with one color; the gate starts with
+    /// layers.
+    case emptySwitch
+    /// Any two plain flasks.
+    case any
 }
 
 public struct GeneratedLevel: Sendable, Hashable {
@@ -256,6 +289,14 @@ public enum Generator {
     ///    empty flasks and runs each pipe from a filled flask into an empty one. Placement reads
     ///    only which flasks are empty, never colors (murky-safe). Fewer links are placed only
     ///    if the level has too few such flasks.
+    ///
+    /// Switches (`switches = W`, A3), drawn after step 9 from the same stream (nothing is drawn
+    /// when W is 0, so every older level is unchanged):
+    /// 10. The bottle indices are shuffled again. Walking that order over plain flasks that
+    ///    aren't linked yet, the first that fits `switchPlacement` as a switch and then the
+    ///    first that fits as its gate make a switch link, W times. Placement reads only which
+    ///    flasks are empty, never colors (murky-safe). Fewer are placed only if the level has
+    ///    too few such flasks.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         if config.cauldron > 0 { return cauldronCandidate(config, seed: seed) }
         var rng = SplitMix64(seed: seed)
@@ -315,7 +356,39 @@ public enum Generator {
         // 9. Links.
         var links: [Link] = []
         if config.twins > 0 || config.overflow > 0 { links = makeLinks(bottles, config: config, rng: &rng) }
+        // 10. Switches.
+        if config.switches > 0 { links += makeSwitches(bottles, linked: links, config: config, rng: &rng) }
         return GameState(bottles: bottles, links: links)
+    }
+
+    /// Step 10 of `candidate`.
+    static func makeSwitches(_ bottles: [Bottle], linked: [Link], config: GeneratorConfig,
+                             rng: inout SplitMix64) -> [Link] {
+        var order = Array(bottles.indices)
+        rng.shuffle(&order)
+        var used = Set(linked.flatMap { [$0.endpoints.0, $0.endpoints.1] })
+        func take(empty: Bool?) -> Int? {
+            guard let i = order.first(where: { i in
+                !used.contains(i) && bottles[i].isPlain && (empty.map { bottles[i].isEmpty == $0 } ?? true)
+            }) else { return nil }
+            used.insert(i)
+            return i
+        }
+        let (switchEmpty, gateEmpty): (Bool?, Bool?) = {
+            switch config.switchPlacement {
+            case .closed: return (false, false)
+            case .empty: return (false, true)
+            case .emptySwitch: return (true, false)
+            case .any: return (nil, nil)
+            }
+        }()
+        var links: [Link] = []
+        for _ in 0..<max(0, config.switches) {
+            guard let s = take(empty: switchEmpty) else { break }
+            guard let g = take(empty: gateEmpty) else { used.remove(s); break }
+            links.append(.switchGate(switch: s, gate: g))
+        }
+        return links
     }
 
     /// Step 9 of `candidate`.
@@ -484,6 +557,9 @@ public enum Generator {
                                         limits: config.solverLimits) { return nil }
         if config.requireSplit, state.links.contains(where: { if case .twins = $0 { true } else { false } }),
            LinkImpact.solvesWithoutSplitting(state, in: moves.count) != false { return nil }
+        if config.requireSwitchMatter,
+           !SwitchImpact.everySwitchMatters(state, minMoves: moves.count, cost: config.switchCost,
+                                            limits: config.solverLimits) { return nil }
         if config.requireMixing,
            !CauldronImpact.everyCauldronMatters(state, minMoves: moves.count, limits: config.solverLimits)
             || CauldronImpact.mixedPairs(in: state, solution: moves) == 0 { return nil }
@@ -1096,5 +1172,60 @@ public enum LinkImpact {
             frontier = next
         }
         return false
+    }
+}
+
+/// Whether a switch link changes a level (the "must matter" check for A3): the
+/// `.link(.switchGate)` case of `MechanicImpact`. Removing the instance means the gate is an
+/// ordinary flask, always open.
+///
+/// A gate only ever refuses pours (the switch itself is an ordinary flask), so every solution of
+/// the level is also a solution without the link: the level without it is never longer, and
+/// the check is one-sided, how many moves the closed gate adds to the optimal solution (or
+/// whether the level can't be solved at all without the gate open at the right time; that
+/// can't happen, the link only restricts). The cost is measured on optimal play, so a switch
+/// that matters changes what an optimal player does: they must complete the switch before they
+/// can use the gate, and that order costs moves (DECISIONS 204).
+public enum SwitchImpact {
+    /// Smallest cost that counts as "matters": one extra move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Cost required in the chapter 10 recipes: the closed gate forces a detour of 2+ moves.
+    public static let strongCost = 2
+
+    /// The switch instances of `state` (one per switch link).
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        MechanicImpact.instances(in: state).filter {
+            if case .link(.switchGate) = $0 { return true }
+            return false
+        }
+    }
+
+    /// Whether every switch matters (true for a level without one).
+    public static func everySwitchMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                          limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+
+    /// Whether every gate starts closed with layers inside (a switch tutorial: the potion behind
+    /// the bars is visibly needed).
+    public static func everyGateStartsClosedWithLayers(_ state: GameState) -> Bool {
+        state.links.allSatisfy { link in
+            guard case let .switchGate(_, g) = link else { return true }
+            return state.bottles.indices.contains(g) && !state.bottles[g].isEmpty && state.isGateClosed(g)
+        }
+    }
+
+    /// The moves of `solution` (from `state`) after which some gate opened, by index into the
+    /// solution (for tests and the tutorial check: an optimal solution opens the gate, then
+    /// uses it).
+    public static func gateOpenings(in state: GameState, solution: [Move]) -> [Int] {
+        var current = state
+        var result: [Int] = []
+        for (i, move) in solution.enumerated() {
+            guard let turn = Rules.resolve(current, afterAction: .pour(move)) else { break }
+            if turn.events.contains(where: { if case .gateOpened = $0 { return true } else { return false } }) { result.append(i) }
+            current = turn.state
+        }
+        return result
     }
 }

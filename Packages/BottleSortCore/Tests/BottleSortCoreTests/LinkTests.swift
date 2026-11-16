@@ -128,7 +128,7 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(Mechanic.twins.rawValue == "twins" && Mechanic.overflow.rawValue == "overflow")
         #expect(ChapterOutline.plan[7].introduces == [.twins, .overflow] && ChapterOutline.plan[7].location == "Twin Towers")
         #expect(Link.twins(0, 1).isImplemented && Link.overflow(from: 0, to: 1).isImplemented)
-        #expect(!Link.switchGate(switch: 0, gate: 1).isImplemented)
+        #expect(Link.switchGate(switch: 0, gate: 1).isImplemented)
         #expect(MechanicImpact.isTwoSided(.link(.twins(0, 1))) && MechanicImpact.isTwoSided(.link(.overflow(from: 0, to: 1))))
         #expect(LinkImpact.minimumCost == 1 && LinkImpact.strongCost == 2)
     }
@@ -574,10 +574,10 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         for e in [ValidationError.flaskInSeveralLinks(bottle: 1), .sealedTwin(bottle: 2)] {
             #expect(!e.description.isEmpty)
         }
-        // Unimplemented links still don't load.
+        // A switch link (A3) on the same flasks validates too.
         var gate = Self.sample
         gate.links = [.switchGate(switch: 0, gate: 1)]
-        #expect(gate.validate() == [.unsupportedMechanic("switchGate")])
+        #expect(gate.validate().isEmpty)
     }
 
     @Test func undoAndRestartRestoreEverything() throws {

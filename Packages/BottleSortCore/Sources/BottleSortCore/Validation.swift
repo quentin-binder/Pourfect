@@ -96,6 +96,9 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     /// With cauldrons: no amount of mixing lets every color end with exactly 0 or
     /// `capacity` layers (replaces `wrongColorCount`, since mixing changes color counts).
     case unbalancedColors
+    /// A switch flask (A3) has a tap: a tap never receives, so the switch could never fill up
+    /// and its gate could only ever close.
+    case tapSwitch(bottle: Int)
 
     public var description: String {
         switch self {
@@ -143,6 +146,7 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case .chainedRecipes: return "a recipe's result is an ingredient of another recipe"
         case let .unmixedPair(b): return "cauldron \(b) starts with a color directly on its recipe partner"
         case .unbalancedColors: return "no amount of mixing lets every color end with 0 or capacity layers"
+        case let .tapSwitch(b): return "switch flask \(b) has a tap, so it could never fill up"
         }
     }
 }
@@ -161,8 +165,9 @@ extension GameState {
     /// `Rules.maxFrozenLayers` per level, bubbling flasks (D2) have one period in
     /// `Rules.bubblingPeriods` with a phase below it, no tap and no ice, at most
     /// `Rules.maxBubblingFlasks` per level, links connect two different existing bottles, a
-    /// flask is an end of at most one link, a twin (F1) is never sealed, and every
-    /// modifier, link and goal is implemented by `Rules`.
+    /// flask is an end of at most one link (so a switch drives one gate and no flask is both),
+    /// a twin (F1) is never sealed, a switch (A3) has no tap, and every modifier, link and goal
+    /// is implemented by `Rules`.
     ///
     /// Cauldrons (E1): each carries 1...`Rules.maxRecipes` valid recipes (two different
     /// ingredients, a third color as result, no pair twice), no other modifier and no link;
@@ -194,6 +199,7 @@ extension GameState {
                     errors.append(.sealedTwin(bottle: end))
                 }
             }
+            if case .switchGate = link, bottles.indices.contains(a), bottles[a].hasTap { errors.append(.tapSwitch(bottle: a)) }
         }
         for (bottle, n) in linkEnds.sorted(by: { $0.key < $1.key }) where n > 1 {
             errors.append(.flaskInSeveralLinks(bottle: bottle))
