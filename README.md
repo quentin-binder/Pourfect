@@ -22,7 +22,7 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_05` | 5 Glass Works | `c5_001…` | 30 | 6–24 | 17–56 | Narrow necks, then funnels, then taps; at the end all three and murky layers, a seal or a rune |
 | `chapter_06` | 6 Frost Peak | `c6_001…` | 30 | 7–27 | 18–50 | Frozen layers: a tutorial (two empty flasks), then one layer (one empty flask), then two; at the end with murky layers, a rune or a seal |
 | `chapter_07` | 7 Bubbling Bog | `c7_001…` | 30 | 4–25 | 15–52 | Bubbling flasks: one, then two (4 colors); at the end with murky layers and seals |
-| `chapter_08` | 8 Twin Towers | `c8_001…` | 32 | 8–24 | 20–56 | Twin flasks, then overflow pipes (6 colors, size 3); at the end murky layers, seals, 7 colors and both links |
+| `chapter_08` | 8 Twin Towers | `c8_001…` | 32 | 8–25 | 20–56 | Twin flasks (every one needs a split), then overflow pipes (6 colors, size 3), then murky layers, seals and 7 colors; the last two recipes have both links |
 
 Chapters 9–10 (Alchemist's Hall, Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
 Optional **Challenges** (never gated):
@@ -334,7 +334,8 @@ swift run -c release levelgen --colors 4 --empty 2 --bubbling 1:3 --bubbling-cos
 # filled flask into an empty one); --link-cost C rejects levels where a link changes the optimum by fewer than C
 # moves either way, except that a pipe also counts when it sets a spill trap (LinkImpact, DECISIONS 181;
 # --links-matter = cost 1, the chapter uses 2). Pipes only matter in roomy 6-color size-3 boards (~1 in 150)
-swift run -c release levelgen --colors 4 --empty 2 --twins 1 --link-placement filled --link-cost 2 --count 5 --seed 1 --out twins.json
+# --needs-split also rejects twins an optimal solution never pours into (the chain would only restrict; DECISIONS 191)
+swift run -c release levelgen --colors 4 --empty 2 --twins 1 --link-placement filled --link-cost 2 --needs-split --count 5 --seed 1 --out twins.json
 swift run -c release levelgen --colors 6 --capacity 3 --empty 2 --overflow 1 --link-placement mixed --link-cost 2 --count 2 --seed 1 --out pipes.json
 
 # Re-solve every level of every file and print difficulty tables, sorted by score, plus the
