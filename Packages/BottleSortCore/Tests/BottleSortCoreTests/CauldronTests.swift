@@ -530,3 +530,68 @@ private func cauldron(_ values: [Int], _ capacity: Int, _ recipes: [Recipe] = [p
         #expect(CauldronImpact.unwinnableByCount(state([[0, 1], [0]], capacity: 2)))
     }
 }
+
+/// Alchemist's Hall (chapter 9).
+@Suite struct AlchemistsHallTests {
+    static func pack() throws -> LevelPack { try LevelFileTests.load("chapter_09") }
+
+    @Test func shape() throws {
+        let pack = try Self.pack()
+        #expect(pack.version == 2 && pack.chapter == 9 && pack.location == "Alchemist's Hall")
+        #expect(pack.introduces == [.cauldron])
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c9_%03d", $0 + 1) })
+        for level in pack.levels {
+            let s = level.gameState
+            let pots = s.bottles.filter(\.isCauldron)
+            #expect(pots.count == 1 && (1...2).contains(pots[0].recipes.count), "\(level.id)")
+            #expect(pots.allSatisfy { $0.modifiers.count == 1 } && s.links.isEmpty, "\(level.id)")
+            #expect(pots[0].recipes.allSatisfy { Generator.naturalRecipes.contains($0) }, "\(level.id)")
+            #expect(level.mechanics.last == .cauldron, "\(level.id)")
+            #expect(Set(level.mechanics).isSubset(of: [.cauldron, .sealed, .murky]), "\(level.id)")
+            let colors = s.bottles.flatMap(\.layers).compactMap(\.colorID)
+            #expect(colors.allSatisfy { $0.rawValue < Generator.paletteSize })
+        }
+        // Tutorial: tiny, the cauldron only and empty, every star without parking a flask, no dead-end first move.
+        let tutorial = try #require(pack.levels.first)
+        let start = tutorial.gameState
+        #expect(tutorial.capacity == 3 && tutorial.mechanics == [.cauldron] && (tutorial.meta?.minMoves ?? 99) <= 6)
+        #expect(start.bottles.allSatisfy { !$0.isCauldron || $0.isEmpty })
+        #expect(FrozenImpact.solvesWithoutRelocation(start, in: tutorial.meta?.minMoves ?? 0))
+        #expect(MechanicImpact.everyFirstMoveSolvable(start))
+        // One recipe first, then two; earlier mechanics only in the last section.
+        let firstTwo = try #require(pack.levels.firstIndex { $0.gameState.bottles.flatMap(\.recipes).count == 2 })
+        #expect(firstTwo >= 12)
+        #expect(pack.levels[..<firstTwo].allSatisfy { $0.mechanics == [.cauldron] })
+        #expect(pack.levels.suffix(6).contains { $0.isHidden } && pack.levels.suffix(6).contains { $0.mechanics.contains(.sealed) })
+        let last = try #require(pack.levels.last)
+        #expect(last.gameState.bottles.flatMap(\.recipes).count == 2)
+        let scores = pack.levels.compactMap { $0.meta?.score }
+        #expect(scores.count == pack.levels.count)
+        #expect(scores.first! < 20 && scores.max()! >= 48 && scores.max()! <= 62)
+    }
+
+    /// Every recipe needs its cauldron: the colors can't end in full flasks without mixing
+    /// (so every solution mixes, `CauldronImpact.mixingRequired`), the cauldron matters, and an
+    /// optimal solution, replayed, brews exactly the pairs the counts call for. Seals must be
+    /// strong. Small searches only.
+    @Test func everyRecipeNeedsTheCauldron() throws {
+        var replayed = 0
+        for level in try Self.pack().levels {
+            let s = level.gameState
+            let minMoves = try #require(level.meta?.minMoves)
+            #expect(CauldronImpact.mixingRequired(s), "\(level.id)")
+            #expect(CauldronImpact.everyCauldronMatters(s, minMoves: minMoves), "\(level.id)")
+            guard (level.meta?.statesExplored ?? 0) <= 8_000 else { continue }
+            let moves = try #require(Solver().solve(s).moves, "\(level.id)")
+            #expect(moves.count == minMoves, "\(level.id)")
+            var counts: [ColorID: Int] = [:]
+            for bottle in s.bottles { for case .color(let c) in bottle.layers { counts[c, default: 0] += 1 } }
+            let pairs = try #require(Rules.finalColorCounts(counts, recipes: s.bottles.flatMap(\.recipes), capacity: level.capacity))
+            #expect(CauldronImpact.mixedPairs(in: s, solution: moves) == pairs.reduce(0, +), "\(level.id)")
+            #expect(LockImpact.everyLockMatters(s, minMoves: minMoves, cost: LockImpact.strongCost), "\(level.id)")
+            replayed += 1
+        }
+        #expect(replayed >= 15)
+    }
+}

@@ -30,9 +30,9 @@ usage:
            [--twins N] [--overflow N] [--link-placement any|filled|empty|mixed] [--links-matter | --link-cost C] [--needs-split]
            [--cauldron RECIPES [--ingredients fresh|sorted] [--mix-pairs N] [--scramble STEPS] [--mixing-matter] [--teaches-mixing]]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
-  levelgen --preset chapter1|…|chapter8|challenger|expert|master [--seed S] --out FILE
+  levelgen --preset chapter1|…|chapter9|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
-           (writes chapter_01…08.json and challenge_challenger|expert|master.json)
+           (writes chapter_01…09.json and challenge_challenger|expert|master.json)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
            [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS] [--bubbling N:PERIOD]
@@ -565,6 +565,43 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 2, colors: 6, capacity: 3, empty: 2, moves: any, twins: 1, overflow: 1, linkPlacement: .any,
              linkCost: LinkImpact.strongCost, needsSplit: true, section: 4, maxAttempts: 8_000),
     ]),
+    "chapter9": PackPreset(file: "chapter_09", idPrefix: "c9", name: "Alchemist's Hall",
+                           subtitle: "Pour one ingredient onto the other in the cauldron to brew a new potion",
+                           kind: .chapter, chapter: 9, location: "Alchemist's Hall", introduces: [.cauldron],
+                           seed: 14_000, tiers: [
+        // Tutorial: 2 colors in size-3 flasks, one empty flask and an empty cauldron with one recipe;
+        // one pair to brew (the third layer of the result is already there), every solution mixes,
+        // an optimal one needs no parked flask, and no first move is a dead end.
+        Tier(count: 1, colors: 2, capacity: 3, empty: 1, moves: any, pool: 40, keepEasiest: true, cauldron: 1,
+             mixPairs: 1, scramble: 10, mixingMatter: true, teachesMixing: true, section: 0),
+        // Fresh ingredients: every layer of the two ingredients must be brewed away (two pairs make
+        // a whole flask of the result). Built backwards; every solution mixes (by counting).
+        Tier(count: 3, colors: 3, capacity: 4, empty: 1, moves: any, score: 15...23, cauldron: 1, mixPairs: 2,
+             scramble: 40, mixingMatter: true, section: 1),
+        Tier(count: 4, colors: 4, capacity: 4, empty: 1, moves: any, score: 21...29, cauldron: 1, mixPairs: 2,
+             scramble: 80, mixingMatter: true, section: 1),
+        Tier(count: 4, colors: 5, capacity: 4, empty: 1, moves: any, pool: 2, score: 27...36, cauldron: 1, mixPairs: 2,
+             scramble: 150, mixingMatter: true, section: 1),
+        // Sorted ingredients: the ingredients are potions of their own, so exactly one pair must be
+        // brewed and a second mix loses the recipe.
+        Tier(count: 3, colors: 5, capacity: 4, empty: 1, moves: any, score: 29...36, cauldron: 1, ingredients: .sorted,
+             mixPairs: 1, scramble: 150, mixingMatter: true, section: 2),
+        Tier(count: 3, colors: 6, capacity: 4, empty: 1, moves: any, pool: 2, score: 34...43, cauldron: 1,
+             ingredients: .sorted, mixPairs: 1, scramble: 250, mixingMatter: true, section: 2),
+        // Two recipes on one cauldron.
+        Tier(count: 3, colors: 6, capacity: 4, empty: 1, moves: any, pool: 2, score: 34...42, cauldron: 2, mixPairs: 2,
+             scramble: 300, mixingMatter: true, section: 3),
+        Tier(count: 3, colors: 7, capacity: 4, empty: 1, moves: any, score: 44...51, cauldron: 2, ingredients: .sorted,
+             mixPairs: 1, scramble: 400, mixingMatter: true, section: 3),
+        // With earlier mechanics on other flasks: murky layers, a strong seal; the finale brews two
+        // recipes among eight potions.
+        Tier(count: 2, colors: 6, capacity: 4, empty: 1, hidden: true, moves: any, score: 38...47, cauldron: 1,
+             mixPairs: 2, scramble: 250, mixingMatter: true, section: 4),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 1, locks: 1, moves: any, score: 40...49, locksMatter: true,
+             strongLocks: true, cauldron: 1, mixPairs: 2, scramble: 250, mixingMatter: true, section: 4),
+        Tier(count: 2, colors: 8, capacity: 4, empty: 1, moves: any, score: 50...58, cauldron: 2, ingredients: .sorted,
+             mixPairs: 1, scramble: 600, mixingMatter: true, section: 4),
+    ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
         Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
@@ -590,7 +627,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
     ]),
 ]
-let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "challenger", "expert", "master"]
+let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "chapter9", "challenger", "expert", "master"]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
