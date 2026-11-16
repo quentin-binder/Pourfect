@@ -7,13 +7,25 @@ public enum Action: Hashable, Sendable {
     case pour(Move)
 }
 
-/// The result of one resolved turn: the new state, whether its goal is met, and what
-/// the player's pour did (for the app's animation).
+/// The result of one resolved turn: the new state, whether its goal is met, what the
+/// player's pour did and what happened on its own afterwards (for the app's animation).
 public struct Turn: Hashable, Sendable {
     public var state: GameState
     public var isWon: Bool
     /// The pour of step 1 as applied. nil only for actions that aren't pours (none yet).
     public var pour: PourEvent?
+    /// The automatic effects of steps 2–5 that the app shows *after* the pour lands, in
+    /// the order they were applied (e.g. a frozen layer thawing). Empty for most turns
+    /// (no allocation). Unseal is part of `pour` (`openedSeal`), not repeated here.
+    public var events: [TurnEvent] = []
+}
+
+/// An automatic effect of a turn (a timed or immediate rule, not the player's pour).
+/// Bubbling (D2), mixing (E1) and switches (A3) add their cases here.
+public enum TurnEvent: Hashable, Sendable {
+    /// D1: the frozen layer `layer` (0 = bottom) of bottle `bottle` thawed (its counter
+    /// reached 0) and is a normal layer from now on.
+    case thawed(bottle: Int, layer: Int)
 }
 
 /// What one pour moved, as `Rules.resolve` applied it: the app animates from this instead
@@ -99,8 +111,15 @@ public enum Rules {
     ///   alone) and `transfer` takes it from the bottom. Target hooks run after source
     ///   hooks, so they judge the bottom layer. As a target it vetoes everything, keys too.
     ///
-    /// R5 plan: `.frozen(i, _)` source → `limit` = `source.layers.count - 1 - i` layers
-    /// above it (veto at 0; with a tap: decided with D1, DECISIONS 122). `.cauldron`
+    /// - `.frozen(i, _)` (D1): as a source only the layers *above* layer `i` may move:
+    ///   `limit` = `source.layers.count - 1 - i` (veto at 0: the top layer is frozen). A tap
+    ///   (which runs first) is vetoed outright: the frozen layer pins everything below it,
+    ///   the bottom included. As a target it vetoes every pour, keys too, while `i` is the
+    ///   top layer (ice on top seals the flask); a frozen layer lower down changes nothing.
+    ///   Frozen layers never move, so the index stays valid (pours only change layers
+    ///   above it, a tap can't pour); the counter is the timed step `thaw`.
+    ///
+    /// R5 plan: `.cauldron`
     /// (target → accept a recipe partner on top: an `acceptsMismatch` flag; mixing itself
     /// is an immediate effect). Links (twins, overflow into a full flask, gates) act on
     /// more than two bottles; they belong in `actionPlan(for:in:)` and `Transfer` becomes a
@@ -121,7 +140,7 @@ public enum Rules {
             // Otherwise only the essence color goes in (no other color, no key).
             return plan.opensSeal != nil || plan.layer == .color(color)
         case (.narrowNeck, _):
-            plan.limit = 1
+            plan.limit = min(plan.limit, 1)
             return true
         case (.funnel, .source):
             return false
@@ -134,7 +153,15 @@ public enum Rules {
             return true
         case (.tap, .target):
             return false
-        case (.frozen, _), (.bubbling, _), (.cauldron, _):
+        case (.frozen(let layer, _), .source):
+            if plan.fromBottom { return false }   // a tap: the bottom is pinned
+            let above = source.layers.count - 1 - layer
+            guard above > 0 else { return false }
+            plan.limit = min(plan.limit, above)
+            return true
+        case (.frozen(let layer, _), .target):
+            return layer != target.layers.count - 1
+        case (.bubbling, _), (.cauldron, _):
             // Not implemented yet: levels using them fail validation and the solver refuses them.
             return true
         }
@@ -280,7 +307,9 @@ public enum Rules {
     ///    `moveCountLimit` (a counter past every limit a rule reads is one dead value, so
     ///    the state graph stays finite).
     /// 4. Timed effects: corks (A2) → thaw (D1) → bubbling (D2) → evaporation (D4) →
-    ///    conveyor (D3). None is implemented yet.
+    ///    conveyor (D3). Thaw is implemented: every frozen layer's counter goes down by 1,
+    ///    and at 0 the layer thaws (`TurnEvent.thawed`). Only player actions count: the
+    ///    counters tick once per turn, after the pour.
     /// 5. Immediate effects again if a timed effect changed anything.
     /// 6. Goal check.
     ///
@@ -305,9 +334,10 @@ public enum Rules {
         // 3. Move counter.
         if let n = next.moveCount, n < moveCountLimit(next) { next.moveCount = n + 1 }
         // 4. + 5. Timed effects, then immediate effects again.
-        if applyTimedEffects(&next) { applyImmediateEffects(&next, opened: nil) }
+        var events: [TurnEvent] = []
+        if applyTimedEffects(&next, events: &events) { applyImmediateEffects(&next, opened: nil) }
         // 6. Goal.
-        return Turn(state: next, isWon: isWon(next), pour: event)
+        return Turn(state: next, isWon: isWon(next), pour: event, events: events)
     }
 
     /// The flask modifier that refuses `move`, for the app's feedback (e.g. "this essence
@@ -338,11 +368,13 @@ public enum Rules {
         return nil
     }
 
-    /// Whether `modifier` refuses every pour on `side`, whatever the flasks hold:
-    /// a funnel never pours out, a tap never receives.
+    /// Whether `modifier`, when it refuses a pour on `side`, refuses it whatever the other
+    /// flask holds, so it is the reason even when the base rule refuses too: a funnel never
+    /// pours out, a tap never receives, and a frozen layer only refuses when its own flask
+    /// is shut (its top layer is frozen, or a tap would pour from under the ice).
     static func closesSide(_ modifier: BottleModifier, _ side: PourSide) -> Bool {
         switch (modifier, side) {
-        case (.funnel, .source), (.tap, .target): return true
+        case (.funnel, .source), (.tap, .target), (.frozen, _): return true
         default: return false
         }
     }
@@ -384,19 +416,57 @@ public enum Rules {
         if let opened { unseal(&state.bottles[opened.bottle], key: opened.key) }
     }
 
-    /// Step 4 of `resolve`. Returns whether anything changed. Each timed mechanic
-    /// becomes one step here, run only when the state carries its modifier.
-    static func applyTimedEffects(_ state: inout GameState) -> Bool {
-        false
+    /// Step 4 of `resolve`. Returns whether anything changed, and appends what the app
+    /// shows to `events`. Each timed mechanic becomes one step here, run only on flasks
+    /// that carry its modifier (a plain or sealed flask is skipped by one switch).
+    ///
+    /// Thaw (D1): every `.frozen(layer:turns:)` counts down by 1; at 0 the modifier is
+    /// removed (the layer is a normal layer from then on) and `.thawed` is reported.
+    @inline(__always)
+    static func applyTimedEffects(_ state: inout GameState, events: inout [TurnEvent]) -> Bool {
+        var changed = false
+        for i in state.bottles.indices {
+            guard case .list(let list) = state.bottles[i].storage, list.contains(where: \.isTimed) else { continue }
+            thaw(&state.bottles[i], list: list, bottle: i, events: &events)
+            changed = true
+        }
+        return changed
     }
+
+    /// The thaw step for one flask whose modifiers are `list`. Counting down keeps the
+    /// canonical order (frozen modifiers are ordered by layer first, and a flask never has
+    /// two on one layer), so the list is stored as is, without re-sorting.
+    static func thaw(_ bottle: inout Bottle, list: [BottleModifier], bottle index: Int, events: inout [TurnEvent]) {
+        var kept: [BottleModifier] = []
+        kept.reserveCapacity(list.count)
+        for modifier in list {
+            guard case let .frozen(layer, turns) = modifier else {
+                kept.append(modifier)
+                continue
+            }
+            if turns > 1 {
+                kept.append(.frozen(layer: layer, turns: turns - 1))
+            } else {
+                events.append(.thawed(bottle: index, layer: layer))
+            }
+        }
+        bottle.storage = Bottle.ModifierStorage(kept)
+    }
+
+    /// Most frozen layers a level may hold, and the largest thaw counter (MECHANICS.md D1:
+    /// counters multiply the states the solver sees, so both are capped; `validate()`).
+    public static let maxFrozenLayers = 2
+    public static let maxThawTurns = 5
 
     // MARK: - Solved / goal
 
-    /// Whether `modifier` keeps its flask from counting as solved. A seal does.
+    /// Whether `modifier` keeps its flask from counting as solved. A seal does, and so does
+    /// a frozen layer (D1): a recipe isn't won while ice remains, even if its flask is
+    /// full of one color; the player makes another move and it thaws.
     static func blocksSolved(_ modifier: BottleModifier) -> Bool {
         switch modifier {
-        case .sealed: return true
-        case .essence, .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return false
+        case .sealed, .frozen: return true
+        case .essence, .narrowNeck, .funnel, .tap, .bubbling, .cauldron: return false
         }
     }
 

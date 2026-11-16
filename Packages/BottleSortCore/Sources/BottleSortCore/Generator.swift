@@ -44,6 +44,17 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Moves each glass modifier must change for `requireGlassMatter`
     /// (`GlassImpact.minimumCost` or `.strongCost`).
     public var glassCost: Int
+    /// Frozen layers (D1), at most `Rules.maxFrozenLayers`. 0 = none. See
+    /// `Generator.candidate` (step 7) for the placement.
+    public var frozen: Int
+    /// Largest thaw counter a frozen layer gets (1...`Rules.maxThawTurns`); each layer
+    /// draws from the upper half, `(frozenMaxTurns + 1) / 2 ... frozenMaxTurns`.
+    public var frozenMaxTurns: Int
+    /// Reject levels where some frozen layer doesn't matter (`FrozenImpact`, cost `frozenCost`).
+    public var requireFrozenMatter: Bool
+    /// Moves each frozen layer must add for `requireFrozenMatter`
+    /// (`FrozenImpact.minimumCost` or `.strongCost`).
+    public var frozenCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -54,6 +65,8 @@ public struct GeneratorConfig: Sendable, Hashable {
                 essenceCost: Int = EssenceImpact.minimumCost, hidden: Bool = false,
                 narrowNecks: Int = 0, funnels: Int = 0, taps: Int = 0, requireGlassMatter: Bool = false,
                 glassCost: Int = GlassImpact.minimumCost,
+                frozen: Int = 0, frozenMaxTurns: Int = 3, requireFrozenMatter: Bool = false,
+                frozenCost: Int = FrozenImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -74,6 +87,10 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.taps = taps
         self.requireGlassMatter = requireGlassMatter
         self.glassCost = glassCost
+        self.frozen = frozen
+        self.frozenMaxTurns = frozenMaxTurns
+        self.requireFrozenMatter = requireFrozenMatter
+        self.frozenCost = frozenCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -135,6 +152,16 @@ public enum Generator {
     ///    while necks are left. Placement reads only which flasks are empty, never colors,
     ///    so it tells nothing about murky layers. Fewer are placed only if the level has too
     ///    few candidates.
+    ///
+    /// Frozen layers (`frozen = F`, D1), drawn after step 6 from the same stream (nothing
+    /// is drawn when F is 0, so every older level is unchanged):
+    /// 7. The bottle indices are shuffled again. Walking that order over filled flasks that
+    ///    hold no ice yet and aren't funnels (one frozen layer per flask): the flask gets a
+    ///    frozen layer at a random index in its upper half (`count / 2 ..< count`: a frozen
+    ///    bottom layer pins nothing and almost never matters) with a thaw counter
+    ///    drawn from `(frozenMaxTurns + 1) / 2 ... frozenMaxTurns`. Placement reads only
+    ///    layer counts, never colors (murky levels give nothing away). Fewer are placed only
+    ///    if the level has too few filled flasks.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         var rng = SplitMix64(seed: seed)
         let capacity = config.capacity
@@ -186,7 +213,26 @@ public enum Generator {
         if config.essence > 0 { markEssence(&bottles, config: config, rng: &rng) }
         // 6. Glass modifiers.
         if config.narrowNecks > 0 || config.funnels > 0 || config.taps > 0 { markGlass(&bottles, config: config, rng: &rng) }
+        // 7. Frozen layers.
+        if config.frozen > 0 { markFrozen(&bottles, config: config, rng: &rng) }
         return GameState(bottles: bottles)
+    }
+
+    /// Step 7 of `candidate`.
+    static func markFrozen(_ bottles: inout [Bottle], config: GeneratorConfig, rng: inout SplitMix64) {
+        precondition(config.frozen <= Rules.maxFrozenLayers, "at most \(Rules.maxFrozenLayers) frozen layers")
+        precondition((1...Rules.maxThawTurns).contains(config.frozenMaxTurns), "frozenMaxTurns must be 1...\(Rules.maxThawTurns)")
+        var order = Array(bottles.indices)
+        rng.shuffle(&order)
+        let lowest = max(1, (config.frozenMaxTurns + 1) / 2)
+        var left = config.frozen
+        for i in order where left > 0 && !bottles[i].isEmpty && !bottles[i].isFunnel && !bottles[i].holdsIce {
+            let count = bottles[i].layers.count
+            let layer = count / 2 + rng.nextInt(below: count - count / 2)
+            let turns = lowest + rng.nextInt(below: config.frozenMaxTurns - lowest + 1)
+            bottles[i].modifiers.append(.frozen(layer: layer, turns: turns))
+            left -= 1
+        }
     }
 
     /// Step 6 of `candidate`.
@@ -247,11 +293,11 @@ public enum Generator {
     }
 
     /// Whether `bottle` holds content that is already sorted: solved and
-    /// non-empty, or would be once its lock is removed.
+    /// non-empty, or would be once its lock is removed or its ice thaws. Judged on the
+    /// layers alone (no other modifier keeps a flask from counting as solved).
     static func isPresolved(_ bottle: Bottle) -> Bool {
-        var unlocked = bottle
-        unlocked.lockedBy = nil
-        return !unlocked.isEmpty && unlocked.isSolved
+        let layersOnly = Bottle(layers: bottle.layers, capacity: bottle.capacity)
+        return !layersOnly.isEmpty && layersOnly.isSolved
     }
 
     /// Checks a candidate; returns its report if it passes every filter.
@@ -271,6 +317,9 @@ public enum Generator {
         if config.requireGlassMatter,
            !GlassImpact.everyGlassMatters(state, minMoves: moves.count, cost: config.glassCost,
                                           limits: config.solverLimits) { return nil }
+        if config.requireFrozenMatter,
+           !FrozenImpact.everyFrozenMatters(state, minMoves: moves.count, cost: config.frozenCost,
+                                            limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -511,6 +560,35 @@ public enum GlassImpact {
     /// Whether every narrow neck, funnel and tap matters (true for a level without one).
     public static func everyGlassMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
                                          limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+}
+
+/// Whether a frozen layer changes a level (the "must matter" check for D1): the
+/// `.modifier(_, .frozen)` case of `MechanicImpact`.
+///
+/// A frozen layer only takes moves away (it pins layers and shuts its flask for a while; the
+/// layers themselves are the same), and the level can't be won before it thaws, so the level
+/// without it is never longer: the check is how many moves the ice adds. Removing the
+/// instance means the layer starts thawed.
+public enum FrozenImpact {
+    /// Smallest cost that counts as "matters": one extra move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Cost required in the chapter 6 recipes: the ice forces a detour (or a wait) of at
+    /// least two moves, like a strong lock's detour (DECISIONS 104).
+    public static let strongCost = 2
+
+    /// The frozen-layer instances of `state` (one per frozen layer).
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        MechanicImpact.instances(in: state).filter {
+            if case .modifier(_, .frozen) = $0 { return true }
+            return false
+        }
+    }
+
+    /// Whether every frozen layer matters (true for a level without one).
+    public static func everyFrozenMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                          limits: SolverLimits = .default) -> Bool {
         instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
     }
 }

@@ -12,7 +12,9 @@
 /// The flags move *with* the layers, so a tap draining a flask from the bottom keeps
 /// the right layers hidden as the stack above slides down (DECISIONS 130 c, 148). The
 /// masks are stored with the undo history, so undo and restart restore them exactly,
-/// together with the full `GameState` (modifiers, seals and any counter).
+/// together with the full `GameState` (modifiers, seals and any counter, e.g. the thaw
+/// counters of frozen layers, D1: they live in the state's modifiers, so undo restores them
+/// and a thawed layer freezes again).
 public struct GameSession: Sendable {
     public let initialState: GameState
     public private(set) var state: GameState
@@ -25,6 +27,9 @@ public struct GameSession: Sendable {
     /// What the last applied move did (for the app's animation: which end of the source
     /// the layers left, how many, whether a key opened a seal). nil after undo or restart.
     public private(set) var lastPour: PourEvent?
+    /// The automatic effects of the last applied move (`Turn.events`, e.g. a layer that
+    /// thawed), for the app to animate after the pour lands. Empty after undo or restart.
+    public private(set) var lastEvents: [TurnEvent] = []
     private let initialHiddenMasks: [[Bool]]
     private var hiddenHistory: [[[Bool]]] = []
 
@@ -74,6 +79,7 @@ public struct GameSession: Sendable {
         hiddenHistory.append(hiddenMasks)
         state = turn.state
         lastPour = turn.pour
+        lastEvents = turn.events
         hiddenMasks = GameSession.masks(hiddenMasks, after: turn)
         return turn
     }
@@ -84,6 +90,7 @@ public struct GameSession: Sendable {
         state = previous
         hiddenMasks = masks
         lastPour = nil
+        lastEvents = []
         return true
     }
 
@@ -91,6 +98,7 @@ public struct GameSession: Sendable {
         state = initialState
         hiddenMasks = initialHiddenMasks
         lastPour = nil
+        lastEvents = []
         history.removeAll()
         hiddenHistory.removeAll()
     }

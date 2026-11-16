@@ -107,6 +107,9 @@ public struct StateKey: Hashable, Sendable {
         switch modifier {
         case .essence(let c): return modifier.tag << 56 | UInt64(truncatingIfNeeded: c.rawValue) & 0xFF_FFFF
         case .narrowNeck, .funnel, .tap: return modifier.tag << 56
+        case let .frozen(layer, turns):
+            return modifier.tag << 56 | (UInt64(truncatingIfNeeded: layer) & 0xFF_FFFF) << 24
+                | UInt64(truncatingIfNeeded: turns) & 0xFF_FFFF
         case .cauldron: return nil
         default: return words(for: modifier)[0]
         }

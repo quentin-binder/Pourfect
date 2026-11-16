@@ -43,6 +43,14 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     /// a funnel, so it must start empty or with one color only (its rune's, if it has one),
     /// and never with a key.
     case unsortableFunnel(bottle: Int)
+    /// A frozen layer (D1) names a layer index the flask doesn't have.
+    case frozenLayerOutOfRange(bottle: Int, layer: Int)
+    /// A thaw counter outside `1...Rules.maxThawTurns`.
+    case invalidThawTurns(bottle: Int, turns: Int)
+    /// More than one frozen modifier on the same layer of a flask.
+    case duplicateFrozenLayer(bottle: Int, layer: Int)
+    /// More than `Rules.maxFrozenLayers` frozen layers in the level.
+    case tooManyFrozenLayers(count: Int)
 
     public var description: String {
         switch self {
@@ -68,6 +76,10 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .sealedTap(b): return "tap flask \(b) is sealed, but a tap never receives its key"
         case let .funnelWithTap(b): return "flask \(b) has a funnel and a tap, so it can neither pour nor receive"
         case let .unsortableFunnel(b): return "funnel flask \(b) starts with layers it can never pour out (more than one color, a key, or not its rune's color)"
+        case let .frozenLayerOutOfRange(b, l): return "flask \(b) has a frozen layer \(l), but no such layer"
+        case let .invalidThawTurns(b, t): return "a frozen layer in flask \(b) thaws after \(t) moves (allowed: 1...\(Rules.maxThawTurns))"
+        case let .duplicateFrozenLayer(b, l): return "layer \(l) of flask \(b) is frozen more than once"
+        case let .tooManyFrozenLayers(n): return "\(n) frozen layers (at most \(Rules.maxFrozenLayers) per level)"
         }
     }
 }
@@ -81,7 +93,9 @@ extension GameState {
     /// Mechanics: at most one seal and one essence rune per flask, an essence rune names
     /// a color of the level, an essence flask doesn't start full of another color, a tap
     /// flask carries no seal and no funnel, a funnel flask starts empty or with one color
-    /// (its rune's, if any; no key), links connect two different existing bottles, and every
+    /// (its rune's, if any; no key), frozen layers (D1) name an existing layer, at most once
+    /// each, with a thaw counter in 1...`Rules.maxThawTurns`, and at most
+    /// `Rules.maxFrozenLayers` per level, links connect two different existing bottles, and every
     /// modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
@@ -143,6 +157,18 @@ extension GameState {
                 }
             }
         }
+        var frozenCount = 0
+        for (i, bottle) in bottles.enumerated() {
+            var frozenSeen = Set<Int>()
+            for modifier in bottle.modifiers {
+                guard case let .frozen(layer, turns) = modifier else { continue }
+                frozenCount += 1
+                if !bottle.layers.indices.contains(layer) { errors.append(.frozenLayerOutOfRange(bottle: i, layer: layer)) }
+                if !(1...Rules.maxThawTurns).contains(turns) { errors.append(.invalidThawTurns(bottle: i, turns: turns)) }
+                if !frozenSeen.insert(layer).inserted { errors.append(.duplicateFrozenLayer(bottle: i, layer: layer)) }
+            }
+        }
+        if frozenCount > Rules.maxFrozenLayers { errors.append(.tooManyFrozenLayers(count: frozenCount)) }
         for (color, n) in counts.sorted(by: { $0.key < $1.key }) {
             if color.rawValue < 0 { errors.append(.negativeColor(color)) }
             if color.rawValue > StateKey.maxColorID { errors.append(.colorOutOfRange(color)) }

@@ -24,8 +24,9 @@
 /// bottom, a cauldron recolors) must keep it valid too: when D1 is implemented together
 /// with them, the rule decides either that a frozen layer blocks them, or that the
 /// timed step re-indexes `.frozen` modifiers (DECISIONS 122, PLAN R5). A tap (C4) is the
-/// first implemented rule that removes layers from the bottom; frozen layers don't exist
-/// yet, so nothing needs re-indexing until D1 (DECISIONS 145).
+/// first implemented rule that removes layers from the bottom: D1 decided that a frozen
+/// layer blocks it (a tap can't pour while its flask holds ice, DECISIONS 159), so the
+/// index never needs re-indexing yet.
 public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// A1 sealed flask: can't be poured from or into, except by key `KeyID`,
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is
@@ -42,8 +43,10 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// C4 tap: pours from its bottom layer (the bottom run), never receives anything, not
     /// even a key. Implemented (chapter 5).
     case tap
-    /// D1 frozen layer: layer `layer` (0 = bottom) and everything below it can't move;
-    /// `turns` counts down after every move and the layer thaws at 0. (R5)
+    /// D1 frozen layer: layer `layer` (0 = bottom) and everything below it can't move,
+    /// nothing goes into the flask while it is the top layer, and a tap flask can't pour;
+    /// `turns` (1...`Rules.maxThawTurns`) counts down after every move and the layer thaws
+    /// at 0 (the modifier is removed). Implemented (chapter 6, Frost Peak).
     case frozen(layer: Int, turns: Int)
     /// D2 bubbling flask: every `every` moves the bottom layer rises to the top;
     /// `phase` counts moves since the last rise (0..<every). (R5)
@@ -56,8 +59,8 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// validation and the solver refuses them (`.unsupportedState`).
     public var isImplemented: Bool {
         switch self {
-        case .sealed, .essence, .narrowNeck, .funnel, .tap: return true
-        case .frozen, .bubbling, .cauldron: return false
+        case .sealed, .essence, .narrowNeck, .funnel, .tap, .frozen: return true
+        case .bubbling, .cauldron: return false
         }
     }
 

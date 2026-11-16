@@ -143,6 +143,45 @@ public struct Bottle: Hashable, Sendable, CustomStringConvertible {
         return true
     }
 
+    /// For the solver's pruning: `ok` is whether every modifier is static or a frozen layer
+    /// (D1), `frozen` whether the flask holds a frozen layer.
+    var staticOrFrozen: (ok: Bool, frozen: Bool) {
+        guard case .list(let list) = storage else { return (true, false) }
+        var frozen = false
+        for modifier in list {
+            if case .frozen = modifier { frozen = true } else if !modifier.isStatic { return (false, frozen) }
+        }
+        return (true, frozen)
+    }
+
+    /// D1: the frozen layers of this flask, bottom first (empty when it holds no ice).
+    /// For the app's ice overlay and counter.
+    public var frozenLayers: [FrozenLayer] {
+        guard case .list(let list) = storage else { return [] }
+        return list.compactMap { modifier in
+            if case let .frozen(layer, turns) = modifier { return FrozenLayer(layer: layer, turns: turns) }
+            return nil
+        }
+    }
+
+    /// D1: moves until layer `layer` (0 = bottom) thaws, or nil if it isn't frozen.
+    public func thawTurns(atLayer layer: Int) -> Int? {
+        frozenLayers.first { $0.layer == layer }?.turns
+    }
+
+    /// D1: whether the flask holds a frozen layer (the app's frost rim). Its frozen layers
+    /// and everything below them can't move, and a tap flask can't pour.
+    public var holdsIce: Bool {
+        guard case .list(let list) = storage else { return false }
+        return list.contains { if case .frozen = $0 { return true } else { return false } }
+    }
+
+    /// D1: whether the top layer is frozen: nothing can be poured into or out of the flask.
+    public var isIcedOver: Bool {
+        guard let top = layers.indices.last else { return false }
+        return thawTurns(atLayer: top) != nil
+    }
+
     /// Whether the flask carries `modifier` (e.g. `.narrowNeck`).
     @inline(__always)
     func has(_ modifier: BottleModifier) -> Bool {
@@ -261,7 +300,8 @@ extension BottleModifier {
     /// the glass modifiers (narrow neck, funnel, tap), which change how many layers move and
     /// from which end, but only as a function of the two bottles of the pour. The solver's
     /// pruning rules hold for flasks that carry only these (`Solver.candidateMoves`,
-    /// DECISIONS 133, 147), using the actual plan amount.
+    /// DECISIONS 133, 147), using the actual plan amount. A frozen layer is not static (its
+    /// counter ticks every move); the solver keeps only rule 3 while one exists (DECISIONS 160).
     var isStatic: Bool {
         switch self {
         case .sealed, .essence, .narrowNeck, .funnel, .tap: return true
@@ -301,6 +341,17 @@ extension Bottle: Codable {
             if case .sealed(let k) = m, lock == nil { lock = k } else { others.append(m) }
         }
         return (lock, others)
+    }
+}
+
+/// D1: one frozen layer of a flask (`Bottle.frozenLayers`): its index (0 = bottom) and the
+/// moves left until it thaws (1 = it thaws after the next move).
+public struct FrozenLayer: Hashable, Sendable {
+    public var layer: Int
+    public var turns: Int
+    public init(layer: Int, turns: Int) {
+        self.layer = layer
+        self.turns = turns
     }
 }
 

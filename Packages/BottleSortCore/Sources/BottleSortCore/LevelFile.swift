@@ -100,6 +100,9 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     public static let funnel: Mechanic = "funnel"
     /// Tap flasks: pour from the bottom, never receive (`BottleModifier.tap`; chapter 5).
     public static let tap: Mechanic = "tap"
+    /// Frozen layers: a layer and everything below it can't move until it thaws after a
+    /// few moves (`BottleModifier.frozen`; chapter 6).
+    public static let frozen: Mechanic = "frozen"
 
     public var description: String { rawValue }
 }
@@ -141,7 +144,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var isHidden: Bool { hidden ?? false }
 
     /// The mechanics this level actually uses, in chapter order (sealed, murky, essence,
-    /// narrow neck, funnel, tap),
+    /// narrow neck, funnel, tap, frozen),
     /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
     public var mechanics: [Mechanic] {
         let all = bottles.flatMap(\.allModifiers)
@@ -152,6 +155,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
         if all.contains(.narrowNeck) { result.append(.narrowNeck) }
         if all.contains(.funnel) { result.append(.funnel) }
         if all.contains(.tap) { result.append(.tap) }
+        if all.contains(where: { if case .frozen = $0 { return true } else { return false } }) { result.append(.frozen) }
         return result
     }
 

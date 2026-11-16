@@ -134,10 +134,22 @@ public struct Solver: Sendable {
     /// empty targets are ever skipped, and a key can't go into those, so no key move is
     /// pruned. For classic and sealed states (all unsealed flasks plain) these are exactly
     /// the rules from before essence flasks existed.
+    ///
+    /// Frozen layers (D1): their counters tick after *every* move, so a relocation (rule 2,
+    /// and rule 1, its shortcut) is no longer a no-op while ice remains: it is a "wait" move
+    /// that lets ice thaw, and a solution may need it. Both are off in a state with a
+    /// frozen layer. Rule 3 stays: pouring into either of two empty flasks alike gives
+    /// states that differ only by a bottle permutation, before and after the thaw step
+    /// (an empty flask never holds ice: a frozen layer never moves, so its flask never
+    /// empties). Once the last layer thaws, every rule applies again (DECISIONS 160).
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
-        guard state.isBottlesOnly, bottles.allSatisfy(\.hasOnlyStaticModifiers) else {
-            return state.legalMoves()
+        guard state.isBottlesOnly else { return state.legalMoves() }
+        var icy = false
+        for bottle in bottles {
+            let kind = bottle.staticOrFrozen
+            guard kind.ok else { return state.legalMoves() }
+            if kind.frozen { icy = true }
         }
         // The first plain empty flask; flasks with other modifiers are rare and are
         // compared one by one (`isFirstEmptyAlike`).
@@ -152,9 +164,9 @@ public struct Solver: Sendable {
             let source = bottles[from]
             if source.isEmpty { continue }
             // Rule 1.
-            if source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
+            if !icy && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
             // Rule 2 (a plain source moves its whole top run into an empty plain flask).
-            let movesWhole = Rules.movableRunCount(source) == source.layers.count
+            let movesWhole = !icy && Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
                 var alikeEmpty = false
@@ -163,7 +175,7 @@ public struct Solver: Sendable {
                         if to != firstPlainEmpty || (movesWhole && source.isPlain) { continue }  // rules 3, 2
                     } else if !target.isSealed {
                         if !isFirstEmptyAlike(to) { continue }  // rule 3
-                        alikeEmpty = target.storage == source.storage
+                        alikeEmpty = !icy && target.storage == source.storage
                     }
                 }
                 // `Rules.actionPlan` without its index checks: in a state of bottles only it
