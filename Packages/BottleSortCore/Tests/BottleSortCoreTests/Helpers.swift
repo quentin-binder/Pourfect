@@ -1,3 +1,4 @@
+import Foundation
 @testable import BottleSortCore
 
 func state(_ bottles: [[Int]], capacity: Int = 4) -> GameState {
@@ -25,3 +26,7 @@ func referenceMinMoves(_ start: GameState) -> Int? {
     }
     return nil
 }
+
+/// Slow tests (long performance runs) are opt-in: `LP_SLOW_TESTS=1 swift test`.
+/// The default `swift test` stays fast for development; run the slow ones before a release.
+let slowTestsEnabled = ProcessInfo.processInfo.environment["LP_SLOW_TESTS"] == "1"

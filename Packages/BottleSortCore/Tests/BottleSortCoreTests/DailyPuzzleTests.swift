@@ -101,7 +101,8 @@ struct DailyPuzzleTests {
     }
 
     /// 60 consecutive days in a debug build (loose bound; release numbers are in DECISIONS).
-    @Test func sixtyDaysPerformance() throws {
+    /// Slow (~100 s): runs only with LP_SLOW_TESTS=1 (see README).
+    @Test(.enabled(if: slowTestsEnabled)) func sixtyDaysPerformance() throws {
         var date = day(2026, 11, 15)
         var worst = Duration.zero
         var total = Duration.zero

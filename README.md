@@ -263,11 +263,16 @@ On the Mac, if a killed debug run left no window to restore, add `-ApplePersiste
 ## Run the tests
 
 ```sh
-cd Packages/BottleSortCore
-swift test
+scripts/test-fast.sh                     # optimized build, the suite runs in ~2-3 s (plus ~15-50 s to compile)
+scripts/test-fast.sh --filter Cauldron   # only matching tests
+cd Packages/BottleSortCore && swift test # debug build, ~80 s — run once before committing
+LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 days of Daily generation)
 ```
 
-This runs 347 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
+The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
+
+This runs 422 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
