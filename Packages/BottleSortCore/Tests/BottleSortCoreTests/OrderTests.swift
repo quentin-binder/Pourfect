@@ -446,4 +446,27 @@ private func pattern(_ bottle: Int, _ values: [Int]) -> GoalTarget {
         #expect(ChapterGate.unlockedChapters(recipeIDs: [standard + orders, ["b1"]], bonus: Set(orders)) {
             ["a1": 3, "o1": 3][$0] ?? 0 } == [true, true])
     }
+
+    /// `LevelPack.progress(stars:)` agrees with `unlockedChapters(recipeIDs:bonus:)` on a shipped chapter.
+    @Test func packProgressTreatsOrdersAsBonus() throws {
+        let pack = try LevelFileTests.loadAll("chapter_02")
+        let standard = pack.levels.filter { !$0.isCustomerOrder }.map(\.id)
+        let orders = pack.levels.filter(\.isCustomerOrder).map(\.id)
+        #expect(orders.count == 3)
+        #expect(pack.gateMaxStars == 3 * standard.count && pack.maxStars == 3 * pack.levels.count)
+        let need = ChapterGate.requiredStars(maxStars: 3 * standard.count)
+        // Just enough stars from standard recipes alone (3 each, then the remainder).
+        var stars: [String: Int] = [:]
+        var left = need
+        for id in standard where left > 0 { stars[id] = min(3, left); left -= stars[id]! }
+        let progress = pack.progress { stars[$0] }
+        #expect(progress.gateMaxStars == pack.gateMaxStars)
+        #expect(progress.opensNextChapter && progress.starsToOpenNext == 0)
+        let gate = ChapterGate.unlockedChapters(recipeIDs: [pack.levels.map(\.id), ["next"]], bonus: Set(orders)) { stars[$0] ?? 0 }
+        #expect(gate == [true, true])
+        // One star short: both say closed, one star missing.
+        stars[standard[0]]! -= 1
+        let short = pack.progress { stars[$0] }
+        #expect(!short.opensNextChapter && short.starsToOpenNext == 1)
+    }
 }

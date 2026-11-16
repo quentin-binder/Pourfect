@@ -54,10 +54,16 @@ public struct LevelPack: Codable, Sendable, Hashable {
     /// Most stars a player can earn in this pack (3 per level).
     public var maxStars: Int { ChapterGate.maxStars(recipeCount: levels.count) }
 
+    /// Stars the chapter gate counts half of: customer orders (R7) are bonus recipes that add
+    /// stars but never raise the gate (DECISIONS 233).
+    public var gateMaxStars: Int { ChapterGate.maxStars(recipeCount: levels.filter { !$0.isCustomerOrder }.count) }
+
     /// Stars earned in this pack; `stars(levelID)` returns the best stars for a level (nil = not cleared).
+    /// Customer orders count as bonus recipes, as in `ChapterGate.unlockedChapters(recipeIDs:bonus:stars:)`.
     public func progress(stars: (String) -> Int?) -> ChapterProgress {
         ChapterProgress(stars: levels.reduce(0) { $0 + ChapterGate.clampedStars(stars($1.id)) },
-                        recipeCount: levels.count)
+                        recipeCount: levels.count,
+                        bonusRecipeCount: levels.filter(\.isCustomerOrder).count)
     }
 }
 
