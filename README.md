@@ -23,7 +23,7 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_06` | 6 Frost Peak | `c6_001…` | 30 | 7–27 | 18–50 | Frozen layers: a tutorial (two empty flasks), then one layer (one empty flask), then two; at the end with murky layers, a rune or a seal |
 | `chapter_07` | 7 Bubbling Bog | `c7_001…` | 30 | 4–25 | 15–52 | Bubbling flasks: one, then two (4 colors); at the end with murky layers and seals |
 | `chapter_08` | 8 Twin Towers | `c8_001…` | 32 | 8–25 | 20–56 | Twin flasks (every one needs a split), then overflow pipes (6 colors, size 3), then murky layers, seals and 7 colors; the last two recipes have both links |
-| `chapter_09` | 9 Alchemist's Hall | `c9_001…` | 30 | 4–19 | 15–52 | Mixing cauldron: one recipe with ingredients that must all be brewed, then ingredients that are potions of their own (exactly one pair to brew), then two recipes; at the end murky layers, a seal and 8 colors. Built backwards from a solved board |
+| `chapter_09` | 9 Alchemist's Hall | `c9_001…` | 30 | 4–19 | 15–52 | Mixing cauldron: one recipe with ingredients that must all be brewed, then ingredients that are potions of their own (one pair to brew for the shortest win), then two recipes; at the end murky layers, a seal and 8 colors. Built backwards from a solved board |
 
 Chapter 10 (Dragon's Hoard, `ChapterOutline.plan`) shows as "coming soon".
 Optional **Challenges** (never gated):
@@ -364,7 +364,7 @@ swift run -c release levelgen --colors 4 --empty 2 --twins 1 --link-placement fi
 # Mixing cauldron: --cauldron R adds one cauldron with R (1–2) natural recipes (red + blue → purple, …) and builds
 # the level BACKWARDS from a solved board: --scramble STEPS reverse moves (verified forward pours), --mix-pairs N
 # un-mixed pairs per recipe; --ingredients fresh (the ingredients are extra colors that must all be brewed away) or
-# sorted (they are potions of their own: exactly N pairs to brew). --mixing-matter rejects levels that could be won
+# sorted (they are potions of their own: the shortest win brews exactly N pairs). --mixing-matter rejects levels that could be won
 # without mixing (CauldronImpact); --teaches-mixing keeps tutorial-friendly ones (empty cauldron, no parked flask,
 # no dead-end first move). --locks N seals flasks after the walk, --hidden makes it murky
 swift run -c release levelgen --colors 4 --empty 1 --cauldron 1 --mix-pairs 2 --scramble 80 --mixing-matter --count 5 --seed 1 --out brew.json
