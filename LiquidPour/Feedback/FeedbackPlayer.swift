@@ -24,6 +24,17 @@ enum FeedbackPlayer {
                 }
             }
             if haptics { Haptics.illegal() }
+        case .refusedLink:
+            if sound { engine.play(.chainRattle) }
+            if haptics { Haptics.illegal() }
+        case .split:
+            // The chain chimes softly as the stream forks between the twins.
+            if sound { engine.play(.chainRattle, after: reduceMotion ? 0 : PourPose.flowStart, volume: 0.45) }
+        case .overflow(_, let start):
+            // The rest runs through the pipe once the full flask's share has gone in.
+            let delay = reduceMotion ? 0.05 : PourPose.flowStart + start * (PourPose.flowEnd - PourPose.flowStart)
+            if sound { engine.play(.pipeGlug, after: delay) }
+            if haptics { delayed(delay + 0.25) { Haptics.overflow() } }
         case .pour(_, _, let amount, let isKey, let fromBottom):
             // Liquid starts moving at `flowStart` (immediately with reduce motion).
             let flowStart = reduceMotion ? 0 : PourPose.flowStart

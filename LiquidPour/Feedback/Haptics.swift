@@ -66,6 +66,17 @@ enum Haptics {
         #endif
     }
 
+    /// Two soft, low taps: the overflow ran through the pipe and dropped into the far flask.
+    static func overflow() {
+        #if os(iOS)
+        soft.impactOccurred(intensity: 0.45)
+        Task {
+            try? await Task.sleep(for: .milliseconds(160))
+            soft.impactOccurred(intensity: 0.3)
+        }
+        #endif
+    }
+
     /// Light impact: the tap did nothing.
     static func illegal() {
         #if os(iOS)

@@ -37,6 +37,11 @@ final class SoundEngine {
         /// A bubbling flask bubbling up: small bubbles quickening and rising in pitch, then a
         /// round "bloop" as the bottom layer reaches the top.
         case bubbleUp
+        /// Silver chain links jingling: a twin chain refuses a pour (softly: a pour splits
+        /// between twins).
+        case chainRattle
+        /// A hollow glug running through a tube: what didn't fit runs on through an overflow pipe.
+        case pipeGlug
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -284,6 +289,8 @@ nonisolated enum SoundSynthesis {
         }
         out.sounds[.thaw] = renderThaw(rng: &rng)
         out.sounds[.bubbleUp] = renderBubbleUp(rng: &rng)
+        out.sounds[.chainRattle] = renderChainRattle(rng: &rng)
+        out.sounds[.pipeGlug] = renderPipeGlug(rng: &rng)
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in
             let notes = [523.25, 659.25, 783.99, 1046.50]
@@ -414,6 +421,55 @@ nonisolated enum SoundSynthesis {
         blip(RisePose.arrival + 0.06, 520, 0.03, 6, 0.4, &samples)
         for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
         return normalized(samples, peak: 0.16)
+    }
+
+    /// Twin chain (F1): six small metal links knocking together, quick and uneven, each a short
+    /// high inharmonic ping with a tick of noise, softening as the chain settles.
+    private static func renderChainRattle(rng: inout NoiseGenerator) -> [Float] {
+        let duration = 0.45
+        let count = Int(duration * sampleRate)
+        var samples = [Double](repeating: 0, count: count)
+        var time = 0.005
+        for k in 0..<6 {
+            let f0 = 2900 + rng.unit() * 1300
+            let amp = 1.0 - Double(k) * 0.13
+            let first = Int(time * sampleRate)
+            for j in 0..<Int(0.12 * sampleRate) where first + j < count {
+                let t = Double(j) / sampleRate
+                let ping = sin(2 * .pi * f0 * t) + 0.55 * sin(2 * .pi * f0 * 1.47 * t) * exp(-t * 30)
+                    + 0.3 * sin(2 * .pi * f0 * 2.09 * t) * exp(-t * 45)
+                let tick = t < 0.002 ? (rng.unit() * 2 - 1) * 0.8 : 0
+                samples[first + j] += amp * (ping * exp(-t * 38) + tick)
+            }
+            time += 0.035 + rng.unit() * 0.03
+        }
+        for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
+        return normalized(samples, peak: 0.11)
+    }
+
+    /// Overflow pipe (F2), timed on the pour's pipe flow: a soft rush of liquid in a tube (low
+    /// passed noise swelling and fading) with three hollow glugs (low sines gliding up, slow decay)
+    /// as the potion runs through and drops into the far flask.
+    private static func renderPipeGlug(rng: inout NoiseGenerator) -> [Float] {
+        let duration = 0.62
+        let count = Int(duration * sampleRate)
+        var samples = Self.lowpassedNoise(count: count, cutoff: 380, rng: &rng).enumerated().map { i, v in
+            let t = Double(i) / sampleRate
+            return v * 0.35 * sin(.pi * min(1, t / duration))
+        }
+        for (k, start) in [0.04, 0.2, 0.38].enumerated() {
+            let f0 = 170 + Double(k) * 45 + rng.unit() * 20
+            let first = Int(start * sampleRate)
+            var phase = 0.0
+            for j in 0..<Int(0.2 * sampleRate) where first + j < count {
+                let t = Double(j) / sampleRate
+                phase += 2 * .pi * f0 * (1 + 2.2 * t) / sampleRate
+                let tone = sin(phase) + 0.35 * sin(2 * phase) * exp(-t * 25)
+                samples[first + j] += (0.9 - 0.15 * Double(k)) * tone * exp(-t * 16) * min(1, t / 0.004)
+            }
+        }
+        for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
+        return normalized(samples, peak: 0.15)
     }
 
     /// Bubbles: short decaying sines with a rising pitch (like air entering a bottle), at random
