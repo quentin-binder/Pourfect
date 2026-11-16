@@ -421,7 +421,7 @@ let packPresets: [String: PackPreset] = [
         // Two seals.
         Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 2, moves: 19...99, score: 45...51, locksMatter: true, strongLocks: true, section: 2),
         Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 2, moves: 21...99, score: 50...58, locksMatter: true, strongLocks: true, section: 2),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): two orders with a strong seal, after a tiny tutorial order (3 colors in size-3 flasks, the easiest of 8).
         Tier(count: 1, colors: 3, capacity: 3, empty: 2, moves: any, pool: 8, keepEasiest: true, orders: 1,
              orderCost: OrderImpact.minimumCost, appended: true, section: 90),
@@ -445,7 +445,7 @@ let packPresets: [String: PackPreset] = [
              locksMatter: true, strongLocks: true, section: 2),
         Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 1, hidden: true, moves: 20...99, score: 49...57,
              locksMatter: true, strongLocks: true, section: 2),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): murky orders; the last one a partial order of two flasks.
         Tier(count: 1, colors: 4, capacity: 4, empty: 2, hidden: true, moves: any, score: 28...36, orders: 1,
              orderCost: OrderImpact.strongCost, appended: true, section: 90),
@@ -481,7 +481,7 @@ let packPresets: [String: PackPreset] = [
              strongLocks: true, essence: 1, essenceCost: EssenceImpact.strongCost, section: 2),
         Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, hidden: true, moves: any, score: 48...57,
              locksMatter: true, strongLocks: true, essence: 1, essenceCost: EssenceImpact.strongCost, section: 2),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): two orders beside a rune, then the first layered recipe.
         Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 28...36, essence: 1,
              essenceCost: EssenceImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
@@ -528,7 +528,7 @@ let packPresets: [String: PackPreset] = [
              essenceCost: EssenceImpact.minimumCost, tap: 1, glassCost: GlassImpact.strongCost, section: 4),
         Tier(count: 1, colors: 7, capacity: 4, empty: 2, moves: any, score: 51...58, narrow: 1, funnel: 1, tap: 1,
              glassCost: GlassImpact.strongCost, section: 4),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): a narrow neck, a tap, and a layered recipe beside a tap.
         Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 34...42, narrow: 1,
              glassCost: GlassImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
@@ -574,7 +574,7 @@ let packPresets: [String: PackPreset] = [
              section: 2),
         Tier(count: 3, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...58, locksMatter: true,
              strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): one and two frozen layers, then a layered recipe with ice.
         Tier(count: 1, colors: 4, capacity: 4, empty: 1, moves: any, score: 30...38, frozen: 1, frozenTurns: 5,
              frozenCost: FrozenImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
@@ -617,7 +617,7 @@ let packPresets: [String: PackPreset] = [
              bubblingCost: BubblingImpact.strongCost, section: 2),
         Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...56, locksMatter: true,
              strongLocks: true, bubbling: 1, bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): a bubbling flask (periods 3 and 4), then a layered recipe beside one.
         Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 30...37, bubbling: 1, bubblingPeriod: 3,
              bubblingCost: BubblingImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
@@ -682,7 +682,7 @@ let packPresets: [String: PackPreset] = [
         // …and 5 colors.
         Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 34...42, overflow: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, section: 2),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): twins that must split, a pressure pipe that must push, then a layered recipe fed through a pipe.
         Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 29...36, twins: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, needsSplit: true, orders: 1, orderCost: OrderImpact.strongCost,
@@ -728,7 +728,7 @@ let packPresets: [String: PackPreset] = [
              strongLocks: true, cauldron: 1, mixPairs: 2, scramble: 250, mixingMatter: true, section: 4),
         Tier(count: 2, colors: 8, capacity: 4, empty: 1, moves: any, score: 50...58, cauldron: 2, ingredients: .sorted,
              mixPairs: 1, scramble: 600, mixingMatter: true, section: 4),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): the customer wants the brew itself (the order takes a recipe's result); a layered recipe can't share a level with a cauldron (DECISIONS 229), so the third is layered behind a strong seal.
         Tier(count: 1, colors: 4, capacity: 4, empty: 1, moves: any, score: 28...36, cauldron: 1, ingredients: .fresh,
              mixPairs: 2, scramble: 60, mixingMatter: true, orders: 1, orderCost: OrderImpact.strongCost,
@@ -805,7 +805,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 1, colors: 6, capacity: 4, empty: 1, moves: any, pool: 2, score: 43...52, cauldron: 2, mixPairs: 2,
              scramble: 300, mixingMatter: true, switches: 1, switchPlacement: .closed,
              switchCost: SwitchImpact.strongCost, section: 5),
-        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // R7 customer orders (DECISIONS 229-235), appended after every earlier section so the recipes
         // above keep their ids and content (`--append`): behind a closed gate, twice, then a layered recipe beside a switch.
         Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 28...36, switches: 1,
              switchPlacement: .closed, switchCost: SwitchImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost,

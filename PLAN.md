@@ -219,8 +219,9 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - Not covered in R6: VoiceOver not listened to on a device
 
 ## R7 — Orders & story (Milestone 6)
-- [ ] `Goal` variants in core + solver: order (specific flask = specific color), partial order, layered recipe (exact pattern), rescue (free all seals within N moves)
-- [ ] Customer-order levels with villager cards; generator per goal type
+- [x] `Goal` variants in core + solver: order (specific flask = specific color), partial order (an order on some flasks), layered recipe (exact pattern; the rest of each potion gathered in one flask); goal-aware win check, solver pruning and keys, JSON, validation (DECISIONS 229–231)
+- [ ] Rescue (free all seals within N moves): dropped (user)
+- [x] Customer-order levels with villager cards: 27 order recipes appended to chapters 2–10 (3 each, a tutorial order first in chapter 2, a layered recipe third from chapter 4; bonus recipes for the gate), generator `--order` / `--layered` with a must-matter check, `levelgen --append`; order card with the villager portrait, tickets on the ordered flasks, tick with a shop bell, tips, VoiceOver (DECISIONS 232–235)
 - [ ] Short dialogue between chapters (apprentice + old alchemist)
 - [ ] Cosmetic rewards: workbench themes, flask shapes, potion effects
 

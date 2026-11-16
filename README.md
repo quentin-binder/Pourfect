@@ -26,7 +26,12 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_09` | 9 Alchemist's Hall | `c9_001…` | 30 | 4–19 | 15–52 | Mixing cauldron: one recipe with ingredients that must all be brewed, then ingredients that are potions of their own (one pair to brew for the shortest win), then two recipes; at the end murky layers, a seal and 8 colors. Built backwards from a solved board |
 | `chapter_10` | 10 Dragon's Hoard | `c10_001…` | 32 | 6–32 | 14–63 | Switch flasks and gates: one switch (gate full of potion, empty gate, empty switch), then two; then one earlier mechanic each (murky, seal, rune, narrow neck, ice, bubbling, twins); the finale 26–30 (8–9 colors, 58–63) is the hardest of the main path; 31–32 (41, 50) add a mixing cauldron to a switch (appended after the finale so 1–30 keep their ids) |
 
-All ten chapters of `ChapterOutline.plan` ship.
+All ten chapters of `ChapterOutline.plan` ship. **Customer orders (R7)**: chapters 2–10 each end with three order
+recipes, appended after the chapter's own recipes (ids `c2_031…033`, …, `c8_033…035`, `c9_031…033`, `c10_033…035`;
+earlier ids and content unchanged). A villager orders a flask full of one potion (chapter 3's last one orders two),
+using the chapter's own mechanic lightly; chapter 2's first is a tiny tutorial order, and from chapter 4 the third is a
+layered recipe (an exact pattern, bottom to top). Order recipes are *bonus recipes*: their stars count towards the
+next chapter's gate, but they don't raise it (the gate stays half the stars of the chapter's own recipes).
 Optional **Challenges** (never gated):
 
 | File | Pack | Ids | Levels | Moves | Score | What makes it hard |
@@ -239,6 +244,17 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   or a mix on its switch waits for that to play. Picking up a shut gate, or pouring into one, shakes it, rattles the
   bars and says "The gate is shut. Fill flask N with one potion to open it." VoiceOver names each switch and gate and
   announces gates opening and shutting.
+- **Customer orders** (R7, the last three recipes of chapters 2–10). A villager card above the board shows the
+  customer (one of six portraits, always the same one for a recipe), what they want ("Mira needs a flask of Dragon's
+  Blood") and the wanted potion drops with their runes. The ordered flask carries a paper ticket in that potion's color;
+  the recipe is won when every ordered flask holds its order (no seal or ice on it) and every other flask is sorted as
+  usual, so a finished flask of the right potion may still have to move into the ordered flask. A **layered recipe**
+  (from chapter 4) asks for an exact pattern, bottom to top, drawn as stacked chips on the ticket; its flask can only
+  keep a bottom part of what it holds and top it up, and the rest of each potion must be gathered in one flask (a
+  partly used potion ends partly filling one flask). When a pour lands that fills an order, its tick pops in on the
+  ticket and the card with a shop bell (Reduce Motion: no bounce); undo takes it off again. VoiceOver reads "order
+  flask, wanted: 4 layers of Dragon's Blood" and "order filled". Tips explain orders and layered recipes the first
+  time they appear ("?" reopens them).
 
 ### Random Brew (random levels)
 
@@ -332,7 +348,7 @@ LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 d
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-This runs 476 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 500 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -390,6 +406,13 @@ nothing), the Rush clock (bonus, penalty, end), the best-score record, the unloc
 (deterministic, difficulty only rises, no mechanic twice in a row, every unlocked one within a round) and every
 recipe of a run valid and solvable in its stored minimum with its mechanic; the slow suite generates 300 Rush
 recipes and checks each takes under 2 s (worst ≈ 0.3 s in release).
+Customer orders (`OrderTests.swift`): every order and layered-recipe win case (wrong flask, seal or ice on the
+target, unsorted rest, split remainder, keys), partial orders, sessions and turns through the goal, the solver against
+the naive BFS on random small order and layered levels with every mechanic, pruning that keeps every distinct child (a
+finished flask still moves into the flask that ordered it, an ordered twin), permutation-invariant keys that tell the
+marks apart, JSON, validation, generator placement, determinism and must-matter, the bonus-recipe gate, and the 27
+shipped order recipes (appended last, valid, not met at the start, solving in their recorded minimum, the goal
+mattering; chapter 2's first a tiny tutorial; layered from chapter 4).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -460,6 +483,17 @@ swift run -c release levelgen --colors 5 --empty 2 --overflow 1 --link-placement
 # closed with potion, every star without a pure wait, no dead-end first move)
 swift run -c release levelgen --colors 5 --empty 2 --switch 1 --switch-placement closed --switch-cost 2 --count 5 --seed 1 --out hoard.json
 
+# Customer orders (R7): --order N marks N flasks (no tap, no cauldron) that must end full of one potion (with a
+# cauldron, its brew); --layered N marks flasks that must end with an exact pattern (a bottom part of the flask topped
+# up with its last color: a pour only lands on its own color); --order-cost C rejects levels whose order adds fewer
+# than C moves to the optimum (OrderImpact; --order-matter = cost 1, the chapters use 2 after the tutorial)
+swift run -c release levelgen --colors 5 --empty 2 --order 1 --order-cost 2 --count 5 --seed 1 --out orders.json
+swift run -c release levelgen --colors 3 --empty 2 --layered 1 --count 5 --seed 1 --out layered.json
+
+# Regenerate only the order recipes appended to a chapter, keeping its other recipes byte for byte (the order tiers
+# sit in their own last sections, so this equals a full regeneration)
+swift run -c release levelgen --preset chapter2 --append --out ../../Levels/chapter_02.json
+
 # Re-solve every level of every file and print difficulty tables, sorted by score, plus the
 # score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice, bubbling, twins, pipe, cauldron, switch) that doesn't matter
 swift run -c release levelgen --report ../../Levels
@@ -498,15 +532,18 @@ Every lock needs exactly one matching key and vice versa; the loader rejects fil
 
 **Format version 2** adds flask `modifiers` (`[{"type": "essence", "color": 3}, {"type": "narrowNeck"}, …]`; the
 seal stays `lockedBy`), level `links` (`{"type": "twins", "between": [0, 4]}`, `{"type": "overflow", "from": 1,
-"to": 2}`, `{"type": "switchGate", "switch": 3, "gate": 5}`) and a `goal` (`{"type": "order", "targets": […]}`, …).
-`levelgen` and `LevelLoader.encode` write version 2 only when a level uses one of these, so chapters 1–3 and the
-challenges stay version 1 and `chapter_04` (essence runes), `chapter_05` (`{"type": "narrowNeck"}`,
+"to": 2}`, `{"type": "switchGate", "switch": 3, "gate": 5}`) and a `goal` (`{"type": "order", "targets": [{"bottle":
+2, "layers": [5, 5, 5, 5]}]}`, `{"type": "pattern", "targets": [{"bottle": 0, "layers": [0, 2, 2, 2]}]}`; layers
+bottom → top, exactly the flask's capacity). `levelgen` and `LevelLoader.encode` write version 2 only when a level uses
+one of these, so chapter 1 and the challenges stay version 1; chapters 2 and 3 became version 2 with their order
+recipes (R7), and `chapter_04` (essence runes), `chapter_05` (`{"type": "narrowNeck"}`,
 `{"type": "funnel"}`, `{"type": "tap"}`) and `chapter_06` (`{"type": "frozen", "layer": 2, "turns": 5}`, layer 0 =
 bottom), `chapter_07` (`{"type": "bubbling", "every": 3, "phase": 1}`, phase 0 when omitted) and `chapter_08`
 (`links`: twins and pressure pipes), `chapter_09` (`{"type": "cauldron", "recipes": [{"a": 0, "b": 1, "result": 4}]}`,
 recipes stored sorted) and `chapter_10` (`links`: `{"type": "switchGate", "switch": 1, "gate": 0}`) are version 2.
-Essence, glass, frozen layers, bubbling flasks, twins, pressure pipes, cauldrons and switches are playable; the other
-R5/R7 mechanics are defined but not yet: such levels decode, but fail validation.
+Essence, glass, frozen layers, bubbling flasks, twins, pressure pipes, cauldrons, switches, orders and layered recipes
+are playable; the other R5 mechanics and the dropped rescue goal are defined but not playable: such levels decode, but
+fail validation.
 
 To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
 
@@ -516,6 +553,12 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   of MECHANICS.md §4 (immediate effects such as unsealing, move counter, timed effects, goal check). A pour runs
   through one modifier pipeline (`Rules.apply`, a switch where each flask modifier can veto or change it) and then the
   base rule (a color run moves, or a key opens its seal). The game, the solver and the generator all go through it.
+- **Customer orders** (R7, `Goal.order` / `Goal.pattern`, rules in `Rules.isMet`): an order flask must end full of
+  its potion, the rest standard; a layered-recipe flask must end with its exact layers, every other flask holds one
+  potion or nothing, and the rest of each potion is gathered in one flask. Target flasks are marked by index (they
+  follow shuffles), `StateKey` writes them as canonical ranks, and the solver treats a marked flask like a linked one
+  in its pruning (a finished flask may still have to move into the flask that ordered it). `OrderImpact` checks that
+  an order changes optimal play (2+ extra moves in the chapters); a layered recipe always does.
 - **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`,
   `.tap`, `.frozen(layer:turns:)`, `.bubbling(every:phase:)` and `.cauldron([Recipe])` are implemented), the level has `links`
   (twins, pressure pipes and switch → gate implemented) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
@@ -608,6 +651,8 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 - No full accessibility pass beyond labels and VoiceOver flask contents (color runes are available in Settings).
 - The difficulty score's weights are hand-picked and haven't been calibrated with playtest data.
 - The solver's packed state key supports capacity ≤ 9, color ids 0–46 and key ids 0–15.
+- Layered recipes score high (42–53) for their length (8–10 moves): most positions are dead ends once the
+  pattern's bottom is poured away, and the score weighs dead ends heavily.
 - The app has no UI tests. Gameplay was checked with screenshots taken via the debug launch arguments.
 
 ## Next steps
