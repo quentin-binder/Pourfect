@@ -139,6 +139,16 @@ struct RushTests {
         #expect(a == b)
     }
 
+    /// Regression: the relaxed phase keeps the spec's lower bound, so a late recipe is never
+    /// shorter than earlier ones (frozen run 32, recipe 17 used to come out at 12 moves).
+    @Test func relaxedPhaseKeepsTheRamp() throws {
+        let rush = try RushPlan.level(index: 16, seed: 32, mechanics: [.frozen])
+        #expect(rush.phase == .relaxed)
+        try check(rush)
+        let minMoves = try #require(rush.level.meta?.minMoves)
+        #expect(minMoves >= 14)
+    }
+
     func check(_ rush: RushLevel) throws {
         let level = rush.level
         let state = level.gameState
@@ -147,6 +157,8 @@ struct RushTests {
         let minMoves = try #require(level.meta?.minMoves)
         #expect((4...RushPlan.relaxedMaxMoves).contains(minMoves))
         if rush.phase == .spec { #expect(rush.spec.minMoves.contains(minMoves)) }
+        // Never easier than the spec asked for, even when relaxed.
+        #expect(minMoves >= rush.spec.minMoves.lowerBound)
         guard case .solved(let moves, _) = Solver().solve(state, limits: RushPlan.solverLimits) else {
             Issue.record("rush \(level.id) unsolved"); return
         }

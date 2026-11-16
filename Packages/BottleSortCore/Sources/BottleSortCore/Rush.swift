@@ -119,7 +119,8 @@ public struct RushSpec: Sendable, Hashable {
 public enum RushGenerationPhase: Int, Sendable, Hashable {
     /// The spec with its window.
     case spec = 1
-    /// The spec without the window (optimal length up to `RushPlan.relaxedMaxMoves`).
+    /// The spec with a wider window: from the spec's lower bound up to `RushPlan.relaxedMaxMoves`,
+    /// so a relaxed recipe is never easier than the spec asked for and difficulty only rises.
     case relaxed
     /// A plain 4-color recipe.
     case easyFallback
@@ -160,7 +161,7 @@ public enum RushPlan {
     public static let specAttempts = 40
     public static let relaxedAttempts = 40
     public static let fallbackAttempts = 100
-    /// Longest optimal solution phase `.relaxed` accepts.
+    /// Longest optimal solution phase `.relaxed` accepts (its shortest is the spec's lower bound).
     public static let relaxedMaxMoves = 20
 
     public static func levelID(seed: UInt64, index: Int) -> String { "rush-\(seed)-\(index + 1)" }
@@ -210,7 +211,7 @@ public enum RushPlan {
         let spec = spec(index: index, seed: seed, mechanics: mechanics)
         let base = baseSeed(seed: seed, index: index)
         var attempts = 0
-        let relaxed = spec.generatorConfig(window: 1...relaxedMaxMoves)
+        let relaxed = spec.generatorConfig(window: spec.minMoves.lowerBound...relaxedMaxMoves)
         let phases: [(RushGenerationPhase, GeneratorConfig, UInt64, Int)] = [
             (.spec, spec.generatorConfig(window: spec.minMoves), 0, specAttempts),
             (.relaxed, relaxed, 1_000, relaxedAttempts),
