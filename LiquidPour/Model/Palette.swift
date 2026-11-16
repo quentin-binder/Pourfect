@@ -137,6 +137,10 @@ extension Bottle {
             text += ", " + String(localized: "tap flask, pours from the bottom, nothing goes in",
                                   comment: "VoiceOver: a tap flask")
         }
+        if let bubbling {
+            text += ", " + String(localized: "bubbling flask, its bottom potion rises to the top in \(bubbling.movesUntilRise) moves",
+                                  comment: "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises")
+        }
         let frozen = frozenLayers
         if isIcedOver, let top = frozen.last {
             text += ", " + String(localized: "frozen over, nothing goes in or out, thaws in \(top.turns) moves",

@@ -349,6 +349,7 @@
     },
     "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {},
     "A hint was used, so this brew can't be perfect" : {},
+    "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises." : {},
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
     "Accessibility" : {},
@@ -374,6 +375,30 @@
     "Brews solved" : {
       "comment" : "Number of daily puzzles solved"
     },
+    "bubbling flask, its bottom potion rises to the top in %lld moves" : {
+      "comment" : "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "bubbling flask, its bottom potion rises to the top after the next move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "bubbling flask, its bottom potion rises to the top in %lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Bubbling flasks" : {},
     "Challenge" : {},
     "Challenge recipes and Random Brew" : {},
     "Challenges" : {},
@@ -580,12 +605,19 @@
       "comment" : "An essence flask; the argument is the only potion it takes"
     },
     "Essence flasks" : {},
+    "Every few moves a bubbling flask bubbles up: its bottom potion rises to the top, and the potions above it sink one place." : {},
     "Fairy Blush" : {
       "comment" : "Potion name of the pink liquid"
     },
     "Feedback" : {},
     "Fill every flask with a single potion. Undo, Restart and Hint are always there to help." : {},
     "Flask %lld" : {},
+    "Flask %lld bubbled up: %@ rose to the top" : {
+      "comment" : "VoiceOver: a bubbling flask's bottom layer rose to the top; the arguments are the flask number and the potion"
+    },
+    "Flask %lld bubbled up: its bottom layer rose to the top" : {
+      "comment" : "VoiceOver: a bubbling flask's bottom layer rose to the top (a murky layer, revealed on top)"
+    },
     "Flask size" : {},
     "Forest Elixir" : {
       "comment" : "Potion name of the green liquid"
@@ -669,6 +701,7 @@
       "comment" : "Countdown to the next daily puzzle, minutes"
     },
     "New Random Brew" : {},
+    "New: bubbling flasks" : {},
     "New: essence flasks" : {},
     "New: murky potions" : {},
     "New: sealed flasks" : {},
@@ -824,6 +857,7 @@
     "Th" : {
       "comment" : "Calendar column: Thursday"
     },
+    "The dial under the flask lights up after every pour, wherever you pour. Its number is the moves left until it bubbles up." : {},
     "Thinking…" : {},
     "This brew's day ended at midnight UTC, so it no longer counts. Today's new brew is waiting." : {},
     "This essence flask only takes %@" : {
@@ -854,9 +888,11 @@
     },
     "Undo" : {},
     "Unknown potion" : {},
+    "Use the rise" : {},
     "Verdigris" : {
       "comment" : "Metal of a rune key and its seal"
     },
+    "Watch the dial" : {},
     "Wave" : {
       "comment" : "Name of a colorblind rune"
     },

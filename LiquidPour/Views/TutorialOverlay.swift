@@ -7,6 +7,7 @@ struct TutorialStep: Identifiable {
         case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
         case iceHolds, iceSeals, iceThaws
+        case bubbleRises, bubbleDial, bubbleUse
     }
 
     let id: String
@@ -94,6 +95,18 @@ struct TutorialStep: Identifiable {
                 TutorialStep(id: "ice.thaws", topic: topic, title: String(localized: "Wait for the thaw"),
                              text: String(localized: "The number on the ice counts down after every pour, wherever you pour. At zero the ice cracks and melts."),
                              scene: .iceThaws),
+            ]
+        case .bubbling:
+            return [
+                TutorialStep(id: "bubbling.rises", topic: topic, title: String(localized: "Bubbling flasks"),
+                             text: String(localized: "Every few moves a bubbling flask bubbles up: its bottom potion rises to the top, and the potions above it sink one place."),
+                             scene: .bubbleRises),
+                TutorialStep(id: "bubbling.dial", topic: topic, title: String(localized: "Watch the dial"),
+                             text: String(localized: "The dial under the flask lights up after every pour, wherever you pour. Its number is the moves left until it bubbles up."),
+                             scene: .bubbleDial),
+                TutorialStep(id: "bubbling.use", topic: topic, title: String(localized: "Use the rise"),
+                             text: String(localized: "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises."),
+                             scene: .bubbleUse),
             ]
         }
     }
@@ -190,6 +203,7 @@ extension TutorialTopic {
         case .funnel: return String(localized: "New: funnel flasks")
         case .tap: return String(localized: "New: tap flasks")
         case .frozen: return String(localized: "New: frozen layers")
+        case .bubbling: return String(localized: "New: bubbling flasks")
         }
     }
 }
@@ -329,6 +343,23 @@ private struct TutorialScene: View {
                 BottleView(bottle: iced([1, 4, 4], layer: 2, turns: 1), width: w)
                 arrow
                 BottleView(bottle: Bottle([1, 4, 4], capacity: 4), width: w)
+            case .bubbleRises:
+                BottleView(bottle: bubbling([0, 4, 4], every: 3, phase: 2), width: w)
+                arrow
+                BottleView(bottle: bubbling([4, 4, 0], every: 3, phase: 0), width: w)
+            case .bubbleDial:
+                BottleView(bottle: bubbling([1, 2, 2], every: 3, phase: 1), width: w)
+                arrow
+                BottleView(bottle: bubbling([1, 2, 2], every: 3, phase: 2), width: w)
+                arrow
+                BottleView(bottle: bubbling([2, 2, 1], every: 3, phase: 0), width: w)
+            case .bubbleUse:
+                BottleView(bottle: bubbling([0, 6, 6], every: 2, phase: 1), width: w)
+                arrow
+                BottleView(bottle: bubbling([6, 6, 0], every: 2, phase: 0), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: Bottle([0, 0], capacity: 4), width: w)
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
@@ -356,6 +387,12 @@ private struct TutorialScene: View {
     private func iced(_ colors: [Int], layer: Int, turns: Int) -> Bottle {
         Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4,
                modifiers: [.frozen(layer: layer, turns: turns)])
+    }
+
+    /// A bubbling flask holding `colors` (bottom first), `phase` moves into a period of `every`.
+    private func bubbling(_ colors: [Int], every: Int, phase: Int) -> Bottle {
+        Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4,
+               modifiers: [.bubbling(every: every, phase: phase)])
     }
 
     private var equals: some View {
