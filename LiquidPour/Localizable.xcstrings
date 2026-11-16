@@ -351,7 +351,7 @@
     "A hint was used, so this brew can't be perfect" : {},
     "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises." : {},
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
-    "A pour that fits lands as usual. The pipe only pushes when the far flask has room, any color goes through, and it only works in the arrow's direction." : {},
+    "The pipe can only push when the far flask has room. Any color goes through, but only in the arrow's direction." : {},
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
     "Accessibility" : {},
     "An alchemist's journey from the cellar to the dragon's hoard." : {},

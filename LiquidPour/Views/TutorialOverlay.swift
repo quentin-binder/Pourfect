@@ -128,7 +128,7 @@ struct TutorialStep: Identifiable {
                              text: String(localized: "Pour into a full flask to push its bottom layer through the pipe into the bottom of the other flask."),
                              scene: .pipePush),
                 TutorialStep(id: "overflow.room", topic: topic, title: String(localized: "Room to push"),
-                             text: String(localized: "A pour that fits lands as usual. The pipe only pushes when the far flask has room, any color goes through, and it only works in the arrow's direction."),
+                             text: String(localized: "The pipe can only push when the far flask has room. Any color goes through, but only in the arrow's direction."),
                              scene: .pipeRoom),
             ]
         case .cauldron:
