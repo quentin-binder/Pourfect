@@ -169,7 +169,9 @@ struct BottleView: View {
         .overlay(alignment: .top) { twinBand }
         .bubbleGauge(shownBubbling, width: width, rising: rise != nil)
         .recipeCard(bottle.recipes, width: width, lit: mix?.recipe, glow: mix == nil ? 0 : 1)
-        .animation(.easeInOut(duration: 0.35), value: mix?.id)
+        // The card is already lit when the swirl takes over from the pour: light it at once,
+        // fade it out when the mix settles.
+        .animation(mix == nil ? .easeInOut(duration: 0.35) : nil, value: mix?.id)
         .overlay(alignment: .top) {
             // A cauldron that a mix completes is corked once the swirl has settled (the model
             // counts the completion then, so the cork drops in).

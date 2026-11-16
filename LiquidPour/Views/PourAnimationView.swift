@@ -398,7 +398,7 @@ struct PourAnimationView: View {
             }
         }
         .frame(width: w, height: frame.height)
-        .cauldronDress(model, width: w, height: frame.height, heat: card ?? 0)
+        .cauldronDress(model, width: w, height: frame.height, heat: card ?? 0, embers: card != nil)
         .bubbleGauge(model.bubbling, width: w)
         .recipeCard(card == nil ? [] : model.recipes, width: w, lit: event.mix?.recipe, glow: card ?? 0)
         .overlay(alignment: .topLeading) {
@@ -575,13 +575,15 @@ struct PourAnimationView: View {
         return PourPose.ease(pose.flow, 0, 0.4)
     }
 
-    /// A cauldron source's recipe card stays at its resting place while the flask flies.
+    /// A cauldron source's recipe card and ember glow stay at their resting place while the
+    /// flask flies (the flying source is drawn without embers).
     @ViewBuilder
     private var sourceCard: some View {
         let recipes = event.sourceBefore.recipes
         if !recipes.isEmpty {
             Color.clear
                 .frame(width: sourceFrame.width, height: sourceFrame.height)
+                .cauldronEmbers(width: sourceFrame.width, height: sourceFrame.height)
                 .recipeCard(recipes, width: sourceFrame.width)
                 .position(x: sourceFrame.midX, y: sourceFrame.midY)
         }

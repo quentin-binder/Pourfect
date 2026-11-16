@@ -1085,8 +1085,38 @@
         }
       }
     },
-    "Flask %lld brewed %lld %@ from %@ and %@" : {
-      "comment" : "VoiceOver: a pour mixed in a cauldron; the arguments are the flask number, how many layers were brewed, the new potion and the two ingredients"
+    "Flask %lld brewed %lld layers of %@ from %@ and %@" : {
+      "comment" : "VoiceOver: a pour mixed in a cauldron; the arguments are the flask number, how many layers were brewed, the new potion and the two ingredients",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flask %1$lld brewed %#@layers@ of %3$@ from %4$@ and %5$@"
+          },
+          "substitutions" : {
+            "layers" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg layer"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg layers"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "%@ with %@ brews %@" : {
       "comment" : "VoiceOver: one recipe of a mixing cauldron; the arguments are the two ingredients and the potion they brew"

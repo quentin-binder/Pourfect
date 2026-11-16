@@ -453,18 +453,20 @@ private struct TutorialScene: View {
                 equals
                 BottleView(bottle: cauldron([4, 4, 0]), width: w)
             case .cauldronOnly:
+                // The red poured into a plain blue flask: refused; into the cauldron: brewed.
+                VStack(spacing: 10) {
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                    BottleView(bottle: Bottle([1], capacity: 3), width: w)
+                }
+                arrow("arrow.left")
                 BottleView(bottle: Bottle([1, 0], capacity: 3), width: w, isSelected: true)
                     .offset(y: -14)
-                    .padding(.bottom, cardRoom)
-                VStack(spacing: 6) {
-                    BottleView(bottle: Bottle([1], capacity: 3), width: w)
-                        .padding(.bottom, cardRoom)
-                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
-                }
-                VStack(spacing: 6) {
-                    BottleView(bottle: cauldron([1]), width: w)
-                        .padding(.bottom, cardRoom)
+                arrow
+                BottleView(bottle: cauldron([1]), width: w)
+                equals
+                VStack(spacing: 10) {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                    BottleView(bottle: cauldron([4, 4]), width: w)
                 }
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
@@ -483,7 +485,7 @@ private struct TutorialScene: View {
 
     private var hangsCard: Bool {
         switch scene {
-        case .cauldronMix, .cauldronPairs: return true
+        case .cauldronMix, .cauldronPairs, .cauldronOnly: return true
         default: return false
         }
     }
@@ -532,8 +534,10 @@ private struct TutorialScene: View {
             .padding(.bottom, w)
     }
 
-    private var arrow: some View {
-        Image(systemName: "arrow.right")
+    private var arrow: some View { arrow("arrow.right") }
+
+    private func arrow(_ name: String) -> some View {
+        Image(systemName: name)
             .font(.title2.weight(.semibold))
             .foregroundStyle(.secondary)
             .padding(.bottom, w)

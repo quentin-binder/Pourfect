@@ -39,6 +39,10 @@ enum Iron {
 struct CauldronPot: View {
     let width: CGFloat
     let height: CGFloat
+    /// What to draw: the ember glow (it stays on the table while a cauldron source flies) and
+    /// the pot itself (legs, iron, band).
+    var embers = true
+    var drawsPot = true
 
     /// How far the pot reaches out on each side of the glass, and below the base (with legs).
     static func bulge(_ w: CGFloat) -> CGFloat { w * 0.24 }
@@ -50,10 +54,13 @@ struct CauldronPot: View {
         Canvas { context, size in
             let ox = side + w * 0.02   // the glass's left edge in this canvas
             // Embers under the pot.
-            let glowRect = CGRect(x: ox - w * 0.05, y: h - w * 0.06, width: w * 1.1, height: w * 0.32)
-            context.fill(Path(ellipseIn: glowRect), with: .radialGradient(
-                Gradient(colors: [Iron.ember.opacity(0.55), Iron.ember.opacity(0)]),
-                center: CGPoint(x: glowRect.midX, y: glowRect.midY), startRadius: 0, endRadius: w * 0.5))
+            if embers {
+                let glowRect = CGRect(x: ox - w * 0.05, y: h - w * 0.06, width: w * 1.1, height: w * 0.32)
+                context.fill(Path(ellipseIn: glowRect), with: .radialGradient(
+                    Gradient(colors: [Iron.ember.opacity(0.55), Iron.ember.opacity(0)]),
+                    center: CGPoint(x: glowRect.midX, y: glowRect.midY), startRadius: 0, endRadius: w * 0.5))
+            }
+            guard drawsPot else { return }
             // Two stubby legs, splayed a little.
             for (x, lean) in [(ox + w * 0.1, -1.0), (ox + w * 0.9, 1.0)] {
                 let leg = Path { p in
@@ -85,8 +92,15 @@ struct CauldronPot: View {
                 Gradient(stops: [.init(color: Iron.mid, location: 0), .init(color: Iron.light, location: 0.1),
                                  .init(color: Iron.mid, location: 0.3), .init(color: Iron.dark, location: 1)]),
                 startPoint: CGPoint(x: ox - side, y: 0), endPoint: CGPoint(x: ox + w + side, y: 0)))
+            // The band and the warm reflection are on the outside of the iron: they stop at the
+            // glass, so only the potion (or the dark pot behind empty glass) reads inside it.
+            var outside = context
+            outside.clip(to: Path { p in
+                p.addPath(pot)
+                p.addRect(CGRect(x: ox, y: 0, width: w, height: h))
+            }, style: FillStyle(eoFill: true))
             // A warm reflection of the embers on the underside.
-            context.fill(pot, with: .linearGradient(
+            outside.fill(pot, with: .linearGradient(
                 Gradient(colors: [Iron.ember.opacity(0), Iron.ember.opacity(0.16)]),
                 startPoint: CGPoint(x: 0, y: belly), endPoint: CGPoint(x: 0, y: h + w * 0.05)))
             // Highlight down the left bulge, and a hoop band around the belly.
@@ -96,11 +110,9 @@ struct CauldronPot: View {
             }
             context.stroke(shine, with: .color(.white.opacity(0.28)),
                            style: StrokeStyle(lineWidth: max(1, w * 0.035), lineCap: .round))
-            var band = context
-            band.clip(to: pot)
-            band.fill(Path(CGRect(x: 0, y: belly - w * 0.05, width: size.width, height: w * 0.07)),
+            outside.fill(Path(CGRect(x: 0, y: belly - w * 0.05, width: size.width, height: w * 0.07)),
                       with: .color(Iron.dark.opacity(0.75)))
-            band.fill(Path(CGRect(x: 0, y: belly - w * 0.05, width: size.width, height: max(0.5, w * 0.015))),
+            outside.fill(Path(CGRect(x: 0, y: belly - w * 0.05, width: size.width, height: max(0.5, w * 0.015))),
                       with: .color(.white.opacity(0.18)))
             context.stroke(pot, with: .color(.black.opacity(0.55)), lineWidth: max(0.75, w * 0.02))
         }
@@ -257,11 +269,12 @@ extension View {
     /// Dresses a cauldron flask (`width` × `height` = its body): the iron pot behind it and the
     /// rim with handles on top. `heat` 0…1 brightens the embers. Does nothing for other flasks.
     @ViewBuilder
-    func cauldronDress(_ bottle: Bottle, width: CGFloat, height: CGFloat, heat: Double = 0) -> some View {
+    func cauldronDress(_ bottle: Bottle, width: CGFloat, height: CGFloat, heat: Double = 0,
+                       embers: Bool = true) -> some View {
         if bottle.isCauldron {
             background(alignment: .top) {
                 ZStack(alignment: .top) {
-                    CauldronPot(width: width, height: height)
+                    CauldronPot(width: width, height: height, embers: embers)
                     // The embers flare while it mixes.
                     Ellipse()
                         .fill(RadialGradient(colors: [Iron.ember.opacity(0.85), Iron.ember.opacity(0)], center: .center,
@@ -269,7 +282,9 @@ extension View {
                         .frame(width: width * 1.35, height: width * 0.42)
                         .offset(y: height - width * 0.1)
                         .opacity(heat)
-                        .animation(.easeInOut(duration: 0.4), value: heat)
+                        // Lit at once when the swirl takes over from the pour (which left it
+                        // lit), faded out when the mix settles.
+                        .animation(heat > 0 ? nil : .easeInOut(duration: 0.4), value: heat)
                         .accessibilityHidden(true)
                 }
             }
@@ -277,6 +292,12 @@ extension View {
         } else {
             self
         }
+    }
+
+    /// The ember glow under a cauldron's pot alone, where `cauldronDress` draws it: it stays on
+    /// the table while the cauldron flies as a pour's source.
+    func cauldronEmbers(width: CGFloat, height: CGFloat) -> some View {
+        background(alignment: .top) { CauldronPot(width: width, height: height, drawsPot: false) }
     }
 
     /// Hangs a cauldron's recipe card under its legs (`width` = the flask's width).

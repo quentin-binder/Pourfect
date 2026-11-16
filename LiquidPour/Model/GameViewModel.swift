@@ -736,7 +736,7 @@ final class GameViewModel {
         emit(.mixed(bottle: mark.bottle))
         let recipe = mark.recipe
         AccessibilityNotification.Announcement(
-            String(localized: "Flask \(mark.bottle + 1) brewed \(2 * mark.pairs) \(Palette.potionName(recipe.result.rawValue)) from \(Palette.potionName(mark.poured.rawValue)) and \(Palette.potionName(mark.partner.rawValue))",
+            String(localized: "Flask \(mark.bottle + 1) brewed \(2 * mark.pairs) layers of \(Palette.potionName(recipe.result.rawValue)) from \(Palette.potionName(mark.poured.rawValue)) and \(Palette.potionName(mark.partner.rawValue))",
                    comment: "VoiceOver: a pour mixed in a cauldron; the arguments are the flask number, how many layers were brewed, the new potion and the two ingredients")).post()
         let lastID = mark.id
         mixClearTask?.cancel()
