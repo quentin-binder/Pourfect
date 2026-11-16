@@ -3,7 +3,8 @@ import SwiftUI
 
 /// One bottle: rounded outline with stacked layers (bottom → top). Draws key layers,
 /// a lock badge on locked bottles, "?" for layers the session reports as hidden, and the mark of
-/// each flask modifier (essence rune, narrow neck, funnel, spigot, ice with its frost rim).
+/// each flask modifier (essence rune, narrow neck, funnel, spigot, ice with its frost rim,
+/// bubbles and the bubbling dial).
 struct BottleView: View {
     let bottle: Bottle
     let width: CGFloat
@@ -23,6 +24,13 @@ struct BottleView: View {
     var ice: [FrozenLayer]? = nil
     /// Layers that just thawed: their ice cracks and melts (`ThawingIce`).
     var thaws: [ThawMark] = []
+    /// The bubbling period and phase to show on the dial (D2). nil = the bottle's own; the board
+    /// passes the phase from before the move while a pour is in the air, so the dial ticks when
+    /// it lands.
+    var bubbling: Bubbling? = nil
+    /// The bottom layer that just rose (D2): drawn climbing through the stack (`BubbleRise`)
+    /// in place of the potion until the mark is removed.
+    var rise: RiseMark? = nil
 
     /// A mask with the bottom `count` of `total` layers hidden (tips and previews).
     static func bottomHidden(_ count: Int, of total: Int) -> [Bool] {
@@ -96,7 +104,22 @@ struct BottleView: View {
             // This matches `TiltedLiquid` in the pour animation.
             .frame(width: width, height: height, alignment: .bottom)
             .clipShape(shape)
+            // While the bottom layer rises, `BubbleRise` draws the potion; the bands keep their
+            // identity underneath (no transitions when it hands back).
+            .opacity(rise == nil ? 1 : 0)
+            .animation(nil, value: rise == nil)   // swap in the same frame, never cross-fade
             .potionGlow(width: width)
+            if let rise {
+                BubbleRise(mark: rise, hiddenAfter: hidden, width: width, height: height, runes: runesEnabled,
+                           reduceMotion: reduceMotion)
+                    .id(rise.id)
+                    .transition(.identity)
+                    .potionGlow(width: width)
+            }
+            if let gauge = shownBubbling {
+                BubbleStream(width: width, height: height, level: CGFloat(bottle.layers.count) * layerHeight,
+                             eager: rise == nil && gauge.movesUntilRise == 1, paused: reduceMotion)
+            }
             iceLayers
             if !thaws.isEmpty {
                 ThawingIce(thaws: thaws, width: width, height: height, reduceMotion: reduceMotion)
@@ -123,6 +146,7 @@ struct BottleView: View {
         }
         .animation(.easeOut(duration: 0.4), value: thaws.isEmpty)
         .overlay(alignment: .top) { funnel }
+        .bubbleGauge(shownBubbling, width: width, rising: rise != nil)
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
         .onChange(of: completions) {
@@ -180,6 +204,13 @@ struct BottleView: View {
                               flare: flare, swells: swells)
                 } keyframes: { _ in Self.flareKeyframes }
         }
+    }
+
+    // MARK: Bubbling flask
+
+    private var shownBubbling: Bubbling? {
+        guard let own = bottle.bubbling else { return nil }
+        return bubbling ?? own
     }
 
     // MARK: Glass works
@@ -282,7 +313,8 @@ struct BottleView: View {
 }
 
 /// One layer. A hidden layer is a grey "?" card that flips over to its real face when revealed.
-private struct LayerView: View {
+/// Also drawn by `BubbleRise` while a bubbling flask's stack settles.
+struct LayerView: View {
     let layer: Layer
     let hidden: Bool
     /// Layers in this run (one rune is drawn per layer).

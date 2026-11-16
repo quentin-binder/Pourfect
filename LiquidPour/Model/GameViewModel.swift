@@ -42,6 +42,12 @@ final class GameViewModel {
         /// Every bottle's frozen layers before the move: the board keeps showing them while the
         /// pour is in the air, so the counters tick (and ice thaws) when it lands.
         let iceBefore: [[FrozenLayer]]
+        /// Every bottle's bubbling phase before the move (D2): the dials tick when it lands.
+        let bubblingBefore: [Bubbling?]
+        /// Bubbling flasks whose bottom layer rose after this move (`TurnEvent.bubbled`), as they
+        /// were before the rise: the board shows them so while the pour is in the air, and their
+        /// rise plays when it lands (`BubbleRise`).
+        let rises: [RiseMark]
 
         /// A key pour: the key drops into the target's lock instead of liquid flowing.
         var isKey: Bool { layer.isKey }
@@ -62,6 +68,9 @@ final class GameViewModel {
         /// Frozen layers of these bottles thawed (D1); fires when the pour animation lands, as
         /// the ice cracks and melts.
         case thawed(bottles: [Int])
+        /// The bottom layer of these bubbling flasks rose to the top (D2); fires when the pour
+        /// animation lands, as the bubble starts to climb.
+        case bubbled(bottles: [Int])
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
         case flaskCompleted(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
@@ -125,6 +134,11 @@ final class GameViewModel {
     private(set) var thaws: [ThawMark] = []
     private var thawCount = 0
     private var thawClearTask: Task<Void, Never>?
+    /// Bubbling flasks whose bottom layer rose when the last pour landed; each plays its rise
+    /// once, then is removed (`BubbleRise`).
+    private(set) var rises: [RiseMark] = []
+    private var riseCount = 0
+    private var riseClearTask: Task<Void, Never>?
 
     /// Latest optimal solution, valid for `solutionState`. Lets Hint answer instantly.
     private var solution: (state: GameState, moves: [Move])?
@@ -209,6 +223,26 @@ final class GameViewModel {
         return state.bottles.indices.contains(index) ? state.bottles[index].frozenLayers : []
     }
 
+    /// The bottle to draw at `index`. A bubbling flask whose bottom layer rises after the pour
+    /// in the air keeps its order from before the rise until the pour lands.
+    func bottle(_ index: Int) -> Bottle {
+        var bottle = state.bottles[index]
+        if let mark = pour?.rises.first(where: { $0.bottle == index }) { bottle.layers = mark.layers }
+        return bottle
+    }
+
+    /// The bubbling phase to show on bottle `index`'s dial: from before the move while a pour is
+    /// in the air, so the dial ticks when it lands.
+    func bubbling(_ index: Int) -> Bubbling? {
+        if let pour, pour.bubblingBefore.indices.contains(index) { return pour.bubblingBefore[index] }
+        return state.bottles.indices.contains(index) ? state.bottles[index].bubbling : nil
+    }
+
+    /// The rise playing on bottle `index`, if any.
+    func rise(_ index: Int) -> RiseMark? {
+        rises.last { $0.bottle == index }
+    }
+
     /// Layers of bottle `index` that are thawing right now.
     func thaws(_ index: Int) -> [ThawMark] {
         thaws.filter { $0.bottle == index }
@@ -220,6 +254,7 @@ final class GameViewModel {
     /// comes back.
     func hiddenMask(_ index: Int) -> [Bool] {
         if let pour, pour.from == index { return pour.sourceHiddenBefore }
+        if let mark = pour?.rises.first(where: { $0.bottle == index }) { return mark.hidden }
         return session.hiddenMasks.indices.contains(index) ? session.hiddenMasks[index] : []
     }
 
@@ -272,6 +307,7 @@ final class GameViewModel {
         pour = nil
         pourTimeout?.cancel()
         startThaws(landed.events, reduceMotion: reduceMotion)
+        startRises(landed.rises, reduceMotion: reduceMotion)
         if !landed.completed.isEmpty {
             for index in landed.completed where completions.indices.contains(index) { completions[index] += 1 }
             emit(.flaskCompleted(bottles: landed.completed))
@@ -373,12 +409,16 @@ final class GameViewModel {
         pourCount += 1
         let id = pourCount
         let mask = { (i: Int) in hiddenBefore.indices.contains(i) ? hiddenBefore[i] : [] }
+        // A flask in this pour is drawn by the pour animation: an older rise on it stops.
+        rises.removeAll { $0.bottle == move.from || $0.bottle == move.to }
         pour = PourEvent(id: id, from: move.from, to: move.to, layer: event.layer, amount: event.amount,
                          fromBottom: event.fromBottom,
                          sourceBefore: before.bottles[move.from], targetBefore: before.bottles[move.to],
                          sourceHiddenBefore: mask(move.from), targetHiddenBefore: mask(move.to),
                          completed: Rules.completedBottles(before: before, after: state),
-                         events: session.lastEvents, iceBefore: before.bottles.map(\.frozenLayers))
+                         events: session.lastEvents, iceBefore: before.bottles.map(\.frozenLayers),
+                         bubblingBefore: before.bottles.map(\.bubbling),
+                         rises: pendingRises(session.lastEvents, hiddenBefore: hiddenBefore))
         emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
                    fromBottom: event.fromBottom))
         pourTimeout?.cancel()
@@ -394,6 +434,8 @@ final class GameViewModel {
         pour = nil
         thawClearTask?.cancel()
         thaws.removeAll()
+        riseClearTask?.cancel()
+        rises.removeAll()
         queuedTaps.removeAll()
         pourTimeout?.cancel()
     }
@@ -470,6 +512,52 @@ final class GameViewModel {
             try? await Task.sleep(for: .seconds((duration + 0.15) * DebugTiming.slow))
             guard !Task.isCancelled else { return }
             self.thaws.removeAll { $0.id <= lastID }
+        }
+    }
+
+    /// The bubbling flasks whose bottom layer rose in this move (`TurnEvent.bubbled`), as they
+    /// were before the rise: the layers come back from `Rules.sunk`, the murky flags likewise,
+    /// except the bottom one, which is the flag that layer had before the move (a pour never
+    /// touches a bottom layer that then rises; the session revealed it on top).
+    private func pendingRises(_ events: [TurnEvent], hiddenBefore: [[Bool]]) -> [RiseMark] {
+        events.compactMap { event in
+            guard case .bubbled(let b) = event, state.bottles.indices.contains(b) else { return nil }
+            var mask = session.hiddenMasks.indices.contains(b) ? Rules.sunk(session.hiddenMasks[b]) : []
+            if !mask.isEmpty, hiddenBefore.indices.contains(b), let bottom = hiddenBefore[b].first {
+                mask[0] = bottom
+            }
+            riseCount += 1
+            return RiseMark(id: riseCount, bottle: b, layers: Rules.sunk(state.bottles[b].layers), hidden: mask)
+        }
+    }
+
+    /// The pour landed: the bottom layers that rose climb through their flasks now
+    /// (`BubbleRise`), with a bubbly sound and, for VoiceOver, a line naming what rose.
+    private func startRises(_ marks: [RiseMark], reduceMotion: Bool) {
+        guard !marks.isEmpty else { return }
+        rises.append(contentsOf: marks)
+        let bottles = marks.map(\.bottle)
+        emit(.bubbled(bottles: bottles))
+        for mark in marks {
+            let risen = mark.layers.first
+            let murky = mark.hidden.first == true
+            let line: String
+            if let risen, !murky {
+                line = String(localized: "Flask \(mark.bottle + 1) bubbled up: \(risen.spokenName) rose to the top",
+                              comment: "VoiceOver: a bubbling flask's bottom layer rose to the top; the arguments are the flask number and the potion")
+            } else {
+                line = String(localized: "Flask \(mark.bottle + 1) bubbled up: its bottom layer rose to the top",
+                              comment: "VoiceOver: a bubbling flask's bottom layer rose to the top (a murky layer, revealed on top)")
+            }
+            AccessibilityNotification.Announcement(line).post()
+        }
+        let lastID = riseCount
+        riseClearTask?.cancel()
+        riseClearTask = Task {
+            let duration = reduceMotion ? RisePose.reducedDuration : RisePose.duration
+            try? await Task.sleep(for: .seconds((duration + 0.1) * DebugTiming.slow))
+            guard !Task.isCancelled else { return }
+            self.rises.removeAll { $0.id <= lastID }
         }
     }
 

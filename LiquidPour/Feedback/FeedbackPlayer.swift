@@ -46,6 +46,10 @@ enum FeedbackPlayer {
             // The ice cracks and melts as the pour lands (`ThawingIce`).
             if sound { engine.play(.thaw) }
             if haptics { Haptics.thaw() }
+        case .bubbled:
+            // The bottom layer gathers into a bubble and climbs as the pour lands (`BubbleRise`).
+            if sound { engine.play(.bubbleUp) }
+            if haptics { Haptics.bubble() }
         case .flaskCompleted:
             if sound { engine.play(.corkPop) }
             if haptics { Haptics.flaskCompleted() }

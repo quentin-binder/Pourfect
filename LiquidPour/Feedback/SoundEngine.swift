@@ -34,6 +34,9 @@ final class SoundEngine {
         case frostTink
         /// Ice thawing: a soft crackle, then a few gentle drips (a frozen layer melts).
         case thaw
+        /// A bubbling flask bubbling up: small bubbles quickening and rising in pitch, then a
+        /// round "bloop" as the bottom layer reaches the top.
+        case bubbleUp
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -280,6 +283,7 @@ nonisolated enum SoundSynthesis {
             return Self.clink(t: t, f0: 2650) * 0.8 + sin(2 * .pi * 3720 * t) * exp(-t * 14) * 0.35 * shimmer
         }
         out.sounds[.thaw] = renderThaw(rng: &rng)
+        out.sounds[.bubbleUp] = renderBubbleUp(rng: &rng)
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in
             let notes = [523.25, 659.25, 783.99, 1046.50]
@@ -379,6 +383,37 @@ nonisolated enum SoundSynthesis {
         }
         for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
         return normalized(samples, peak: 0.12)
+    }
+
+    /// Bubbling up (D2), timed on `RisePose`: seven small bubbles, closer together and higher as
+    /// the big one climbs (each a short sine gliding up, like the pour's gurgle), over a soft low
+    /// simmer; then a round, deeper "bloop" (a sine gliding up, slower decay) when it arrives on top.
+    private static func renderBubbleUp(rng: inout NoiseGenerator) -> [Float] {
+        let duration = 1.05
+        let count = Int(duration * sampleRate)
+        var samples = Self.lowpassedNoise(count: count, cutoff: 220, rng: &rng).enumerated().map { i, v in
+            let t = Double(i) / sampleRate
+            return v * 0.12 * min(1, t / 0.08) * max(0, 1 - t / 0.85)
+        }
+        let blip = { (start: Double, f0: Double, tau: Double, rise: Double, amp: Double, samples: inout [Double]) in
+            let first = Int(start * sampleRate)
+            var phase = 0.0
+            for j in 0..<Int(tau * 6 * sampleRate) where first + j < count {
+                let local = Double(j) / sampleRate
+                phase += 2 * .pi * f0 * (1 + rise * local) / sampleRate
+                samples[first + j] += amp * sin(phase) * exp(-local / tau) * min(1, local / 0.002)
+            }
+        }
+        var time = 0.04
+        for k in 0..<7 {
+            let f0 = 420 + Double(k) * 70 + rng.unit() * 90
+            blip(time, f0, 0.022 + rng.unit() * 0.012, 5 + rng.unit() * 3, 0.45 + 0.05 * Double(k), &samples)
+            time += 0.12 - Double(k) * 0.011
+        }
+        blip(RisePose.arrival - 0.04, 210, 0.07, 3.2, 1.0, &samples)
+        blip(RisePose.arrival + 0.06, 520, 0.03, 6, 0.4, &samples)
+        for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
+        return normalized(samples, peak: 0.16)
     }
 
     /// Bubbles: short decaying sines with a rising pitch (like air entering a bottle), at random

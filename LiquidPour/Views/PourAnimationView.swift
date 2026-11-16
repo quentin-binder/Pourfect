@@ -80,6 +80,10 @@ struct PourPose {
 /// (`TiltedLiquid.rigidLayers`), only the potion above it pours; both flasks keep their ice,
 /// counters and frost rim from before the move. The counters tick and thawed ice melts on the
 /// board once the pour has landed (`ThawingIce`).
+///
+/// A bubbling flask (D2) flies with its dial (the phase from before the move) and its bubbles,
+/// which fade while it tilts. A rise caused by the move plays on the board after the pour has
+/// landed (`BubbleRise`).
 struct PourAnimationView: View {
     let event: GameViewModel.PourEvent
     let sourceFrame: CGRect
@@ -150,7 +154,8 @@ struct PourAnimationView: View {
             bottle(event.sourceBefore, segments: sourceSegments(pose.flow), frame: sourceFrame,
                    gravity: angle * .pi / 180 + pose.sourceSlosh, hidden: event.sourceHiddenBefore,
                    corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
-                   opaque: min(1, pose.rise * 1.6))   // opaque before it crosses another flask
+                   opaque: min(1, pose.rise * 1.6),   // opaque before it crosses another flask
+                   bubbles: 1 - min(1, pose.tilt * 2))
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
                 .rotationEffect(.degrees(angle), anchor: right ? .topTrailing : .topLeading)
                 // The rotation anchor is the pouring corner, so place the frame by that corner.
@@ -193,7 +198,7 @@ struct PourAnimationView: View {
     /// `valve`: a tap's handle, 0 = closed … 1 = open.
     private func bottle(_ model: Bottle, segments: [LiquidSegment], frame: CGRect, gravity: Double,
                         hidden: [Bool] = [], drawsMarks: Bool = true, unlock: Double = 0, corkOff: Double? = nil,
-                        opaque: Double = 0, valve: Double = 0) -> some View {
+                        opaque: Double = 0, valve: Double = 0, bubbles: Double = 1) -> some View {
         let w = frame.width
         let shape = BottleView.shape(width: w)
         let parts = GlassParts(model)
@@ -215,6 +220,12 @@ struct PourAnimationView: View {
                          gravity: gravity, rigidLayers: Self.rigidLayers(model))
                 .clipShape(shape)
                 .potionGlow(width: w)
+            if let gauge = model.bubbling, bubbles > 0.01 {
+                let level = segments.reduce(CGFloat(0)) { $0 + $1.fraction } * BottleView.layerHeight(width: w)
+                BubbleStream(width: w, height: frame.height, level: level, eager: gauge.movesUntilRise == 1,
+                             paused: reduceMotion)
+                    .opacity(bubbles)
+            }
             if !ice.isEmpty {
                 FrostGlass(width: w)
                 IceLayers(ice: ice, width: w, height: frame.height, runes: runesEnabled, hidden: hidden)
@@ -234,6 +245,7 @@ struct PourAnimationView: View {
             }
         }
         .frame(width: w, height: frame.height)
+        .bubbleGauge(model.bubbling, width: w)
         .overlay(alignment: .topLeading) {
             if parts.tap { SpigotMark(width: w, height: frame.height, valve: valve) }
         }

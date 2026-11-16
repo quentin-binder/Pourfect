@@ -183,7 +183,7 @@ struct GameView: View {
                         Button {
                             withAnimation(.easeInOut(duration: 0.3)) { model.tap(bottle: index) }
                         } label: {
-                            BottleView(bottle: bottles[index], width: width,
+                            BottleView(bottle: model.bottle(index), width: width,
                                        hidden: model.hiddenMask(index),
                                        isSelected: model.selected == index,
                                        hintRole: hintRole(for: index),
@@ -192,7 +192,9 @@ struct GameView: View {
                                            ? model.completions[index] : 0,
                                        refusals: model.refusals.indices.contains(index) ? model.refusals[index] : 0,
                                        ice: model.ice(index),
-                                       thaws: model.thaws(index))
+                                       thaws: model.thaws(index),
+                                       bubbling: model.bubbling(index),
+                                       rise: model.rise(index))
                         }
                         .buttonStyle(.plain)
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }

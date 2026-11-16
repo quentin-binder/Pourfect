@@ -54,6 +54,18 @@ enum Haptics {
         #endif
     }
 
+    /// Three light, quickening taps: a bubbling flask's bottom layer rose to the top.
+    static func bubble() {
+        #if os(iOS)
+        Task {
+            for (k, delay) in [0, 260, 180].enumerated() {
+                try? await Task.sleep(for: .milliseconds(delay))
+                light.impactOccurred(intensity: 0.35 + 0.15 * Double(k))
+            }
+        }
+        #endif
+    }
+
     /// Light impact: the tap did nothing.
     static func illegal() {
         #if os(iOS)
