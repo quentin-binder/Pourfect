@@ -16,8 +16,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "000000000000000100000000"
-               BuildableName = "LiquidPour.app"
-               ReferencedContainer = "container:LiquidPour.xcodeproj">
+               BuildableName = "Pourfect.app"
+               ReferencedContainer = "container:Pourfect.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "000000000000000100000000"
-            BuildableName = "LiquidPour.app"
-            ReferencedContainer = "container:LiquidPour.xcodeproj">
+            BuildableName = "Pourfect.app"
+            ReferencedContainer = "container:Pourfect.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -67,8 +67,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "000000000000000100000000"
-            BuildableName = "LiquidPour.app"
-            ReferencedContainer = "container:LiquidPour.xcodeproj">
+            BuildableName = "Pourfect.app"
+            ReferencedContainer = "container:Pourfect.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

@@ -2,7 +2,7 @@ import BottleSortCore
 import SwiftUI
 
 @main
-struct LiquidPourApp: App {
+struct PourfectApp: App {
     @State private var catalog = LevelCatalog.loadBundled()
     @State private var progress = ProgressModel(store: UserDefaultsProgressStore())
     @State private var settings = AppSettings(store: UserDefaultsSettingsStore())

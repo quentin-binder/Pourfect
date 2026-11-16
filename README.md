@@ -1,11 +1,11 @@
-# LiquidPour
+# Pourfect
 
 A liquid-sorting puzzle game for **iPhone, iPad and Mac** (native Apple silicon), built with SwiftUI.
 Pour colored layers between bottles until every bottle is empty or full with one color.
 
 The app is shown to players as **Pourfect**, a potion-lab game: in the UI bottles are *flasks*, levels are *recipes*
-and packs are *chapters*. Code, module and target names stay neutral (`LiquidPour`, `BottleSortCore`) until the
-release rename (R8).
+and packs are *chapters*. The Xcode project, target, scheme and app folder are named `Pourfect` (renamed from
+`LiquidPour` in R8; the repository folder keeps its old name); the logic package stays neutral (`BottleSortCore`).
 
 Progress is tracked in [`PLAN.md`](PLAN.md); design choices are in [`DECISIONS.md`](DECISIONS.md).
 
@@ -129,8 +129,8 @@ else is a challenge).
 ## Layout
 
 ```
-LiquidPour.xcodeproj         Xcode project (one multiplatform app target: iOS 17+ / macOS 14+)
-LiquidPour/                  SwiftUI app
+Pourfect.xcodeproj           Xcode project (one multiplatform app target: iOS 17+ / macOS 14+)
+Pourfect/                    SwiftUI app
   Model/                     GameViewModel, LevelCatalog, ProgressStore, Tutorials, AppSettings, Palette, RandomLevelMaker
   Views/                     RootView, ChapterMapView (home), PackView (chapter / challenge recipes), ChallengesView,
                              GameView, TutorialOverlay, BottleView, RandomLevelView, PourAnimationView,
@@ -151,7 +151,7 @@ No third-party dependencies, only Apple frameworks.
 
 ## Run the app
 
-**In Xcode:** open `LiquidPour.xcodeproj`, choose the **LiquidPour** scheme, then pick a destination:
+**In Xcode:** open `Pourfect.xcodeproj`, choose the **Pourfect** scheme, then pick a destination:
 
 - **My Mac** for the native macOS app, or
 - any **iPhone / iPad simulator**,
@@ -163,9 +163,9 @@ and pick your team (or *Sign to Run Locally* on the Mac).
 
 ```sh
 # macOS
-xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platform=macOS' build
+xcodebuild -project Pourfect.xcodeproj -scheme Pourfect -destination 'platform=macOS' build
 # iOS Simulator
-xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
+xcodebuild -project Pourfect.xcodeproj -scheme Pourfect -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 ```
 
 ### How to play
@@ -372,7 +372,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Brew settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
 
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
-Daily win card: `open -n LiquidPour.app --args -LPDailySeedResults 40 -LPPlayDaily 1 -LPSkipTutorials 1 -LPDemoMoves 99`.
+Daily win card: `open -n Pourfect.app --args -LPDailySeedResults 40 -LPPlayDaily 1 -LPSkipTutorials 1 -LPDemoMoves 99`.
 Gold-seal win card: `-LPOpenChapter 1 -LPOpenLevel 3 -LPDemoMoves 99 -LPSkipTutorials 1` (a demo win saves nothing).
 Story scene: `-LPShowStory 5 -LPStoryLine 2`. Themed board mid-pour: `-LPUnlockAll 1 -LPSkipTutorials 1 -LPOpenChapter 1 -LPOpenLevel 3 -LPDemoMoves 99 -settings.theme dragonLair -settings.flaskShape conical -settings.potionEffect starburst`.
 Rush end card with a new best: `-LPOpenRush 1 -LPRushSeed 42 -LPRushAutoplay 1 -LPRushDuration 14 -rush.best.v1 0`.

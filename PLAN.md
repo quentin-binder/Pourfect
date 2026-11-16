@@ -1,4 +1,4 @@
-# Plan — LiquidPour (Bottle Sort prototype)
+# Plan — Pourfect (Bottle Sort prototype)
 
 Decisions: `DECISIONS.md`. (The original prototype spec was removed from the repo after Phase 5.)
 

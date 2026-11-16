@@ -14,7 +14,7 @@
       }
     },
     "CFBundleName" : {
-      "comment" : "Short app name; the Mac menu bar shows it (About, Hide, Quit). The target stays LiquidPour until R8.",
+      "comment" : "Short app name; the Mac menu bar shows it (About, Hide, Quit)..",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
