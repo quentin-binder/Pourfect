@@ -4,7 +4,7 @@ import Observation
 
 /// A mechanic with a first-time tip. Raw values match `Mechanic` names in the level files.
 enum TutorialTopic: String, CaseIterable, Hashable {
-    case basic, sealed, murky, essence, narrowNeck, funnel, tap
+    case basic, sealed, murky, essence, narrowNeck, funnel, tap, frozen
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 

@@ -6,6 +6,7 @@ struct TutorialStep: Identifiable {
     enum Scene {
         case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
+        case iceHolds, iceSeals, iceThaws
     }
 
     let id: String
@@ -81,6 +82,18 @@ struct TutorialStep: Identifiable {
                 TutorialStep(id: "tap.in", topic: topic, title: String(localized: "Nothing goes in"),
                              text: String(localized: "Nothing can be poured into a tap flask, not even a key. Drain it, or leave it full of one potion."),
                              scene: .tapNoIn),
+            ]
+        case .frozen:
+            return [
+                TutorialStep(id: "ice.holds", topic: topic, title: String(localized: "Frozen layers"),
+                             text: String(localized: "Ice holds a layer in place: it can't move, and neither can anything below it. The potion above the ice pours as usual."),
+                             scene: .iceHolds),
+                TutorialStep(id: "ice.seals", topic: topic, title: String(localized: "Frozen over"),
+                             text: String(localized: "When the top layer is frozen, the flask is shut: nothing pours in or out until the ice thaws."),
+                             scene: .iceSeals),
+                TutorialStep(id: "ice.thaws", topic: topic, title: String(localized: "Wait for the thaw"),
+                             text: String(localized: "The number on the ice counts down after every pour, wherever you pour. At zero the ice cracks and melts."),
+                             scene: .iceThaws),
             ]
         }
     }
@@ -176,6 +189,7 @@ extension TutorialTopic {
         case .narrowNeck: return String(localized: "New: narrow necks")
         case .funnel: return String(localized: "New: funnel flasks")
         case .tap: return String(localized: "New: tap flasks")
+        case .frozen: return String(localized: "New: frozen layers")
         }
     }
 }
@@ -293,6 +307,28 @@ private struct TutorialScene: View {
                 equals
                 BottleView(bottle: glass(.tap, [2, 3]), width: w)
                 BottleView(bottle: Bottle([0, 0, 0], capacity: 4), width: w)
+            case .iceHolds:
+                BottleView(bottle: iced([2, 5, 3, 3], layer: 1, turns: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: Bottle([3], capacity: 4), width: w)
+                equals
+                BottleView(bottle: iced([2, 5], layer: 1, turns: 2), width: w)
+                BottleView(bottle: Bottle([3, 3, 3], capacity: 4), width: w)
+            case .iceSeals:
+                BottleView(bottle: Bottle([0, 6], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                Image(systemName: "nosign").font(.title).foregroundStyle(.secondary).padding(.bottom, w)
+                VStack(spacing: 6) {
+                    BottleView(bottle: iced([1, 4, 6], layer: 2, turns: 2), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+            case .iceThaws:
+                BottleView(bottle: iced([1, 4, 4], layer: 2, turns: 2), width: w)
+                arrow
+                BottleView(bottle: iced([1, 4, 4], layer: 2, turns: 1), width: w)
+                arrow
+                BottleView(bottle: Bottle([1, 4, 4], capacity: 4), width: w)
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
@@ -314,6 +350,12 @@ private struct TutorialScene: View {
     /// A flask with one glass works modifier holding `colors`.
     private func glass(_ modifier: BottleModifier, _ colors: [Int]) -> Bottle {
         Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4, modifiers: [modifier])
+    }
+
+    /// A flask holding `colors` whose layer `layer` is frozen for `turns` more moves.
+    private func iced(_ colors: [Int], layer: Int, turns: Int) -> Bottle {
+        Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4,
+               modifiers: [.frozen(layer: layer, turns: turns)])
     }
 
     private var equals: some View {

@@ -901,7 +901,119 @@
     "Nothing can be poured into a tap flask, not even a key. Drain it, or leave it full of one potion." : {},
     "New: narrow necks" : {},
     "New: funnel flasks" : {},
-    "New: tap flasks" : {}
+    "New: tap flasks" : {},
+    "A tap can't pour while its flask holds ice. It thaws in %lld moves." : {
+      "comment" : "Shown when the player picks up a tap flask that holds a frozen layer; the argument is the moves until the last ice thaws",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "A tap can't pour while its flask holds ice. It thaws in %lld move."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "A tap can't pour while its flask holds ice. It thaws in %lld moves."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Frozen layers" : {},
+    "Frozen over" : {},
+    "Ice holds a layer in place: it can't move, and neither can anything below it. The potion above the ice pours as usual." : {},
+    "Ice melted in flask %@" : {
+      "comment" : "VoiceOver: frozen layers thawed after a move; the argument lists flask numbers"
+    },
+    "Ice seals this flask. It thaws in %lld moves." : {
+      "comment" : "Shown when the player pours into or out of a flask whose top layer is frozen; the argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ice seals this flask. It thaws in %lld move."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ice seals this flask. It thaws in %lld moves."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "New: frozen layers" : {},
+    "The number on the ice counts down after every pour, wherever you pour. At zero the ice cracks and melts." : {},
+    "Wait for the thaw" : {},
+    "When the top layer is frozen, the flask is shut: nothing pours in or out until the ice thaws." : {},
+    "frozen over, nothing goes in or out, thaws in %lld moves" : {
+      "comment" : "VoiceOver: the top layer of a flask is frozen; the argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "frozen over, nothing goes in or out, thaws in %lld move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "frozen over, nothing goes in or out, thaws in %lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "layer %lld frozen, thaws in %lld moves" : {
+      "comment" : "VoiceOver: a frozen layer (counted from the bottom, 1 = bottom) holds it and everything below; the second argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "layer %1$lld frozen, thaws in %#@moves@"
+          },
+          "substitutions" : {
+            "moves" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg move"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg moves"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   },
   "version" : "1.0"
 }
