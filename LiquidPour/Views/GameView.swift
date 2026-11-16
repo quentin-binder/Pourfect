@@ -277,8 +277,9 @@ struct GameView: View {
     }
 
     /// The chains (`pipes` false) or the pipes (true), drawn between the flasks' frames on the
-    /// board (after the shuffle and any resize). A link follows a flask that is picked up, and
-    /// fades while one of its flasks is in the air pouring (the pour animation draws that flask).
+    /// board (after the shuffle and any resize). A link follows a flask that is picked up. A chain
+    /// fades while one of its flasks is in the air pouring (the pour animation draws that flask); a
+    /// pipe stays: it runs along the floor, so it keeps the source's resting frame while it flies.
     @ViewBuilder
     private func linkLayer(_ frames: [Int: Anchor<CGRect>], pipes: Bool) -> some View {
         let links = model.state.links.filter { $0.isPipe == pipes }
@@ -290,7 +291,7 @@ struct GameView: View {
                     if let fa = frames[a], let fb = frames[b] {
                         let ra = proxy[fa], rb = proxy[fb]
                         let lifted = { (bottle: Int, w: CGFloat) -> CGFloat in model.selected == bottle ? w * 0.3 : 0 }
-                        let flying = model.pour?.from == a || model.pour?.from == b
+                        let flying = !link.isPipe && (model.pour?.from == a || model.pour?.from == b)
                         let index = model.state.links.firstIndex(of: link) ?? 0
                         let refusals = model.linkRefusals.indices.contains(index) ? model.linkRefusals[index] : 0
                         // The ends follow their flasks' shake (same count and timing as `BottleView`).
@@ -327,8 +328,8 @@ struct GameView: View {
                 let shareFrames = Dictionary(uniqueKeysWithValues: pour.shares.compactMap { share in
                     frames[share.bottle].map { (share.bottle, proxy[$0]) }
                 })
-                // Chains and pipes of the flasks drawn by the pour (not the flying source's: they
-                // fade on the board meanwhile), redrawn above those flasks.
+                // Chains and pipes of the flasks drawn by the pour, redrawn above those flasks; not
+                // the flying source's (its chain fades, its pipe stays on the board at rest).
                 let links = model.state.links.compactMap { link -> (link: BottleSortCore.Link, a: CGRect, b: CGRect)? in
                     let (a, b) = link.endpoints
                     guard a != pour.from, b != pour.from, pour.bottles.contains(a) || pour.bottles.contains(b),
