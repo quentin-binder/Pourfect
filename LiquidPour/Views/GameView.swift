@@ -111,8 +111,9 @@ struct GameView: View {
     }
 
     private var isWon: Bool { if case .won = model.status { return true } else { return false } }
-    /// Win / stuck cards wait until the pour that caused them has finished animating.
-    private var showsResult: Bool { model.pour == nil }
+    /// Win / stuck cards wait until the pour that caused them has finished animating (and a
+    /// mix it made has settled).
+    private var showsResult: Bool { model.pour == nil && !model.isMixing }
 
     // MARK: HUD
 
@@ -174,8 +175,9 @@ struct GameView: View {
         let rowCount = rows.count
         let perRow = BoardLayout.perRow(count: bottles.count)
         let capacity = CGFloat(bottles.first?.capacity ?? 4)
-        // A tap's spigot sticks out on the right: a little more room between flasks.
-        let spacing: CGFloat = bottles.contains(where: \.hasTap) ? 22 : 14
+        // A tap's spigot sticks out on the right, a cauldron's pot bulges on both sides: a little
+        // more room between flasks.
+        let spacing: CGFloat = bottles.contains { $0.hasTap || $0.isCauldron } ? 22 : 14
         // A narrow neck or a funnel stands above its flask (in widths): room for it on every row.
         // An overflow pipe arches above the rims of its flasks (about half a width).
         let pipe: CGFloat = model.state.links.contains { if case .overflow = $0 { return true } else { return false } }
@@ -186,11 +188,14 @@ struct GameView: View {
         let pairsPerRow = rows.map { row in row.filter { linkedRight(of: $0, in: row) }.count }.max() ?? 0
         let byWidth = (size.width - spacing * CGFloat(perRow - 1)) / (CGFloat(perRow) + Self.linkGap * CGFloat(pairsPerRow))
         // A bubbling flask's dial hangs under its base (about 0.52w): room for it under every row.
+        // A cauldron's legs and recipe card hang under it: room for them under every row.
+        let recipeRows = bottles.map(\.recipes.count).max() ?? 0
+        let card = RecipeCard.roomInWidths(rows: recipeRows)
         let dial: CGFloat = bottles.contains { $0.bubbling != nil } ? 0.52 : 0
         let byHeight = (size.height - 40 * CGFloat(rowCount))
-            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts + dial))
+            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts + max(dial, card)))
         let width = max(24, min(byWidth, byHeight, 72))
-        let dialRoom = dial > 0 ? BubbleGauge.room(width) : 0
+        let dialRoom = max(dial > 0 ? BubbleGauge.room(width) : 0, RecipeCard.room(width, rows: recipeRows))
 
         return VStack(spacing: 40 + parts * width + dialRoom) {
             ForEach(rows, id: \.self) { row in
@@ -212,7 +217,8 @@ struct GameView: View {
                                        bubbling: model.bubbling(index),
                                        rise: model.rise(index),
                                        twin: model.state.twin(of: index) != nil,
-                                       chainRefusals: chainRefusals(index))
+                                       chainRefusals: chainRefusals(index),
+                                       mix: model.mix(index))
                         }
                         .buttonStyle(.plain)
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }

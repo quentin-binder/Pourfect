@@ -87,6 +87,12 @@ struct PourPose {
 /// which fade while it tilts. A rise caused by the move plays on the board after the pour has
 /// landed (`BubbleRise`).
 ///
+/// A cauldron (E1) keeps its iron pot and rim in flight; its recipe card stays on the board
+/// (under the source's resting place, under the target where it stands). When the pour mixes,
+/// the target's card lights the recipe while it flows; the swirl into the new potion plays on
+/// the board after the pour has landed (`MixSwirl`): in flight the poured potion simply lands
+/// on the other ingredient.
+///
 /// Twins (F1): the source hovers between the two twins and its stream forks, half into each;
 /// both fill together. An overflow pipe (F2): the target fills to the rim, then the rest runs
 /// visibly through the pipe and drips into the flask at its far end, which fills after it.
@@ -284,8 +290,9 @@ struct PourAnimationView: View {
         return ZStack(alignment: .topLeading) {
             bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: targetFrame,
                    gravity: pose.targetSlosh, hidden: event.targetHiddenBefore, drawsMarks: false, unlock: unlockProgress(pose),
-                   twin: event.twins.contains(event.to))
+                   twin: event.twins.contains(event.to), card: mixGlow(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
+            sourceCard
             receivers(pose)
             pipeFlow(pose)
 
@@ -343,7 +350,8 @@ struct PourAnimationView: View {
     /// `valve`: a tap's handle, 0 = closed … 1 = open.
     private func bottle(_ model: Bottle, segments: [LiquidSegment], frame: CGRect, gravity: Double,
                         hidden: [Bool] = [], drawsMarks: Bool = true, unlock: Double = 0, corkOff: Double? = nil,
-                        opaque: Double = 0, valve: Double = 0, bubbles: Double = 1, twin: Bool = false) -> some View {
+                        opaque: Double = 0, valve: Double = 0, bubbles: Double = 1, twin: Bool = false,
+                        card: Double? = nil) -> some View {
         let w = frame.width
         let shape = BottleView.shape(width: w)
         let parts = GlassParts(model)
@@ -351,7 +359,7 @@ struct PourAnimationView: View {
         let lock = model.lockedBy
         let ice = model.frozenLayers
         // Same outline as at rest (`BottleView`): the seal's metal, else frosted or plain glass.
-        let plainOutline = ice.isEmpty ? BottleView.outlineColor : Ice.outline
+        let plainOutline = !ice.isEmpty ? Ice.outline : model.isCauldron ? Iron.outline : BottleView.outlineColor
         let sealOutline = lock.map { Palette.keyColor($0.rawValue).opacity(0.8) }
         let cork = Cork.placement(for: model, width: w)
         return ZStack {
@@ -390,7 +398,9 @@ struct PourAnimationView: View {
             }
         }
         .frame(width: w, height: frame.height)
+        .cauldronDress(model, width: w, height: frame.height, heat: card ?? 0)
         .bubbleGauge(model.bubbling, width: w)
+        .recipeCard(card == nil ? [] : model.recipes, width: w, lit: event.mix?.recipe, glow: card ?? 0)
         .overlay(alignment: .topLeading) {
             if parts.tap { SpigotMark(width: w, height: frame.height, valve: valve) }
         }
@@ -399,7 +409,11 @@ struct PourAnimationView: View {
         }
         .overlay(alignment: .top) {
             let outline = unlock < 0.5 ? sealOutline ?? plainOutline : plainOutline
-            if parts.neck { NeckCollar(width: w, color: outline) } else { FlaskRim(width: w, color: outline) }
+            if parts.neck {
+                NeckCollar(width: w, color: outline)
+            } else if !model.isCauldron {
+                FlaskRim(width: w, color: outline)
+            }
         }
         .overlay(alignment: .top) {
             if !ice.isEmpty { FrostRim(width: w, necked: parts.neck) }
@@ -488,8 +502,9 @@ struct PourAnimationView: View {
         return ZStack(alignment: .topLeading) {
             bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: target,
                    gravity: pose.targetSlosh, hidden: event.targetHiddenBefore, drawsMarks: false, unlock: unlockProgress(pose),
-                   twin: event.twins.contains(event.to))
+                   twin: event.twins.contains(event.to), card: mixGlow(pose))
                 .position(x: target.midX, y: target.midY)
+            sourceCard
             receivers(pose)
             pipeFlow(pose)
 
@@ -547,6 +562,28 @@ struct PourAnimationView: View {
             }
             .trimmedPath(from: pose.streamTail, to: pose.streamHead)
             path.stroke(color.gradient, style: StrokeStyle(lineWidth: streamWidth, lineCap: .round))
+        }
+    }
+
+    // MARK: Cauldron
+
+    /// How brightly the target cauldron's card lights the mixing recipe (0 → 1 while the potion
+    /// flows in, held until the board's swirl takes over). nil: the card isn't lit, 0 for a
+    /// cauldron that doesn't mix.
+    private func mixGlow(_ pose: PourPose) -> Double {
+        guard event.mix != nil else { return 0 }
+        return PourPose.ease(pose.flow, 0, 0.4)
+    }
+
+    /// A cauldron source's recipe card stays at its resting place while the flask flies.
+    @ViewBuilder
+    private var sourceCard: some View {
+        let recipes = event.sourceBefore.recipes
+        if !recipes.isEmpty {
+            Color.clear
+                .frame(width: sourceFrame.width, height: sourceFrame.height)
+                .recipeCard(recipes, width: sourceFrame.width)
+                .position(x: sourceFrame.midX, y: sourceFrame.midY)
         }
     }
 

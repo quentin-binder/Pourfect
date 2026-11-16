@@ -58,6 +58,10 @@ final class GameViewModel {
         /// were before the rise: the board shows them so while the pour is in the air, and their
         /// rise plays when it lands (`BubbleRise`).
         let rises: [RiseMark]
+        /// The mix this pour made in its target cauldron (`TurnEvent.mixed`, E1), with the
+        /// cauldron as the pour left it and as it ends: the swirl plays when the pour lands
+        /// (`MixSwirl`).
+        let mix: MixMark?
 
         /// A key pour: the key drops into the target's lock instead of liquid flowing.
         var isKey: Bool { layer.isKey }
@@ -104,6 +108,9 @@ final class GameViewModel {
         /// The bottom layer of these bubbling flasks rose to the top (D2); fires when the pour
         /// animation lands, as the bubble starts to climb.
         case bubbled(bottles: [Int])
+        /// The pour into this cauldron mixed (E1); fires when the pour animation lands, as the
+        /// ingredients start to swirl.
+        case mixed(bottle: Int)
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
         case flaskCompleted(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
@@ -175,6 +182,12 @@ final class GameViewModel {
     private(set) var rises: [RiseMark] = []
     private var riseCount = 0
     private var riseClearTask: Task<Void, Never>?
+    /// Cauldrons that mixed when the last pour landed; each swirls once, then is removed
+    /// (`MixSwirl`). A cauldron the mix completes is counted complete (cork, sound) and a win
+    /// is announced only then.
+    private(set) var mixes: [MixMark] = []
+    private var mixCount = 0
+    private var mixClearTask: Task<Void, Never>?
 
     /// Latest optimal solution, valid for `solutionState`. Lets Hint answer instantly.
     private var solution: (state: GameState, moves: [Move])?
@@ -265,8 +278,17 @@ final class GameViewModel {
     func bottle(_ index: Int) -> Bottle {
         var bottle = state.bottles[index]
         if let mark = pour?.rises.first(where: { $0.bottle == index }) { bottle.layers = mark.layers }
+        if let mix = pour?.mix, mix.bottle == index { bottle.layers = mix.before }
         return bottle
     }
+
+    /// The mix swirling in cauldron `index`, if any.
+    func mix(_ index: Int) -> MixMark? {
+        mixes.last { $0.bottle == index }
+    }
+
+    /// Whether a mix is still swirling: the win card waits for it.
+    var isMixing: Bool { !mixes.isEmpty }
 
     /// The bubbling phase to show on bottle `index`'s dial: from before the move while a pour is
     /// in the air, so the dial ticks when it lands.
@@ -306,13 +328,13 @@ final class GameViewModel {
         perform(tap: index)
     }
 
-    /// Whether tapping `index` now would start a pour with a flask whose rise is still playing:
-    /// the pour waits for the rise, so the flask never jumps to its new order (DECISIONS 177).
+    /// Whether tapping `index` now would start a pour with a flask whose rise (or mix) is still
+    /// playing: the pour waits for it, so the flask never jumps to its new order (DECISIONS 177).
     private func waitsForRise(_ index: Int) -> Bool {
         guard let from = selected, from != index else { return false }
         // A pour into a linked flask may also fill its twin or the far end of its pipe.
         let touched = [from, index, state.twin(of: index), state.overflowTarget(of: index)].compactMap { $0 }
-        return rises.contains { touched.contains($0.bottle) }
+        return rises.contains { touched.contains($0.bottle) } || mixes.contains { touched.contains($0.bottle) }
     }
 
     /// Replays queued taps in order, until one starts a pour or has to wait for a rise.
@@ -370,11 +392,18 @@ final class GameViewModel {
         announceLanding(landed)
         startThaws(landed.events, reduceMotion: reduceMotion)
         startRises(landed.rises, reduceMotion: reduceMotion)
-        if !landed.completed.isEmpty {
-            for index in landed.completed where completions.indices.contains(index) { completions[index] += 1 }
-            emit(.flaskCompleted(bottles: landed.completed))
+        // A cauldron the mix completes is corked when the swirl has settled (`startMix`).
+        let completed = landed.completed.filter { $0 != landed.mix?.bottle }
+        if !completed.isEmpty {
+            for index in completed where completions.indices.contains(index) { completions[index] += 1 }
+            emit(.flaskCompleted(bottles: completed))
         }
-        if case .won(let stars) = status { emit(.levelWon(stars: stars)) }
+        if let mix = landed.mix {
+            startMix(mix, completes: landed.completed.contains(mix.bottle), reduceMotion: reduceMotion)
+        } else if case .won(let stars) = status, mixes.isEmpty {
+            // (While a mix still swirls, its end announces the win.)
+            emit(.levelWon(stars: stars))
+        }
         replayQueuedTaps()
     }
 
@@ -479,6 +508,7 @@ final class GameViewModel {
                     before: before.bottles[$0.bottle], hiddenBefore: mask($0.bottle))
         }
         rises.removeAll { $0.bottle == move.from || $0.bottle == move.to || event.shares.map(\.bottle).contains($0.bottle) }
+        mixes.removeAll { $0.bottle == move.from || $0.bottle == move.to }
         let twins = Set(state.links.flatMap { link -> [Int] in
             guard case let .twins(a, b) = link else { return [] }
             return [a, b]
@@ -491,7 +521,8 @@ final class GameViewModel {
                          completed: Rules.completedBottles(before: before, after: state),
                          events: session.lastEvents, iceBefore: before.bottles.map(\.frozenLayers),
                          bubblingBefore: before.bottles.map(\.bubbling),
-                         rises: pendingRises(session.lastEvents, hiddenBefore: hiddenBefore))
+                         rises: pendingRises(session.lastEvents, hiddenBefore: hiddenBefore),
+                         mix: pendingMix(event))
         emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
                    fromBottom: event.fromBottom))
         if let pour, pour.isSplit { emit(.split(bottles: [move.to] + shares.map(\.bottle))) }
@@ -513,6 +544,8 @@ final class GameViewModel {
         thaws.removeAll()
         riseClearTask?.cancel()
         rises.removeAll()
+        mixClearTask?.cancel()
+        mixes.removeAll()
         queuedTaps.removeAll()
         pourTimeout?.cancel()
     }
@@ -675,6 +708,52 @@ final class GameViewModel {
             self.rises.removeAll { $0.id <= lastID }
             // A pour that waited for this rise starts now.
             withAnimation(.easeInOut(duration: 0.3)) { self.replayQueuedTaps() }
+        }
+    }
+
+    /// The mix this pour made (`TurnEvent.mixed`, E1): the cauldron's layers after the turn,
+    /// and as the pour left them before mixing (`Rules.beforeMixing`, from the pour's layer and
+    /// the amount that landed there).
+    private func pendingMix(_ event: BottleSortCore.PourEvent) -> MixMark? {
+        for case let .mixed(b, recipe, pairs) in session.lastEvents where state.bottles.indices.contains(b) {
+            guard let poured = event.layer.colorID else { continue }
+            let amount = b == event.move.to ? event.targetAmount : event.shares.first { $0.bottle == b }?.amount ?? 0
+            let after = state.bottles[b].layers
+            let before = Rules.beforeMixing(after, poured: event.layer, amount: amount, recipe: recipe, pairs: pairs)
+            mixCount += 1
+            return MixMark(id: mixCount, bottle: b, recipe: recipe, pairs: pairs, poured: poured, amount: amount,
+                           before: before, after: after)
+        }
+        return nil
+    }
+
+    /// The pour landed in a cauldron and mixed: the ingredients swirl into the new potion now
+    /// (`MixSwirl`), with a brewing sound and, for VoiceOver, a line naming what was brewed.
+    /// When the swirl has settled, a cauldron the mix `completes` is corked, a win is announced
+    /// and a pour that waited for the cauldron starts.
+    private func startMix(_ mark: MixMark, completes: Bool, reduceMotion: Bool) {
+        mixes.append(mark)
+        emit(.mixed(bottle: mark.bottle))
+        let recipe = mark.recipe
+        AccessibilityNotification.Announcement(
+            String(localized: "Flask \(mark.bottle + 1) brewed \(2 * mark.pairs) \(Palette.potionName(recipe.result.rawValue)) from \(Palette.potionName(mark.poured.rawValue)) and \(Palette.potionName(mark.partner.rawValue))",
+                   comment: "VoiceOver: a pour mixed in a cauldron; the arguments are the flask number, how many layers were brewed, the new potion and the two ingredients")).post()
+        let lastID = mark.id
+        mixClearTask?.cancel()
+        mixClearTask = Task {
+            let duration = reduceMotion ? MixPose.reducedDuration : MixPose.duration
+            try? await Task.sleep(for: .seconds((duration + 0.05) * DebugTiming.slow))
+            guard !Task.isCancelled else { return }
+            withAnimation(.easeInOut(duration: 0.3)) {
+                self.mixes.removeAll { $0.id <= lastID }
+                if completes, self.completions.indices.contains(mark.bottle) {
+                    self.completions[mark.bottle] += 1
+                    self.emit(.flaskCompleted(bottles: [mark.bottle]))
+                }
+                if case .won(let stars) = self.status { self.emit(.levelWon(stars: stars)) }
+                // A pour that waited for this cauldron starts now.
+                self.replayQueuedTaps()
+            }
         }
     }
 

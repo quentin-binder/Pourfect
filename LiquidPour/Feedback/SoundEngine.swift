@@ -42,6 +42,9 @@ final class SoundEngine {
         case chainRattle
         /// A hollow glug running through a tube: what didn't fit runs on through an overflow pipe.
         case pipeGlug
+        /// Brewing in a cauldron: a stirring swish with bubbles, then a soft sparkling chime as
+        /// the new potion blooms (two ingredients mixed).
+        case brew
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -291,6 +294,7 @@ nonisolated enum SoundSynthesis {
         out.sounds[.bubbleUp] = renderBubbleUp(rng: &rng)
         out.sounds[.chainRattle] = renderChainRattle(rng: &rng)
         out.sounds[.pipeGlug] = renderPipeGlug(rng: &rng)
+        out.sounds[.brew] = renderBrew(rng: &rng)
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in
             let notes = [523.25, 659.25, 783.99, 1046.50]
@@ -469,6 +473,47 @@ nonisolated enum SoundSynthesis {
             }
         }
         for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
+        return normalized(samples, peak: 0.15)
+    }
+
+    /// Brewing (E1), timed on `MixPose`: a low stirring swish (low-passed noise swelling and
+    /// ebbing three times a second, like a ladle going round), small bubbles blipping up through
+    /// it, and at the bloom a soft three-note sparkle (a rising major triad an octave up, slow
+    /// decay) as the new potion appears.
+    private static func renderBrew(rng: inout NoiseGenerator) -> [Float] {
+        let duration = 1.4
+        let count = Int(duration * sampleRate)
+        let noise = Self.lowpassedNoise(count: count, cutoff: 380, rng: &rng)
+        var samples = noise.enumerated().map { i, v -> Double in
+            let t = Double(i) / sampleRate
+            let swell = min(1, t / 0.1) * max(0, 1 - t / 1.0)
+            let stir = 0.55 + 0.45 * sin(2 * .pi * 3 * t - .pi / 2)
+            return v * 0.3 * swell * stir
+        }
+        let blip = { (start: Double, f0: Double, tau: Double, amp: Double, samples: inout [Double]) in
+            let first = Int(start * sampleRate)
+            var phase = 0.0
+            for j in 0..<Int(tau * 6 * sampleRate) where first + j < count {
+                let local = Double(j) / sampleRate
+                phase += 2 * .pi * f0 * (1 + 6 * local) / sampleRate
+                samples[first + j] += amp * sin(phase) * exp(-local / tau) * min(1, local / 0.002)
+            }
+        }
+        var time = 0.08
+        for k in 0..<9 {
+            blip(time, 360 + rng.unit() * 380, 0.018 + rng.unit() * 0.012, 0.35 + 0.04 * Double(k), &samples)
+            time += 0.07 + rng.unit() * 0.05
+        }
+        for (k, f) in [1046.50, 1318.51, 1567.98].enumerated() {
+            let start = MixPose.bloom - 0.05 + Double(k) * 0.07
+            let first = Int(start * sampleRate)
+            for j in 0..<(count - first) {
+                let local = Double(j) / sampleRate
+                let shimmer = 1 + 0.15 * sin(2 * .pi * 9 * local)
+                samples[first + j] += 0.32 * Self.softNote(t: local, f: f) * exp(-local * 4.5) * shimmer
+            }
+        }
+        for k in 0..<Int(0.03 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.03 * sampleRate) }
         return normalized(samples, peak: 0.15)
     }
 

@@ -4,7 +4,7 @@ import SwiftUI
 /// One bottle: rounded outline with stacked layers (bottom → top). Draws key layers,
 /// a lock badge on locked bottles, "?" for layers the session reports as hidden, and the mark of
 /// each flask modifier (essence rune, narrow neck, funnel, spigot, ice with its frost rim,
-/// bubbles and the bubbling dial).
+/// bubbles and the bubbling dial, the cauldron's iron pot and recipe card).
 struct BottleView: View {
     let bottle: Bottle
     let width: CGFloat
@@ -35,6 +35,9 @@ struct BottleView: View {
     var twin = false
     /// Goes up each time this twin's chain refuses a pour: the band glints.
     var chainRefusals = 0
+    /// The mix that just happened in this cauldron (E1): drawn swirling from the unmixed stack
+    /// to the brewed potion (`MixSwirl`) in place of the potion until the mark is removed.
+    var mix: MixMark? = nil
 
     /// A mask with the bottom `count` of `total` layers hidden (tips and previews).
     static func bottomHidden(_ count: Int, of total: Int) -> [Bool] {
@@ -110,13 +113,21 @@ struct BottleView: View {
             .clipShape(shape)
             // While the bottom layer rises, `BubbleRise` draws the potion; the bands keep their
             // identity underneath (no transitions when it hands back).
-            .opacity(rise == nil ? 1 : 0)
-            .animation(nil, value: rise == nil)   // swap in the same frame, never cross-fade
+            // The same for a cauldron while it mixes (`MixSwirl`).
+            .opacity(rise == nil && mix == nil ? 1 : 0)
+            .animation(nil, value: rise == nil && mix == nil)   // swap in the same frame, never cross-fade
             .potionGlow(width: width)
             if let rise {
                 BubbleRise(mark: rise, hiddenAfter: hidden, width: width, height: height, runes: runesEnabled,
                            reduceMotion: reduceMotion)
                     .id(rise.id)
+                    .transition(.identity)
+                    .potionGlow(width: width)
+            }
+            if let mix {
+                MixSwirl(mark: mix, hidden: hidden, width: width, height: height, runes: runesEnabled,
+                         reduceMotion: reduceMotion)
+                    .id(mix.id)
                     .transition(.identity)
                     .potionGlow(width: width)
             }
@@ -139,10 +150,15 @@ struct BottleView: View {
                          lineWidth: isSelected || hintRole != nil ? 3 : 2)
         }
         .frame(width: width, height: height)
+        .cauldronDress(bottle, width: width, height: height, heat: mix == nil ? 0 : 1)
         .overlay(alignment: .topLeading) { spigot }
         .overlay(alignment: .top) { essenceMark }
         .overlay(alignment: .top) {
-            if necked { NeckCollar(width: width, color: outline) } else { FlaskRim(width: width, color: outline) }
+            if necked {
+                NeckCollar(width: width, color: outline)
+            } else if !bottle.isCauldron {
+                FlaskRim(width: width, color: outline)
+            }
         }
         .overlay(alignment: .top) {
             // The frost stays until the last thawing ice has melted.
@@ -152,7 +168,13 @@ struct BottleView: View {
         .overlay(alignment: .top) { funnel }
         .overlay(alignment: .top) { twinBand }
         .bubbleGauge(shownBubbling, width: width, rising: rise != nil)
-        .overlay(alignment: .top) { cork }
+        .recipeCard(bottle.recipes, width: width, lit: mix?.recipe, glow: mix == nil ? 0 : 1)
+        .animation(.easeInOut(duration: 0.35), value: mix?.id)
+        .overlay(alignment: .top) {
+            // A cauldron that a mix completes is corked once the swirl has settled (the model
+            // counts the completion then, so the cork drops in).
+            cork.opacity(mix == nil ? 1 : 0)
+        }
         .overlay(alignment: .top) { sparkles }
         .onChange(of: completions) {
             guard !reduceMotion else { return }
@@ -324,6 +346,7 @@ struct BottleView: View {
             if isSelected { return .accentColor }
             if let key = bottle.lockedBy { return Palette.keyColor(key.rawValue).opacity(0.8) }
             if holdsIce { return Ice.outline }
+            if bottle.isCauldron { return Iron.outline }
             return Self.outlineColor
         }
     }

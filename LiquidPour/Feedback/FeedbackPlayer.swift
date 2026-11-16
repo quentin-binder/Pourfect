@@ -61,6 +61,10 @@ enum FeedbackPlayer {
             // The bottom layer gathers into a bubble and climbs as the pour lands (`BubbleRise`).
             if sound { engine.play(.bubbleUp) }
             if haptics { Haptics.bubble() }
+        case .mixed:
+            // The ingredients swirl into the new potion as the pour lands (`MixSwirl`).
+            if sound { engine.play(.brew) }
+            if haptics { Haptics.brew() }
         case .flaskCompleted:
             if sound { engine.play(.corkPop) }
             if haptics { Haptics.flaskCompleted() }

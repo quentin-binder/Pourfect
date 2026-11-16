@@ -66,6 +66,20 @@ enum Haptics {
         #endif
     }
 
+    /// A rolling swirl of soft taps, then a fuller one as the new potion blooms (E1 mixing).
+    static func brew() {
+        #if os(iOS)
+        Task {
+            for (k, delay) in [0, 110, 110, 110].enumerated() {
+                try? await Task.sleep(for: .milliseconds(delay))
+                soft.impactOccurred(intensity: 0.3 + 0.08 * Double(k))
+            }
+            try? await Task.sleep(for: .milliseconds(Int(MixPose.bloom * 1000) - 330))
+            medium.impactOccurred(intensity: 0.6)
+        }
+        #endif
+    }
+
     /// Two soft, low taps: the overflow ran through the pipe and dropped into the far flask.
     static func overflow() {
         #if os(iOS)
