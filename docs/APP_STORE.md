@@ -25,7 +25,7 @@ Alternatives: `Sort potions, brew wonders` (26), `Pour, sort and brew potions` (
 
 **Promotional text** (170 max, can be changed without a new build):
 
-> Ten chapters of hand-made potion recipes, villagers with special orders and a fresh Daily Brew every day. No ads, no purchases, no account: just pour and think.
+> Ten chapters of solver-checked potion recipes, villagers with special orders and a fresh Daily Brew every day. No ads, no purchases, no account: just pour and think.
 
 **Description** (4000 max):
 
@@ -33,7 +33,7 @@ Alternatives: `Sort potions, brew wonders` (26), `Pour, sort and brew potions` (
 >
 > Pourfect is a cozy liquid-sorting puzzle set in an alchemist's workshop. Climb from the Apprentice Cellar to the Dragon's Hoard across a painted map, learning a new trick in every chapter.
 >
-> HAND-MADE RECIPES
+> 421 POTION RECIPES
 > • 421 recipes in ten chapters and three Challenge books (Challenger, Expert, Master)
 > • Every recipe is checked by a solver, so each one can be finished
 > • Earn up to three stars, and a gold seal for a perfect solve
@@ -119,7 +119,7 @@ See *Screenshots* at the end of this file.
 
 ## Category
 
-- **Primary: Games > Puzzle.** The game is a liquid-sorting puzzle with hand-made recipes, daily puzzles and a timed mode.
+- **Primary: Games > Puzzle.** The game is a liquid-sorting puzzle with 421 solver-checked recipes, daily puzzles and a timed mode.
 - **Secondary (optional): Games > Family** or **Games > Casual**. Family fits the gentle story and the absence of ads and purchases.
 
 ## Age rating (questionnaire notes)
@@ -168,8 +168,8 @@ Largest assets (compiled sizes): chapter map 1.27 MB (1344 × 3136 JPEG), the 10
 2. Category Games > Puzzle; age rating questionnaire as above; App Privacy: Data Not Collected; privacy policy URL; support URL; copyright line.
 3. Run `scripts/testflight.sh <build>` on a Mac signed in to the team in Xcode (Settings → Accounts). The first export creates the distribution certificate and the App Store profile automatically (`-allowProvisioningUpdates`).
 4. TestFlight: add internal testers; external testing needs a short Beta App Review (test information: "No login needed").
-5. Screenshots (6.9" iPhone, 13" iPad, Mac): six per device, see *Screenshots* below. Upload the captioned set (or the raw set) in the order 01–06.
-6. Mac build (optional, same record): archive with `-destination 'generic/platform=macOS'` and the same export options; the Mac app is sandboxed (`ENABLE_APP_SANDBOX`) with no other entitlements (the template's unused *User Selected Files* entitlement was removed in R8).
+5. Screenshots (6.9" iPhone, 13" iPad, Mac): six per device, see *Screenshots* below. Upload the captioned set (or the raw set) in the order 01–06. Every file must be opaque: run `swift scripts/appstore-flatten.swift <files>` on raw captures first (Mac window captures have transparent rounded corners; simulator captures carry an unused alpha channel).
+6. Mac build (optional, same record): the Mac Info.plist carries `LSApplicationCategoryType` = `public.app-category.puzzle-games` (required for a Mac upload, ITMS-90242); archive with `-destination 'generic/platform=macOS'` and the same export options; the Mac app is sandboxed (`ENABLE_APP_SANDBOX`) with no other entitlements (the template's unused *User Selected Files* entitlement was removed in R8).
 
 ## Screenshots
 
@@ -177,7 +177,7 @@ Six per device, in this order, each as a raw capture and a captioned version (ca
 
 | # | Shot | Caption | Sub-line |
 |---|---|---|---|
-| 01 | Chapter 1, recipe 13 mid-pour | Pour. Sort. Relax. | Hand-made potion recipes |
+| 01 | Chapter 1, recipe 13 mid-pour | Pour. Sort. Relax. | 421 solver-checked recipes |
 | 02 | Chapter map | Ten chapters to explore | From the cellar to the dragon's hoard |
 | 03 | Chapter 9 (Alchemist's Hall), recipe 13: a pour next to the cauldron | A new trick in every chapter | Brew new potions in the cauldron |
 | 04 | Chapter 9, recipe 31: Pip's order card and ticket | Brew for the villagers | Special orders and a cozy story |
@@ -188,7 +188,7 @@ Six per device, in this order, each as a raw capture and a captioned version (ca
 |---|---|---|
 | iPhone 6.9" | 1320 × 2868 | iPhone 18 Pro Max simulator, status bar 9:41 / full battery, locale en_US |
 | iPad 13" | 2064 × 2752 | iPad Pro 13-inch (M5) simulator, same status bar |
-| Mac | 2880 × 1800 | Debug Mac app, window set to 1120 × 700 pt with `-LPWindowSize 1120x700` (the built-in display is too small for a 1440 × 900 pt window). Raw = the 2240 × 1400 window capture scaled to 2880 × 1800 (same 16:10 aspect); captioned = the window drawn at its own size under the band. |
+| Mac | 2880 × 1800 | Debug Mac app, window set to 1120 × 700 pt with `-LPWindowSize 1120x700` (the built-in display is too small for a 1440 × 900 pt window). Raw = the 2240 × 1400 window capture scaled to 2880 × 1800 (same 16:10 aspect) and flattened (its transparent corners filled); captioned = the window drawn at its own size under the band. |
 
 The 36 PNGs are about 155 MB together (painted backgrounds compress poorly), so they are **not committed**; regenerate them with the launch arguments below. All captures use `-LPSkipTutorials 1 -LPUnlockAll 1` (and on the Mac `-ApplePersistenceIgnoreState YES -LPWindowSize 1120x700`):
 
@@ -202,4 +202,5 @@ The 36 PNGs are about 155 MB together (painted backgrounds compress poorly), so 
 ```
 
 Simulator status bar: `xcrun simctl status_bar <id> override --time 9:41 --batteryState discharging --batteryLevel 100 --cellularBars 4 --wifiBars 3`.
+Flatten (drop alpha, fill transparent corners with the launch brown): `swift scripts/appstore-flatten.swift RAW.png ...`.
 Caption: `swift scripts/appstore-caption.swift RAW.png OUT.png "Headline" "Sub-line"` (`CAPTION_SIZE=2880x1800` for the Mac window shots).

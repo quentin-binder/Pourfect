@@ -230,7 +230,7 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 ## R8 — Release readiness (Milestone 7, no iCloud / Game Center / notifications)
 - [x] Final target rename to Pourfect: project, target, scheme, app folder and product (bundle id `dev.qbi.pourfect` kept; DECISIONS 244)
 - [x] App icon (approved candidate; Mac sizes with the rounded-rect body) and iOS launch screen (DECISIONS 245)
-- [ ] App Store screenshots (separate task)
+- [x] App Store listing draft and screenshots: six per device (iPhone 6.9", iPad 13", Mac), raw and captioned, flattened to opaque; Mac Info.plist gets the Puzzle Games category (DECISIONS 250)
 - [x] Release polish: privacy manifest, About page, DEBUG hooks checked out of Release, size report, App Store notes in `docs/APP_STORE.md` (DECISIONS 246–248)
 - [ ] Accessibility pass: VoiceOver labels for flasks and layers, Dynamic Type in menus, reduce-motion everywhere — not in scope (user)
 - [ ] Optional: TestFlight beta (App Store Connect stats only, no third-party analytics) — `scripts/testflight.sh` is ready (DECISIONS 249); the upload is the operator's

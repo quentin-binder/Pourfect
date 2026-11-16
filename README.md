@@ -149,7 +149,8 @@ Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
                              RandomLevel, Settings
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
-scripts/                     test-fast.sh (optimized core tests), testflight.sh + ExportOptions.plist (release upload)
+scripts/                     test-fast.sh (optimized core tests), testflight.sh + ExportOptions.plist (release upload),
+                             appstore-caption.swift / appstore-flatten.swift (App Store screenshots)
 docs/APP_STORE.md            Store category, age rating, privacy answers, size report, App Store Connect steps
 Levels/chapter_0N.json       Main-path chapters 1–3; challenge_*.json: optional challenges (synchronized folder: every JSON file is bundled)
 ```
