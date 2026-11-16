@@ -1122,13 +1122,100 @@ public enum Rules {
         return bottle.layers.allSatisfy { $0 == first }
     }
 
-    /// Whether `state` meets `goal`. Only `.standard` is implemented: every bottle is
-    /// solved, which implies no key layers remain and no bottle is sealed.
+    /// Whether `state` meets `goal`.
+    /// - `.standard`: every bottle is solved, which implies no key layers remain and no bottle
+    ///   is sealed.
+    /// - `.order` (R7): every target flask holds exactly its layers (full of its color) and
+    ///   carries nothing that blocks a solved flask (`blocksSolved`: seal, ice); every other
+    ///   flask is solved.
+    /// - `.pattern` (R7 layered recipe): every target as above; every other flask carries
+    ///   nothing that blocks and is empty or holds one color, and for each color at most one
+    ///   non-target flask holding it isn't full (the remainder of a color the recipe used is
+    ///   gathered in one flask; a color with whole flasks of layers fills them, DECISIONS 229).
+    /// - `.rescue`: not implemented, never met.
     public static func isMet(_ goal: Goal, by state: GameState) -> Bool {
         switch goal {
         case .standard: return state.bottles.allSatisfy(isSolved)
-        case .order, .pattern, .rescue: return false   // R7
+        case .order(let targets): return isOrderMet(targets, by: state, layered: false)
+        case .pattern(let targets): return isOrderMet(targets, by: state, layered: true)
+        case .rescue: return false
         }
+    }
+
+    /// `isMet` for `.order` (`layered` false) and `.pattern` (true).
+    static func isOrderMet(_ targets: [GoalTarget], by state: GameState, layered: Bool) -> Bool {
+        let bottles = state.bottles
+        guard bottles.count <= 64 else { return isOrderMetSlow(targets, by: state, layered: layered) }
+        var marked: UInt64 = 0
+        for target in targets {
+            guard bottles.indices.contains(target.bottle), isTargetMet(target, in: bottles[target.bottle]) else { return false }
+            marked |= 1 << UInt64(target.bottle)
+        }
+        if !layered {
+            for i in bottles.indices where marked & (1 << UInt64(i)) == 0 && !isSolved(bottles[i]) { return false }
+            return true
+        }
+        var partial: UInt64 = 0   // colors seen in a non-target flask that isn't full (ids ≤ 46)
+        for i in bottles.indices where marked & (1 << UInt64(i)) == 0 {
+            let bottle = bottles[i]
+            if case .list(let list) = bottle.storage, list.contains(where: blocksSolved) { return false }
+            if case .sealed = bottle.storage { return false }
+            guard let first = bottle.layers.first else { continue }
+            guard let color = first.colorID, bottle.layers.allSatisfy({ $0 == first }) else { return false }
+            if !bottle.isFull {
+                guard (0..<64).contains(color.rawValue) else { return isOrderMetSlow(targets, by: state, layered: layered) }
+                let bit: UInt64 = 1 << UInt64(color.rawValue)
+                if partial & bit != 0 { return false }
+                partial |= bit
+            }
+        }
+        return true
+    }
+
+    /// `isOrderMet` without bit masks (more than 64 flasks or a color id above 63).
+    @inline(never)
+    static func isOrderMetSlow(_ targets: [GoalTarget], by state: GameState, layered: Bool) -> Bool {
+        let bottles = state.bottles
+        var marked = [Bool](repeating: false, count: bottles.count)
+        for target in targets {
+            guard bottles.indices.contains(target.bottle), isTargetMet(target, in: bottles[target.bottle]) else { return false }
+            marked[target.bottle] = true
+        }
+        if !layered {
+            for i in bottles.indices where !marked[i] && !isSolved(bottles[i]) { return false }
+            return true
+        }
+        var partial = Set<ColorID>()   // colors seen in a non-target flask that isn't full
+        for i in bottles.indices where !marked[i] {
+            let bottle = bottles[i]
+            if case .list(let list) = bottle.storage, list.contains(where: blocksSolved) { return false }
+            if case .sealed = bottle.storage { return false }
+            guard let first = bottle.layers.first else { continue }
+            guard let color = first.colorID, bottle.layers.allSatisfy({ $0 == first }) else { return false }
+            if !bottle.isFull && !partial.insert(color).inserted { return false }
+        }
+        return true
+    }
+
+    /// Whether `bottle` meets `target` (R7): it holds exactly the target's layers and carries
+    /// nothing that keeps a flask from counting as solved (a seal, ice). The other flasks
+    /// don't matter here (for the app's tick on a filled order).
+    public static func isTargetMet(_ target: GoalTarget, in bottle: Bottle) -> Bool {
+        switch bottle.storage {
+        case .none: break
+        case .sealed: return false
+        case .list(let list): if list.contains(where: blocksSolved) { return false }
+        }
+        return bottle.layers == target.layers
+    }
+
+    /// The target flasks of `state`'s goal that currently meet their target, ascending (for
+    /// the app's order card). Empty for a goal without targets.
+    public static func metTargets(in state: GameState) -> [Int] {
+        state.goal.targets.compactMap { target in
+            state.bottles.indices.contains(target.bottle) && isTargetMet(target, in: state.bottles[target.bottle])
+                ? target.bottle : nil
+        }.sorted()
     }
 
     /// The puzzle is won when its goal is met.
@@ -1184,4 +1271,14 @@ extension GameState {
 
     /// Whether the goal is met (`Rules.isWon`).
     public var isSolved: Bool { Rules.isWon(self) }
+
+    /// R7: what flask `bottle` is ordered to end with (its goal target), or nil if the goal
+    /// doesn't mark it. For the app's ticket and VoiceOver ("wanted: 4 layers of …").
+    public func goalTarget(at bottle: Int) -> GoalTarget? { goal.target(of: bottle) }
+
+    /// R7: whether flask `bottle` is a goal target that currently meets its target.
+    public func isTargetMet(at bottle: Int) -> Bool {
+        guard let target = goalTarget(at: bottle), bottles.indices.contains(bottle) else { return false }
+        return Rules.isTargetMet(target, in: bottles[bottle])
+    }
 }

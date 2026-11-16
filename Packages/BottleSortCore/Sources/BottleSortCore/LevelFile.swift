@@ -118,6 +118,12 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     /// Switch flasks and gates: a gate flask opens only while its switch flask is complete
     /// (full with one color) (`Link.switchGate`; chapter 10).
     public static let switches: Mechanic = "switch"
+    /// Customer orders: a marked flask must end full of one color (`Goal.order`; R7, mixed
+    /// into chapters 2–10).
+    public static let order: Mechanic = "order"
+    /// Layered recipes: a marked flask must end with an exact pattern of layers
+    /// (`Goal.pattern`; R7, chapters 4–10).
+    public static let layered: Mechanic = "layered"
 
     public var description: String { rawValue }
 }
@@ -159,7 +165,8 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var isHidden: Bool { hidden ?? false }
 
     /// The mechanics this level actually uses, in chapter order (sealed, murky, essence,
-    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow, cauldron, switch),
+    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow, cauldron, switch), then
+    /// the R7 goals (order, layered),
     /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
     public var mechanics: [Mechanic] {
         let all = bottles.flatMap(\.allModifiers)
@@ -177,8 +184,16 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
         if links.contains(where: { if case .overflow = $0 { return true } else { return false } }) { result.append(.overflow) }
         if all.contains(where: { if case .cauldron = $0 { return true } else { return false } }) { result.append(.cauldron) }
         if links.contains(where: { if case .switchGate = $0 { return true } else { return false } }) { result.append(.switches) }
+        let targets = (goal ?? .standard).targets
+        if targets.contains(where: { !$0.isLayered }) { result.append(.order) }
+        if targets.contains(where: \.isLayered) { result.append(.layered) }
         return result
     }
+
+    /// Whether the recipe is a customer order (R7: an order or layered goal). Order recipes are
+    /// appended to chapters 2–10 as bonus recipes: their stars count, but they don't raise the
+    /// chapter gate (`ChapterGate`, DECISIONS 233).
+    public var isCustomerOrder: Bool { !(goal ?? .standard).targets.isEmpty }
 
     /// Whether the level uses something format version 1 can't express.
     public var needsVersion2: Bool {

@@ -99,6 +99,22 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     /// A switch flask (A3) has a tap: a tap never receives, so the switch could never fill up
     /// and its gate could only ever close.
     case tapSwitch(bottle: Int)
+    /// R7: a goal target names a missing flask, or a flask that already has a target.
+    case invalidGoalTarget(bottle: Int)
+    /// R7: a goal target doesn't ask for exactly `capacity` color layers, or an order
+    /// (`Goal.order`) asks for more than one color (a pattern of several colors is a layered
+    /// recipe, `Goal.pattern`).
+    case invalidGoalLayers(bottle: Int)
+    /// R7: a goal target sits on a tap flask, which never receives anything.
+    case goalOnTap(bottle: Int)
+    /// R7: the targets ask for more layers of a color than the level holds.
+    case goalColorShortage(color: ColorID, wanted: Int, available: Int)
+    /// R7: the targets plus one flask per remaining color (each partly used color's remainder
+    /// gathered in one flask) need more flasks than the level has.
+    case goalNeedsMoreFlasks(needed: Int, available: Int)
+    /// R7: a layered recipe (`Goal.pattern`) in a level with a cauldron: mixing changes color
+    /// counts, so the remainder rule isn't defined yet.
+    case layeredWithCauldron
 
     public var description: String {
         switch self {
@@ -147,6 +163,12 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .unmixedPair(b): return "cauldron \(b) starts with a color directly on its recipe partner"
         case .unbalancedColors: return "no amount of mixing lets every color end with 0 or capacity layers"
         case let .tapSwitch(b): return "switch flask \(b) has a tap, so it could never fill up"
+        case let .invalidGoalTarget(b): return "goal target \(b) is not a flask of the level, or has two targets"
+        case let .invalidGoalLayers(b): return "goal target \(b) must ask for exactly capacity color layers (one color for an order)"
+        case let .goalOnTap(b): return "goal target \(b) is a tap flask, which never receives"
+        case let .goalColorShortage(c, w, a): return "the goal wants \(w) layers of color \(c.rawValue), the level has \(a)"
+        case let .goalNeedsMoreFlasks(n, a): return "the goal needs \(n) flasks, the level has \(a)"
+        case .layeredWithCauldron: return "a layered recipe can't be combined with a cauldron"
         }
     }
 }
@@ -319,6 +341,7 @@ extension GameState {
             && Rules.finalColorCounts(counts, recipes: recipes, capacity: capacity) == nil {
             errors.append(.unbalancedColors)
         }
+        errors += goalErrors(capacity: capacity, counts: counts, recipes: recipes)
         for (key, n) in keyCounts.sorted(by: { $0.key < $1.key }) {
             if n > 1 { errors.append(.duplicateKey(key)) }
             if lockCounts[key] == nil { errors.append(.keyWithoutLock(key)) }
@@ -346,6 +369,50 @@ extension GameState {
         }
         for key in lockCounts.keys.sorted() where keyCounts[key] != nil && !openable.contains(key) {
             errors.append(.unopenableLock(key))
+        }
+        return errors
+    }
+
+    /// R7 order and layered goals (DECISIONS 229): every target names a different existing
+    /// flask without a tap and asks for exactly `capacity` color layers (an order: one color);
+    /// the targets want no more of a color than the level holds; and the targets plus one
+    /// flask per whole `capacity` of each remaining color, plus one for each color's partial
+    /// remainder, fit in the level's flasks. With a cauldron the counts change as it brews, so
+    /// only the structure is checked there (the solver decides), and a layered recipe is
+    /// rejected.
+    func goalErrors(capacity: Int, counts: [ColorID: Int], recipes: [Recipe]) -> [ValidationError] {
+        let targets = goal.targets
+        guard !targets.isEmpty else { return [] }
+        var errors: [ValidationError] = []
+        var seen = Set<Int>()
+        var wanted: [ColorID: Int] = [:]
+        let layered: Bool = { if case .pattern = goal { return true } else { return false } }()
+        for target in targets {
+            guard bottles.indices.contains(target.bottle), seen.insert(target.bottle).inserted else {
+                errors.append(.invalidGoalTarget(bottle: target.bottle))
+                continue
+            }
+            if bottles[target.bottle].hasTap { errors.append(.goalOnTap(bottle: target.bottle)) }
+            let colors = target.layers.compactMap(\.colorID)
+            if target.layers.count != capacity || colors.count != target.layers.count || (!layered && target.color == nil) {
+                errors.append(.invalidGoalLayers(bottle: target.bottle))
+            }
+            for c in colors { wanted[c, default: 0] += 1 }
+        }
+        if !recipes.isEmpty {
+            if layered { errors.append(.layeredWithCauldron) }
+            return errors
+        }
+        for (color, n) in wanted.sorted(by: { $0.key < $1.key }) where n > counts[color] ?? 0 {
+            errors.append(.goalColorShortage(color: color, wanted: n, available: counts[color] ?? 0))
+        }
+        if capacity > 0 {
+            var needed = seen.count
+            for (color, n) in counts {
+                let rest = max(0, n - (wanted[color] ?? 0))
+                needed += (rest + capacity - 1) / capacity
+            }
+            if needed > bottles.count { errors.append(.goalNeedsMoreFlasks(needed: needed, available: bottles.count)) }
         }
         return errors
     }

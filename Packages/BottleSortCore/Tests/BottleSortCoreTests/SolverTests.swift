@@ -271,7 +271,15 @@ import Testing
     static let shippedChallenges = ["challenge_challenger", "challenge_expert", "challenge_master"]
     static let shippedPacks = shippedChapters + shippedChallenges
 
+    /// A shipped pack without the customer-order recipes appended to chapters 2–10 (R7): the
+    /// chapter's own recipes, which the shape and golden tests describe. `loadAll` keeps them.
     static func load(_ name: String) throws -> LevelPack {
+        var pack = try loadAll(name)
+        pack.levels.removeAll { $0.isCustomerOrder }
+        return pack
+    }
+
+    static func loadAll(_ name: String) throws -> LevelPack {
         try LevelLoader.load(contentsOf: levelsDir.appendingPathComponent(name + ".json"))
     }
 

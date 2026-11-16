@@ -107,8 +107,19 @@ public struct StateKey: Hashable, Sendable {
     /// follows from the link words, and the order depends only on the bottles' contents and
     /// roles, so the key is a true canonical form here too. Whether a state takes this path
     /// doesn't depend on bottle order, so both forms never meet for one position.
+    ///
+    /// Goal targets (R7 orders and layered recipes) take part in the role too: a target's role
+    /// holds its layer bits (`layerBits`, above the five link bits), so a marked flask never
+    /// ties with an unmarked one or with a target that wants something else, and the global
+    /// section (`globalWords`) writes the targets by rank.
     static func linkedCodes(_ state: GameState) -> [UInt64]? {
-        guard state.moveCount == nil, state.hasStandardGoal else { return nil }
+        guard state.moveCount == nil else { return nil }
+        let targets: [GoalTarget]
+        switch state.goal {
+        case .standard: targets = []
+        case .order(let t), .pattern(let t): targets = t
+        case .rescue: return nil
+        }
         let links = state.links
         var groups: [LinkedGroup] = []
         groups.reserveCapacity(state.bottles.count)
@@ -128,6 +139,10 @@ public struct StateKey: Hashable, Sendable {
                 roles[b] |= 16
             }
         }
+        for target in targets {
+            guard roles.indices.contains(target.bottle), target.layers.count <= maxCapacity else { return nil }
+            roles[target.bottle] |= layerBits(target.layers) << 5 | 1 << 63
+        }
         for (i, bottle) in state.bottles.enumerated() {
             guard let pair = pair(for: bottle) else { return nil }
             groups.append(LinkedGroup(pair: pair, role: roles[i]))
@@ -143,13 +158,38 @@ public struct StateKey: Hashable, Sendable {
                 codes.append(pair.extra)
             }
         }
-        let global = untiedLinkWords(links, groups: groups, order: order)
-            ?? globalWords(state, groups: groups, order: order)
-        if !global.isEmpty {
+        var global: [UInt64]?
+        if targets.isEmpty {
+            global = untiedLinkWords(links, groups: groups, order: order)
+        } else if let linkWords = untiedLinkWords(links, groups: groups, order: order),
+                  let goalWords = untiedTargetWords(state.goal, targets, groups: groups, order: order) {
+            global = linkWords + goalWords
+        }
+        if global == nil { global = globalWords(state, groups: groups, order: order) }
+        if let global, !global.isEmpty {
             codes.append(globalMarker | UInt64(global.count))
             codes += global
         }
         return codes
+    }
+
+    /// The goal half of `globalWords` (R7 targets; no counter) when no target flask is tied with
+    /// another bottle: the ranks are unique, so this is exactly what the general search writes,
+    /// without it. nil if some target is tied.
+    @inline(__always)
+    static func untiedTargetWords(_ goal: Goal, _ targets: [GoalTarget], groups: [LinkedGroup], order: [Int]) -> [UInt64]? {
+        var rankOf = [Int](repeating: 0, count: order.count)
+        for (rank, bottle) in order.enumerated() { rankOf[bottle] = rank }
+        var words: [UInt64] = [goalTag(goal) << 56 | UInt64(targets.count)]
+        words.reserveCapacity(targets.count + 1)
+        for target in targets {
+            let rank = rankOf[target.bottle]
+            if (rank > 0 && groups[order[rank - 1]] == groups[target.bottle])
+                || (rank + 1 < order.count && groups[order[rank + 1]] == groups[target.bottle]) { return nil }
+            words.append(UInt64(rank) << 56 | layerBits(target.layers))
+        }
+        words[1...].sort()
+        return words
     }
 
     /// `globalWords` for links only (standard goal, no counter) when no linked bottle is

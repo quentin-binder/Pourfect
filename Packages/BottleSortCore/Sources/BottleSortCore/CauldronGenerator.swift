@@ -204,6 +204,8 @@ extension Generator {
         if config.switches > 0 {
             state.links += makeSwitches(state.bottles, linked: state.links, config: config, rng: &rng)
         }
+        // 6. Customer orders (R7; nothing drawn without them).
+        if config.orders > 0 || config.layered > 0 { makeGoal(&state, config: config, rng: &rng) }
         return state
     }
 

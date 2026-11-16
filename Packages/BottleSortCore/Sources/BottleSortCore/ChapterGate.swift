@@ -2,21 +2,27 @@
 public struct ChapterProgress: Sendable, Hashable {
     public var stars: Int
     public var maxStars: Int
+    /// The stars the gate counts half of: those of the chapter's standard recipes only. Customer
+    /// order recipes (R7) are bonus recipes: their stars count towards the gate, but they don't
+    /// raise it, so appending them never makes a chapter harder to leave (DECISIONS 233).
+    public var gateMaxStars: Int
 
-    public init(stars: Int, maxStars: Int) {
+    public init(stars: Int, maxStars: Int, gateMaxStars: Int? = nil) {
         self.stars = stars
         self.maxStars = maxStars
+        self.gateMaxStars = min(gateMaxStars ?? maxStars, maxStars)
     }
 
-    public init(stars: Int, recipeCount: Int) {
-        self.init(stars: stars, maxStars: ChapterGate.maxStars(recipeCount: recipeCount))
+    public init(stars: Int, recipeCount: Int, bonusRecipeCount: Int = 0) {
+        self.init(stars: stars, maxStars: ChapterGate.maxStars(recipeCount: recipeCount),
+                  gateMaxStars: ChapterGate.maxStars(recipeCount: recipeCount - bonusRecipeCount))
     }
 
-    /// At least half of the possible stars: the next chapter opens.
-    public var opensNextChapter: Bool { ChapterGate.meetsGate(stars: stars, maxStars: maxStars) }
+    /// At least half of the gate's stars: the next chapter opens.
+    public var opensNextChapter: Bool { ChapterGate.meetsGate(stars: stars, maxStars: gateMaxStars) }
 
     /// Stars still missing before the next chapter opens (0 once it is open).
-    public var starsToOpenNext: Int { max(0, ChapterGate.requiredStars(maxStars: maxStars) - stars) }
+    public var starsToOpenNext: Int { max(0, ChapterGate.requiredStars(maxStars: gateMaxStars) - stars) }
 }
 
 /// Main-path progression (DECISIONS.md #63): chapter 1 is always open; chapter n > 1 opens
@@ -58,9 +64,12 @@ public enum ChapterGate {
     /// Open flags for the main-path chapters given their recipe ids (in chapter order) and the
     /// saved stars. Only the chapters' own recipe ids are read: stars of challenge books, gold
     /// seals and Rush results (stored elsewhere) can never open a chapter (R6, DECISIONS 226).
-    public static func unlockedChapters(recipeIDs chapters: [[String]], stars: (String) -> Int) -> [Bool] {
+    /// Recipes in `bonus` (customer orders, R7) add their stars but don't raise the gate.
+    public static func unlockedChapters(recipeIDs chapters: [[String]], bonus: Set<String> = [],
+                                        stars: (String) -> Int) -> [Bool] {
         unlockedChapters(chapters.map { ids in
-            ChapterProgress(stars: ids.reduce(0) { $0 + clampedStars(stars($1)) }, recipeCount: ids.count)
+            ChapterProgress(stars: ids.reduce(0) { $0 + clampedStars(stars($1)) }, recipeCount: ids.count,
+                            bonusRecipeCount: ids.filter(bonus.contains).count)
         })
     }
 

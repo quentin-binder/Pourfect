@@ -51,13 +51,15 @@ import Testing
         let data = try LevelLoader.encode(LevelPack(levels: [Self.everything()]))
         #expect(throws: LevelLoadError.self) { try LevelLoader.load(data) }
         let errors = Self.everything().gameState.validate()
-        for name in ["essence", "narrowNeck", "tap", "funnel", "frozen", "bubbling", "twins", "overflow", "cauldron", "switchGate"] {
+        for name in ["essence", "narrowNeck", "tap", "funnel", "frozen", "bubbling", "twins", "overflow", "cauldron", "switchGate",
+                     "order"] {
             #expect(!errors.contains(.unsupportedMechanic(name)), "\(name)")
         }
-        for name in ["order"] {
-            #expect(errors.contains(.unsupportedMechanic(name)), "\(name)")
-        }
-        #expect(Solver().solve(Self.everything().gameState) == .unknown(reason: .unsupportedState))
+        // Rescue (R7) was dropped: it still decodes, but never loads for play.
+        var rescue = Self.everything().gameState
+        rescue.goal = .rescue(withinMoves: 9)
+        #expect(rescue.validate().contains(.unsupportedMechanic("rescue")))
+        #expect(Solver().solve(rescue) == .unknown(reason: .unsupportedState))
     }
 
     @Test func classicAndSealedPacksStayVersion1() throws {

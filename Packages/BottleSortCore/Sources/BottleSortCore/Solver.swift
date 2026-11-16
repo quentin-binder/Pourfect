@@ -187,23 +187,50 @@ public struct Solver: Sendable {
     /// storage), so pouring into it is never skipped for a plain flask, and moving a whole
     /// flask into an empty flask alike (plain into plain, cauldron into cauldron) mixes
     /// nothing and only swaps two flasks (DECISIONS 193).
+    ///
+    /// Customer orders (R7 `.order`, `.pattern`; static, no counter): a target flask is
+    /// treated like a linked flask, never *alike* any other, because the goal reads it by
+    /// index. So an empty target is a target of its own (rule 3 never skips it), and while one
+    /// can receive, rule 1 is off: a full one-color flask may have to move into the flask that
+    /// ordered its color (DECISIONS 230). A target source is never relocated (rules 1, 2), since
+    /// swapping it with another flask changes what the goal sees. Rules 2 and 3 only permute
+    /// unmarked flasks, which the goal treats alike, and rule 1's premise (a full one-color
+    /// flask holds all of its color, so its only targets are empty flasks) still holds for
+    /// order and layered levels (no cauldron with a layered recipe; with a cauldron rule 1 is
+    /// off anyway). The twin rule is dropped for a pair with a marked twin. Unlike links,
+    /// marks also keep these rules with ice or bubbling: a relocation or wait between unmarked
+    /// flasks is the same permutation as before.
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
         // Links (F1, F2): bit i set = bottle i is an end of a link; `secondTwin` marks the
         // twin of each pair that is never tried as a target (its pour equals the other's).
-        var linked: UInt64 = 0, secondTwin: UInt64 = 0
+        // R7 goal targets are marked like linked flasks (`marked`): never alike any other flask.
+        var linked: UInt64 = 0, secondTwin: UInt64 = 0, marked: UInt64 = 0
         if !state.isBottlesOnly {
-            guard state.moveCount == nil, state.hasStandardGoal, bottles.count <= 64 else { return state.legalMoves() }
+            guard state.moveCount == nil, bottles.count <= 64 else { return state.legalMoves() }
+            switch state.goal {
+            case .standard: break
+            case .order(let targets), .pattern(let targets):
+                for target in targets {
+                    guard bottles.indices.contains(target.bottle) else { return state.legalMoves() }
+                    marked |= 1 << UInt64(target.bottle)
+                }
+            case .rescue: return state.legalMoves()
+            }
             for link in state.links {
                 let (a, b) = link.endpoints
                 guard bottles.indices.contains(a), bottles.indices.contains(b), a != b else { return state.legalMoves() }
                 switch link {
-                case .twins: secondTwin |= 1 << UInt64(max(a, b))
+                case .twins:
+                    // Pouring into either twin is the same pour, unless a goal marks one of them.
+                    if marked & (1 << UInt64(a) | 1 << UInt64(b)) == 0 { secondTwin |= 1 << UInt64(max(a, b)) }
                 case .overflow, .switchGate: break
                 }
                 linked |= 1 << UInt64(a) | 1 << UInt64(b)
             }
         }
+        let hasLinks = linked != 0
+        linked |= marked
         @inline(__always) func isLinked(_ i: Int) -> Bool { linked != 0 && linked & (1 << UInt64(i)) != 0 }
         var icy = false, bubbling = false, mixing = false
         for bottle in bottles {
@@ -214,7 +241,7 @@ public struct Solver: Sendable {
             if kind.mixing { mixing = true }
         }
         let timed = icy || bubbling
-        if timed && linked != 0 { return state.legalMoves() }
+        if timed && hasLinks { return state.legalMoves() }
         var waitKept = false
         // The first plain empty flask; flasks with other modifiers are rare and are
         // compared one by one (`isFirstEmptyAlike`). A linked flask is never alike any other.
@@ -244,7 +271,7 @@ public struct Solver: Sendable {
                 if target.isEmpty && !targetLinked {
                     if target.isPlain {
                         if to != firstPlainEmpty || (movesWhole && source.isPlain) { continue }  // rules 3, 2
-                        alikeEmpty = bubbling && source.isPlain
+                        alikeEmpty = bubbling && source.isPlain && sourceFree
                     } else if !target.isSealed {
                         if !isFirstEmptyAlike(to) { continue }  // rule 3
                         alikeEmpty = (!icy || bubbling) && sourceFree && target.storage == source.storage

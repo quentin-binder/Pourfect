@@ -107,6 +107,18 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Moves each switch must add for `requireSwitchMatter` (`SwitchImpact.minimumCost` or
     /// `.strongCost`).
     public var switchCost: Int
+    /// R7 customer orders: flasks that must end full of one given color (`Goal.order`). 0 = none.
+    /// Placed last (step 11 of `candidate`, step 6 of `cauldronCandidate`).
+    public var orders: Int
+    /// R7 layered recipes: flasks that must end with an exact pattern of 2–3 colors
+    /// (`Goal.pattern`; with any, the whole goal is a `.pattern`, order targets included).
+    public var layered: Int
+    /// Reject levels whose goal doesn't change optimal play (`MechanicImpact.matters` of the
+    /// goal at `orderCost`: an order must make the optimum that many moves longer; a layered
+    /// recipe never matches a standard win, so it always changes it).
+    public var requireOrderMatter: Bool
+    /// Moves an order must add for `requireOrderMatter` (`OrderImpact.minimumCost` or `.strongCost`).
+    public var orderCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -128,6 +140,8 @@ public struct GeneratorConfig: Sendable, Hashable {
                 scramble: Int = 40, requireMixing: Bool = false,
                 switches: Int = 0, switchPlacement: SwitchPlacement = .closed, requireSwitchMatter: Bool = false,
                 switchCost: Int = SwitchImpact.minimumCost,
+                orders: Int = 0, layered: Int = 0, requireOrderMatter: Bool = false,
+                orderCost: Int = OrderImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -172,6 +186,10 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.switchPlacement = switchPlacement
         self.requireSwitchMatter = requireSwitchMatter
         self.switchCost = switchCost
+        self.orders = orders
+        self.layered = layered
+        self.requireOrderMatter = requireOrderMatter
+        self.orderCost = orderCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -298,6 +316,17 @@ public enum Generator {
     ///    first that fits as its gate make a switch link, W times. Placement reads only which
     ///    flasks are empty, never colors (murky-safe). Fewer are placed only if the level has
     ///    too few such flasks.
+    ///
+    /// Customer orders (`orders = O`, `layered = L`, R7), drawn last from the same stream
+    /// (nothing is drawn when both are 0, so every older level is unchanged):
+    /// 11. `makeGoal`: the bottle indices are shuffled again; walking that order over flasks
+    ///    without a tap or cauldron, the first L that can take one get a layered pattern and
+    ///    the next O an order. A pour only lands on its own color, so a flask can only end with
+    ///    a bottom part of what it holds, topped up with that part's top color: a pattern keeps
+    ///    a random prefix of 2...capacity−1 layers with two or more colors and fills the rest
+    ///    with its last color (it shows the flask's bottom, so a layered recipe is never murky).
+    ///    Each order draws a color no other order or pattern uses (with a cauldron, a recipe's
+    ///    result first), independently of what the flask holds (murky-safe).
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         if config.cauldron > 0 { return cauldronCandidate(config, seed: seed) }
         var rng = SplitMix64(seed: seed)
@@ -359,7 +388,51 @@ public enum Generator {
         if config.twins > 0 || config.overflow > 0 { links = makeLinks(bottles, config: config, rng: &rng) }
         // 10. Switches.
         if config.switches > 0 { links += makeSwitches(bottles, linked: links, config: config, rng: &rng) }
-        return GameState(bottles: bottles, links: links)
+        var state = GameState(bottles: bottles, links: links)
+        // 11. Customer orders.
+        if config.orders > 0 || config.layered > 0 { makeGoal(&state, config: config, rng: &rng) }
+        return state
+    }
+
+    /// Step 11 of `candidate` (and the last step of `cauldronCandidate`): marks flasks with
+    /// customer orders and layered recipes and sets the goal.
+    static func makeGoal(_ state: inout GameState, config: GeneratorConfig, rng: inout SplitMix64) {
+        let capacity = config.capacity
+        var present = Set(state.bottles.flatMap(\.layers).compactMap(\.colorID))
+        let results = state.bottles.flatMap(\.recipes).map(\.result)
+        present.formUnion(results)
+        var order = Array(state.bottles.indices)
+        rng.shuffle(&order)
+        let free = order.filter { !state.bottles[$0].hasTap && !state.bottles[$0].isCauldron }
+        var targets: [GoalTarget] = []
+        var ordered = Set<ColorID>()
+        for bottle in free where targets.count < config.layered + config.orders {
+            if targets.count < config.layered {
+                // A pour only lands on its own color, so a flask can only end with the bottom of
+                // what it holds now, topped up with that part's top color: keep a prefix of 2+
+                // runs (shorter than the flask) and fill it with its last color.
+                let content = state.bottles[bottle].layers
+                let lengths = (2..<capacity).filter { k in
+                    k <= content.count && content.prefix(k).allSatisfy { $0.colorID != nil }
+                        && Set(content.prefix(k)).count >= 2
+                }
+                guard !lengths.isEmpty else { continue }
+                let k = lengths[rng.nextInt(below: lengths.count)]
+                let layers = Array(content.prefix(k)) + Array(repeating: content[k - 1], count: capacity - k)
+                for c in layers.compactMap(\.colorID) { ordered.insert(c) }   // an order never takes a recipe's color
+                targets.append(GoalTarget(bottle: bottle, layers: layers))
+            } else {
+                // A recipe's result first (brew it for the customer), then any color not yet ordered.
+                let fresh = results.filter { !ordered.contains($0) }
+                let pool = fresh.isEmpty ? present.subtracting(ordered).sorted() : Array(Set(fresh)).sorted()
+                guard !pool.isEmpty else { break }
+                let color = pool[rng.nextInt(below: pool.count)]
+                ordered.insert(color)
+                targets.append(.order(bottle: bottle, color: color, capacity: capacity))
+            }
+        }
+        guard !targets.isEmpty else { return }
+        state.goal = targets.contains(where: \.isLayered) ? .pattern(targets) : .order(targets)
     }
 
     /// Step 10 of `candidate`.
@@ -534,6 +607,12 @@ public enum Generator {
         // …or stop before every recipe has its `mixPairs` un-mixed pairs: the colors must then
         // balance with exactly that many pairs per recipe.
         if config.cauldron > 0 && !hasItsMixPairs(state, config: config) { return nil }
+        // R7: a goal must be valid (enough of each color, enough flasks), and no target may
+        // start met.
+        if state.goal.targets.count < config.orders + config.layered
+            || state.goal.targets.filter(\.isLayered).count < config.layered { return nil }
+        if state.goal != .standard
+            && (!state.validate().isEmpty || !Rules.metTargets(in: state).isEmpty) { return nil }
         // Reject: unsolvable or unknown.
         guard case .solved(let moves, let explored) = Solver().solve(state, limits: config.solverLimits) else { return nil }
         // Cheap filter before the (more expensive) full report.
@@ -572,6 +651,8 @@ public enum Generator {
         // mix (both mechanics are played, not just present).
         if config.cauldron > 0, config.switches > 0,
            SwitchImpact.gateOpenings(in: state, solution: moves).isEmpty { return nil }
+        if config.requireOrderMatter, state.goal != .standard,
+           !OrderImpact.goalMatters(state, minMoves: moves.count, cost: config.orderCost, limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -700,6 +781,9 @@ public enum MechanicImpact {
         // Without its last cauldron a level whose colors can't end in full flasks is unsolvable,
         // which a search could only show by exploring all of it (DECISIONS 195).
         if case .modifier(_, .cauldron) = instance, CauldronImpact.unwinnableByCount(without) { return true }
+        // R7: a layered recipe can never be met by a standard win (its flask holds two or more
+        // colors), so no standard-optimal line meets it: it always changes optimal play.
+        if case .goal(let goal) = instance, goal.targets.contains(where: \.isLayered) { return true }
         switch Solver().solve(without, limits: limits) {
         case .unsolvable: return true
         case .solved(let moves, _):
@@ -1243,5 +1327,35 @@ public enum SwitchImpact {
             current = turn.state
         }
         return result
+    }
+}
+
+/// Whether a customer order changes a level (the "must matter" check for R7 goals): the
+/// `.goal` case of `MechanicImpact`. Removing the instance means the standard goal.
+///
+/// With every color filling whole flasks, every won position of an order is also a standard
+/// win, so the level without the order is never longer: the order matters when it makes the
+/// optimum at least `cost` moves longer, i.e. no standard-optimal solution happens to leave
+/// the ordered color in the ordered flask. A layered recipe never matches a standard win (its
+/// flask holds two or more colors), so it always matters (DECISIONS 231).
+public enum OrderImpact {
+    /// Smallest cost that counts as "matters": one extra move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Cost required in the chapter order recipes after the tutorial: 2+ extra moves.
+    public static let strongCost = 2
+
+    /// Whether the goal of `state` matters (true for the standard goal).
+    public static func goalMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                   limits: SolverLimits = .default) -> Bool {
+        guard state.goal != .standard else { return true }
+        return MechanicImpact.matters(.goal(state.goal), in: state, minMoves: minMoves, cost: cost, limits: limits)
+    }
+
+    /// How many moves the goal adds to the optimum (with minus without), or nil if the level
+    /// without it isn't solved within `limits`. For the report and tests.
+    public static func extraMoves(_ state: GameState, minMoves: Int, limits: SolverLimits = .default) -> Int? {
+        var standard = state
+        standard.goal = .standard
+        return Solver().solve(standard, limits: limits).moves.map { minMoves - $0.count }
     }
 }

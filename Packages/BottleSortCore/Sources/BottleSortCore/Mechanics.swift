@@ -249,31 +249,73 @@ public enum Link: Hashable, Sendable, CustomStringConvertible {
     }
 }
 
-/// A target for one flask in an order or pattern goal.
+/// A target for one flask in an order or pattern goal (R7 customer orders).
 public struct GoalTarget: Hashable, Codable, Sendable {
     /// Bottle index in `GameState.bottles`.
     public var bottle: Int
-    /// Required content, bottom → top (an order is `capacity` layers of one color).
+    /// Required content, bottom → top: exactly `capacity` color layers (`validate()`). An
+    /// order is `capacity` layers of one color; a layered recipe is any color pattern.
     public var layers: [Layer]
     public init(bottle: Int, layers: [Layer]) {
         self.bottle = bottle
         self.layers = layers
     }
+
+    /// An order: flask `bottle` must end full (`capacity` layers) of `color`.
+    public static func order(bottle: Int, color: ColorID, capacity: Int) -> GoalTarget {
+        GoalTarget(bottle: bottle, layers: Array(repeating: .color(color), count: capacity))
+    }
+
+    /// The single color this target asks for, or nil if it is a layered pattern of several
+    /// colors (or holds a key, which `validate()` rejects).
+    public var color: ColorID? {
+        guard let first = layers.first?.colorID, layers.allSatisfy({ $0 == .color(first) }) else { return nil }
+        return first
+    }
+
+    /// Whether the target is a layered pattern (two or more colors), not a one-color order.
+    public var isLayered: Bool { color == nil && !layers.isEmpty }
+
+    /// The pattern as runs, bottom first: (color, count) for each run of equal layers, e.g.
+    /// 2 red, 1 gold, 1 blue. Key layers are skipped. For the app's card and chips.
+    public var runs: [(color: ColorID, count: Int)] {
+        var result: [(color: ColorID, count: Int)] = []
+        for layer in layers {
+            guard let c = layer.colorID else { continue }
+            if let last = result.last, last.color == c { result[result.count - 1].count += 1 } else { result.append((c, 1)) }
+        }
+        return result
+    }
 }
 
 /// When a level is won. `GameState.isSolved` asks `Rules.isMet(_:by:)`.
+///
+/// R7 customer orders (DECISIONS 229): `order` and `pattern` mark flasks by index (the
+/// marks follow their flasks through shuffles and `permuted(by:)`, and `StateKey` writes
+/// them as canonical ranks). A *partial order* is an order with targets on some flasks
+/// only, so it needs no case of its own.
 public enum Goal: Hashable, Sendable {
     /// Every flask is empty or full with one color (and nothing is sealed). Implemented.
     case standard
-    /// R7 order: each target flask ends with its target content; every other flask is
-    /// standard-solved. Targets reference bottles by index, like links.
+    /// R7 order: each target flask ends full of its color (no seal, no ice); every other
+    /// flask is standard-solved (empty or full with one color). Implemented.
     case order([GoalTarget])
-    /// R7 layered recipe: like `order`, but a target may be any exact layer pattern.
+    /// R7 layered recipe: each target flask ends with exactly its layers (no seal, no ice);
+    /// every other flask is empty or holds one color, and the layers of each color outside
+    /// the targets are gathered: at most one non-target flask of a color is not full (the
+    /// remainder of a color the recipe uses). With every color filling whole flasks outside
+    /// the targets this is the standard rule. Implemented (`Rules.isMet`).
     case pattern([GoalTarget])
     /// R7 rescue: every seal open within `withinMoves` moves (needs `GameState.moveCount`).
+    /// Dropped by the user's decision (DECISIONS 229); not implemented.
     case rescue(withinMoves: Int)
 
-    public var isImplemented: Bool { self == .standard }
+    public var isImplemented: Bool {
+        switch self {
+        case .standard, .order, .pattern: return true
+        case .rescue: return false
+        }
+    }
 
     public var name: String {
         switch self {
@@ -290,11 +332,18 @@ public enum Goal: Hashable, Sendable {
         return false
     }
 
-    var targets: [GoalTarget] {
+    /// The marked flasks of an order or layered recipe, in declaration order (empty for the
+    /// other goals).
+    public var targets: [GoalTarget] {
         switch self {
         case .order(let t), .pattern(let t): return t
         case .standard, .rescue: return []
         }
+    }
+
+    /// The target of flask `bottle`, or nil if it isn't marked.
+    public func target(of bottle: Int) -> GoalTarget? {
+        targets.first { $0.bottle == bottle }
     }
 
     /// The same goal with its bottle references renumbered by `map`.
