@@ -64,7 +64,7 @@ else is a challenge).
   Misty Marsh"), then the recipe grid (recipes open in order).
 - **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
 - **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow
-  necks, funnels, taps, frozen layers, bubbling flasks) the game shows a
+  necks, funnels, taps, frozen layers, bubbling flasks, twin flasks, overflow pipes, the mixing cauldron) the game shows a
   short illustrated tip drawn with the real flasks (2–3 steps, **Got it**). The **?** in the game's top bar (⌘/)
   shows the tips for the current recipe again. Seen tips are stored per mechanic (`TutorialStore`, UserDefaults).
 
@@ -76,7 +76,8 @@ LiquidPour/                  SwiftUI app
   Model/                     GameViewModel, LevelCatalog, ProgressStore, Tutorials, AppSettings, Palette, RandomLevelMaker
   Views/                     RootView, ChapterMapView (home), PackView (chapter / challenge recipes), ChallengesView,
                              GameView, TutorialOverlay, BottleView, RandomLevelView, PourAnimationView,
-                             TiltedLiquid, FlaskDecor, GlassDecor, FrostDecor, WorkbenchBackground, SettingsView
+                             TiltedLiquid, FlaskDecor, GlassDecor, FrostDecor, BubbleDecor, LinkDecor, CauldronDecor,
+                             WorkbenchBackground, SettingsView
   Assets.xcassets            Optimized painted art (workbench backgrounds, chapter map, chapter vignettes)
   Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
@@ -181,7 +182,12 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   color or into an empty cauldron are normal. Since mixing changes how many layers each color has, a cauldron
   level only needs mixing amounts after which every color has 0 or a flask's worth of layers; the win is standard
   (a cauldron ends empty or full of one color). A cauldron carries no other modifier and no link. Undo restores the
-  unmixed layers. The mix is part of the pour (before thaw and bubbling) and reported as `TurnEvent.mixed`.
+  unmixed layers. The mix is part of the pour (before thaw and bubbling) and reported as `TurnEvent.mixed`. On
+  screen: the cauldron's glass stands in a wide iron pot on two legs over glowing embers, with a thick rim and ring
+  handles, and a parchment card under it shows each recipe as potion drops with runes (X + Y → Z). After a mixing
+  pour lands, the two ingredients swirl into each other, the new potion blooms from the middle, bubbles rise, a puff
+  of its color leaves the mouth and the recipe glows on the card, with a stirring, bubbling sound and a soft chime
+  (Reduce Motion: a cross-fade). A cauldron the mix fills is corked, and the win card shown, once the swirl settles.
 
 ### Random Brew (random levels)
 
@@ -236,7 +242,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask, else a pour a twin chain refuses. |
 | `-LPDemoIcePour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a legal pour out of a flask that holds ice (the potion above the ice pours, the ice stays pinned). |
 | `-LPDemoLinkPour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a pour that uses a link: one that runs through an overflow pipe if any (e.g. chapter 8 recipe 17), else one split between twins. |
-| `-LPSlowMotion F` | Plays the pour, thaw and bubble-up animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
+| `-LPSlowMotion F` | Plays the pour, thaw, bubble-up and cauldron mix animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
