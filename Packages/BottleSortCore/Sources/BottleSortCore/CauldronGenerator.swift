@@ -9,8 +9,10 @@ public enum CauldronIngredients: String, Sendable, Hashable, CaseIterable {
     /// be mixed away, and the result ends as one full flask (red + blue → purple, and no red
     /// or blue flask at the end).
     case fresh
-    /// The ingredients are sorted colors of their own: each ends as one full flask too, so
-    /// exactly the un-mixed pairs must be brewed and any extra mix loses the recipe.
+    /// The ingredients are sorted colors of their own: each ends as one full flask too, so the
+    /// shortest win brews exactly the un-mixed pairs. Brewing more is not a dead end: a board
+    /// that brews every ingredient away and ends with several full flasks of the result wins
+    /// as well, only in more moves (DECISIONS 201).
     case sorted
 }
 

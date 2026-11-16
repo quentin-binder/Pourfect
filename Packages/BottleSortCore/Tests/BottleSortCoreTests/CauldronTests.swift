@@ -198,6 +198,17 @@ private func cauldron(_ values: [Int], _ capacity: Int, _ recipes: [Recipe] = [p
         #expect(Rules.finalColorCounts([0: 3, 1: 2], recipes: [purple], capacity: 4) == nil)
         #expect(Rules.finalColorCounts([0: 4, 2: 4], recipes: [purple], capacity: 4) == [0])
     }
+
+    @Test func validationIsStricterThanTheWin() {
+        // Six reds, six blues, four purples: two pairs give 4 / 4 / 8, which the standard win
+        // accepts (two full purple flasks), but validation wants every color to end with exactly
+        // 0 or `capacity` layers (DECISIONS 194), so it rejects the counts.
+        #expect(Rules.finalColorCounts([0: 6, 1: 6, 4: 4], recipes: [purple], capacity: 4) == nil)
+        let twoPurples = GameState(bottles: [flask([0, 0, 0, 0], 4), flask([1, 1, 1, 1], 4), flask([4, 4, 4, 4], 4),
+                                             cauldron([4, 4, 4, 4], 4), flask([], 4)])
+        #expect(twoPurples.isSolved)
+        #expect(twoPurples.validate().contains(.unbalancedColors))
+    }
 }
 
 /// A recipe that needs the cauldron, and the solver on cauldron levels.
@@ -534,6 +545,40 @@ private func cauldron(_ values: [Int], _ capacity: Int, _ recipes: [Recipe] = [p
 /// Alchemist's Hall (chapter 9).
 @Suite struct AlchemistsHallTests {
     static func pack() throws -> LevelPack { try LevelFileTests.load("chapter_09") }
+
+    /// Every winning end state reachable from `state`, as sorted layer counts per color.
+    static func winningCounts(_ state: GameState) -> Set<[ColorID: Int]> {
+        var seen: Set<StateKey> = [state.canonicalKey]
+        var frontier = [state]
+        var wins: Set<[ColorID: Int]> = []
+        while let s = frontier.popLast() {
+            if s.isSolved {
+                var counts: [ColorID: Int] = [:]
+                for bottle in s.bottles { for case .color(let c) in bottle.layers { counts[c, default: 0] += 1 } }
+                wins.insert(counts)
+                continue
+            }
+            for move in s.legalMoves() {
+                if let next = s.pouring(move), seen.insert(next.canonicalKey).inserted { frontier.append(next) }
+            }
+        }
+        return wins
+    }
+
+    @Test func sortedIngredientsCanAlsoBeBrewedAway() throws {
+        // c9_013 (red + yellow → orange, sorted ingredients): the intended end keeps a red and a
+        // yellow flask, but brewing every ingredient away into three orange flasks wins too
+        // (always longer, so minMoves and stars don't change; DECISIONS 195).
+        let level = try #require(try Self.pack().levels.first { $0.id == "c9_013" })
+        let wins = Self.winningCounts(level.gameState)
+        let red = ColorID(0), yellow = ColorID(2), orange = ColorID(5)
+        #expect(wins.contains { $0[red] == 4 && $0[yellow] == 4 && $0[orange] == 4 })
+        #expect(wins.contains { $0[red] == nil && $0[yellow] == nil && $0[orange] == 12 })
+        // The shortest solution keeps the ingredients: it brews exactly the one pair.
+        let minMoves = try #require(level.meta?.minMoves)
+        let moves = try #require(Solver().solve(level.gameState).moves)
+        #expect(moves.count == minMoves && CauldronImpact.mixedPairs(in: level.gameState, solution: moves) == 1)
+    }
 
     @Test func shape() throws {
         let pack = try Self.pack()

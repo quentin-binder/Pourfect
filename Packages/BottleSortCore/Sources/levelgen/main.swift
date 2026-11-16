@@ -582,8 +582,8 @@ let packPresets: [String: PackPreset] = [
              scramble: 80, mixingMatter: true, section: 1),
         Tier(count: 4, colors: 5, capacity: 4, empty: 1, moves: any, pool: 2, score: 27...36, cauldron: 1, mixPairs: 2,
              scramble: 150, mixingMatter: true, section: 1),
-        // Sorted ingredients: the ingredients are potions of their own, so exactly one pair must be
-        // brewed and a second mix loses the recipe.
+        // Sorted ingredients: the ingredients are potions of their own, so the shortest win brews
+        // exactly one pair (brewing them all away also wins, only longer).
         Tier(count: 3, colors: 5, capacity: 4, empty: 1, moves: any, score: 29...36, cauldron: 1, ingredients: .sorted,
              mixPairs: 1, scramble: 150, mixingMatter: true, section: 2),
         Tier(count: 3, colors: 6, capacity: 4, empty: 1, moves: any, pool: 2, score: 34...43, cauldron: 1,

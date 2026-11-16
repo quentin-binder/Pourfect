@@ -577,6 +577,8 @@ public enum Rules {
     /// recipe `a + b → z` takes one `a` and one `b` and makes two `z`. A necessary condition
     /// for a cauldron level to be winnable (`validate()`); the order of the pours is the
     /// solver's business. At most `Rules.maxRecipes` recipes are searched exhaustively.
+    /// Stricter than the win, which takes any multiple of `capacity` per color (several full
+    /// flasks of one color): counts that only balance that way are rejected (DECISIONS 194).
     public static func finalColorCounts(_ counts: [ColorID: Int], recipes: [Recipe], capacity: Int) -> [Int]? {
         let colors = Array(Set(counts.keys).union(recipes.flatMap { [$0.a, $0.b, $0.result] }))
         let total = counts.values.reduce(0, +)

@@ -172,8 +172,9 @@ extension GameState {
     /// color directly on its recipe partner (`Rules.holdsUnmixedPair`). Mixing changes color counts,
     /// so instead of "every color exactly `capacity` times" a level with a cauldron needs
     /// mixing amounts (pairs per recipe, `Rules.finalColorCounts`) after which every color
-    /// has exactly 0 or `capacity` layers (`unbalancedColors`). That is necessary, not
-    /// sufficient: the solver decides whether the mixing can actually be done.
+    /// has exactly 0 or `capacity` layers (`unbalancedColors`). That is not sufficient (the
+    /// solver decides whether the mixing can actually be done) and stricter than the win, which
+    /// also takes several full flasks of one color (DECISIONS 194).
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
         var errors: [ValidationError] = []
