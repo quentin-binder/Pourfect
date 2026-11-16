@@ -173,7 +173,7 @@ public struct Solver: Sendable {
     /// unlinked full one-color source still holds: all of its color is in it, so its only
     /// targets are empty flasks, and an unlinked empty one only swaps two unlinked flasks
     /// (the gates, derived from linked flasks only, don't change). Rules 2 and 3 only permute
-    /// unlinked flasks, which no gate reads (DECISIONS 202).
+    /// unlinked flasks, which no gate reads (DECISIONS 203).
     ///
     /// Cauldrons (E1; no state of their own): rule 1 is off in a state with a cauldron. Its
     /// premise fails twice: mixing changes color counts, so a full one-color flask need not

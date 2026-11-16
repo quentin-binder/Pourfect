@@ -205,7 +205,7 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(moves[(firstOpen + 1)...].contains { $0.from == 0 || $0.to == 0 })
         #expect(moves[...firstOpen].allSatisfy { $0.from != 0 && $0.to != 0 })
         #expect(SwitchImpact.everyGateStartsClosedWithLayers(s))
-        #expect(FrozenImpact.solvesWithoutRelocation(s, in: moves.count))
+        #expect(SwitchImpact.solvesWithoutWaiting(s, in: moves.count))
         #expect(MechanicImpact.everyFirstMoveSolvable(s))
     }
 
@@ -462,5 +462,71 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(SwitchImpact.instances(in: classic).isEmpty)
         #expect(SwitchImpact.everySwitchMatters(classic, minMoves: 3))
         #expect(MechanicImpact.isTwoSided(.link(.switchGate(switch: 0, gate: 1))) == false)
+    }
+}
+
+/// Dragon's Hoard (chapter 10).
+@Suite struct DragonsHoardTests {
+    static func pack() throws -> LevelPack { try LevelFileTests.load("chapter_10") }
+
+    static func gates(_ s: GameState) -> [Int] {
+        s.links.compactMap { if case let .switchGate(_, g) = $0 { g } else { nil } }
+    }
+
+    @Test func shape() throws {
+        let pack = try Self.pack()
+        #expect(pack.version == 2 && pack.chapter == 10 && pack.location == "Dragon's Hoard")
+        #expect(pack.introduces == [.switches])
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c10_%03d", $0 + 1) })
+        let allowed: Set<Mechanic> = [.switches, .sealed, .murky, .essence, .narrowNeck, .frozen, .bubbling, .twins]
+        for level in pack.levels {
+            let s = level.gameState
+            #expect((1...2).contains(Self.gates(s).count), "\(level.id)")
+            #expect(level.mechanics.last == .switches && level.mechanics.count <= 2, "\(level.id)")
+            #expect(Set(level.mechanics).isSubset(of: allowed), "\(level.id)")
+            #expect(s.links.allSatisfy { s.bottles[$0.endpoints.0].isPlain && s.bottles[$0.endpoints.1].isPlain }, "\(level.id)")
+            // Every gate starts closed (no switch starts complete).
+            #expect(Self.gates(s).allSatisfy(s.isGateClosed), "\(level.id)")
+        }
+        // Tutorial: tiny, one switch only, its gate shut with potion inside, every star without a
+        // pure wait, no dead-end first move.
+        let tutorial = try #require(pack.levels.first)
+        let start = tutorial.gameState
+        let minMoves = try #require(tutorial.meta?.minMoves)
+        #expect(tutorial.capacity == 3 && tutorial.mechanics == [.switches] && minMoves <= 8)
+        #expect(SwitchImpact.everyGateStartsClosedWithLayers(start))
+        #expect(SwitchImpact.solvesWithoutWaiting(start, in: minMoves))
+        #expect(MechanicImpact.everyFirstMoveSolvable(start))
+        // Switches alone first; earlier mechanics only near the end.
+        let firstCombo = try #require(pack.levels.firstIndex { $0.mechanics.count > 1 })
+        #expect(firstCombo >= 14 && pack.levels[..<firstCombo].allSatisfy { $0.mechanics == [.switches] })
+        // The curve rises from ~15, and the last five recipes are the hardest of the main path.
+        let scores = pack.levels.compactMap { $0.meta?.score }
+        #expect(scores.count == pack.levels.count && scores.first! < 20)
+        let earlierBest = try (1...9).flatMap { try LevelFileTests.load(String(format: "chapter_%02d", $0)).levels }
+            .compactMap { $0.meta?.score }.max() ?? 0
+        #expect(scores.suffix(5).allSatisfy { $0 > earlierBest && $0 <= 72 })
+        #expect(scores.dropLast(5).allSatisfy { $0 < scores.suffix(5).min()! })
+    }
+
+    /// Every switch matters by 2+ moves (the closed gate changes what optimal play does), and so
+    /// does the other mechanic of a combined recipe (seals strong, as in chapter 2); an optimal
+    /// solution opens every gate that starts with potion before it pours into or out of it.
+    /// Small searches only.
+    @Test func everyMechanicMatters() throws {
+        var checked = 0
+        for level in try Self.pack().levels {
+            guard let meta = level.meta, let minMoves = meta.minMoves, (meta.statesExplored ?? 0) <= 6_000 else { continue }
+            let s = level.gameState
+            #expect(SwitchImpact.everySwitchMatters(s, minMoves: minMoves, cost: SwitchImpact.strongCost), "\(level.id)")
+            #expect(LockImpact.everyLockMatters(s, minMoves: minMoves, cost: LockImpact.strongCost), "\(level.id)")
+            #expect(MechanicImpact.everyMechanicMatters(s, minMoves: minMoves), "\(level.id)")
+            let moves = try #require(Solver().solve(s).moves, "\(level.id)")
+            #expect(moves.count == minMoves, "\(level.id)")
+            #expect(!SwitchImpact.gateOpenings(in: s, solution: moves).isEmpty, "\(level.id)")
+            checked += 1
+        }
+        #expect(checked >= 15)
     }
 }

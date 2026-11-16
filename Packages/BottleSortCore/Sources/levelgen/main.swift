@@ -330,7 +330,7 @@ struct Tier {
     var switchPlacement: SwitchPlacement = .closed
     var switchCost: Int? = nil
     /// Switch tutorial: every gate starts closed with layers inside, an optimal solution needs
-    /// no relocation (`FrozenImpact.solvesWithoutRelocation`) and no first move is a dead end
+    /// no pure wait (`SwitchImpact.solvesWithoutWaiting`) and no first move is a dead end
     /// (`MechanicImpact.everyFirstMoveSolvable`).
     var teachesSwitch = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
@@ -628,6 +628,62 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 2, colors: 8, capacity: 4, empty: 1, moves: any, score: 50...58, cauldron: 2, ingredients: .sorted,
              mixPairs: 1, scramble: 600, mixingMatter: true, section: 4),
     ]),
+    "chapter10": PackPreset(file: "chapter_10", idPrefix: "c10", name: "Dragon's Hoard",
+                            subtitle: "Fill a switch flask with one potion to lift its gate",
+                            kind: .chapter, chapter: 10, location: "Dragon's Hoard", introduces: [.switches],
+                            seed: 15_000, tiers: [
+        // Tutorial: 3 colors in size-3 flasks, two empty flasks; the gate holds potion behind its bars,
+        // the switch costs 2+ moves, an optimal solution needs no parked flask, and no first move is
+        // a dead end.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 2, moves: any, pool: 20, keepEasiest: true, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, teachesSwitch: true, section: 0),
+        // One switch (every switch costs 2+ moves): a gate full of potion, an empty gate (spare room
+        // behind bars), or an empty switch that must be filled with one color.
+        Tier(count: 2, colors: 3, capacity: 4, empty: 2, moves: any, score: 17...25, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 4, capacity: 3, empty: 2, moves: any, score: 20...28, switches: 1,
+             switchPlacement: .emptySwitch, switchCost: SwitchImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 4, capacity: 4, empty: 2, moves: any, score: 24...32, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 30...38, switches: 1,
+             switchPlacement: .empty, switchCost: SwitchImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 33...40, switches: 1,
+             switchPlacement: .emptySwitch, switchCost: SwitchImpact.strongCost, section: 1),
+        // Two switches, each mattering on its own.
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 35...43, switches: 2,
+             switchPlacement: .any, switchCost: SwitchImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 40...47, switches: 2,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, section: 2),
+        // With one earlier mechanic each (on other flasks; every mechanic matters on its own): murky
+        // layers, a strong seal (one empty flask), a rune, a narrow neck, ice, bubbling, twins.
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, hidden: true, moves: any, score: 40...48, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, section: 3),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 1, locks: 1, moves: any, score: 42...50, locksMatter: true,
+             strongLocks: true, switches: 1, switchPlacement: .closed, switchCost: SwitchImpact.strongCost, section: 3),
+        Tier(count: 1, colors: 7, capacity: 4, empty: 2, moves: any, score: 44...52, essence: 1,
+             essenceCost: EssenceImpact.minimumCost, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 3),
+        Tier(count: 1, colors: 7, capacity: 4, empty: 2, moves: any, score: 45...53, narrow: 1,
+             glassCost: GlassImpact.strongCost, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 3),
+        Tier(count: 1, colors: 6, capacity: 4, empty: 2, moves: any, score: 42...50, frozen: 2, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 3),
+        Tier(count: 1, colors: 6, capacity: 4, empty: 2, moves: any, score: 42...50, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 3),
+        Tier(count: 1, colors: 6, capacity: 4, empty: 3, moves: any, score: 43...52, twins: 1, linkPlacement: .empty,
+             linkCost: LinkImpact.strongCost, needsSplit: true, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 3),
+        // The finale, the hardest recipes of the main path (every one above chapters 1–9's best,
+        // 56.3): 8–9 colors behind one or two gates.
+        Tier(count: 2, colors: 9, capacity: 4, empty: 2, moves: any, score: 57...66, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, section: 4),
+        Tier(count: 1, colors: 8, capacity: 4, empty: 2, moves: any, score: 57...68, switches: 1,
+             switchPlacement: .emptySwitch, switchCost: SwitchImpact.strongCost, section: 4),
+        Tier(count: 2, colors: 9, capacity: 4, empty: 2, moves: any, score: 58...70, switches: 2,
+             switchPlacement: .any, switchCost: SwitchImpact.strongCost, section: 4),
+    ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
         Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
@@ -653,7 +709,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
     ]),
 ]
-let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "chapter9", "challenger", "expert", "master"]
+let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "chapter9", "chapter10", "challenger", "expert", "master"]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
@@ -722,7 +778,7 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
         if tier.teachesSwitch {
             generated = generated.filter {
                 SwitchImpact.everyGateStartsClosedWithLayers($0.state)
-                    && FrozenImpact.solvesWithoutRelocation($0.state, in: $0.report.minMoves)
+                    && SwitchImpact.solvesWithoutWaiting($0.state, in: $0.report.minMoves)
                     && MechanicImpact.everyFirstMoveSolvable($0.state)
             }
             if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the switch; raise the pool") }

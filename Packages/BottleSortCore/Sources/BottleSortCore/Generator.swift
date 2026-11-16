@@ -1180,12 +1180,11 @@ public enum LinkImpact {
 /// ordinary flask, always open.
 ///
 /// A gate only ever refuses pours (the switch itself is an ordinary flask), so every solution of
-/// the level is also a solution without the link: the level without it is never longer, and
-/// the check is one-sided, how many moves the closed gate adds to the optimal solution (or
-/// whether the level can't be solved at all without the gate open at the right time; that
-/// can't happen, the link only restricts). The cost is measured on optimal play, so a switch
+/// the level is also a solution without the link: the level without it is never longer (and
+/// never unsolvable), and the check is one-sided, how many moves the closed gate adds to the
+/// optimal solution. The cost is measured on optimal play, so a switch
 /// that matters changes what an optimal player does: they must complete the switch before they
-/// can use the gate, and that order costs moves (DECISIONS 204).
+/// can use the gate, and that order costs moves (DECISIONS 205).
 public enum SwitchImpact {
     /// Smallest cost that counts as "matters": one extra move (`MechanicImpact.minimumCost`).
     public static let minimumCost = 1
@@ -1213,6 +1212,40 @@ public enum SwitchImpact {
             guard case let .switchGate(_, g) = link else { return true }
             return state.bottles.indices.contains(g) && !state.bottles[g].isEmpty && state.isGateClosed(g)
         }
+    }
+
+    /// Whether `move` is a pure wait: it pours all of an unlinked flask into an unlinked empty
+    /// flask, so the position is the same with two flasks swapped (`FrozenImpact.isRelocation`
+    /// between flasks no link reads). Emptying a switch or filling an empty switch or gate in
+    /// one pour is a real move (the lever stays on its flask) and doesn't count.
+    public static func isWait(_ move: Move, in state: GameState) -> Bool {
+        FrozenImpact.isRelocation(move, in: state) && state.link(at: move.from) == nil && state.link(at: move.to) == nil
+    }
+
+    /// Whether `state` can be solved in `moves` moves or fewer without a pure wait (`isWait`),
+    /// so a player who never parks a flask still gets every star (the switch tutorial; a
+    /// switch often has to be emptied into a spare flask before it can be filled with one
+    /// color, which `FrozenImpact.solvesWithoutRelocation` would count as parking).
+    /// Breadth-first over canonical states, at most `maxStates`; false if the budget runs out.
+    public static func solvesWithoutWaiting(_ state: GameState, in moves: Int, maxStates: Int = 200_000) -> Bool {
+        if state.isSolved { return true }
+        var seen: Set<StateKey> = [state.canonicalKey]
+        var frontier = [state]
+        for _ in 0..<moves {
+            var next: [GameState] = []
+            for current in frontier {
+                for move in current.legalMoves() where !isWait(move, in: current) {
+                    guard let turn = Rules.resolve(current, afterAction: .pour(move)) else { continue }
+                    if turn.isWon { return true }
+                    guard seen.insert(turn.state.canonicalKey).inserted else { continue }
+                    if seen.count > maxStates { return false }
+                    next.append(turn.state)
+                }
+            }
+            if next.isEmpty { return false }
+            frontier = next
+        }
+        return false
     }
 
     /// The moves of `solution` (from `state`) after which some gate opened, by index into the
