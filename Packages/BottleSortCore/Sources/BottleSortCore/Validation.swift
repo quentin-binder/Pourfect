@@ -69,6 +69,33 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     case flaskInSeveralLinks(bottle: Int)
     /// A twin flask (F1) is sealed: a key never splits, so the seal could never open.
     case sealedTwin(bottle: Int)
+    /// A cauldron (E1) recipe mixes a color with itself, makes one of its own ingredients,
+    /// or names a color id outside `0...StateKey.maxColorID`.
+    case invalidRecipe(bottle: Int, recipe: Recipe)
+    /// A cauldron carries no recipe, or more than `Rules.maxRecipes`.
+    case invalidRecipeCount(bottle: Int, count: Int)
+    /// Two recipes of a cauldron mix the same pair of colors.
+    case conflictingRecipes(bottle: Int)
+    /// A cauldron carries another modifier (a seal, a rune, a second cauldron, …): not a
+    /// rule yet.
+    case cauldronCombined(bottle: Int)
+    /// A cauldron is an end of a link: not a rule yet (a linked pour never mixes).
+    case linkedCauldron(bottle: Int)
+    /// More than `Rules.maxRecipes` different recipes in the level.
+    case tooManyRecipes(count: Int)
+    /// A recipe can never mix: one of its ingredients is neither in the level nor made by
+    /// another recipe.
+    case unusableRecipe(bottle: Int, recipe: Recipe)
+    /// A recipe's result is an ingredient of another recipe in the level: mixing never
+    /// chains (a fresh result would sit unmixed on its partner), so chained recipes aren't a
+    /// rule yet.
+    case chainedRecipes
+    /// A cauldron starts with a color directly on its recipe partner: play never leaves such
+    /// an unmixed pair (`Rules.holdsUnmixedPair`), and it would read as a broken rule.
+    case unmixedPair(bottle: Int)
+    /// With cauldrons: no amount of mixing lets every color end with exactly 0 or
+    /// `capacity` layers (replaces `wrongColorCount`, since mixing changes color counts).
+    case unbalancedColors
 
     public var description: String {
         switch self {
@@ -106,6 +133,16 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .tooManyBubblingFlasks(n): return "\(n) bubbling flasks (at most \(Rules.maxBubblingFlasks) per level)"
         case let .flaskInSeveralLinks(b): return "flask \(b) is an end of more than one link"
         case let .sealedTwin(b): return "twin flask \(b) is sealed, but a key never splits into it"
+        case let .invalidRecipe(b, r): return "cauldron \(b) has an invalid recipe \(r) (two different ingredients, a third color as result, ids 0...\(StateKey.maxColorID))"
+        case let .invalidRecipeCount(b, n): return "cauldron \(b) has \(n) recipes (allowed: 1...\(Rules.maxRecipes))"
+        case let .conflictingRecipes(b): return "cauldron \(b) has two recipes for the same pair of colors"
+        case let .cauldronCombined(b): return "cauldron \(b) carries another modifier"
+        case let .linkedCauldron(b): return "cauldron \(b) is an end of a link"
+        case let .tooManyRecipes(n): return "\(n) different recipes (at most \(Rules.maxRecipes) per level)"
+        case let .unusableRecipe(b, r): return "recipe \(r) of cauldron \(b) can never mix (an ingredient is missing)"
+        case .chainedRecipes: return "a recipe's result is an ingredient of another recipe"
+        case let .unmixedPair(b): return "cauldron \(b) starts with a color directly on its recipe partner"
+        case .unbalancedColors: return "no amount of mixing lets every color end with 0 or capacity layers"
         }
     }
 }
@@ -126,6 +163,17 @@ extension GameState {
     /// `Rules.maxBubblingFlasks` per level, links connect two different existing bottles, a
     /// flask is an end of at most one link, a twin (F1) is never sealed, and every
     /// modifier, link and goal is implemented by `Rules`.
+    ///
+    /// Cauldrons (E1): each carries 1...`Rules.maxRecipes` valid recipes (two different
+    /// ingredients, a third color as result, no pair twice), no other modifier and no link;
+    /// the level holds at most `Rules.maxRecipes` different recipes, none of whose results is
+    /// an ingredient of another (no chains), each of whose
+    /// ingredients is in the level or made by another recipe, and no cauldron starts with a
+    /// color directly on its recipe partner (`Rules.holdsUnmixedPair`). Mixing changes color counts,
+    /// so instead of "every color exactly `capacity` times" a level with a cauldron needs
+    /// mixing amounts (pairs per recipe, `Rules.finalColorCounts`) after which every color
+    /// has exactly 0 or `capacity` layers (`unbalancedColors`). That is necessary, not
+    /// sufficient: the solver decides whether the mixing can actually be done.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
         var errors: [ValidationError] = []
@@ -174,13 +222,44 @@ extension GameState {
                 }
             }
         }
+        // E1: recipes (level-wide, deduplicated) and cauldron structure.
+        var recipes: [Recipe] = []
+        for (i, bottle) in bottles.enumerated() where bottle.isCauldron {
+            let cauldrons = bottle.modifiers.filter { if case .cauldron = $0 { return true } else { return false } }
+            if bottle.modifiers.count > 1 { errors.append(.cauldronCombined(bottle: i)) }
+            if linkEnds[i] != nil { errors.append(.linkedCauldron(bottle: i)) }
+            for case .cauldron(let list) in cauldrons {
+                if !(1...Rules.maxRecipes).contains(list.count) { errors.append(.invalidRecipeCount(bottle: i, count: list.count)) }
+                var pairs = Set<[ColorID]>()
+                for recipe in list {
+                    let ids = [recipe.a, recipe.b, recipe.result]
+                    if recipe.a == recipe.b || recipe.result == recipe.a || recipe.result == recipe.b
+                        || ids.contains(where: { !(0...StateKey.maxColorID).contains($0.rawValue) }) {
+                        errors.append(.invalidRecipe(bottle: i, recipe: recipe))
+                    }
+                    if !pairs.insert([recipe.a, recipe.b]).inserted { errors.append(.conflictingRecipes(bottle: i)) }
+                    if !recipes.contains(recipe) { recipes.append(recipe) }
+                }
+            }
+        }
+        if recipes.count > Rules.maxRecipes { errors.append(.tooManyRecipes(count: recipes.count)) }
+        if recipes.contains(where: { r in recipes.contains { $0.a == r.result || $0.b == r.result } }) {
+            errors.append(.chainedRecipes)
+        }
+        for (i, bottle) in bottles.enumerated() where bottle.isCauldron {
+            for recipe in bottle.recipes {
+                let made = { (c: ColorID) in counts[c] != nil || recipes.contains { $0.result == c && $0 != recipe } }
+                if !made(recipe.a) || !made(recipe.b) { errors.append(.unusableRecipe(bottle: i, recipe: recipe)) }
+            }
+            if Rules.holdsUnmixedPair(bottle) { errors.append(.unmixedPair(bottle: i)) }
+        }
         for (i, bottle) in bottles.enumerated() {
             let runes = bottle.modifiers.compactMap { m -> ColorID? in
                 if case .essence(let c) = m { return c }
                 return nil
             }
             if runes.count > 1 { errors.append(.multipleEssences(bottle: i)) }
-            for color in runes where counts[color] == nil {
+            for color in runes where counts[color] == nil && !recipes.contains(where: { $0.result == color }) {
                 errors.append(.essenceColorAbsent(bottle: i, color: color))
             }
             if let rune = runes.first, bottle.layers.count == bottle.capacity,
@@ -227,7 +306,11 @@ extension GameState {
         for (color, n) in counts.sorted(by: { $0.key < $1.key }) {
             if color.rawValue < 0 { errors.append(.negativeColor(color)) }
             if color.rawValue > StateKey.maxColorID { errors.append(.colorOutOfRange(color)) }
-            if n != capacity { errors.append(.wrongColorCount(color: color, count: n, expected: capacity)) }
+            if n != capacity && recipes.isEmpty { errors.append(.wrongColorCount(color: color, count: n, expected: capacity)) }
+        }
+        if !recipes.isEmpty && recipes.count <= Rules.maxRecipes
+            && Rules.finalColorCounts(counts, recipes: recipes, capacity: capacity) == nil {
+            errors.append(.unbalancedColors)
         }
         for (key, n) in keyCounts.sorted(by: { $0.key < $1.key }) {
             if n > 1 { errors.append(.duplicateKey(key)) }

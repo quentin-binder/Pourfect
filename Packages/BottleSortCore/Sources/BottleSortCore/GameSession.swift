@@ -17,7 +17,10 @@
 /// together with the full `GameState` (modifiers, seals and any counter, e.g. the thaw
 /// counters of frozen layers, D1: they live in the state's modifiers, so undo restores them
 /// and a thawed layer freezes again; likewise the phases of bubbling flasks, D2). Links
-/// (twins, overflow pipes) are static and travel with the state.
+/// (twins, overflow pipes) are static and travel with the state. A cauldron (E1) has no
+/// counter either: undo restores the layers as they were before they mixed. Mixing never
+/// touches a hidden layer (it changes only the cauldron's top run, which is in view, and the
+/// layers that just landed), and keeps the layer count, so the masks need no extra step.
 public struct GameSession: Sendable {
     public let initialState: GameState
     public private(set) var state: GameState

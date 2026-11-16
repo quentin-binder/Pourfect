@@ -84,7 +84,7 @@ public struct ChapterOutline: Sendable, Hashable {
         self.introduces = introduces
     }
 
-    /// The planned main path (MECHANICS.md §3). Chapters 1–8 ship as `Levels/chapter_0N.json`;
+    /// The planned main path (MECHANICS.md §3). Chapters 1–9 ship as `Levels/chapter_0N.json`;
     /// the app shows the rest as "coming soon" until a pack with that chapter number exists.
     public static let plan: [ChapterOutline] = [
         ChapterOutline(number: 1, location: "Apprentice Cellar", introduces: [.basic]),
@@ -95,7 +95,7 @@ public struct ChapterOutline: Sendable, Hashable {
         ChapterOutline(number: 6, location: "Frost Peak", introduces: [.frozen]),
         ChapterOutline(number: 7, location: "Bubbling Bog", introduces: [.bubbling]),
         ChapterOutline(number: 8, location: "Twin Towers", introduces: [.twins, .overflow]),
-        ChapterOutline(number: 9, location: "Alchemist's Hall", introduces: ["cauldron"]),
+        ChapterOutline(number: 9, location: "Alchemist's Hall", introduces: [.cauldron]),
         ChapterOutline(number: 10, location: "Dragon's Hoard", introduces: ["switch"]),
     ]
 }

@@ -15,8 +15,8 @@
 /// sorted lexicographically, then an optional global section:
 /// - Bottle group: the v1 word, with bit 55 set if the bottle has extension words; then
 ///   one word `n` and `n` modifier words (`words(for:)`: tag in bits 56..<64, payload
-///   below; a cauldron adds one word per recipe). Bit 54 of a group's first word is
-///   always 0.
+///   below; a cauldron with up to two recipes is one word, with more one word per recipe
+///   after a head word). Bit 54 of a group's first word is always 0.
 /// - Global section (only if there are links, a non-standard goal or a move counter):
 ///   a marker word with bit 54 set and the number of global words in the low bits, then
 ///   the sorted link words, the goal words and the move counter word.
@@ -211,7 +211,8 @@ public struct StateKey: Hashable, Sendable {
         return codes
     }
 
-    /// `words(for:)` of a modifier that encodes in one word (all but a cauldron).
+    /// `words(for:)` of a modifier that encodes in one word (all but a cauldron with more
+    /// than two recipes).
     @inline(__always)
     static func singleWord(for modifier: BottleModifier) -> UInt64? {
         switch modifier {
@@ -223,7 +224,8 @@ public struct StateKey: Hashable, Sendable {
         case let .bubbling(every, phase):
             return modifier.tag << 56 | (UInt64(truncatingIfNeeded: every) & 0xFF_FFFF) << 24
                 | UInt64(truncatingIfNeeded: phase) & 0xFF_FFFF
-        case .cauldron: return nil
+        case .cauldron(let recipes):
+            return recipes.count <= 2 ? compactCauldronWord(recipes) : nil
         default: return words(for: modifier)[0]
         }
     }
@@ -305,7 +307,21 @@ public struct StateKey: Hashable, Sendable {
         }
     }
 
-    /// The encoding of one modifier: a tag word, plus one word per recipe for a cauldron.
+    /// A cauldron (E1) with at most two recipes in one word: tag, bit 48 set (a cauldron
+    /// with more recipes writes its count in bits 0..<8 instead and leaves bit 48 clear),
+    /// then each recipe as three 6-bit color tokens (`a`, `b`, `result`, each color + 1),
+    /// the first (in sorted order) in bits 18..<36, the second in bits 0..<18 (0 = none).
+    static func compactCauldronWord(_ recipes: [Recipe]) -> UInt64 {
+        func t(_ c: ColorID) -> UInt64 { UInt64(truncatingIfNeeded: c.rawValue + 1) & 0x3F }
+        func r(_ x: Recipe) -> UInt64 { t(x.a) << 12 | t(x.b) << 6 | t(x.result) }
+        var word = BottleModifier.cauldron([]).tag << 56 | 1 << 48
+        if recipes.count > 0 { word |= r(recipes[0]) << 18 }
+        if recipes.count > 1 { word |= r(recipes[1]) }
+        return word
+    }
+
+    /// The encoding of one modifier: a tag word, plus one word per recipe for a cauldron
+    /// with more than two recipes (up to two fit the tag word, `compactCauldronWord`).
     static func words(for modifier: BottleModifier) -> [UInt64] {
         let head = modifier.tag << 56
         func u(_ n: Int) -> UInt64 { UInt64(truncatingIfNeeded: n) & 0xFF_FFFF }
@@ -316,6 +332,7 @@ public struct StateKey: Hashable, Sendable {
         case let .frozen(layer, turns): return [head | u(layer) << 24 | u(turns)]
         case let .bubbling(every, phase): return [head | u(every) << 24 | u(phase)]
         case .cauldron(let recipes):
+            if recipes.count <= 2 { return [compactCauldronWord(recipes)] }
             return [head | u(recipes.count)] + recipes.map { r in
                 u(r.a.rawValue) << 32 | u(r.b.rawValue) << 16 | u(r.result.rawValue)
             }

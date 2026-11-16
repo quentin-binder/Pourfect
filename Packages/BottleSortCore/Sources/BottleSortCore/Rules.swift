@@ -21,8 +21,15 @@ public struct Turn: Hashable, Sendable {
 }
 
 /// An automatic effect of a turn (a timed or immediate rule, not the player's pour).
-/// Mixing (E1) and switches (A3) add their cases here.
+/// Switches (A3) add their cases here.
 public enum TurnEvent: Hashable, Sendable {
+    /// E1: the pour into cauldron `bottle` mixed: `pairs` of the poured layers (the pour's
+    /// `layer`) each combined with one layer of the run they landed on into two layers of
+    /// `recipe.result` (`Rules.mixed`). Always the first event of its turn (mixing is part
+    /// of the pour, before every timed effect). The cauldron as the pour left it, before it
+    /// mixed, is `Rules.beforeMixing(_:poured:amount:recipe:pairs:)` of its layers after the
+    /// turn (for the app's swirl from the unmixed stack to the result).
+    case mixed(bottle: Int, recipe: Recipe, pairs: Int)
     /// D1: the frozen layer `layer` (0 = bottom) of bottle `bottle` thawed (its counter
     /// reached 0) and is a normal layer from now on.
     case thawed(bottle: Int, layer: Int)
@@ -113,8 +120,23 @@ public struct PourPlan: Hashable, Sendable {
     /// The layer that leaves the source first: its top layer, or its bottom layer when
     /// `fromBottom` is set.
     public var layer: Layer
+    /// Bit 0: `fromBottom`. Bits 2...7: E1 mixing, the recipe index + 1 (0 = no mixing).
+    /// One byte where `fromBottom` used to be a `Bool`: any extra stored field made the plan
+    /// bigger, and the solver ~10 % slower (it builds a plan per candidate pour; DECISIONS 197).
+    var flags: UInt8 = 0
     /// Set by a source's tap (C4): the source pours its bottom run instead of its top run.
-    public var fromBottom = false
+    public var fromBottom: Bool {
+        get { flags & 1 != 0 }
+        set { flags = newValue ? flags | 1 : flags & ~1 }
+    }
+    /// Set by a target cauldron (E1) when `layer` and the target's top layer are the two
+    /// ingredients of one of its recipes: that recipe's index in the target's `recipes`
+    /// (nil = no mixing). The base rule then accepts the mismatched color and the pour mixes
+    /// (`Rules.mixed`); how many pairs is `min(amount, the target's top run)`.
+    public var mixIndex: Int? {
+        get { flags >> 2 == 0 ? nil : Int(flags >> 2) - 1 }
+        set { flags = flags & 3 | UInt8(truncatingIfNeeded: newValue.map { min($0, 62) + 1 } ?? 0) << 2 }
+    }
     /// Most layers that may move, as limited by modifiers (e.g. a narrow neck: 1).
     /// The base rule also limits it by the movable run and the target's free space.
     public var limit: Int = .max
@@ -126,6 +148,9 @@ public struct PourPlan: Hashable, Sendable {
     /// Set by a link (F1 twins, F2 overflow, `Rules.linkedPlan`): the part of `amount` that
     /// lands in another bottle than the target. Empty for a pour between two bottles.
     public var shares: [PourShare] = []
+
+    /// Whether the pour mixes in its target cauldron (E1).
+    public var mixes: Bool { flags >> 2 != 0 }
 }
 
 public enum Rules {
@@ -169,11 +194,17 @@ public enum Rules {
     /// - `.bubbling` (D2): changes no pour on either side (a bubbling flask pours and
     ///   receives like a plain one); its rise is the timed step `bubble`.
     ///
-    /// R5 plan: `.cauldron`
-    /// (target → accept a recipe partner on top: an `acceptsMismatch` flag; mixing itself
-    /// is an immediate effect). Links act on more than two bottles: twins (F1) and overflow
-    /// pipes (F2) are worked out in `linkedPlan(for:link:in:)`, which runs these same hooks
-    /// for every bottle that receives (switch gates, A3, will go there too).
+    /// - `.cauldron(recipes)` (E1): as a target, when the plan's layer is a color `x`, the
+    ///   cauldron's top layer is another color `y` and one recipe mixes `x` with `y`, it sets
+    ///   `plan.mixIndex` to that recipe: the base rule then accepts `x` on `y` (the only way a
+    ///   color lands on another one) and `transfer` mixes (`mixed`). Otherwise (empty, same
+    ///   color, no recipe, a key) it changes nothing. As a source it changes nothing: a
+    ///   cauldron pours out like a plain flask.
+    ///
+    /// Links act on more than two bottles: twins (F1) and overflow pipes (F2) are worked out
+    /// in `linkedPlan(for:link:in:)`, which runs these same hooks for every bottle that
+    /// receives (switch gates, A3, will go there too). A cauldron is never a link end
+    /// (`validate()`), so a linked pour never mixes.
     public static func apply(_ modifier: BottleModifier, as side: PourSide, to plan: inout PourPlan,
                              source: Bottle, target: Bottle) -> Bool {
         switch (modifier, side) {
@@ -214,10 +245,22 @@ public enum Rules {
         case (.bubbling, _):
             // D2 changes no pour: its effect is the timed step `bubble` of `resolve`.
             return true
-        case (.cauldron, _):
-            // Not implemented yet: levels using it fail validation and the solver refuses them.
+        case (.cauldron, .source):
+            return true
+        case (.cauldron(let recipes), .target):
+            markMixing(&plan, recipes: recipes, target: target)
             return true
         }
+    }
+
+    /// The target hook of `.cauldron`: sets `plan.mixIndex` when the plan's color and the
+    /// target's top color are a recipe's ingredients. Out of line, so `apply` (inlined into
+    /// every legality check) stays small.
+    @inline(never)
+    static func markMixing(_ plan: inout PourPlan, recipes: [Recipe], target: Bottle) {
+        guard case .color(let x) = plan.layer, case .color(let y)? = target.topLayer, x != y,
+              let index = recipes.firstIndex(where: { $0.mixes(x, y) }), index < 63 else { return }
+        plan.mixIndex = index
     }
 
     /// Runs `apply` for every modifier of the bottle on `side` (none for a plain flask).
@@ -240,6 +283,8 @@ public enum Rules {
     ///
     /// - Color top run (bottom run from a tap): moves onto an empty or same-colored target
     ///   with free space; as many layers as fit (partial pours allowed), at most `limit`.
+    ///   Onto another color only into a cauldron whose recipe mixes the two (`plan.mixIndex`),
+    ///   and then the layers mix as they land (`mixed`).
     /// - Key top layer: moves alone, only into the flask sealed by that key (see `apply`).
     /// - Nothing can be poured onto a key (a key top never matches a color).
     static func transfer(from source: Bottle, to target: Bottle) -> Transfer? {
@@ -259,10 +304,27 @@ public enum Rules {
         if let key = plan.opensSeal {
             return Transfer(source: newSource, target: target, openedSeal: key)
         }
+        if plan.mixes { return Transfer(source: newSource, target: mixing(plan, into: target), openedSeal: nil) }
         var newTarget = target
         // The moved layers are a run of `plan.layer` (or one key), whichever end they left.
         newTarget.layers.append(contentsOf: repeatElement(plan.layer, count: plan.amount))
         return Transfer(source: newSource, target: newTarget, openedSeal: nil)
+    }
+
+    /// The target of a mixing pour (E1) after `plan` lands in it. Kept out of line, so the
+    /// common two-bottle `transfer` stays small enough to inline into the solver's loop.
+    @inline(never)
+    static func mixing(_ plan: PourPlan, into target: Bottle) -> Bottle {
+        var result = target
+        let recipe = target.recipes[plan.mixIndex ?? 0]
+        mix(&result.layers, pouring: plan.layer, amount: plan.amount, pairs: mixPairs(plan, into: target), result: recipe.result)
+        return result
+    }
+
+    /// E1: how many pairs a mixing `plan` mixes in `target` (the cauldron before the pour):
+    /// `min(amount, the target's top run)`; 0 if the plan doesn't mix.
+    public static func mixPairs(_ plan: PourPlan, into target: Bottle) -> Int {
+        plan.mixes ? min(plan.amount, target.topRunCount) : 0
     }
 
     /// The legality half of `transfer`: the finished plan (with `amount`), or nil if the
@@ -280,7 +342,7 @@ public enum Rules {
         // Base rule, on the plan's layer. A key only ever goes into its own seal (above).
         guard !plan.layer.isKey else { return nil }
         guard target.freeSpace > 0 else { return nil }
-        if let targetTop = target.topLayer, targetTop != plan.layer { return nil }
+        if let targetTop = target.topLayer, targetTop != plan.layer, !plan.mixes { return nil }
         let run = plan.fromBottom ? movableBottomRunCount(source) : movableRunCount(source)
         plan.amount = min(min(run, target.freeSpace), plan.limit)
         return plan.amount > 0 ? plan : nil
@@ -450,6 +512,121 @@ public enum Rules {
         return nil
     }
 
+    // MARK: - Mixing (E1)
+
+    /// Most recipes a cauldron carries, and a level holds in all (`validate()`).
+    public static let maxRecipes = 2
+
+    /// The cauldron mixing step on `layers` (the cauldron before the pour): `amount` layers of
+    /// `poured` land on the top run of the other ingredient (`pairs` = `min(amount, run)`
+    /// pairs mix). Each mixing pair takes one layer of the run and one poured layer and makes
+    /// two layers of `result`. The result sits where the mixed part of the run was, the rest
+    /// of the run stays below it, and unmixed poured layers stay on top:
+    /// `[…, y × m] + x × n` → `[…, y × (m − p), z × 2p, x × (n − p)]` with `p = min(n, m)`.
+    /// Layers are conserved. Nothing chains: the new layers never mix again with what lies
+    /// below or above them until another pour lands on them.
+    static func mix(_ layers: inout [Layer], pouring poured: Layer, amount: Int, pairs: Int, result: ColorID) {
+        layers.removeLast(pairs)
+        layers.append(contentsOf: repeatElement(.color(result), count: 2 * pairs))
+        layers.append(contentsOf: repeatElement(poured, count: amount - pairs))
+    }
+
+    /// E1 for the app and tests: `layers` (a cauldron before the pour) after `amount` layers
+    /// of color `poured` land on it, with `recipe` mixing them with the top run, and how many
+    /// pairs mixed. Without a matching recipe (or if `poured` is the top color) the layers
+    /// just stack, with 0 pairs.
+    public static func mixed(_ layers: [Layer], pouring poured: ColorID, amount: Int,
+                             recipe: Recipe) -> (layers: [Layer], pairs: Int) {
+        var result = layers
+        guard let top = layers.last?.colorID, top != poured, recipe.mixes(poured, top) else {
+            result.append(contentsOf: repeatElement(.color(poured), count: amount))
+            return (result, 0)
+        }
+        var run = 0
+        for layer in layers.reversed() {
+            guard layer == .color(top) else { break }
+            run += 1
+        }
+        let pairs = min(amount, run)
+        mix(&result, pouring: .color(poured), amount: amount, pairs: pairs, result: recipe.result)
+        return (result, pairs)
+    }
+
+    /// E1, the inverse of the mixing step for the app's swirl: the cauldron's layers as the
+    /// pour left them before it mixed, given its layers `after` the turn (`TurnEvent.mixed`
+    /// gives `recipe` and `pairs`; the pour's `layer` and `targetAmount` give `poured` and
+    /// `amount`): the `amount − pairs` unmixed poured layers on top and the `2 × pairs` result
+    /// layers below them go, the `pairs` layers of the other ingredient come back, then all
+    /// `amount` poured layers sit on top. Returns `after` unchanged if it doesn't fit.
+    public static func beforeMixing(_ after: [Layer], poured: Layer, amount: Int, recipe: Recipe, pairs: Int) -> [Layer] {
+        guard let color = poured.colorID, let other = recipe.partner(of: color), pairs >= 0, amount >= pairs,
+              after.count >= amount + pairs else { return after }
+        let leftover = amount - pairs
+        let top = after.suffix(leftover + 2 * pairs)
+        guard top.prefix(2 * pairs).allSatisfy({ $0 == .color(recipe.result) }),
+              top.suffix(leftover).allSatisfy({ $0 == poured }) else { return after }
+        var before = Array(after.dropLast(leftover + 2 * pairs))
+        before.append(contentsOf: repeatElement(.color(other), count: pairs))
+        before.append(contentsOf: repeatElement(poured, count: amount))
+        return before
+    }
+
+    /// E1: how many pairs each of `recipes` must mix so that every color ends with exactly
+    /// 0 or `capacity` layers, starting from `counts` layers per color (the first such
+    /// amounts, smallest first in recipe order), or nil if there are none. Each pair of
+    /// recipe `a + b → z` takes one `a` and one `b` and makes two `z`. A necessary condition
+    /// for a cauldron level to be winnable (`validate()`); the order of the pours is the
+    /// solver's business. At most `Rules.maxRecipes` recipes are searched exhaustively.
+    public static func finalColorCounts(_ counts: [ColorID: Int], recipes: [Recipe], capacity: Int) -> [Int]? {
+        let colors = Array(Set(counts.keys).union(recipes.flatMap { [$0.a, $0.b, $0.result] }))
+        let total = counts.values.reduce(0, +)
+        var pairs = [Int](repeating: 0, count: recipes.count)
+        func balanced() -> Bool {
+            colors.allSatisfy { color in
+                var n = counts[color] ?? 0
+                for (r, recipe) in recipes.enumerated() {
+                    if recipe.a == color || recipe.b == color { n -= pairs[r] }
+                    if recipe.result == color { n += 2 * pairs[r] }
+                }
+                return n == 0 || n == capacity
+            }
+        }
+        func search(_ r: Int) -> Bool {
+            if r == recipes.count { return balanced() }
+            for p in 0...max(0, total / 2) {
+                pairs[r] = p
+                if search(r + 1) { return true }
+            }
+            return false
+        }
+        return search(0) ? pairs : nil
+    }
+
+    /// E1: whether cauldron `bottle` holds a color directly on a recipe partner (an unmixed
+    /// pair). Play never makes one: a color only lands on its partner by a mixing pour,
+    /// layers only leave from the top, and a result is never an ingredient (`validate()`
+    /// rejects chained recipes), so neither a result nor a leftover poured layer ever sits on
+    /// a partner. A level may not start with one either (`validate()`).
+    public static func holdsUnmixedPair(_ bottle: Bottle) -> Bool {
+        let recipes = bottle.recipes
+        guard !recipes.isEmpty, bottle.layers.count > 1 else { return false }
+        for i in 1..<bottle.layers.count {
+            guard case .color(let x) = bottle.layers[i], case .color(let y) = bottle.layers[i - 1], x != y else { continue }
+            if recipes.contains(where: { $0.mixes(x, y) }) { return true }
+        }
+        return false
+    }
+
+    /// E1: the recipe that would mix color `color` poured into `bottle` (a cauldron whose top
+    /// layer is the other ingredient), or nil. For the app's preview of a pour.
+    public static func recipe(mixing color: ColorID, into bottle: Bottle) -> Recipe? {
+        var plan = PourPlan(layer: .color(color))
+        for modifier in bottle.modifiers {
+            if case .cauldron = modifier { _ = apply(modifier, as: .target, to: &plan, source: Bottle(capacity: 0), target: bottle) }
+        }
+        return plan.mixIndex.map { bottle.recipes[$0] }
+    }
+
     // MARK: - Turn order (MECHANICS.md §4)
 
     /// Applies a player action and then every rule that follows it, in the fixed order
@@ -460,8 +637,13 @@ public enum Rules {
     ///    twin is split with its twin, a pour into a full flask with an overflow pipe runs on
     ///    into the pipe's far end, `linkedPlan`). The turn reports it as a `PourEvent`, with
     ///    the extra destinations in `shares`.
-    /// 2. Immediate effects: unseal (A1). R5: mixing (E1), switch gates (A3). Murky
-    ///    reveals (B1) are display state in `GameSession`.
+    ///    A pour into a cauldron whose recipe mixes the poured color with its top layer mixes
+    ///    as it lands (E1, `mixed`; `TurnEvent.mixed`, the turn's first event): mixing is
+    ///    driven by the pour (how many layers landed on which run), so it is applied with it,
+    ///    before every later step.
+    /// 2. Immediate effects: unseal (A1). R5: switch gates (A3). Murky reveals (B1) are
+    ///    display state in `GameSession` (mixing only touches the cauldron's top run and the
+    ///    layers that just landed, which are all in view).
     /// 3. `moveCount += 1`, only if the state stores a move counter, and only up to
     ///    `moveCountLimit` (a counter past every limit a rule reads is one dead value, so
     ///    the state graph stays finite).
@@ -480,6 +662,7 @@ public enum Rules {
         // 1. The player's action (`actionPlan` is also what `isLegal` checks).
         var opened: (bottle: Int, key: KeyID)?
         let event: PourEvent
+        var events: [TurnEvent] = []
         switch action {
         case .pour(let move):
             guard let plan = actionPlan(for: move, in: state) else { return nil }
@@ -488,6 +671,8 @@ public enum Rules {
                 next.bottles[move.from] = t.source
                 next.bottles[move.to] = t.target
                 if let key = t.openedSeal { opened = (move.to, key) }
+                // E1: the pour mixed as it landed (an immediate effect of the pour, before any timer).
+                if plan.mixes { events.append(mixedEvent(plan, into: move.to, of: state)) }
             } else {
                 // A linked pour (F1, F2): the layers leave the source once and land in several bottles.
                 if plan.fromBottom {
@@ -510,10 +695,17 @@ public enum Rules {
         // 3. Move counter.
         if let n = next.moveCount, n < moveCountLimit(next) { next.moveCount = n + 1 }
         // 4. + 5. Timed effects, then immediate effects again.
-        var events: [TurnEvent] = []
         if applyTimedEffects(&next, events: &events) { applyImmediateEffects(&next, opened: nil) }
         // 6. Goal.
         return Turn(state: next, isWon: isWon(next), pour: event, events: events)
+    }
+
+    /// `TurnEvent.mixed` for a mixing pour into bottle `index` of `state` (out of line, like
+    /// `mixing`).
+    @inline(never)
+    static func mixedEvent(_ plan: PourPlan, into index: Int, of state: GameState) -> TurnEvent {
+        let target = state.bottles[index]
+        return .mixed(bottle: index, recipe: target.recipes[plan.mixIndex ?? 0], pairs: mixPairs(plan, into: target))
     }
 
     /// The flask modifier that refuses `move`, for the app's feedback (e.g. "this essence
@@ -600,7 +792,8 @@ public enum Rules {
     /// Immediate effects, steps 2 and 5 of `resolve` (both run this same function, so an
     /// effect added here applies after every pour, not only after timed effects).
     /// Unseal (A1) is driven by the pour (`opened`: the bottle and the key poured into
-    /// its seal; nil in step 5). R5: mixing (E1) and switch gates (A3) go after it.
+    /// its seal; nil in step 5). Switch gates (A3) go after it. Mixing (E1) is driven by
+    /// the pour too, but needs what landed where, so `transfer` applies it in step 1.
     @inline(__always)
     static func applyImmediateEffects(_ state: inout GameState, opened: (bottle: Int, key: KeyID)?) {
         if let opened { unseal(&state.bottles[opened.bottle], key: opened.key) }
@@ -735,6 +928,7 @@ public enum Rules {
         case .essence, .narrowNeck, .funnel, .tap, .bubbling, .cauldron: return false
         }
     }
+    // A cauldron (E1) doesn't block either: it ends empty or full of one color like any flask.
 
     /// A bottle is solved when it is unsealed and empty, or full with a single
     /// color. A bottle that is sealed or contains a key is never solved.

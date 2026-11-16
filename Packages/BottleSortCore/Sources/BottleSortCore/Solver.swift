@@ -162,6 +162,16 @@ public struct Solver: Sendable {
     /// from one twin into the other is illegal both ways), so only the twin with the lower
     /// index is tried. With a timed modifier and a link together every legal move is tried
     /// (no level combines them yet; DECISIONS 179).
+    ///
+    /// Cauldrons (E1; no state of their own): rule 1 is off in a state with a cauldron. Its
+    /// premise fails twice: mixing changes color counts, so a full one-color flask need not
+    /// hold every layer of its color (another flask may take part of it on the same color),
+    /// and a cauldron whose top is the other ingredient of a recipe takes the color as a
+    /// mixing pour, a real move. Rules 2 and 3 only use bottle permutations and stay: an
+    /// empty cauldron is alike only another empty cauldron with the same recipes (equal
+    /// storage), so pouring into it is never skipped for a plain flask, and moving a whole
+    /// flask into an empty flask alike (plain into plain, cauldron into cauldron) mixes
+    /// nothing and only swaps two flasks (DECISIONS 193).
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
         // Links (F1, F2): bit i set = bottle i is an end of a link; `secondTwin` marks the
@@ -181,12 +191,13 @@ public struct Solver: Sendable {
             }
         }
         @inline(__always) func isLinked(_ i: Int) -> Bool { linked != 0 && linked & (1 << UInt64(i)) != 0 }
-        var icy = false, bubbling = false
+        var icy = false, bubbling = false, mixing = false
         for bottle in bottles {
             let kind = bottle.pruningKind
             guard kind.ok else { return state.legalMoves() }
             if kind.frozen { icy = true }
             if kind.bubbling { bubbling = true }
+            if kind.mixing { mixing = true }
         }
         let timed = icy || bubbling
         if timed && linked != 0 { return state.legalMoves() }
@@ -207,8 +218,8 @@ public struct Solver: Sendable {
             let source = bottles[from]
             if source.isEmpty { continue }
             let sourceFree = !isLinked(from)
-            // Rule 1.
-            if !timed && sourceFree && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
+            // Rule 1 (never with a cauldron: color counts change, and a cauldron can take a mixing pour).
+            if !timed && !mixing && sourceFree && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
             // Rule 2 (a plain source moves its whole top run into an empty plain flask).
             let movesWhole = !timed && sourceFree && Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {

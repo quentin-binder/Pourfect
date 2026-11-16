@@ -112,6 +112,9 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     /// Overflow pipes: what doesn't fit into a full flask runs on through its pipe into
     /// another flask (`Link.overflow`; chapter 8).
     public static let overflow: Mechanic = "overflow"
+    /// Mixing cauldrons: pouring one ingredient of a recipe onto the other inside a cauldron
+    /// brews the result (`BottleModifier.cauldron`; chapter 9).
+    public static let cauldron: Mechanic = "cauldron"
 
     public var description: String { rawValue }
 }
@@ -153,7 +156,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var isHidden: Bool { hidden ?? false }
 
     /// The mechanics this level actually uses, in chapter order (sealed, murky, essence,
-    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow),
+    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow, cauldron),
     /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
     public var mechanics: [Mechanic] {
         let all = bottles.flatMap(\.allModifiers)
@@ -169,6 +172,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
         let links = links ?? []
         if links.contains(where: { if case .twins = $0 { return true } else { return false } }) { result.append(.twins) }
         if links.contains(where: { if case .overflow = $0 { return true } else { return false } }) { result.append(.overflow) }
+        if all.contains(where: { if case .cauldron = $0 { return true } else { return false } }) { result.append(.cauldron) }
         return result
     }
 

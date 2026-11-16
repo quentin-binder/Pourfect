@@ -28,7 +28,8 @@
 /// layer blocks it (a tap can't pour while its flask holds ice, DECISIONS 159). Bubbling
 /// (D2) rotates the bottom layer up: `validate()` rejects ice (and a tap) on a bubbling
 /// flask, and the bubbling step never rotates a flask that holds ice, so the index never
-/// needs re-indexing (DECISIONS 170).
+/// needs re-indexing (DECISIONS 170). A cauldron (E1) recolors layers under the poured ones:
+/// `validate()` rejects any other modifier on a cauldron, ice included (DECISIONS 192).
 public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// A1 sealed flask: can't be poured from or into, except by key `KeyID`,
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is
@@ -56,16 +57,18 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// (after thaw) advances the phase after every move and, when it reaches `every`,
     /// rotates the stack and resets it to 0. Implemented (chapter 7, Bubbling Bog).
     case bubbling(every: Int, phase: Int)
-    /// E1 mixing cauldron: pouring `a` onto `b` (or `b` onto `a`) inside it turns
-    /// both layers into `result`. Recipes are kept sorted. (R5)
+    /// E1 mixing cauldron: pouring color `a` onto a top run of `b` inside it (or `b` onto
+    /// `a`) mixes them: each poured layer combines with one layer of the run below into two
+    /// layers of `result` (`Rules.mixed`); poured layers beyond the run stay on top. 1...
+    /// `Rules.maxRecipes` recipes, kept sorted; a cauldron carries no other modifier and no
+    /// link (`validate()`). Implemented (chapter 9, Alchemist's Hall).
     case cauldron([Recipe])
 
     /// Whether `Rules` implements this modifier. Levels using an unimplemented one fail
     /// validation and the solver refuses them (`.unsupportedState`).
     public var isImplemented: Bool {
         switch self {
-        case .sealed, .essence, .narrowNeck, .funnel, .tap, .frozen, .bubbling: return true
-        case .cauldron: return false
+        case .sealed, .essence, .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return true
         }
     }
 
@@ -152,6 +155,16 @@ public struct Recipe: Hashable, Codable, Sendable, CustomStringConvertible {
 
     static func order(_ x: Recipe, _ y: Recipe) -> Bool {
         (x.a, x.b, x.result) < (y.a, y.b, y.result)
+    }
+
+    /// Whether this recipe mixes `x` with `y` (in either order).
+    public func mixes(_ x: ColorID, _ y: ColorID) -> Bool {
+        (x == a && y == b) || (x == b && y == a)
+    }
+
+    /// The other ingredient when `color` is one of them, else nil.
+    public func partner(of color: ColorID) -> ColorID? {
+        color == a ? b : color == b ? a : nil
     }
 }
 

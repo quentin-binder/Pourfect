@@ -342,9 +342,13 @@ func bottle(_ colors: [Int], capacity: Int, _ modifiers: [BottleModifier] = []) 
         for s in Self.randomStates() {
             #expect(StateKey.pairCodes(s) == StateKey.extendedCodes(s), "\(s)")
         }
-        // A cauldron (two-word modifier) falls back to the general path.
+        // A cauldron with up to two recipes is one word; with three (several words) it falls
+        // back to the general path.
         let c = GameState(bottles: [bottle([0], capacity: 1, [.cauldron([Recipe(0, 1, result: 2)])])])
-        #expect(StateKey.pairCodes(c) == nil)
+        #expect(StateKey.pairCodes(c) == StateKey.extendedCodes(c))
+        let c3 = GameState(bottles: [bottle([0], capacity: 1, [.cauldron([Recipe(0, 1, result: 2), Recipe(0, 2, result: 3),
+                                                                          Recipe(1, 2, result: 4)])])])
+        #expect(StateKey.pairCodes(c3) == nil)
         // Two seals (invalid, but encodable): the second one is an extension word.
         let twoSeals = GameState(bottles: [Bottle(layers: [], capacity: 2, modifiers: [.sealed(1), .sealed(2)])])
         #expect(StateKey.pairCodes(twoSeals) == StateKey.extendedCodes(twoSeals))

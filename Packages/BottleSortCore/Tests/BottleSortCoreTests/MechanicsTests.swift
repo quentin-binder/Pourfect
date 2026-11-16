@@ -77,18 +77,18 @@ enum LegacyRules {
         #expect(plan.opensSeal == 1)
     }
 
-    @Test func unimplementedModifiersDontTouchThePlan() {
-        let modifiers: [BottleModifier] = [.cauldron([])]
+    @Test func aCauldronWithoutAMatchingRecipeDoesntTouchThePlan() {
+        let modifiers: [BottleModifier] = [.cauldron([]), .cauldron([Recipe(0, 1, result: 2)])]
         for m in modifiers {
             for side in [PourSide.source, .target] {
                 var plan = PourPlan(layer: .color(3))
                 #expect(Rules.apply(m, as: side, to: &plan, source: plain, target: plain), "\(m)")
                 #expect(plan == PourPlan(layer: .color(3)), "\(m)")
             }
-            #expect(!m.isImplemented)
+            #expect(m.isImplemented)
         }
         let implemented: [BottleModifier] = [.sealed(0), .essence(0), .narrowNeck, .funnel, .tap, .frozen(layer: 0, turns: 1),
-                                             .bubbling(every: 2, phase: 0)]
+                                             .bubbling(every: 2, phase: 0), .cauldron([Recipe(0, 1, result: 2)])]
         #expect(implemented.allSatisfy { $0.isImplemented })
     }
 

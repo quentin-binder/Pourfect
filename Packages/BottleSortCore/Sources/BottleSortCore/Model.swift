@@ -144,19 +144,36 @@ public struct Bottle: Hashable, Sendable, CustomStringConvertible {
     }
 
     /// For the solver's pruning: `ok` is whether every modifier is static, a frozen layer
-    /// (D1) or bubbling (D2); `frozen` whether the flask holds a frozen layer, `bubbling`
-    /// whether it bubbles.
-    var pruningKind: (ok: Bool, frozen: Bool, bubbling: Bool) {
-        guard case .list(let list) = storage else { return (true, false, false) }
-        var frozen = false, bubbling = false
+    /// (D1), bubbling (D2) or a cauldron (E1); `frozen` whether the flask holds a frozen
+    /// layer, `bubbling` whether it bubbles, `mixing` whether it is a cauldron.
+    var pruningKind: (ok: Bool, frozen: Bool, bubbling: Bool, mixing: Bool) {
+        guard case .list(let list) = storage else { return (true, false, false, false) }
+        var frozen = false, bubbling = false, mixing = false
         for modifier in list {
             switch modifier {
             case .frozen: frozen = true
             case .bubbling: bubbling = true
-            default: if !modifier.isStatic { return (false, frozen, bubbling) }
+            case .cauldron: mixing = true
+            default: if !modifier.isStatic { return (false, frozen, bubbling, mixing) }
             }
         }
-        return (true, frozen, bubbling)
+        return (true, frozen, bubbling, mixing)
+    }
+
+    /// E1: the recipes of this flask's cauldron (sorted), empty if it isn't a cauldron. For
+    /// the app's recipe card.
+    public var recipes: [Recipe] {
+        guard case .list(let list) = storage else { return [] }
+        for modifier in list {
+            if case .cauldron(let recipes) = modifier { return recipes }
+        }
+        return []
+    }
+
+    /// E1: whether the flask is a mixing cauldron.
+    public var isCauldron: Bool {
+        guard case .list(let list) = storage else { return false }
+        return list.contains { if case .cauldron = $0 { return true } else { return false } }
     }
 
     /// D2: the flask's bubbling period and phase, or nil if it doesn't bubble. For the
@@ -320,7 +337,9 @@ extension BottleModifier {
     /// pruning rules hold for flasks that carry only these (`Solver.candidateMoves`,
     /// DECISIONS 133, 147), using the actual plan amount. A frozen layer is not static (its
     /// counter ticks every move); the solver keeps only rule 3 while one exists (DECISIONS 162).
-    /// Bubbling isn't either (its phase ticks every move; DECISIONS 172).
+    /// Bubbling isn't either (its phase ticks every move; DECISIONS 172). A cauldron (E1) has
+    /// no state, but it changes color counts, which rule 1 relies on: the solver handles it
+    /// on its own (`Bottle.pruningKind`, DECISIONS 193).
     var isStatic: Bool {
         switch self {
         case .sealed, .essence, .narrowNeck, .funnel, .tap: return true
