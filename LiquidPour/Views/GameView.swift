@@ -284,10 +284,15 @@ struct GameView: View {
                         let lifted = { (bottle: Int, w: CGFloat) -> CGFloat in model.selected == bottle ? w * 0.3 : 0 }
                         let flying = model.pour?.from == a || model.pour?.from == b
                         let refusals = model.linkRefusals.indices.contains(i) ? model.linkRefusals[i] : 0
-                        LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width))
+                        // The ends follow their flasks' shake (same count and timing as `BottleView`).
+                        let shake = { (bottle: Int) -> CGFloat in
+                            model.shakes.indices.contains(bottle) ? CGFloat(model.shakes[bottle]) : 0
+                        }
+                        LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
+                                 shakeA: shake(a), shakeB: shake(b))
                             .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
                                 LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
-                                         flare: flare)
+                                         shakeA: shake(a), shakeB: shake(b), flare: flare)
                             } keyframes: { _ in
                                 KeyframeTrack {
                                     LinearKeyframe(1, duration: 0.12, timingCurve: .easeOut)
@@ -295,6 +300,7 @@ struct GameView: View {
                                     LinearKeyframe(0, duration: 0.45, timingCurve: .easeIn)
                                 }
                             }
+                            .animation(.easeInOut(duration: 0.35), value: model.shakes)
                             .opacity(flying ? 0 : 1)
                             .animation(.easeInOut(duration: 0.25), value: flying)
                     }

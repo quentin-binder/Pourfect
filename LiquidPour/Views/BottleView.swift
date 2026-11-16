@@ -407,6 +407,9 @@ struct ShakeEffect: GeometryEffect {
     var animatableData: CGFloat
 
     func effectValue(size: CGSize) -> ProjectionTransform {
-        ProjectionTransform(CGAffineTransform(translationX: 7 * sin(animatableData * .pi * 4), y: 0))
+        ProjectionTransform(CGAffineTransform(translationX: Self.offset(animatableData), y: 0))
     }
+
+    /// The sideways offset at `value` (0 at every whole number); also moves a link's ends.
+    static func offset(_ value: CGFloat) -> CGFloat { 7 * sin(value * .pi * 4) }
 }

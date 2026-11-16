@@ -283,16 +283,25 @@ struct LinkView: View, Animatable {
     let b: CGRect
     var liftA: CGFloat = 0
     var liftB: CGFloat = 0
+    /// Each flask's shake count (`ShakeEffect`): an end follows its flask's wiggle, so the chain
+    /// stays hooked to the rings while the twins shake.
+    var shakeA: CGFloat = 0
+    var shakeB: CGFloat = 0
     var flare: Double = 0
 
-    var animatableData: AnimatablePair<CGFloat, CGFloat> {
-        get { AnimatablePair(liftA, liftB) }
-        set { liftA = newValue.first; liftB = newValue.second }
+    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>> {
+        get { AnimatablePair(AnimatablePair(liftA, liftB), AnimatablePair(shakeA, shakeB)) }
+        set {
+            liftA = newValue.first.first
+            liftB = newValue.first.second
+            shakeA = newValue.second.first
+            shakeB = newValue.second.second
+        }
     }
 
     var body: some View {
-        let a = self.a.offsetBy(dx: 0, dy: -liftA)
-        let b = self.b.offsetBy(dx: 0, dy: -liftB)
+        let a = self.a.offsetBy(dx: ShakeEffect.offset(shakeA), dy: -liftA)
+        let b = self.b.offsetBy(dx: ShakeEffect.offset(shakeB), dy: -liftB)
         switch link {
         case .twins:
             ChainView(a: a, b: b, flare: flare)
