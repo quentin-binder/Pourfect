@@ -1,0 +1,1288 @@
+{
+  "chapter" : 7,
+  "introduces" : [
+    "bubbling"
+  ],
+  "kind" : "chapter",
+  "levels" : [
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 2]
+        },
+        {
+          "layers" : [0, 1, 1]
+        },
+        {
+          "layers" : [2, 1, 2],
+          "modifiers" : [
+            {
+              "every" : 2,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c7_001",
+      "meta" : {
+        "branchingFactor" : 5.5,
+        "deadEndRatio" : 0,
+        "minMoves" : 4,
+        "score" : 15.4,
+        "seed" : 12748,
+        "statesExplored" : 54
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 1, 2, 2]
+        },
+        {
+          "layers" : [2, 0, 0, 2]
+        },
+        {
+          "layers" : [1, 0, 1, 0],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_002",
+      "meta" : {
+        "branchingFactor" : 5.5,
+        "deadEndRatio" : 0,
+        "minMoves" : 6,
+        "score" : 20.6,
+        "seed" : 1012060,
+        "statesExplored" : 236
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 2, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 0, 2, 1]
+        },
+        {
+          "layers" : [1, 0, 2, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_003",
+      "meta" : {
+        "branchingFactor" : 5.57,
+        "deadEndRatio" : 0,
+        "minMoves" : 7,
+        "score" : 24.3,
+        "seed" : 1012046,
+        "statesExplored" : 815
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 0, 1]
+        },
+        {
+          "layers" : [3, 1, 3]
+        },
+        {
+          "layers" : [0, 0, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c7_004",
+      "meta" : {
+        "branchingFactor" : 6.71,
+        "deadEndRatio" : 0,
+        "minMoves" : 7,
+        "score" : 24.6,
+        "seed" : 2012205,
+        "statesExplored" : 738
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 0, 1]
+        },
+        {
+          "layers" : [0, 2, 0, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 1, 2, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_005",
+      "meta" : {
+        "branchingFactor" : 5.63,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 26,
+        "seed" : 1012027,
+        "statesExplored" : 1120
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 3, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 3, 1]
+        },
+        {
+          "layers" : [0, 2, 0]
+        },
+        {
+          "layers" : [2, 0, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c7_006",
+      "meta" : {
+        "branchingFactor" : 7,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 27.1,
+        "seed" : 2012126,
+        "statesExplored" : 1329
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 0, 3]
+        },
+        {
+          "layers" : [1, 0, 1]
+        },
+        {
+          "layers" : [2, 0, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 3, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c7_007",
+      "meta" : {
+        "branchingFactor" : 6.75,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 27.1,
+        "seed" : 2012144,
+        "statesExplored" : 1449
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 2, 1]
+        },
+        {
+          "layers" : [1, 3, 2, 1],
+          "modifiers" : [
+            {
+              "every" : 2,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 0, 0, 3]
+        },
+        {
+          "layers" : [3, 0, 3, 2],
+          "modifiers" : [
+            {
+              "every" : 2,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_008",
+      "meta" : {
+        "branchingFactor" : 6.88,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 29.8,
+        "seed" : 3012018,
+        "statesExplored" : 4755
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 3, 0, 2],
+          "modifiers" : [
+            {
+              "every" : 2,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 0, 0, 2]
+        },
+        {
+          "layers" : [1, 1, 2, 0]
+        },
+        {
+          "layers" : [3, 1, 3, 3],
+          "modifiers" : [
+            {
+              "every" : 2,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_009",
+      "meta" : {
+        "branchingFactor" : 7,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 29.9,
+        "seed" : 3012202,
+        "statesExplored" : 5007
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 0, 1]
+        },
+        {
+          "layers" : [3, 2, 2, 3],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 3, 3, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 2, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_010",
+      "meta" : {
+        "branchingFactor" : 6.89,
+        "deadEndRatio" : 0,
+        "minMoves" : 9,
+        "score" : 30.4,
+        "seed" : 5012641,
+        "statesExplored" : 4032
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 3, 2, 0]
+        },
+        {
+          "layers" : [1, 3, 3, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 0, 0, 1]
+        },
+        {
+          "layers" : [2, 1, 3, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_011",
+      "meta" : {
+        "branchingFactor" : 6.8,
+        "deadEndRatio" : 0,
+        "minMoves" : 10,
+        "score" : 31.2,
+        "seed" : 4012029,
+        "statesExplored" : 3778
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 3, 3, 1]
+        },
+        {
+          "layers" : [1, 3, 1, 0]
+        },
+        {
+          "layers" : [0, 0, 2, 0]
+        },
+        {
+          "layers" : [2, 3, 2, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_012",
+      "meta" : {
+        "branchingFactor" : 4.73,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 31.9,
+        "seed" : 4012026,
+        "statesExplored" : 5143
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 3, 1, 2]
+        },
+        {
+          "layers" : [3, 0, 2, 2]
+        },
+        {
+          "layers" : [3, 0, 3, 0],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 2, 0, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_013",
+      "meta" : {
+        "branchingFactor" : 6.82,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 33.2,
+        "seed" : 4012020,
+        "statesExplored" : 5810
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 1, 2, 3],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 2, 0, 1]
+        },
+        {
+          "layers" : [3, 0, 1, 0]
+        },
+        {
+          "layers" : [1, 2, 3, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_014",
+      "meta" : {
+        "branchingFactor" : 6.73,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 37.1,
+        "seed" : 5012545,
+        "statesExplored" : 35703
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 0, 0, 1]
+        },
+        {
+          "layers" : [1, 2, 3, 1]
+        },
+        {
+          "layers" : [4, 0, 2, 4],
+          "modifiers" : [
+            {
+              "every" : 4,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [4, 1, 3, 0]
+        },
+        {
+          "layers" : [4, 2, 2, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_015",
+      "meta" : {
+        "branchingFactor" : 4.93,
+        "deadEndRatio" : 0.001,
+        "minMoves" : 14,
+        "score" : 37.6,
+        "seed" : 6012153,
+        "statesExplored" : 17330
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 0, 0]
+        },
+        {
+          "layers" : [1, 3, 1, 2]
+        },
+        {
+          "layers" : [3, 1, 3, 4]
+        },
+        {
+          "layers" : [1, 2, 4, 4]
+        },
+        {
+          "layers" : [4, 2, 0, 3],
+          "modifiers" : [
+            {
+              "every" : 4,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_016",
+      "meta" : {
+        "branchingFactor" : 7.71,
+        "deadEndRatio" : 0.001,
+        "minMoves" : 14,
+        "score" : 41.1,
+        "seed" : 6012174,
+        "statesExplored" : 46430
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 3, 2, 1]
+        },
+        {
+          "layers" : [0, 4, 0, 4]
+        },
+        {
+          "layers" : [1, 4, 3, 2]
+        },
+        {
+          "layers" : [0, 4, 0, 3],
+          "modifiers" : [
+            {
+              "every" : 4,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 1, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_017",
+      "meta" : {
+        "branchingFactor" : 5.25,
+        "deadEndRatio" : 0.002,
+        "minMoves" : 16,
+        "score" : 42.1,
+        "seed" : 6012158,
+        "statesExplored" : 49667
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 5, 1, 3]
+        },
+        {
+          "layers" : [5, 4, 3, 1]
+        },
+        {
+          "layers" : [4, 4, 0, 0]
+        },
+        {
+          "layers" : [5, 3, 3, 5]
+        },
+        {
+          "layers" : [2, 1, 2, 0],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 1, 0, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_018",
+      "meta" : {
+        "branchingFactor" : 5.25,
+        "deadEndRatio" : 0.015,
+        "minMoves" : 16,
+        "score" : 42.5,
+        "seed" : 7012012,
+        "statesExplored" : 45697
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 2, 4, 0]
+        },
+        {
+          "layers" : [4, 2, 1, 5]
+        },
+        {
+          "layers" : [5, 4, 3, 3]
+        },
+        {
+          "layers" : [5, 2, 5, 0]
+        },
+        {
+          "layers" : [2, 0, 3, 0]
+        },
+        {
+          "layers" : [1, 3, 1, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_019",
+      "meta" : {
+        "branchingFactor" : 6.18,
+        "deadEndRatio" : 0.008,
+        "minMoves" : 17,
+        "score" : 43.3,
+        "seed" : 7012023,
+        "statesExplored" : 39594
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 4, 3, 2]
+        },
+        {
+          "layers" : [3, 2, 1, 2]
+        },
+        {
+          "layers" : [0, 3, 2, 3]
+        },
+        {
+          "layers" : [0, 4, 0, 0]
+        },
+        {
+          "layers" : [1, 4, 1, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c7_020",
+      "meta" : {
+        "branchingFactor" : 8,
+        "deadEndRatio" : 0,
+        "minMoves" : 12,
+        "score" : 36.1,
+        "seed" : 8012046,
+        "statesExplored" : 10734
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 2, 4, 0]
+        },
+        {
+          "layers" : [3, 0, 3, 1],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 1, 4, 4]
+        },
+        {
+          "layers" : [2, 1, 1, 2]
+        },
+        {
+          "layers" : [2, 0, 3, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c7_021",
+      "meta" : {
+        "branchingFactor" : 4.85,
+        "deadEndRatio" : 0,
+        "minMoves" : 13,
+        "score" : 36.3,
+        "seed" : 8012010,
+        "statesExplored" : 15789
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 4, 1, 1],
+          "lockedBy" : 1,
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 4, 2, 4]
+        },
+        {
+          "layers" : [0, {"key": 1}, 0, 0]
+        },
+        {
+          "layers" : [3, 4, 0, 2]
+        },
+        {
+          "layers" : [3, 2, 1, 3]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_022",
+      "meta" : {
+        "branchingFactor" : 5.13,
+        "deadEndRatio" : 0.018,
+        "minMoves" : 15,
+        "score" : 36.5,
+        "seed" : 9012091,
+        "statesExplored" : 4412
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 4, 3, 3],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 2, 0, 0]
+        },
+        {
+          "layers" : [0, 1, 4, 2]
+        },
+        {
+          "layers" : [1, 4, 2, 4],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [3, {"key": 1}, 0, 1]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_023",
+      "meta" : {
+        "branchingFactor" : 3.06,
+        "deadEndRatio" : 0.043,
+        "minMoves" : 18,
+        "score" : 38.4,
+        "seed" : 9012085,
+        "statesExplored" : 2757
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 4, 3, 2]
+        },
+        {
+          "layers" : [3, 1, 1, 4]
+        },
+        {
+          "layers" : [3, 2, 0, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 1, 1, 4]
+        },
+        {
+          "layers" : [0, 3, 2, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c7_024",
+      "meta" : {
+        "branchingFactor" : 6,
+        "deadEndRatio" : 0.003,
+        "minMoves" : 14,
+        "score" : 39.2,
+        "seed" : 8012077,
+        "statesExplored" : 27381
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 2, 4, 3],
+          "lockedBy" : 1,
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 2, 1, 2]
+        },
+        {
+          "layers" : [4, {"key": 1}, 4, 0]
+        },
+        {
+          "layers" : [0, 1, 2, 1]
+        },
+        {
+          "layers" : [3, 1, 0, 4]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_025",
+      "meta" : {
+        "branchingFactor" : 4.06,
+        "deadEndRatio" : 0.007,
+        "minMoves" : 17,
+        "score" : 39.6,
+        "seed" : 9012180,
+        "statesExplored" : 11701
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 5, 5, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 3, 4, 1]
+        },
+        {
+          "layers" : [3, {"key": 1}, 1, 2]
+        },
+        {
+          "layers" : [2, 4, 1, 5]
+        },
+        {
+          "layers" : [2, 3, 0, 2]
+        },
+        {
+          "layers" : [0, 4, 0, 5],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c7_026",
+      "meta" : {
+        "branchingFactor" : 4.62,
+        "deadEndRatio" : 0.024,
+        "minMoves" : 21,
+        "score" : 44.9,
+        "seed" : 10012470,
+        "statesExplored" : 13813
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 4, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, 3, 1, 1]
+        },
+        {
+          "layers" : [2, 4, 4, 0],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [{"key": 1}, 5, 5, 4]
+        },
+        {
+          "layers" : [0, 3, 5, 3]
+        },
+        {
+          "layers" : [5, 0, 1, 3]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c7_027",
+      "meta" : {
+        "branchingFactor" : 3.67,
+        "deadEndRatio" : 0.045,
+        "minMoves" : 21,
+        "score" : 45.3,
+        "seed" : 10012485,
+        "statesExplored" : 14347
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 0, 4, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 2, 3, 2]
+        },
+        {
+          "layers" : [3, 3, 5, 5]
+        },
+        {
+          "layers" : [1, 5, 2, 0],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [{"key": 1}, 2, 3, 0]
+        },
+        {
+          "layers" : [5, 1, 0, 4]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c7_028",
+      "meta" : {
+        "branchingFactor" : 6.05,
+        "deadEndRatio" : 0.03,
+        "minMoves" : 19,
+        "score" : 45.5,
+        "seed" : 10012433,
+        "statesExplored" : 29628
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [6, 2, 2, 6],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, 5, 1, 4]
+        },
+        {
+          "layers" : [3, 5, 3, 2]
+        },
+        {
+          "layers" : [1, 1, 0, 3],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 0, 5, 2]
+        },
+        {
+          "layers" : [{"key": 1}, 0, 3, 6]
+        },
+        {
+          "layers" : [4, 6, 4, 5]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_029",
+      "meta" : {
+        "branchingFactor" : 4.76,
+        "deadEndRatio" : 0.045,
+        "minMoves" : 25,
+        "score" : 51.1,
+        "seed" : 11012072,
+        "statesExplored" : 24504
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 4, 0, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [4, 6, 2, 0],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 1,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 6, 6, 5]
+        },
+        {
+          "layers" : [4, 5, 1, 2]
+        },
+        {
+          "layers" : [5, 1, 2, 0]
+        },
+        {
+          "layers" : [{"key": 1}, 3, 6, 3]
+        },
+        {
+          "layers" : [3, 5, 1, 3]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c7_030",
+      "meta" : {
+        "branchingFactor" : 4.67,
+        "deadEndRatio" : 0.029,
+        "minMoves" : 24,
+        "score" : 52.1,
+        "seed" : 11012134,
+        "statesExplored" : 87149
+      }
+    }
+  ],
+  "location" : "Bubbling Bog",
+  "name" : "Bubbling Bog",
+  "subtitle" : "Bubbling flasks lift their bottom layer to the top",
+  "version" : 2
+}
