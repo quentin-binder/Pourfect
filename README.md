@@ -20,7 +20,7 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_03` | 3 Misty Marsh | `c3_001…` | 30 | 5–25 | 15–54 | Murky "?" layers; the last 8 also have one seal |
 | `chapter_04` | 4 Glyph Library | `c4_001…` | 30 | 7–26 | 16–55 | Essence flasks (one color only): 1–2 runes, then runes with murky layers or one seal |
 | `chapter_05` | 5 Glass Works | `c5_001…` | 30 | 6–24 | 17–56 | Narrow necks, then funnels, then taps; at the end all three and murky layers, a seal or a rune |
-| `chapter_06` | 6 Frost Peak | `c6_001…` | 30 | 7–27 | 19–50 | Frozen layers: one (one empty flask), then two; at the end with murky layers, a rune or a seal |
+| `chapter_06` | 6 Frost Peak | `c6_001…` | 30 | 7–27 | 18–50 | Frozen layers: a tutorial (two empty flasks), then one layer (one empty flask), then two; at the end with murky layers, a rune or a seal |
 
 Chapters 7–10 (Bubbling Bog … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
 Optional **Challenges** (never gated):
