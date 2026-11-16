@@ -55,6 +55,18 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Moves each frozen layer must add for `requireFrozenMatter`
     /// (`FrozenImpact.minimumCost` or `.strongCost`).
     public var frozenCost: Int
+    /// Bubbling flasks (D2), at most `Rules.maxBubblingFlasks`. 0 = none. See
+    /// `Generator.candidate` (step 8) for the placement.
+    public var bubbling: Int
+    /// The period of every bubbling flask (`Rules.bubblingPeriods`): its bottom layer rises
+    /// every `bubblingPeriod` moves. Each flask starts at a random phase.
+    public var bubblingPeriod: Int
+    /// Reject levels where some bubbling flask doesn't matter (`BubblingImpact`, cost
+    /// `bubblingCost`, either way).
+    public var requireBubblingMatter: Bool
+    /// Moves each bubbling flask must change for `requireBubblingMatter`
+    /// (`BubblingImpact.minimumCost` or `.strongCost`).
+    public var bubblingCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -67,6 +79,8 @@ public struct GeneratorConfig: Sendable, Hashable {
                 glassCost: Int = GlassImpact.minimumCost,
                 frozen: Int = 0, frozenMaxTurns: Int = 3, requireFrozenMatter: Bool = false,
                 frozenCost: Int = FrozenImpact.minimumCost,
+                bubbling: Int = 0, bubblingPeriod: Int = 3, requireBubblingMatter: Bool = false,
+                bubblingCost: Int = BubblingImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -91,6 +105,10 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.frozenMaxTurns = frozenMaxTurns
         self.requireFrozenMatter = requireFrozenMatter
         self.frozenCost = frozenCost
+        self.bubbling = bubbling
+        self.bubblingPeriod = bubblingPeriod
+        self.requireBubblingMatter = requireBubblingMatter
+        self.bubblingCost = bubblingCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -162,6 +180,14 @@ public enum Generator {
     ///    drawn from `(frozenMaxTurns + 1) / 2 ... frozenMaxTurns`. Placement reads only
     ///    layer counts, never colors (murky levels give nothing away). Fewer are placed only
     ///    if the level has too few filled flasks.
+    ///
+    /// Bubbling flasks (`bubbling = B`, D2), drawn after step 7 from the same stream (nothing
+    /// is drawn when B is 0, so every older level is unchanged):
+    /// 8. The bottle indices are shuffled again. Walking that order over flasks with at least
+    ///    two layers and no tap, funnel, narrow neck or ice (a seal or a rune may stay), the
+    ///    flask bubbles every `bubblingPeriod` moves, starting at a random phase
+    ///    (`0..<bubblingPeriod`). Placement reads only layer counts and modifiers, never
+    ///    colors (murky-safe). Fewer are placed only if the level has too few such flasks.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         var rng = SplitMix64(seed: seed)
         let capacity = config.capacity
@@ -215,7 +241,25 @@ public enum Generator {
         if config.narrowNecks > 0 || config.funnels > 0 || config.taps > 0 { markGlass(&bottles, config: config, rng: &rng) }
         // 7. Frozen layers.
         if config.frozen > 0 { markFrozen(&bottles, config: config, rng: &rng) }
+        // 8. Bubbling flasks.
+        if config.bubbling > 0 { markBubbling(&bottles, config: config, rng: &rng) }
         return GameState(bottles: bottles)
+    }
+
+    /// Step 8 of `candidate`.
+    static func markBubbling(_ bottles: inout [Bottle], config: GeneratorConfig, rng: inout SplitMix64) {
+        precondition(config.bubbling <= Rules.maxBubblingFlasks, "at most \(Rules.maxBubblingFlasks) bubbling flasks")
+        precondition(Rules.bubblingPeriods.contains(config.bubblingPeriod), "bubblingPeriod must be in \(Rules.bubblingPeriods)")
+        var order = Array(bottles.indices)
+        rng.shuffle(&order)
+        var left = config.bubbling
+        for i in order where left > 0 {
+            let b = bottles[i]
+            guard b.layers.count >= 2, !b.hasTap, !b.isFunnel, !b.hasNarrowNeck, !b.holdsIce, !b.isBubbling else { continue }
+            let phase = rng.nextInt(below: config.bubblingPeriod)
+            bottles[i].modifiers.append(.bubbling(every: config.bubblingPeriod, phase: phase))
+            left -= 1
+        }
     }
 
     /// Step 7 of `candidate`.
@@ -320,6 +364,9 @@ public enum Generator {
         if config.requireFrozenMatter,
            !FrozenImpact.everyFrozenMatters(state, minMoves: moves.count, cost: config.frozenCost,
                                             limits: config.solverLimits) { return nil }
+        if config.requireBubblingMatter,
+           !BubblingImpact.everyBubblingMatters(state, minMoves: moves.count, cost: config.bubblingCost,
+                                                limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -455,10 +502,11 @@ public enum MechanicImpact {
     }
 
     /// Whether the instance can make a level shorter as well as longer (`matters` then
-    /// counts the change either way): a narrow neck or a tap.
+    /// counts the change either way): a narrow neck, a tap, or a bubbling flask (a rise can
+    /// bring the needed color up as well as bury it).
     public static func isTwoSided(_ instance: MechanicInstance) -> Bool {
         switch instance {
-        case .modifier(_, .narrowNeck), .modifier(_, .tap): return true
+        case .modifier(_, .narrowNeck), .modifier(_, .tap), .modifier(_, .bubbling): return true
         default: return false
         }
     }
@@ -642,7 +690,93 @@ public enum FrozenImpact {
     }
 }
 
+/// Whether a bubbling flask changes a level (the "must matter" check for D2): the
+/// `.modifier(_, .bubbling)` case of `MechanicImpact`. Removing the instance means a plain
+/// flask with the same layers.
+///
+/// A rise can bury a color the player wanted on top as well as bring a needed one up for
+/// free, so the level without it may be longer or shorter: the change counts either way
+/// (`MechanicImpact.isTwoSided`), like a narrow neck or a tap.
+public enum BubblingImpact {
+    /// Smallest change that counts as "matters": one move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Change required in the chapter 7 recipes: the bubbling changes the optimal solution
+    /// by at least two moves (or the level can't be solved without it).
+    public static let strongCost = 2
+
+    /// The bubbling instances of `state` (one per bubbling flask).
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        MechanicImpact.instances(in: state).filter {
+            if case .modifier(_, .bubbling) = $0 { return true }
+            return false
+        }
+    }
+
+    /// Whether every bubbling flask matters (true for a level without one).
+    public static func everyBubblingMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                            limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+
+    /// Whether `state` can be solved in `moves` moves or fewer without a relocation
+    /// (`FrozenImpact.isRelocation`: a pure wait), so a player who never parks a flask still
+    /// gets every star. With `pouringARisenLayer`, the solution must also pour a layer out of
+    /// a bubbling flask right after it rose there (the risen layer still on top, nothing
+    /// poured onto it since): the rise is part of the play. Breadth-first over exact states
+    /// (bottle indices matter for the "risen" marks), at most `maxStates`; false if the
+    /// budget runs out. For tutorial-sized levels.
+    public static func solvesWithoutRelocation(_ state: GameState, in moves: Int, pouringARisenLayer: Bool = false,
+                                               maxStates: Int = 200_000) -> Bool {
+        struct Node: Hashable { let state: GameState; let risen: UInt64; let used: Bool }
+        if state.isSolved { return !pouringARisenLayer }
+        let start = Node(state: state, risen: 0, used: !pouringARisenLayer)
+        var seen: Set<Node> = [start]
+        var frontier = [start]
+        for _ in 0..<moves {
+            var next: [Node] = []
+            for node in frontier {
+                let current = node.state
+                for move in current.legalMoves() where !FrozenImpact.isRelocation(move, in: current) {
+                    guard let turn = Rules.resolve(current, afterAction: .pour(move)) else { continue }
+                    var risen = node.risen
+                    var used = node.used
+                    if move.from < 64 && risen & (1 << UInt64(move.from)) != 0 {
+                        used = true
+                        risen &= ~(1 << UInt64(move.from))
+                    }
+                    if move.to < 64 { risen &= ~(1 << UInt64(move.to)) }
+                    for event in turn.events {
+                        if case .bubbled(let b) = event, b < 64 { risen |= 1 << UInt64(b) }
+                    }
+                    if turn.isWon {
+                        if used { return true }
+                        continue
+                    }
+                    let child = Node(state: turn.state, risen: risen, used: used)
+                    guard seen.insert(child).inserted else { continue }
+                    if seen.count > maxStates { return false }
+                    next.append(child)
+                }
+            }
+            if next.isEmpty { return false }
+            frontier = next
+        }
+        return false
+    }
+}
+
 extension MechanicImpact {
+    /// Whether no first move of `state` is a dead end: every legal move leaves a position
+    /// the solver can still solve within `limits` (for a tutorial: the obvious first pour
+    /// must not lose the recipe).
+    public static func everyFirstMoveSolvable(_ state: GameState, limits: SolverLimits = .default) -> Bool {
+        state.legalMoves().allSatisfy { move in
+            guard let next = state.pouring(move) else { return false }
+            if case .solved = Solver().solve(next, limits: limits) { return true }
+            return false
+        }
+    }
+
     /// The shallowest *trap* `instance` sets in `state`: a position one pour away from a
     /// still-solvable one, that is a dead end with the instance but solvable without it
     /// (the same layers, the instance removed). Returns its depth (moves from the start),

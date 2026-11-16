@@ -51,6 +51,19 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     case duplicateFrozenLayer(bottle: Int, layer: Int)
     /// More than `Rules.maxFrozenLayers` frozen layers in the level.
     case tooManyFrozenLayers(count: Int)
+    /// A bubbling period (D2) outside `Rules.bubblingPeriods`.
+    case invalidBubblingPeriod(bottle: Int, every: Int)
+    /// A bubbling phase outside `0..<every`.
+    case invalidBubblingPhase(bottle: Int, phase: Int)
+    /// A flask carries more than one bubbling modifier.
+    case multipleBubbling(bottle: Int)
+    /// A bubbling flask carries a tap (the two would fight over the bottom layer).
+    case bubblingWithTap(bottle: Int)
+    /// A bubbling flask holds a frozen layer (a rise would move it: frozen indices must
+    /// stay valid).
+    case bubblingWithIce(bottle: Int)
+    /// More than `Rules.maxBubblingFlasks` bubbling flasks in the level.
+    case tooManyBubblingFlasks(count: Int)
 
     public var description: String {
         switch self {
@@ -80,6 +93,12 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .invalidThawTurns(b, t): return "a frozen layer in flask \(b) thaws after \(t) moves (allowed: 1...\(Rules.maxThawTurns))"
         case let .duplicateFrozenLayer(b, l): return "layer \(l) of flask \(b) is frozen more than once"
         case let .tooManyFrozenLayers(n): return "\(n) frozen layers (at most \(Rules.maxFrozenLayers) per level)"
+        case let .invalidBubblingPeriod(b, e): return "bubbling flask \(b) rises every \(e) moves (allowed: \(Rules.bubblingPeriods.lowerBound)...\(Rules.bubblingPeriods.upperBound))"
+        case let .invalidBubblingPhase(b, p): return "bubbling flask \(b) has phase \(p), outside 0..<period"
+        case let .multipleBubbling(b): return "flask \(b) bubbles more than once"
+        case let .bubblingWithTap(b): return "bubbling flask \(b) has a tap"
+        case let .bubblingWithIce(b): return "bubbling flask \(b) holds a frozen layer"
+        case let .tooManyBubblingFlasks(n): return "\(n) bubbling flasks (at most \(Rules.maxBubblingFlasks) per level)"
         }
     }
 }
@@ -95,7 +114,9 @@ extension GameState {
     /// flask carries no seal and no funnel, a funnel flask starts empty or with one color
     /// (its rune's, if any; no key), frozen layers (D1) name an existing layer, at most once
     /// each, with a thaw counter in 1...`Rules.maxThawTurns`, and at most
-    /// `Rules.maxFrozenLayers` per level, links connect two different existing bottles, and every
+    /// `Rules.maxFrozenLayers` per level, bubbling flasks (D2) have one period in
+    /// `Rules.bubblingPeriods` with a phase below it, no tap and no ice, at most
+    /// `Rules.maxBubblingFlasks` per level, links connect two different existing bottles, and every
     /// modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
@@ -169,6 +190,22 @@ extension GameState {
             }
         }
         if frozenCount > Rules.maxFrozenLayers { errors.append(.tooManyFrozenLayers(count: frozenCount)) }
+        var bubblingCount = 0
+        for (i, bottle) in bottles.enumerated() {
+            var seen = 0
+            for modifier in bottle.modifiers {
+                guard case let .bubbling(every, phase) = modifier else { continue }
+                seen += 1
+                if !Rules.bubblingPeriods.contains(every) { errors.append(.invalidBubblingPeriod(bottle: i, every: every)) }
+                if phase < 0 || phase >= max(every, 1) { errors.append(.invalidBubblingPhase(bottle: i, phase: phase)) }
+            }
+            guard seen > 0 else { continue }
+            bubblingCount += 1
+            if seen > 1 { errors.append(.multipleBubbling(bottle: i)) }
+            if bottle.hasTap { errors.append(.bubblingWithTap(bottle: i)) }
+            if bottle.holdsIce { errors.append(.bubblingWithIce(bottle: i)) }
+        }
+        if bubblingCount > Rules.maxBubblingFlasks { errors.append(.tooManyBubblingFlasks(count: bubblingCount)) }
         for (color, n) in counts.sorted(by: { $0.key < $1.key }) {
             if color.rawValue < 0 { errors.append(.negativeColor(color)) }
             if color.rawValue > StateKey.maxColorID { errors.append(.colorOutOfRange(color)) }

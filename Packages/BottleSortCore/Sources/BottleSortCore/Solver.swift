@@ -141,16 +141,28 @@ public struct Solver: Sendable {
     /// frozen layer. Rule 3 stays: pouring into either of two empty flasks alike gives
     /// states that differ only by a bottle permutation, before and after the thaw step
     /// (an empty flask never holds ice: a frozen layer never moves, so its flask never
-    /// empties). Once the last layer thaws, every rule applies again (DECISIONS 160).
+    /// empties). Once the last layer thaws, every rule applies again (DECISIONS 162).
+    ///
+    /// Bubbling flasks (D2): their phases tick after every move, forever, so rules 1 and 2
+    /// are off in a state with a bubbling flask, like with ice. Instead every *relocation*
+    /// (all of a source into an empty flask with the same modifiers, phase included) leads
+    /// to the same canonical child: the position with two flasks swapped, then the timed
+    /// step, i.e. a pure wait. So only the first relocation of the state is kept (one wait
+    /// per state). Rule 3 stays: two empty flasks alike (equal storage, so the same period
+    /// and phase if they bubble) give permuted states before and after the timed step
+    /// (DECISIONS 172).
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
         guard state.isBottlesOnly else { return state.legalMoves() }
-        var icy = false
+        var icy = false, bubbling = false
         for bottle in bottles {
-            let kind = bottle.staticOrFrozen
+            let kind = bottle.pruningKind
             guard kind.ok else { return state.legalMoves() }
             if kind.frozen { icy = true }
+            if kind.bubbling { bubbling = true }
         }
+        let timed = icy || bubbling
+        var waitKept = false
         // The first plain empty flask; flasks with other modifiers are rare and are
         // compared one by one (`isFirstEmptyAlike`).
         let firstPlainEmpty = bottles.firstIndex { $0.isEmpty && $0.isPlain }
@@ -164,24 +176,29 @@ public struct Solver: Sendable {
             let source = bottles[from]
             if source.isEmpty { continue }
             // Rule 1.
-            if !icy && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
+            if !timed && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
             // Rule 2 (a plain source moves its whole top run into an empty plain flask).
-            let movesWhole = !icy && Rules.movableRunCount(source) == source.layers.count
+            let movesWhole = !timed && Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
                 var alikeEmpty = false
                 if target.isEmpty {
                     if target.isPlain {
                         if to != firstPlainEmpty || (movesWhole && source.isPlain) { continue }  // rules 3, 2
+                        alikeEmpty = bubbling && source.isPlain
                     } else if !target.isSealed {
                         if !isFirstEmptyAlike(to) { continue }  // rule 3
-                        alikeEmpty = !icy && target.storage == source.storage
+                        alikeEmpty = (!icy || bubbling) && target.storage == source.storage
                     }
                 }
                 // `Rules.actionPlan` without its index checks: in a state of bottles only it
                 // is exactly the two-bottle plan (the one legality check, DECISIONS 125).
                 guard let plan = Rules.plan(from: source, to: target) else { continue }
-                if alikeEmpty && plan.amount == source.layers.count { continue }  // rule 2
+                if alikeEmpty && plan.amount == source.layers.count {
+                    if !timed { continue }  // rule 2
+                    if waitKept { continue }  // bubbling: one wait per state
+                    waitKept = true
+                }
                 result.append(Move(from: from, to: to))
             }
         }

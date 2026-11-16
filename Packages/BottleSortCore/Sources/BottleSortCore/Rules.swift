@@ -21,11 +21,16 @@ public struct Turn: Hashable, Sendable {
 }
 
 /// An automatic effect of a turn (a timed or immediate rule, not the player's pour).
-/// Bubbling (D2), mixing (E1) and switches (A3) add their cases here.
+/// Mixing (E1) and switches (A3) add their cases here.
 public enum TurnEvent: Hashable, Sendable {
     /// D1: the frozen layer `layer` (0 = bottom) of bottle `bottle` thawed (its counter
     /// reached 0) and is a normal layer from now on.
     case thawed(bottle: Int, layer: Int)
+    /// D2: bubbling flask `bottle` bubbled up: its bottom layer rose to the top (the stack
+    /// above slid down by one). Reported only when that changed the layers (not for an
+    /// empty flask, one layer, or one color); the phase resets either way. The layers
+    /// before the rise are `Rules.sunk(_:)` of the flask's layers after the turn.
+    case bubbled(bottle: Int)
 }
 
 /// What one pour moved, as `Rules.resolve` applied it: the app animates from this instead
@@ -118,6 +123,8 @@ public enum Rules {
     ///   top layer (ice on top seals the flask); a frozen layer lower down changes nothing.
     ///   Frozen layers never move, so the index stays valid (pours only change layers
     ///   above it, a tap can't pour); the counter is the timed step `thaw`.
+    /// - `.bubbling` (D2): changes no pour on either side (a bubbling flask pours and
+    ///   receives like a plain one); its rise is the timed step `bubble`.
     ///
     /// R5 plan: `.cauldron`
     /// (target → accept a recipe partner on top: an `acceptsMismatch` flag; mixing itself
@@ -161,8 +168,11 @@ public enum Rules {
             return true
         case (.frozen(let layer, _), .target):
             return layer != target.layers.count - 1
-        case (.bubbling, _), (.cauldron, _):
-            // Not implemented yet: levels using them fail validation and the solver refuses them.
+        case (.bubbling, _):
+            // D2 changes no pour: its effect is the timed step `bubble` of `resolve`.
+            return true
+        case (.cauldron, _):
+            // Not implemented yet: levels using it fail validation and the solver refuses them.
             return true
         }
     }
@@ -323,8 +333,10 @@ public enum Rules {
     ///    the state graph stays finite).
     /// 4. Timed effects: corks (A2) → thaw (D1) → bubbling (D2) → evaporation (D4) →
     ///    conveyor (D3). Thaw is implemented: every frozen layer's counter goes down by 1,
-    ///    and at 0 the layer thaws (`TurnEvent.thawed`). Only player actions count: the
-    ///    counters tick once per turn, after the pour.
+    ///    and at 0 the layer thaws (`TurnEvent.thawed`). Bubbling is implemented: every
+    ///    bubbling flask's phase goes up by 1, and when it reaches the period the bottom
+    ///    layer rises to the top and the phase resets (`TurnEvent.bubbled`). Only player
+    ///    actions count: the counters tick once per turn, after the pour.
     /// 5. Immediate effects again if a timed effect changed anything.
     /// 6. Goal check.
     ///
@@ -435,18 +447,93 @@ public enum Rules {
     /// shows to `events`. Each timed mechanic becomes one step here, run only on flasks
     /// that carry its modifier (a plain or sealed flask is skipped by one switch).
     ///
-    /// Thaw (D1): every `.frozen(layer:turns:)` counts down by 1; at 0 the modifier is
-    /// removed (the layer is a normal layer from then on) and `.thawed` is reported.
+    /// 1. Thaw (D1): every `.frozen(layer:turns:)` counts down by 1; at 0 the modifier is
+    ///    removed (the layer is a normal layer from then on) and `.thawed` is reported.
+    /// 2. Bubbling (D2), after every thaw: every `.bubbling(every:phase:)` advances its
+    ///    phase; at `every` the flask's bottom layer rises to the top and the phase resets
+    ///    to 0 (`bubble`).
     @inline(__always)
     static func applyTimedEffects(_ state: inout GameState, events: inout [TurnEvent]) -> Bool {
         var changed = false
+        var bubbling = false
         for i in state.bottles.indices {
-            guard case .list(let list) = state.bottles[i].storage, list.contains(where: \.isTimed) else { continue }
-            thaw(&state.bottles[i], list: list, bottle: i, events: &events)
+            guard case .list(let list) = state.bottles[i].storage else { continue }
+            var frozen = false
+            for modifier in list {
+                switch modifier {
+                case .frozen: frozen = true
+                case .bubbling: bubbling = true
+                default: break
+                }
+            }
+            if frozen {
+                thaw(&state.bottles[i], list: list, bottle: i, events: &events)
+                changed = true
+            }
+        }
+        if bubbling {
+            for i in state.bottles.indices {
+                guard case .list(let list) = state.bottles[i].storage,
+                      list.contains(where: { if case .bubbling = $0 { return true } else { return false } }) else { continue }
+                bubble(&state.bottles[i], list: list, bottle: i, events: &events)
+            }
             changed = true
         }
         return changed
     }
+
+    /// The bubbling step for one flask whose modifiers are `list`: its phase goes up by 1;
+    /// when it reaches the period, the bottom layer rises to the top (`bubbledUp`) and the
+    /// phase is 0 again. A flask whose rise changes nothing (empty, one layer, one color)
+    /// still counts its phase but reports no event. A flask that holds ice never rotates
+    /// (its frozen indices must stay valid; `validate()` rejects ice on a bubbling flask
+    /// anyway). Replacing the phase keeps the canonical order when the flask has one
+    /// bubbling modifier (the only valid case); otherwise the list is normalized again.
+    static func bubble(_ bottle: inout Bottle, list: [BottleModifier], bottle index: Int, events: inout [TurnEvent]) {
+        var updated = list
+        var count = 0
+        var rises = false
+        for (k, modifier) in list.enumerated() {
+            guard case let .bubbling(every, phase) = modifier else { continue }
+            count += 1
+            let next = phase + 1
+            if next >= every {
+                updated[k] = .bubbling(every: every, phase: 0)
+                rises = true
+            } else {
+                updated[k] = .bubbling(every: every, phase: next)
+            }
+        }
+        if rises && !bottle.holdsIce {
+            let before = bottle.layers
+            bottle.layers = bubbledUp(before)
+            if bottle.layers != before { events.append(.bubbled(bottle: index)) }
+        }
+        bottle.storage = count == 1 ? .list(updated) : Bottle.ModifierStorage(Bottle.normalize(updated))
+    }
+
+    /// D2: `layers` (bottom → top) after one rise: the bottom layer moves to the top.
+    public static func bubbledUp<T>(_ layers: [T]) -> [T] {
+        guard layers.count > 1 else { return layers }
+        var result = layers
+        result.append(result.removeFirst())
+        return result
+    }
+
+    /// D2: the inverse of `bubbledUp`: the layers before a rise, given the layers after it
+    /// (the top layer goes back to the bottom). For the app's bubble-up animation, which
+    /// starts from the flask as the pour left it.
+    public static func sunk<T>(_ layers: [T]) -> [T] {
+        guard layers.count > 1 else { return layers }
+        var result = layers
+        result.insert(result.removeLast(), at: 0)
+        return result
+    }
+
+    /// The bubbling periods a level may use (MECHANICS.md D2; `validate()`), and the most
+    /// bubbling flasks per level (their phases multiply the states the solver sees).
+    public static let bubblingPeriods = 2...5
+    public static let maxBubblingFlasks = 2
 
     /// The thaw step for one flask whose modifiers are `list`. Counting down keeps the
     /// canonical order (frozen modifiers are ordered by layer first, and a flask never has
@@ -477,7 +564,8 @@ public enum Rules {
 
     /// Whether `modifier` keeps its flask from counting as solved. A seal does, and so does
     /// a frozen layer (D1): a recipe isn't won while ice remains, even if its flask is
-    /// full of one color; the player makes another move and it thaws.
+    /// full of one color; the player makes another move and it thaws. Bubbling (D2) doesn't:
+    /// a full one-color flask stays the same when it bubbles.
     static func blocksSolved(_ modifier: BottleModifier) -> Bool {
         switch modifier {
         case .sealed, .frozen: return true

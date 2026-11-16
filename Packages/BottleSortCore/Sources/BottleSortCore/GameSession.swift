@@ -10,11 +10,13 @@
 /// visible, and every layer in view is revealed. A revealed layer never hides again.
 ///
 /// The flags move *with* the layers, so a tap draining a flask from the bottom keeps
-/// the right layers hidden as the stack above slides down (DECISIONS 130 c, 148). The
+/// the right layers hidden as the stack above slides down (DECISIONS 130 c, 148), and a
+/// bubbling flask (D2) carries its bottom flag to the top when its bottom layer rises
+/// (`TurnEvent.bubbled`); the risen layer is then in view and revealed (DECISIONS 173). The
 /// masks are stored with the undo history, so undo and restart restore them exactly,
 /// together with the full `GameState` (modifiers, seals and any counter, e.g. the thaw
 /// counters of frozen layers, D1: they live in the state's modifiers, so undo restores them
-/// and a thawed layer freezes again).
+/// and a thawed layer freezes again; likewise the phases of bubbling flasks, D2).
 public struct GameSession: Sendable {
     public let initialState: GameState
     public private(set) var state: GameState
@@ -105,7 +107,8 @@ public struct GameSession: Sendable {
 
     /// The hidden flags after `turn`: the poured layers leave the source at the end the
     /// event names, land visible on the target (unless a key opened its seal and was used
-    /// up), then every layer in view is revealed. A bottle whose layer count no longer
+    /// up), each bubbled flask's bottom flag moves to its top (`Rules.bubbledUp`), then every
+    /// layer in view is revealed. A bottle whose layer count no longer
     /// matches (a later mechanic changing layers some other way) keeps its flags from the
     /// bottom and shows any new layer.
     static func masks(_ old: [[Bool]], after turn: Turn) -> [[Bool]] {
@@ -120,6 +123,11 @@ public struct GameSession: Sendable {
             if pour.openedSeal == nil {
                 masks[pour.move.to] += Array(repeating: false, count: pour.amount)
             }
+        }
+        for event in turn.events {
+            guard case .bubbled(let b) = event, masks.indices.contains(b), turn.state.bottles.indices.contains(b),
+                  masks[b].count == turn.state.bottles[b].layers.count else { continue }
+            masks[b] = Rules.bubbledUp(masks[b])
         }
         for (i, bottle) in turn.state.bottles.enumerated() where masks.indices.contains(i) {
             let count = bottle.layers.count

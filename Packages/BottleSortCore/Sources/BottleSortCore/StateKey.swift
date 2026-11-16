@@ -110,6 +110,9 @@ public struct StateKey: Hashable, Sendable {
         case let .frozen(layer, turns):
             return modifier.tag << 56 | (UInt64(truncatingIfNeeded: layer) & 0xFF_FFFF) << 24
                 | UInt64(truncatingIfNeeded: turns) & 0xFF_FFFF
+        case let .bubbling(every, phase):
+            return modifier.tag << 56 | (UInt64(truncatingIfNeeded: every) & 0xFF_FFFF) << 24
+                | UInt64(truncatingIfNeeded: phase) & 0xFF_FFFF
         case .cauldron: return nil
         default: return words(for: modifier)[0]
         }

@@ -9,6 +9,7 @@ import Foundation
 //   levelgen --colors 5 --empty 2 --essence 1 --essence-cost 2 --count 5 --out runes.json
 //   levelgen --colors 5 --empty 2 --narrow 1 --tap 1 --glass-cost 2 --count 5 --out glass.json
 //   levelgen --colors 5 --empty 2 --frozen 1:4 --frozen-cost 2 --count 5 --out ice.json
+//   levelgen --colors 5 --empty 2 --bubbling 1:3 --bubbling-cost 2 --count 5 --out bog.json
 //   levelgen --preset chapter2 --out Levels/chapter_02.json
 //   levelgen --preset all --out-dir Levels
 //   levelgen --report Levels            (every *.json in the folder)
@@ -23,13 +24,14 @@ usage:
            [--essence N [--essence-empty K] [--essence-matter | --essence-cost C]]
            [--narrow N] [--funnel N] [--tap N] [--glass-matter | --glass-cost C]
            [--frozen N:MAXTURNS [--frozen-matter | --frozen-cost C]]
+           [--bubbling N:PERIOD [--bubbling-matter | --bubbling-cost C]]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
-  levelgen --preset chapter1|…|chapter6|challenger|expert|master [--seed S] --out FILE
+  levelgen --preset chapter1|…|chapter7|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
-           (writes chapter_01…06.json and challenge_challenger|expert|master.json)
+           (writes chapter_01…07.json and challenge_challenger|expert|master.json)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
-           [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS]
+           [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS] [--bubbling N:PERIOD]
            [--count 10] [--seed 1]
 """
 
@@ -48,7 +50,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--easiest"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--easiest"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -91,6 +93,18 @@ func frozenOption() -> (count: Int, maxTurns: Int) {
     return (count, turns)
 }
 
+/// `--bubbling N:PERIOD` (bubbling flasks and their period; `N` alone means period 3).
+/// (0, 3) when absent.
+func bubblingOption() -> (count: Int, period: Int) {
+    guard let raw = options["--bubbling"] else { return (0, 3) }
+    let parts = raw.split(separator: ":").map { Int($0) }
+    guard (1...2).contains(parts.count), let count = parts[0], let period = parts.count == 2 ? parts[1] : 3,
+          (0...Rules.maxBubblingFlasks).contains(count), Rules.bubblingPeriods.contains(period) else {
+        fail("--bubbling expects N:PERIOD with N in 0...\(Rules.maxBubblingFlasks) and PERIOD in \(Rules.bubblingPeriods.lowerBound)...\(Rules.bubblingPeriods.upperBound)")
+    }
+    return (count, period)
+}
+
 func pad(_ s: String, _ width: Int, right: Bool = false) -> String {
     let fill = String(repeating: " ", count: max(0, width - s.count))
     return right ? fill + s : s + fill
@@ -109,7 +123,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let r: DifficultyReport }
     var rows: [Row] = []
     var problems = 0
     for (i, level) in pack.levels.enumerated() {
@@ -130,13 +144,14 @@ func report(path: String) -> Int {
         rows.append(Row(index: i + 1, id: level.id, colors: colors, empty: state.bottles.filter(\.isEmpty).count,
                         locks: state.bottles.filter { $0.lockedBy != nil }.count,
                         runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state),
-                        ice: state.bottles.reduce(0) { $0 + $1.frozenLayers.count }, r: r))
+                        ice: state.bottles.reduce(0) { $0 + $1.frozenLayers.count },
+                        bub: state.bottles.filter(\.isBubbling).count, r: r))
     }
     var title = pack.name ?? path
     if let kind = pack.kind { title += " (\(kind.rawValue)\(pack.chapter.map { " \($0)" } ?? ""))" }
     if let mechanics = pack.introduces { title += ", introduces " + mechanics.map(\.rawValue).joined(separator: ", ") }
     print("== \(title) — \(path)")
-    let header = "  #  id         colors empty locks runes glass ice minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks runes glass ice bub minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -147,7 +162,7 @@ func report(path: String) -> Int {
         }
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
               + String(format: " %6d %5d %5d %5d ", row.colors, row.empty, row.locks, row.runes) + pad(row.glass, 5, right: true)
-              + String(format: " %3d %8d %7d ", row.ice, row.r.minMoves, row.r.statesExplored)
+              + String(format: " %3d %3d %8d %7d ", row.ice, row.bub, row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -205,12 +220,21 @@ struct Tier {
     var frozenTurns = 3
     /// Moves each frozen layer must add (`FrozenImpact`); nil = no must-matter check.
     var frozenCost: Int? = nil
+    /// Bubbling flasks per level (D2) and their period.
+    var bubbling = 0
+    var bubblingPeriod = 3
+    /// Moves each bubbling flask must change (`BubblingImpact`); nil = no must-matter check.
+    var bubblingCost: Int? = nil
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
     /// Frozen tutorial: every frozen layer has a layer above it (`FrozenImpact.everyIceHasALayerAbove`),
     /// and an optimal solution needs no relocation and pours from above the ice
     /// (`FrozenImpact.solvesWithoutRelocation(_:in:pouringAboveIce:)`).
     var teachesIce = false
+    /// Bubbling tutorial: an optimal solution needs no relocation and pours a layer right
+    /// after it rose (`BubblingImpact.solvesWithoutRelocation(_:in:pouringARisenLayer:)`), and
+    /// no first move is a dead end (`MechanicImpact.everyFirstMoveSolvable`).
+    var teachesBubbling = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
 }
@@ -387,6 +411,41 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 3, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...58, locksMatter: true,
              strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
     ]),
+    "chapter7": PackPreset(file: "chapter_07", idPrefix: "c7", name: "Bubbling Bog",
+                           subtitle: "Bubbling flasks lift their bottom layer to the top", kind: .chapter, chapter: 7,
+                           location: "Bubbling Bog", introduces: [.bubbling], seed: 12_000, tiers: [
+        // Tutorial: 3 colors in size-3 flasks, two empty flasks, one flask that bubbles every
+        // 2 moves; its rise changes the optimum by 2+ moves, an optimal solution pours a risen
+        // layer without parking a flask, and no first move is a dead end.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 2, moves: any, pool: 16, bubbling: 1, bubblingPeriod: 2,
+             bubblingCost: BubblingImpact.strongCost, keepEasiest: true, teachesBubbling: true, section: 0),
+        // Bubbling only (every bubbling flask changes the optimum by 2+ moves, either way).
+        Tier(count: 3, colors: 3, capacity: 4, empty: 2, moves: any, score: 19...27, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 4, capacity: 3, empty: 2, moves: any, score: 23...29, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 4, capacity: 4, empty: 2, moves: any, bubbling: 2, bubblingPeriod: 2,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 4, capacity: 4, empty: 2, moves: any, score: 30...37, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 4, capacity: 4, empty: 2, moves: any, score: 30...39, bubbling: 2, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, moves: any, score: 36...43, bubbling: 1, bubblingPeriod: 4,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 42...48, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, section: 1),
+        // With earlier mechanics: murky layers, then strong seals (the seal layout's partly
+        // filled flask leaves room for one empty flask), then both.
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 36...44, bubbling: 1,
+             bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 36...45, locksMatter: true,
+             strongLocks: true, bubbling: 1, bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
+        Tier(count: 3, colors: 6, capacity: 4, empty: 1, locks: 1, hidden: true, moves: any, score: 43...50,
+             locksMatter: true, strongLocks: true, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...56, locksMatter: true,
+             strongLocks: true, bubbling: 1, bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
+    ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
         Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
@@ -412,7 +471,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
     ]),
 ]
-let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "challenger", "expert", "master"]
+let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "challenger", "expert", "master"]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
@@ -430,7 +489,10 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      glassCost: tier.glassCost ?? GlassImpact.minimumCost,
                                      frozen: tier.frozen, frozenMaxTurns: tier.frozenTurns,
                                      requireFrozenMatter: tier.frozenCost != nil,
-                                     frozenCost: tier.frozenCost ?? FrozenImpact.minimumCost)
+                                     frozenCost: tier.frozenCost ?? FrozenImpact.minimumCost,
+                                     bubbling: tier.bubbling, bubblingPeriod: tier.bubblingPeriod,
+                                     requireBubblingMatter: tier.bubblingCost != nil,
+                                     bubblingCost: tier.bubblingCost ?? BubblingImpact.minimumCost)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -445,12 +507,19 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
             }
             if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the ice; raise the pool") }
         }
+        if tier.teachesBubbling {
+            generated = generated.filter {
+                BubblingImpact.solvesWithoutRelocation($0.state, in: $0.report.minMoves, pouringARisenLayer: true)
+                    && MechanicImpact.everyFirstMoveSolvable($0.state)
+            }
+            if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the bubbling; raise the pool") }
+        }
         // Keep the hardest (or, for a tutorial, the easiest) `count` of the pool.
         let hardestFirst = generated.sorted { ($0.report.score, $1.seed) > ($1.report.score, $0.seed) }
         let kept = tier.keepEasiest ? hardestFirst.reversed().prefix(tier.count) : hardestFirst.prefix(tier.count)
         all += kept.map { ($0, tier.hidden, tier.section) }
         let pooled = tier.pool > 1 ? " (\(tier.keepEasiest ? "easiest" : "best") of \(tier.count * tier.pool))" : ""
-        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
+        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.bubbling > 0 ? ", \(tier.bubbling) bubbling /\(tier.bubblingPeriod)" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
     }
     // Sort by score within each section, so difficulty rises through the whole pack.
     return all.sorted { ($0.section, $0.level.report.score, $0.level.seed) < ($1.section, $1.level.report.score, $1.level.seed) }
@@ -482,10 +551,12 @@ func bench() {
     let seed = UInt64(int("--seed", default: 1)!)
     let locks = int("--locks", default: 0)!
     let frozen = frozenOption()
+    let bubbling = bubblingOption()
     let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks,
                                  essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"),
                                  narrowNecks: int("--narrow", default: 0)!, funnels: int("--funnel", default: 0)!,
-                                 taps: int("--tap", default: 0)!, frozen: frozen.count, frozenMaxTurns: frozen.maxTurns)
+                                 taps: int("--tap", default: 0)!, frozen: frozen.count, frozenMaxTurns: frozen.maxTurns,
+                                 bubbling: bubbling.count, bubblingPeriod: bubbling.period)
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
@@ -554,12 +625,15 @@ if let path = options["--report"] {
         guard narrow >= 0, funnel >= 0, tap >= 0 else { fail("--narrow, --funnel and --tap must not be negative") }
         let frozen = frozenOption()
         let frozenCost = int("--frozen-cost") ?? (flags.contains("--frozen-matter") ? FrozenImpact.minimumCost : nil)
+        let bubbling = bubblingOption()
+        let bubblingCost = int("--bubbling-cost") ?? (flags.contains("--bubbling-matter") ? BubblingImpact.minimumCost : nil)
         let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
                         empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
                         pool: int("--pool", default: 1)!, locksMatter: flags.contains("--locks-matter"),
                         essence: essence, essenceEmpty: int("--essence-empty"), essenceCost: essenceCost,
                         narrow: narrow, funnel: funnel, tap: tap, glassCost: glassCost,
                         frozen: frozen.count, frozenTurns: frozen.maxTurns, frozenCost: frozenCost,
+                        bubbling: bubbling.count, bubblingPeriod: bubbling.period, bubblingCost: bubblingCost,
                         keepEasiest: flags.contains("--easiest"))
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }

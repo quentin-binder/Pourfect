@@ -143,16 +143,34 @@ public struct Bottle: Hashable, Sendable, CustomStringConvertible {
         return true
     }
 
-    /// For the solver's pruning: `ok` is whether every modifier is static or a frozen layer
-    /// (D1), `frozen` whether the flask holds a frozen layer.
-    var staticOrFrozen: (ok: Bool, frozen: Bool) {
-        guard case .list(let list) = storage else { return (true, false) }
-        var frozen = false
+    /// For the solver's pruning: `ok` is whether every modifier is static, a frozen layer
+    /// (D1) or bubbling (D2); `frozen` whether the flask holds a frozen layer, `bubbling`
+    /// whether it bubbles.
+    var pruningKind: (ok: Bool, frozen: Bool, bubbling: Bool) {
+        guard case .list(let list) = storage else { return (true, false, false) }
+        var frozen = false, bubbling = false
         for modifier in list {
-            if case .frozen = modifier { frozen = true } else if !modifier.isStatic { return (false, frozen) }
+            switch modifier {
+            case .frozen: frozen = true
+            case .bubbling: bubbling = true
+            default: if !modifier.isStatic { return (false, frozen, bubbling) }
+            }
         }
-        return (true, frozen)
+        return (true, frozen, bubbling)
     }
+
+    /// D2: the flask's bubbling period and phase, or nil if it doesn't bubble. For the
+    /// app's bubbles and gauge.
+    public var bubbling: Bubbling? {
+        guard case .list(let list) = storage else { return nil }
+        for modifier in list {
+            if case let .bubbling(every, phase) = modifier { return Bubbling(every: every, phase: phase) }
+        }
+        return nil
+    }
+
+    /// D2: whether the flask bubbles (its bottom layer rises to the top every few moves).
+    public var isBubbling: Bool { bubbling != nil }
 
     /// D1: the frozen layers of this flask, bottom first (empty when it holds no ice).
     /// For the app's ice overlay and counter.
@@ -301,7 +319,8 @@ extension BottleModifier {
     /// from which end, but only as a function of the two bottles of the pour. The solver's
     /// pruning rules hold for flasks that carry only these (`Solver.candidateMoves`,
     /// DECISIONS 133, 147), using the actual plan amount. A frozen layer is not static (its
-    /// counter ticks every move); the solver keeps only rule 3 while one exists (DECISIONS 160).
+    /// counter ticks every move); the solver keeps only rule 3 while one exists (DECISIONS 162).
+    /// Bubbling isn't either (its phase ticks every move; DECISIONS 172).
     var isStatic: Bool {
         switch self {
         case .sealed, .essence, .narrowNeck, .funnel, .tap: return true
@@ -353,6 +372,23 @@ public struct FrozenLayer: Hashable, Sendable {
         self.layer = layer
         self.turns = turns
     }
+}
+
+/// D2: the bubbling state of a flask (`Bottle.bubbling`): its period and the moves made
+/// since its last rise.
+public struct Bubbling: Hashable, Sendable {
+    /// The bottom layer rises every `every` moves (`Rules.bubblingPeriods`).
+    public var every: Int
+    /// Moves since the last rise (0..<every); the app's gauge shows `phase / every` filled.
+    public var phase: Int
+    public init(every: Int, phase: Int) {
+        self.every = every
+        self.phase = phase
+    }
+
+    /// Moves until the next rise, 1...every: 1 means the bottom layer rises after the next
+    /// move (the gauge is one step from full).
+    public var movesUntilRise: Int { max(1, every - phase) }
 }
 
 /// Pour from bottle index `from` into bottle index `to`.

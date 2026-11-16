@@ -25,8 +25,10 @@
 /// with them, the rule decides either that a frozen layer blocks them, or that the
 /// timed step re-indexes `.frozen` modifiers (DECISIONS 122, PLAN R5). A tap (C4) is the
 /// first implemented rule that removes layers from the bottom: D1 decided that a frozen
-/// layer blocks it (a tap can't pour while its flask holds ice, DECISIONS 159), so the
-/// index never needs re-indexing yet.
+/// layer blocks it (a tap can't pour while its flask holds ice, DECISIONS 159). Bubbling
+/// (D2) rotates the bottom layer up: `validate()` rejects ice (and a tap) on a bubbling
+/// flask, and the bubbling step never rotates a flask that holds ice, so the index never
+/// needs re-indexing (DECISIONS 170).
 public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// A1 sealed flask: can't be poured from or into, except by key `KeyID`,
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is
@@ -48,8 +50,11 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// `turns` (1...`Rules.maxThawTurns`) counts down after every move and the layer thaws
     /// at 0 (the modifier is removed). Implemented (chapter 6, Frost Peak).
     case frozen(layer: Int, turns: Int)
-    /// D2 bubbling flask: every `every` moves the bottom layer rises to the top;
-    /// `phase` counts moves since the last rise (0..<every). (R5)
+    /// D2 bubbling flask: every `every` moves (`Rules.bubblingPeriods`, 2...5) its bottom
+    /// layer rises to the top of the same flask; `phase` counts the moves since the last
+    /// rise (0..<every). It changes no pour: the timed step `bubble` of `Rules.resolve`
+    /// (after thaw) advances the phase after every move and, when it reaches `every`,
+    /// rotates the stack and resets it to 0. Implemented (chapter 7, Bubbling Bog).
     case bubbling(every: Int, phase: Int)
     /// E1 mixing cauldron: pouring `a` onto `b` (or `b` onto `a`) inside it turns
     /// both layers into `result`. Recipes are kept sorted. (R5)
@@ -59,8 +64,8 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// validation and the solver refuses them (`.unsupportedState`).
     public var isImplemented: Bool {
         switch self {
-        case .sealed, .essence, .narrowNeck, .funnel, .tap, .frozen: return true
-        case .bubbling, .cauldron: return false
+        case .sealed, .essence, .narrowNeck, .funnel, .tap, .frozen, .bubbling: return true
+        case .cauldron: return false
         }
     }
 

@@ -10,7 +10,7 @@ import Testing
         s.bottles[2].layers = [.key(3)]
         s.bottles[0].modifiers = [.narrowNeck, .frozen(layer: 1, turns: 3)]
         s.bottles[2].modifiers += [.essence(1)]
-        s.bottles[3].modifiers = [.bubbling(every: 3, phase: 1), .tap]
+        s.bottles[3].modifiers = [.bubbling(every: 3, phase: 1), .funnel]
         s.bottles[4].modifiers = [.funnel, .cauldron([Recipe(2, 1, result: 0)])]
         s.links = [.twins(0, 3), .overflow(from: 1, to: 4), .switchGate(switch: 2, gate: 0)]
         s.goal = .order([GoalTarget(bottle: 4, layers: [.color(0), .color(0), .color(0), .color(0)])])
@@ -51,10 +51,10 @@ import Testing
         let data = try LevelLoader.encode(LevelPack(levels: [Self.everything()]))
         #expect(throws: LevelLoadError.self) { try LevelLoader.load(data) }
         let errors = Self.everything().gameState.validate()
-        for name in ["essence", "narrowNeck", "tap", "funnel", "frozen"] {
+        for name in ["essence", "narrowNeck", "tap", "funnel", "frozen", "bubbling"] {
             #expect(!errors.contains(.unsupportedMechanic(name)), "\(name)")
         }
-        for name in ["bubbling", "cauldron", "twins", "overflow", "switchGate", "order"] {
+        for name in ["cauldron", "twins", "overflow", "switchGate", "order"] {
             #expect(errors.contains(.unsupportedMechanic(name)), "\(name)")
         }
         #expect(Solver().solve(Self.everything().gameState) == .unknown(reason: .unsupportedState))
