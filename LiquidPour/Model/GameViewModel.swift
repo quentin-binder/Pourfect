@@ -23,8 +23,17 @@ final class GameViewModel {
         let to: Int
         /// The layer kind that moved (all moved layers are identical).
         let layer: Layer
-        /// Number of layers that moved.
+        /// Number of layers that left the source (`targetAmount` landed in `to`, the rest in
+        /// `shares`).
         let amount: Int
+        /// Layers that landed in `to`: all of them, unless the pour was split between twins (F1)
+        /// or ran on through an overflow pipe (F2). 0 when a full flask passed it all on.
+        let targetAmount: Int
+        /// The other flasks the pour filled (the target's twin, or the far end of its pipe),
+        /// as they were before the move.
+        let shares: [Landing]
+        /// Every twin flask of the level (they wear a silver band, also in flight).
+        let twins: Set<Int>
         /// The layers left from the source's bottom, through its tap (C4): the stack above
         /// slides down. Otherwise they left from the top.
         let fromBottom: Bool
@@ -52,6 +61,21 @@ final class GameViewModel {
 
         /// A key pour: the key drops into the target's lock instead of liquid flowing.
         var isKey: Bool { layer.isKey }
+        /// The pour was split evenly between twins.
+        var isSplit: Bool { shares.contains { $0.route == .twin } }
+        /// What ran on through the target's overflow pipe, if anything.
+        var overflow: Landing? { shares.first { $0.route == .overflow } }
+        /// Every flask the pour animation draws: the source, the target and the shares.
+        var bottles: [Int] { [from, to] + shares.map(\.bottle) }
+    }
+
+    /// Part of a pour that landed in another flask than the one poured into (`PourShare`).
+    struct Landing: Equatable {
+        let bottle: Int
+        let amount: Int
+        let route: PourShare.Route
+        let before: Bottle
+        let hiddenBefore: [Bool]
     }
 
     /// Something the player should hear or feel. Published in order through `feedback`.
@@ -63,9 +87,17 @@ final class GameViewModel {
         /// A flask modifier refused the pour (`Rules.refusal`): an essence flask's rune flares
         /// (`runeHum`), a funnel or a tap flask knocks its brass (`brassKnock`).
         case refused(bottle: Int, modifier: BottleModifier)
+        /// A twin chain refused the pour (`Rules.linkRefusal`): the chain rattles.
+        case refusedLink(bottles: [Int])
         /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved;
         /// `fromBottom`: poured through a tap (the valve opens instead of the lip clinking).
         case pour(from: Int, to: Int, amount: Int, isKey: Bool, fromBottom: Bool)
+        /// The pour that just started is split between twins (F1): the chain chimes as the
+        /// stream forks.
+        case split(bottles: [Int])
+        /// Part of the pour that just started runs on through an overflow pipe (F2), once
+        /// `start` (0…1) of the flow has gone into the full flask: the pipe glugs.
+        case overflow(into: Int, start: Double)
         /// Frozen layers of these bottles thawed (D1); fires when the pour animation lands, as
         /// the ice cracks and melts.
         case thawed(bottles: [Int])
@@ -118,6 +150,9 @@ final class GameViewModel {
     private(set) var shakes: [Int] = []
     /// Incremented per bottle each time its rune refuses a pour (drives the rune flare).
     private(set) var refusals: [Int] = []
+    /// Incremented per link (index in `state.links`) each time a twin chain refuses a pour
+    /// (drives the chain's glint and rattle).
+    private(set) var linkRefusals: [Int] = []
     /// Recent feedback events, oldest first (only the last few are kept). Observe
     /// `feedback.last?.id` and read `feedback(after:)` so events published in one update
     /// (e.g. a completion followed by a queued tap) are never lost.
@@ -275,7 +310,9 @@ final class GameViewModel {
     /// the pour waits for the rise, so the flask never jumps to its new order (DECISIONS 177).
     private func waitsForRise(_ index: Int) -> Bool {
         guard let from = selected, from != index else { return false }
-        return rises.contains { $0.bottle == from || $0.bottle == index }
+        // A pour into a linked flask may also fill its twin or the far end of its pipe.
+        let touched = [from, index, state.twin(of: index), state.overflowTarget(of: index)].compactMap { $0 }
+        return rises.contains { touched.contains($0.bottle) }
     }
 
     /// Replays queued taps in order, until one starts a pour or has to wait for a rise.
@@ -317,6 +354,8 @@ final class GameViewModel {
             afterStateChange()
         } else if let refusal = Rules.refusal(of: move, in: before), Self.explains(refusal.modifier) {
             refuse(refusal.bottle, modifier: refusal.modifier)
+        } else if let link = Rules.linkRefusal(of: move, in: before) {
+            refuse(move, link: link)
         } else {
             reject(from)
         }
@@ -328,6 +367,7 @@ final class GameViewModel {
         guard let landed = pour, landed.id == id else { return }
         pour = nil
         pourTimeout?.cancel()
+        announceLanding(landed)
         startThaws(landed.events, reduceMotion: reduceMotion)
         startRises(landed.rises, reduceMotion: reduceMotion)
         if !landed.completed.isEmpty {
@@ -389,11 +429,14 @@ final class GameViewModel {
         // Present the bottles in a fresh random order on every load (Restart/Replay keep it),
         // so empty bottles aren't always at the end. Order doesn't change the puzzle.
         var rng = SystemRandomNumberGenerator()
-        session = GameSession(levels[index].gameState.shufflingBottles(using: &rng), hidden: levels[index].isHidden)
+        // Linked flasks stay side by side, so their chain or pipe stays short (DECISIONS 187).
+        let shuffled = BoardLayout.keepingLinksTogether(levels[index].gameState.shufflingBottles(using: &rng))
+        session = GameSession(shuffled, hidden: levels[index].isHidden)
         cancelPour()
         minMoves = levels[index].meta?.minMoves
         shakes = Array(repeating: 0, count: session.state.bottles.count)
         refusals = Array(repeating: 0, count: session.state.bottles.count)
+        linkRefusals = Array(repeating: 0, count: session.state.links.count)
         completions = Array(repeating: 0, count: session.state.bottles.count)
         selected = nil
         solution = nil
@@ -431,8 +474,17 @@ final class GameViewModel {
         let mask = { (i: Int) in hiddenBefore.indices.contains(i) ? hiddenBefore[i] : [] }
         // A flask in this pour is drawn by the pour animation: an older rise on it stops. (Taps
         // wait for a running rise, `waitsForRise`; this only catches the dev aids.)
-        rises.removeAll { $0.bottle == move.from || $0.bottle == move.to }
+        let shares = event.shares.map {
+            Landing(bottle: $0.bottle, amount: $0.amount, route: $0.route,
+                    before: before.bottles[$0.bottle], hiddenBefore: mask($0.bottle))
+        }
+        rises.removeAll { $0.bottle == move.from || $0.bottle == move.to || event.shares.map(\.bottle).contains($0.bottle) }
+        let twins = Set(state.links.flatMap { link -> [Int] in
+            guard case let .twins(a, b) = link else { return [] }
+            return [a, b]
+        })
         pour = PourEvent(id: id, from: move.from, to: move.to, layer: event.layer, amount: event.amount,
+                         targetAmount: event.targetAmount, shares: shares, twins: twins,
                          fromBottom: event.fromBottom,
                          sourceBefore: before.bottles[move.from], targetBefore: before.bottles[move.to],
                          sourceHiddenBefore: mask(move.from), targetHiddenBefore: mask(move.to),
@@ -442,6 +494,10 @@ final class GameViewModel {
                          rises: pendingRises(session.lastEvents, hiddenBefore: hiddenBefore))
         emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
                    fromBottom: event.fromBottom))
+        if let pour, pour.isSplit { emit(.split(bottles: [move.to] + shares.map(\.bottle))) }
+        if let overflow = pour?.overflow {
+            emit(.overflow(into: overflow.bottle, start: Double(event.targetAmount) / Double(event.amount)))
+        }
         pourTimeout?.cancel()
         pourTimeout = Task {
             try? await Task.sleep(for: .seconds(3 * DebugTiming.slow))
@@ -507,6 +563,44 @@ final class GameViewModel {
             break
         }
         emit(.refused(bottle: bottle, modifier: modifier))
+    }
+
+    /// A twin chain said no (`Rules.linkRefusal`): both twins shake, the chain glints and
+    /// rattles, and a short line says why.
+    private func refuse(_ move: Move, link: BottleSortCore.Link) {
+        let twins: [Int]
+        if case let .twins(a, b) = link { twins = [a, b] } else { twins = [move.to] }
+        for bottle in twins where shakes.indices.contains(bottle) { shakes[bottle] += 1 }
+        if let index = state.links.firstIndex(of: link), linkRefusals.indices.contains(index) {
+            linkRefusals[index] += 1
+        }
+        let source = state.bottles[move.from]
+        if twins.contains(move.from) {
+            flash(String(localized: "Twins can't pour into each other.",
+                         comment: "Shown when the player pours from one twin flask into the other"))
+        } else if Rules.movableRunCount(source) < 2 || source.hasNarrowNeck || source.layers.last?.isKey == true {
+            flash(String(localized: "Twins share every pour evenly. A single layer can't be split between them.",
+                         comment: "Shown when the player pours one layer (or a key) into a twin flask"))
+        } else {
+            flash(String(localized: "Twins share every pour. Both need room for this potion.",
+                         comment: "Shown when a pour into a twin flask is refused because its twin is full or has another potion on top"))
+        }
+        emit(.refusedLink(bottles: twins))
+    }
+
+    /// VoiceOver: where a pour that used a link landed (split between twins, or run through a
+    /// pipe), said when it lands.
+    private func announceLanding(_ pour: PourEvent) {
+        if pour.isSplit, let twin = pour.shares.first(where: { $0.route == .twin }) {
+            AccessibilityNotification.Announcement(
+                String(localized: "Split between flask \(pour.to + 1) and flask \(twin.bottle + 1)",
+                       comment: "VoiceOver: a pour into a twin flask was shared evenly with its twin; the arguments are flask numbers")).post()
+        }
+        if let overflow = pour.overflow {
+            AccessibilityNotification.Announcement(
+                String(localized: "The rest ran through the pipe into flask \(overflow.bottle + 1)",
+                       comment: "VoiceOver: what didn't fit into a full flask ran on through its overflow pipe; the argument is the flask number")).post()
+        }
     }
 
     /// The pour landed: the layers that thawed after it crack and melt now (`ThawingIce`), with
@@ -720,7 +814,30 @@ final class GameViewModel {
         }
         if let funnel = state.bottles.indices.first(where: { !state.bottles[$0].isEmpty && state.bottles[$0].isFunnel }) {
             tap(bottle: funnel)
+            return
         }
+        // A pour a twin chain refuses (into a twin from a third flask first, else twin to twin).
+        let refused = (0..<n).flatMap { from in (0..<n).map { Move(from: from, to: $0) } }
+            .filter { $0.from != $0.to && Rules.linkRefusal(of: $0, in: state) != nil }
+        if let move = refused.first(where: { state.twin(of: $0.from) == nil }) ?? refused.first {
+            tap(bottle: move.from)
+            if selected == move.from { tap(bottle: move.to) }
+        }
+    }
+
+    /// Dev aid: plays one legal pour that uses a link (part of it runs through an overflow pipe,
+    /// else one split between twins), to see it in flight.
+    func debugLinkPour() {
+        let n = state.bottles.count
+        let pours = (0..<n).flatMap { from in (0..<n).map { Move(from: from, to: $0) } }
+            .filter { $0.from != $0.to }
+            .compactMap { Rules.resolve(state, afterAction: .pour($0))?.pour }
+            .filter { !$0.shares.isEmpty }
+        let overflow = pours.filter { $0.shares.contains { $0.route == .overflow } }
+        // A pour that fills the first flask partly and then runs on reads best.
+        guard let pour = overflow.first(where: { $0.targetAmount > 0 }) ?? overflow.first ?? pours.first else { return }
+        tap(bottle: pour.move.from)
+        tap(bottle: pour.move.to)
     }
     #endif
 }

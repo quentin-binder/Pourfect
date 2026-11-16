@@ -12,8 +12,6 @@ struct GameView: View {
     /// The tip on screen, if any (first time a mechanic appears, or the "?" button).
     @State private var tip: [TutorialTopic]?
 
-    private let maxPerRow = 7
-
     var body: some View {
         VStack(spacing: 16) {
             hud
@@ -26,6 +24,8 @@ struct GameView: View {
             GeometryReader { geo in
                 board(in: geo.size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    // Chains and pipes between linked flasks, at the flasks' actual places.
+                    .overlayPreferenceValue(BottleFramesKey.self) { linkLayer($0) }
                     .overlayPreferenceValue(BottleFramesKey.self) { pourLayer($0) }
             }
             controls
@@ -86,6 +86,14 @@ struct GameView: View {
                 while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
                 try? await Task.sleep(for: .seconds(iceDelay))
                 withAnimation(.easeInOut(duration: 0.3)) { model.debugIcePour() }
+            }
+            // `-LPDemoLinkPour S`: then, after S seconds, plays a pour that runs through an
+            // overflow pipe (else one split between twins).
+            let linkDelay = UserDefaults.standard.double(forKey: "LPDemoLinkPour")
+            if linkDelay > 0 {
+                while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
+                try? await Task.sleep(for: .seconds(linkDelay))
+                withAnimation(.easeInOut(duration: 0.3)) { model.debugLinkPour() }
             }
             let refuseDelay = UserDefaults.standard.double(forKey: "LPDemoRefuse")
             if refuseDelay > 0 {
@@ -162,22 +170,27 @@ struct GameView: View {
 
     private func board(in size: CGSize) -> some View {
         let bottles = model.state.bottles
-        let rowCount = max(1, Int((Double(bottles.count) / Double(maxPerRow)).rounded(.up)))
-        let perRow = Int((Double(bottles.count) / Double(rowCount)).rounded(.up))
+        let rows = BoardLayout.rows(count: bottles.count)
+        let rowCount = rows.count
+        let perRow = BoardLayout.perRow(count: bottles.count)
         let capacity = CGFloat(bottles.first?.capacity ?? 4)
         // A tap's spigot sticks out on the right: a little more room between flasks.
         let spacing: CGFloat = bottles.contains(where: \.hasTap) ? 22 : 14
         // A narrow neck or a funnel stands above its flask (in widths): room for it on every row.
-        let parts = bottles.map { GlassParts($0).riseInWidths }.max() ?? 0
+        // An overflow pipe arches above the rims of its flasks (about half a width).
+        let pipe: CGFloat = model.state.links.contains { if case .overflow = $0 { return true } else { return false } }
+            ? 0.6 : 0
+        let parts = max(bottles.map { GlassParts($0).riseInWidths }.max() ?? 0, pipe)
         // Fit width: perRow bottles + spacing. Fit height: rows × (capacity × 0.78w + 0.45w) + lift room.
-        let byWidth = (size.width - spacing * CGFloat(perRow - 1)) / CGFloat(perRow)
+        // Linked flasks side by side get a wider gap for their chain or pipe (`linkGap`, in widths).
+        let pairsPerRow = rows.map { row in row.filter { linkedRight(of: $0, in: row) }.count }.max() ?? 0
+        let byWidth = (size.width - spacing * CGFloat(perRow - 1)) / (CGFloat(perRow) + Self.linkGap * CGFloat(pairsPerRow))
         // A bubbling flask's dial hangs under its base (about 0.52w): room for it under every row.
         let dial: CGFloat = bottles.contains { $0.bubbling != nil } ? 0.52 : 0
         let byHeight = (size.height - 40 * CGFloat(rowCount))
             / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts + dial))
         let width = max(24, min(byWidth, byHeight, 72))
         let dialRoom = dial > 0 ? BubbleGauge.room(width) : 0
-        let rows = stride(from: 0, to: bottles.count, by: perRow).map { Array($0..<min($0 + perRow, bottles.count)) }
 
         return VStack(spacing: 40 + parts * width + dialRoom) {
             ForEach(rows, id: \.self) { row in
@@ -197,31 +210,118 @@ struct GameView: View {
                                        ice: model.ice(index),
                                        thaws: model.thaws(index),
                                        bubbling: model.bubbling(index),
-                                       rise: model.rise(index))
+                                       rise: model.rise(index),
+                                       twin: model.state.twin(of: index) != nil,
+                                       chainRefusals: chainRefusals(index))
                         }
                         .buttonStyle(.plain)
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }
                         // The pour animation draws these two bottles itself; swap without fading.
                         .animation(nil) { $0.opacity(isPouring(index) ? 0 : 1) }
                         .accessibilityLabel(Text("Flask \(index + 1)"))
-                        .accessibilityValue(bottles[index].spokenContents(hidden: model.hiddenMask(index)))
+                        .accessibilityValue(spokenValue(index))
+                        .padding(.trailing, linkedRight(of: index, in: row) ? Self.linkGap * width : 0)
                     }
                 }
             }
         }
         .padding(.bottom, dialRoom)
+        // The top row's pipe arches above its rims.
+        .padding(.top, pipe * width)
+    }
+
+    /// Extra room (in flask widths) between two linked flasks standing side by side.
+    private static let linkGap: CGFloat = 0.4
+
+    /// Whether the flask right of `index` in its row is its link partner.
+    private func linkedRight(of index: Int, in row: [Int]) -> Bool {
+        guard let link = model.state.link(at: index), row.contains(index + 1) else { return false }
+        return link.endpoints.0 == index + 1 || link.endpoints.1 == index + 1
     }
 
     private func isPouring(_ index: Int) -> Bool {
-        guard let pour = model.pour else { return false }
-        return pour.from == index || pour.to == index
+        model.pour?.bottles.contains(index) ?? false
+    }
+
+    /// The flask's contents for VoiceOver, plus its link (twin chain or overflow pipe).
+    private func spokenValue(_ index: Int) -> String {
+        let contents = model.state.bottles[index].spokenContents(hidden: model.hiddenMask(index))
+        switch LinkRole(model.state, bottle: index) {
+        case .twin(let other):
+            return contents + ", " + String(localized: "twin of flask \(other + 1), every pour into either is split evenly between both",
+                                            comment: "VoiceOver: a twin flask; the argument is the other twin's number")
+        case .pipeOut(let to):
+            return contents + ", " + String(localized: "overflow pipe into flask \(to + 1), what doesn't fit runs on",
+                                            comment: "VoiceOver: the flask an overflow pipe starts from; the argument is the flask it runs into")
+        case .pipeIn(let from):
+            return contents + ", " + String(localized: "the overflow pipe of flask \(from + 1) runs into it",
+                                            comment: "VoiceOver: the flask an overflow pipe ends over; the argument is the flask it starts from")
+        case nil:
+            return contents
+        }
+    }
+
+    /// How often the chain of twin `index` has refused a pour (its band glints each time).
+    private func chainRefusals(_ index: Int) -> Int {
+        guard let link = model.state.link(at: index), let i = model.state.links.firstIndex(of: link),
+              model.linkRefusals.indices.contains(i) else { return 0 }
+        return model.linkRefusals[i]
+    }
+
+    /// The chains and pipes, drawn between the flasks' frames on the board (after the shuffle and
+    /// any resize). A link follows a flask that is picked up, and fades while one of its flasks
+    /// is in the air pouring (the pour animation draws that flask).
+    @ViewBuilder
+    private func linkLayer(_ frames: [Int: Anchor<CGRect>]) -> some View {
+        let links = model.state.links
+        GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                ForEach(links.indices, id: \.self) { i in
+                    let link = links[i]
+                    let (a, b) = link.endpoints
+                    if let fa = frames[a], let fb = frames[b] {
+                        let ra = proxy[fa], rb = proxy[fb]
+                        let lifted = { (bottle: Int, w: CGFloat) -> CGFloat in model.selected == bottle ? w * 0.3 : 0 }
+                        let flying = model.pour?.from == a || model.pour?.from == b
+                        let refusals = model.linkRefusals.indices.contains(i) ? model.linkRefusals[i] : 0
+                        LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width))
+                            .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
+                                LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
+                                         flare: flare)
+                            } keyframes: { _ in
+                                KeyframeTrack {
+                                    LinearKeyframe(1, duration: 0.12, timingCurve: .easeOut)
+                                    LinearKeyframe(1, duration: 0.25)
+                                    LinearKeyframe(0, duration: 0.45, timingCurve: .easeIn)
+                                }
+                            }
+                            .opacity(flying ? 0 : 1)
+                            .animation(.easeInOut(duration: 0.25), value: flying)
+                    }
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+        }
+        .allowsHitTesting(false)
     }
 
     @ViewBuilder
     private func pourLayer(_ frames: [Int: Anchor<CGRect>]) -> some View {
         GeometryReader { proxy in
             if let pour = model.pour, let from = frames[pour.from], let to = frames[pour.to] {
+                let shareFrames = Dictionary(uniqueKeysWithValues: pour.shares.compactMap { share in
+                    frames[share.bottle].map { (share.bottle, proxy[$0]) }
+                })
+                // Chains and pipes of the flasks drawn by the pour (not the flying source's: they
+                // fade on the board meanwhile), redrawn above those flasks.
+                let links = model.state.links.compactMap { link -> (link: BottleSortCore.Link, a: CGRect, b: CGRect)? in
+                    let (a, b) = link.endpoints
+                    guard a != pour.from, b != pour.from, pour.bottles.contains(a) || pour.bottles.contains(b),
+                          let fa = frames[a], let fb = frames[b] else { return nil }
+                    return (link, proxy[fa], proxy[fb])
+                }
                 PourAnimationView(event: pour, sourceFrame: proxy[from], targetFrame: proxy[to],
+                                  shareFrames: shareFrames, links: links,
                                   boardSize: proxy.size, reduceMotion: reduceMotion) {
                     withAnimation(.easeInOut(duration: 0.3)) { model.finishPour(pour.id, reduceMotion: reduceMotion) }
                 }
@@ -236,6 +336,8 @@ struct GameView: View {
         guard let hint = model.hint else { return nil }
         if hint.from == index { return .source }
         if hint.to == index { return .target }
+        // A hinted pour into a twin fills both twins.
+        if model.state.twin(of: hint.to) == index { return .target }
         return nil
     }
 

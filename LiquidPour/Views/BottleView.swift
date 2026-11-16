@@ -31,6 +31,10 @@ struct BottleView: View {
     /// The bottom layer that just rose (D2): drawn climbing through the stack (`BubbleRise`)
     /// in place of the potion until the mark is removed.
     var rise: RiseMark? = nil
+    /// A twin flask (F1): it wears a silver band with rings for the chain (`TwinBand`).
+    var twin = false
+    /// Goes up each time this twin's chain refuses a pour: the band glints.
+    var chainRefusals = 0
 
     /// A mask with the bottom `count` of `total` layers hidden (tips and previews).
     static func bottomHidden(_ count: Int, of total: Int) -> [Bool] {
@@ -146,6 +150,7 @@ struct BottleView: View {
         }
         .animation(.easeOut(duration: 0.4), value: thaws.isEmpty)
         .overlay(alignment: .top) { funnel }
+        .overlay(alignment: .top) { twinBand }
         .bubbleGauge(shownBubbling, width: width, rising: rise != nil)
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
@@ -211,6 +216,18 @@ struct BottleView: View {
     private var shownBubbling: Bubbling? {
         guard let own = bottle.bubbling else { return nil }
         return bubbling ?? own
+    }
+
+    // MARK: Twin flask
+
+    /// The silver band of a twin; glints when the chain refuses a pour.
+    @ViewBuilder private var twinBand: some View {
+        if twin {
+            TwinBand(width: width)
+                .keyframeAnimator(initialValue: 0.0, trigger: chainRefusals) { _, flare in
+                    TwinBand(width: width, flare: flare)
+                } keyframes: { _ in Self.flareKeyframes }
+        }
     }
 
     // MARK: Glass works
