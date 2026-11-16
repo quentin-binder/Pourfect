@@ -164,6 +164,7 @@ struct GameView: View {
             .buttonStyle(.plain)
             .padding(.leading, 6)
             .keyboardShortcut("/", modifiers: .command)
+            .disabled(rushLocked)
             .help("How this recipe works")
             .accessibilityLabel(Text("How to play this recipe"))
         }
@@ -171,33 +172,54 @@ struct GameView: View {
         .background(.ultraThinMaterial, in: Capsule())
     }
 
+    /// In Rush, the board is locked (no Undo, Restart, Skip or tip, by click or shortcut) while
+    /// the next recipe brews, during the "Brewed!" pause and behind the end card.
+    private var rushLocked: Bool { rush.map { $0.phase != .playing } ?? false }
+
+    /// The full labels when they fit on one line each; on a narrow screen (an iPhone in Rush,
+    /// where Skip's label is longer than Hint's) Undo and Restart show only their icons.
     private var controls: some View {
+        ViewThatFits(in: .horizontal) {
+            controlButtons(compact: false)
+            controlButtons(compact: true)
+        }
+        .padding(8)
+        .background(.ultraThinMaterial, in: Capsule())
+    }
+
+    private func controlButtons(compact: Bool) -> some View {
         HStack(spacing: 12) {
             Button { withAnimation(.easeInOut(duration: 0.3)) { model.undo() } } label: {
                 Label("Undo", systemImage: "arrow.uturn.backward")
+                    .labelStyle(CompactLabelStyle(iconOnly: compact))
             }
             .keyboardShortcut("z", modifiers: .command)
-            .disabled(!model.canUndo || isWon)
+            .disabled(!model.canUndo || isWon || rushLocked)
+            .help("Undo")
 
             Button { withAnimation(.easeInOut(duration: 0.3)) { model.restart() } } label: {
                 Label("Restart", systemImage: "arrow.counterclockwise")
+                    .labelStyle(CompactLabelStyle(iconOnly: compact))
             }
             .keyboardShortcut("r", modifiers: .command)
-            .disabled(model.moveCount == 0)
+            .disabled(model.moveCount == 0 || rushLocked)
+            .help("Restart")
 
             if let rush {
                 // Hints are off in Rush; a skip costs time instead.
                 Button { withAnimation(.easeInOut(duration: 0.3)) { rush.skip() } } label: {
                     Label("Skip −\(Int(RushClock.skipPenalty)) s", systemImage: "forward.fill")
+                        .lineLimit(1)
                 }
                 .keyboardShortcut("s", modifiers: [.command, .shift])
-                .disabled(isWon || rush.phase != .playing)
+                .disabled(isWon || rushLocked)
                 .accessibilityLabel(Text("Skip this recipe"))
                 .accessibilityHint(Text("Costs \(Int(RushClock.skipPenalty)) seconds",
                                         comment: "VoiceOver hint on Rush's Skip button; the argument is the time penalty"))
             } else {
                 Button { model.requestHint() } label: {
                     Label(model.isThinking ? "Thinking…" : "Hint", systemImage: "lightbulb")
+                        .lineLimit(1)
                 }
                 .keyboardShortcut("h", modifiers: [.command, .shift])
                 .disabled(isWon || model.isThinking)
@@ -205,8 +227,7 @@ struct GameView: View {
         }
         .buttonStyle(.bordered)
         .controlSize(.large)
-        .padding(8)
-        .background(.ultraThinMaterial, in: Capsule())
+        .fixedSize()
     }
 
     // MARK: Board
@@ -672,5 +693,18 @@ struct GameView: View {
             .background(.thickMaterial, in: RoundedRectangle(cornerRadius: 20))
             .shadow(radius: 12)
             .transition(.scale.combined(with: .opacity))
+    }
+}
+
+/// A label that shows its title and icon, or only the icon (its title stays the VoiceOver label).
+private struct CompactLabelStyle: LabelStyle {
+    let iconOnly: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        if iconOnly {
+            Label(configuration).labelStyle(.iconOnly)
+        } else {
+            Label(configuration).labelStyle(.titleAndIcon).lineLimit(1)
+        }
     }
 }

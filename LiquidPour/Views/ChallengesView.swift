@@ -62,11 +62,12 @@ struct ChallengesView: View {
         .padding(.bottom, 6)
     }
 
+    /// On the `.menu` backdrop (washed with the system background: light in light mode, dark
+    /// in dark mode), so primary text, not white.
     private func sectionTitle(_ title: LocalizedStringKey, symbol: String) -> some View {
         Label(title, systemImage: symbol)
             .font(.title3.weight(.bold))
-            .foregroundStyle(.white)
-            .shadow(color: .black.opacity(0.5), radius: 3)
+            .foregroundStyle(.primary)
             .padding(.top, 8)
             .accessibilityAddTraits(.isHeader)
     }
