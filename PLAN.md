@@ -176,7 +176,12 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
   - [x] `Levels/chapter_07.json` (preset `chapter7`, seed 12000): 30 recipes, scores 15.4 → 52.1; tests 315 → 347 (DECISIONS 175)
   - [x] App: bubbles in the liquid, burner dial under the flask (one segment per move, moves left in the middle), the bottom layer swells into a bubble and climbs through the stack after the pour lands (`TurnEvent.bubbled` → `RiseMark`, `BubbleRise`; a pour with a rising flask waits for the rise; Reduce Motion fades the new order in), `bubbleUp` sound and haptics, dial and bubbles in flight, three-step tip, VoiceOver (DECISIONS 176–178)
   - Not covered: iPhone not screenshotted this round (iOS Simulator build only); haptics untested on hardware
-- [ ] **Ch. 8 Twin Towers — F1 Twin flasks + F2 Overflow pipes**
+- [ ] **Ch. 8 Twin Towers — F1 Twin flasks + F2 Overflow pipes** (core and content done; app pending)
+  - [x] Core: `Link.twins` / `.overflow` through `Rules.linkedPlan` in step 1 of `Rules.resolve` (even split `k = min(run/2, free space, limits)` with every twin's hooks; overflow of what doesn't fit into a full flask, one hop, no backflow), `PourEvent.shares` / `targetAmount` / `landings`, `Rules.linkRefusal`, murky masks for every landing; validation (`flaskInSeveralLinks`, `sealedTwin`); linked StateKey fast path (bottles sorted by content and link role); solver pruning re-checked (linked flasks never alike, never relocated; second twin skipped); helpers `GameState.link(at:)` / `twin(of:)` / `overflowTarget(of:)` / `overflowSource(of:)`, `Mechanic.twins` / `.overflow` (DECISIONS 179–184)
+  - [x] Generator `twins` / `overflow` / `linkPlacement` / `requireLinksMatter` + `linkCost` (`LinkImpact`, two-sided, strong = 2; a pipe matters by the spill trap it sets, `MechanicImpact.spillDepth`, deviation DECISIONS 181), tutorial check `LinkImpact.solvesUsingEveryLink`; levelgen `--twins`, `--overflow`, `--link-placement`, `--links-matter`, `--link-cost`, report column `links` (DECISIONS 185)
+  - [x] `Levels/chapter_08.json` (preset `chapter8`, seed 13000) and its tests (DECISIONS 186)
+  - [ ] App: silver chain between twins (actual positions, across rows), split stream; brass pipe with arrow and liquid running through it; tips, refusals (`Rules.linkRefusal`), VoiceOver
+  - Open design question: overflow pipes as decided almost never change the optimum (DECISIONS 181)
 - [ ] **Ch. 9 Alchemist's Hall — E1 Mixing cauldron** (recipes; generator builds backwards from a solved state — the one allowed exception; `validate()` allows changing color counts)
 - [ ] **Ch. 10 Dragon's Hoard — A3 Switch flasks + combos**
 - [ ] After each: solver timing check on the hardest preset; cap counters if needed

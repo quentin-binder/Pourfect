@@ -22,8 +22,9 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_05` | 5 Glass Works | `c5_001…` | 30 | 6–24 | 17–56 | Narrow necks, then funnels, then taps; at the end all three and murky layers, a seal or a rune |
 | `chapter_06` | 6 Frost Peak | `c6_001…` | 30 | 7–27 | 18–50 | Frozen layers: a tutorial (two empty flasks), then one layer (one empty flask), then two; at the end with murky layers, a rune or a seal |
 | `chapter_07` | 7 Bubbling Bog | `c7_001…` | 30 | 4–25 | 15–52 | Bubbling flasks: one, then two (4 colors); at the end with murky layers and seals |
+| `chapter_08` | 8 Twin Towers | `c8_001…` | 32 | 8–24 | 20–56 | Twin flasks, then overflow pipes (6 colors, size 3); at the end murky layers, seals, 7 colors and both links |
 
-Chapters 8–10 (Twin Towers … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
+Chapters 9–10 (Alchemist's Hall, Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
 Optional **Challenges** (never gated):
 
 | File | Pack | Ids | Levels | Moves | Score | What makes it hard |
@@ -158,6 +159,17 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   Undo restores the phases. On screen: bubbles rise through its potion (livelier one move before the rise), and a
   small brass dial under the flask lights one segment per move and shows the moves left; when the layer rises it
   swells into a big bubble that climbs through the stack after the pour lands, with a bubbly sound.
+- **Twin flasks** (chapter 8). Two flasks joined by a silver chain share every pour *into* either of them: the
+  pour is split evenly, k layers into each, taking 2k from the source's top run, where k = min(run / 2, free space
+  of each twin). Both twins must take the color (empty or the same top; a rune, ice or tap on either one refuses as
+  usual, a narrow neck lets one layer into its own twin). A single layer or a key can't be split, and one twin can
+  never pour into the other; pours *out* of a twin are normal. Layers are conserved, so whatever goes into the pair
+  must come out again: twins end empty (or start sorted). A twin is never sealed. Undo restores everything.
+- **Overflow pipes** (chapter 8). A brass pipe runs from flask A's rim to flask B. A pour into A works as usual,
+  except that when A is full before the run has all gone in, the rest flows on through the pipe into B, as much
+  as B legally takes (empty or the same top, no veto, free space); anything left stays in the source. A full A with
+  the poured color on top passes the whole pour on. One hop only, nothing flows back into the source, a pour into B
+  is an ordinary pour. A flask is an end of at most one link (twin chain or pipe).
 
 ### Random Brew (random levels)
 
@@ -264,7 +276,13 @@ every rule case (phase, rise after the pour, after the thaw, keys, no win change
 hand-made puzzle that can only be solved with the rise and one the rise makes longer, the solver against the naive
 BFS on 250 random bubbling levels, pruning that keeps every distinct child, keys with period and phase, JSON,
 validation, undo/restart restoring the phases, murky masks that follow a rise, the generator options and tutorial
-checks, and chapter 7 (every bubbling flask changes the optimum by 2+ moves).
+checks, and chapter 7 (every bubbling flask changes the optimum by 2+ moves). Twins and overflow pipes
+(`LinkTests.swift`): every rule case (even split, free space and per-twin limits, refusals, keys, taps, runes and
+ice on a twin, overflow through a full flask, the far end's veto, one hop, no backflow, seals), a hand-made puzzle
+that needs a split, a spill trap, the solver against the naive BFS on ~400 random linked levels (also with
+modifiers on linked flasks), pruning that keeps every distinct child, the linked key fast path against the general
+encoding, JSON, validation, undo/restart, murky masks for every landing, the generator options and tutorial
+checks, and chapter 8 (every link matters).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -272,10 +290,10 @@ You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift
 ```sh
 cd Packages/BottleSortCore
 
-# Regenerate all ten shipped files (output is deterministic; chapter 2 takes the longest)
+# Regenerate all eleven shipped files (output is deterministic; chapter 2 takes the longest)
 swift run -c release levelgen --preset all --out-dir ../../Levels
 
-# One file: chapter1 | … | chapter7 | challenger | expert | master
+# One file: chapter1 | … | chapter8 | challenger | expert | master
 swift run -c release levelgen --preset chapter2 --out ../../Levels/chapter_02.json
 
 # One configuration; --pool 3 keeps the hardest 20 of 60 passing levels, --hidden makes "?" levels
@@ -310,11 +328,20 @@ swift run -c release levelgen --colors 4 --empty 1 --frozen 1:5 --frozen-cost 2 
 # chapter uses 2). Each flask multiplies the search: keep two-flask levels at ~4 colors
 swift run -c release levelgen --colors 4 --empty 2 --bubbling 1:3 --bubbling-cost 2 --count 5 --seed 1 --out bog.json
 
+# Links: --twins N chains N pairs of plain flasks (twins), --overflow N runs N pipes (each flask in at most one
+# link); --link-placement any|filled|empty|mixed picks the flasks (mixed: twins on empty flasks, a pipe from a
+# filled flask into an empty one); --link-cost C rejects levels where a link changes the optimum by fewer than C
+# moves either way, except that a pipe also counts when it sets a spill trap (LinkImpact, DECISIONS 181;
+# --links-matter = cost 1, the chapter uses 2). Pipes only matter in roomy 6-color size-3 boards (~1 in 150)
+swift run -c release levelgen --colors 4 --empty 2 --twins 1 --link-placement filled --link-cost 2 --count 5 --seed 1 --out twins.json
+swift run -c release levelgen --colors 6 --capacity 3 --empty 2 --overflow 1 --link-placement mixed --link-cost 2 --count 2 --seed 1 --out pipes.json
+
 # Re-solve every level of every file and print difficulty tables, sorted by score, plus the
-# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice, bubbling) that doesn't matter
+# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice, bubbling, twins, pipe) that doesn't matter
 swift run -c release levelgen --report ../../Levels
 
-# Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty, --narrow, --funnel, --tap, --frozen, --bubbling)
+# Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty, --narrow, --funnel, --tap, --frozen, --bubbling,
+# --twins, --overflow, --link-placement)
 swift run -c release levelgen --bench --colors 8 --count 10
 ```
 
@@ -327,7 +354,8 @@ Level files are JSON. Layers are listed bottom → top. A color layer is an inte
 `{"key": n}`. A locked bottle has `"lockedBy": n`, and `"hidden": true` turns on hidden layers for a level.
 Pack fields besides `version` and `levels` are optional: `name`, `subtitle`, `kind` (`"chapter"` or
 `"challenge"`), `chapter` (1-based, required for a chapter), `location` and `introduces` (mechanics a
-first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`, `"essence"`, `"narrowNeck"`, `"funnel"`, `"tap"`, `"frozen"`, `"bubbling"`;
+first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`, `"essence"`, `"narrowNeck"`, `"funnel"`, `"tap"`, `"frozen"`, `"bubbling"`,
+`"twins"`, `"overflow"`;
 unknown names still load):
 
 ```json
@@ -346,8 +374,9 @@ seal stays `lockedBy`), level `links` (`{"type": "twins", "between": [0, 4]}`, `
 `levelgen` and `LevelLoader.encode` write version 2 only when a level uses one of these, so chapters 1–3 and the
 challenges stay version 1 and `chapter_04` (essence runes), `chapter_05` (`{"type": "narrowNeck"}`,
 `{"type": "funnel"}`, `{"type": "tap"}`) and `chapter_06` (`{"type": "frozen", "layer": 2, "turns": 5}`, layer 0 =
-bottom) and `chapter_07` (`{"type": "bubbling", "every": 3, "phase": 1}`, phase 0 when omitted) are version 2.
-Essence, glass, frozen layers and bubbling flasks are playable; the other
+bottom), `chapter_07` (`{"type": "bubbling", "every": 3, "phase": 1}`, phase 0 when omitted) and `chapter_08`
+(`links`: twins and overflow pipes) are version 2.
+Essence, glass, frozen layers, bubbling flasks, twins and overflow pipes are playable; the other
 R5/R7 mechanics are defined but not yet: such levels decode, but fail validation.
 
 To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
@@ -360,17 +389,20 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   base rule (a color run moves, or a key opens its seal). The game, the solver and the generator all go through it.
 - **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`,
   `.tap`, `.frozen(layer:turns:)` and `.bubbling(every:phase:)` are implemented; `.cauldron` is defined for R5), the level has `links`
-  (twins, overflow, switch → gate) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
+  (twins and overflow pipes implemented, switch → gate for R5) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
   case plus its arms in the `Rules` switches; key, JSON and validation already handle every case.
   `Bottle.lockedBy` remains as the seal's accessor, `Bottle.essenceColor` gives a flask's rune color,
   `hasNarrowNeck` / `isFunnel` / `hasTap` the glass, `frozenLayers` / `thawTurns(atLayer:)` / `holdsIce` /
-  `isIcedOver` the ice, `bubbling` (`Bubbling.every` / `phase` / `movesUntilRise`) / `isBubbling` a bubbling flask, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
+  `isIcedOver` the ice, `bubbling` (`Bubbling.every` / `phase` / `movesUntilRise`) / `isBubbling` a bubbling flask, `GameState.twin(of:)` / `overflowTarget(of:)` / `overflowSource(of:)` / `link(at:)`
+  the links, `Rules.linkRefusal(of:in:)` names a twin chain that refuses a pour, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
   (a rune, a funnel, a tap, ice; a funnel, tap or ice is named even when the base rule refuses too, e.g. a full tap).
   Automatic effects after the pour are `Turn.events` (`TurnEvent.thawed(bottle:layer:)`, then
   `TurnEvent.bubbled(bottle:)`; `GameSession.lastEvents`; `Rules.sunk(_:)` gives a risen flask's layers before the rise). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
-  whether it left from the bottom); `Rules.outlet(of:)` says which layers a flask would pour. `MechanicImpact` is the
+  whether it left from the bottom, plus `shares` / `landings` when part of it landed in a twin or ran through a
+  pipe); `Rules.outlet(of:)` says which layers a flask would pour. `MechanicImpact` is the
   "must matter" check for any mechanic (`LockImpact`, `EssenceImpact`, `GlassImpact`, `FrozenImpact` and `BubblingImpact` are its
-  seal, rune, glass, ice and bubbling cases; a funnel matters by the trap it sets; necks, taps and bubbling count either way).
+  seal, rune, glass, ice and bubbling cases, `LinkImpact` the twins and pipes; a funnel matters by the trap it sets,
+  a pipe by the spill it can force; necks, taps, bubbling and links count either way).
 - **Solver**: breadth-first search for the fewest moves. Each state gets a compact key that ignores
   bottle order (`StateKey`: one word per classic or sealed bottle; v2 adds variable-length words for other
   modifiers and a global section where links refer to bottles by canonical rank), and three pruning rules skip
@@ -378,7 +410,8 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   their own; whole-content relocations are judged by the amount the pour really moves; an empty flask is only
   interchangeable with an empty flask carrying the same modifiers). While ice remains a relocation is a real
   "wait" move (the counters tick), so only the empty-flask rule stays; while a flask bubbles, likewise, but all
-  relocations of a state are the same wait, so only the first one is tried.
+  relocations of a state are the same wait, so only the first one is tried. A linked flask (twin, pipe end) is never
+  interchangeable with another flask, and a pour into either twin of a pair is the same move, so only one is tried.
   An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.
@@ -437,6 +470,6 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 ## Next steps
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
-2. More chapters as their mechanics land (R5: chapters 8–10).
+2. More chapters as their mechanics land (R5: chapters 9–10); chapter 8 needs its app part (chain, pipe, split stream).
 3. A full accessibility pass (VoiceOver already reads flask contents).
 4. Optional iCloud progress sync.
