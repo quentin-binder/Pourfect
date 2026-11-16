@@ -303,6 +303,9 @@ struct LinkView: View, Animatable {
     /// A switch link whose switch is in the air pouring: only the gate's housing and portcullis
     /// stay (the rest hangs on the switch).
     var switchAway = false
+    /// A switch link whose gate is in the air pouring: only the gem, rod and lever stay (the
+    /// housing and the portcullis sit on the gate).
+    var gateAway = false
 
     var animatableData: AnimatablePair<AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>>, Double> {
         get { AnimatablePair(AnimatablePair(AnimatablePair(liftA, liftB), AnimatablePair(shakeA, shakeB)), open) }
@@ -325,7 +328,8 @@ struct LinkView: View, Animatable {
             PipeView(geometry: PipeGeometry(from: a, to: b))
         case .switchGate:
             LeverView(geometry: LeverGeometry(switch: a, gate: b, gateRise: gateRise),
-                      open: open, slides: slides, flare: flare, switchAway: switchAway)
+                      open: open, slides: slides, flare: flare, switchAway: switchAway,
+                      gateAway: gateAway)
         }
     }
 }

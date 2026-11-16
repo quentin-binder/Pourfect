@@ -291,7 +291,8 @@ struct GameView: View {
 
     /// The chains, pipes and switch levers, drawn between the flasks' frames on the board (after the shuffle and
     /// any resize). A link follows a flask that is picked up, and fades while one of its flasks
-    /// is in the air pouring (the pour animation draws that flask).
+    /// is in the air pouring (the pour animation draws that flask); a switch link fades only the
+    /// parts on the flask in the air.
     @ViewBuilder
     private func linkLayer(_ frames: [Int: Anchor<CGRect>]) -> some View {
         let links = model.state.links
@@ -304,10 +305,12 @@ struct GameView: View {
                         let ra = proxy[fa], rb = proxy[fb]
                         let lifted = { (bottle: Int, w: CGFloat) -> CGFloat in model.selected == bottle ? w * 0.3 : 0 }
                         // A switch in the air takes its rod and gem along; the gate keeps its
-                        // housing and portcullis on the board.
+                        // housing and portcullis on the board. A gate in the air takes its housing
+                        // and portcullis; the switch keeps its gem, rod and lever.
                         let isSwitch: Bool = { if case .switchGate = link { return true } else { return false } }()
                         let switchAway = isSwitch && model.pour?.from == a
-                        let flying = model.pour?.from == b || (!isSwitch && model.pour?.from == a)
+                        let gateAway = isSwitch && model.pour?.from == b
+                        let flying = !isSwitch && (model.pour?.from == a || model.pour?.from == b)
                         let refusals = model.linkRefusals.indices.contains(i) ? model.linkRefusals[i] : 0
                         // A switch link: the gate shown open or shut (as before the move while a
                         // pour is in the air), and how far the gate's neck or funnel stands up.
@@ -321,11 +324,11 @@ struct GameView: View {
                         }
                         LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
                                  shakeA: shake(a), shakeB: shake(b), open: open, gateRise: rise, slides: slides,
-                                 switchAway: switchAway)
+                                 switchAway: switchAway, gateAway: gateAway)
                             .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
                                 LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
                                          shakeA: shake(a), shakeB: shake(b), flare: flare, open: open, gateRise: rise,
-                                         slides: slides, switchAway: switchAway)
+                                         slides: slides, switchAway: switchAway, gateAway: gateAway)
                                     // The portcullis slides up (or drops) and the gem lights (or
                                     // dims); set here, inside the animator's content, so it applies.
                                     .animation(gateAnimation, value: open)

@@ -209,6 +209,9 @@ struct LeverView: View {
     /// The switch is in the air pouring: the rod, lever and gem fade (they hang on the switch);
     /// the housing and the portcullis stay on the gate.
     var switchAway = false
+    /// The gate is in the air pouring: the housing and the portcullis fade (they sit on the
+    /// gate); the gem, rod and lever stay on the switch.
+    var gateAway = false
 
     var body: some View {
         let g = geometry
@@ -232,21 +235,24 @@ struct LeverView: View {
             }
             .opacity(switchAway ? 0 : 1)
             // Portcullis under the housing.
-            bars.fill(GateMetal.iron).opacity(barsOpacity)
-            bars.stroke(GateMetal.ironLight.opacity(0.9), lineWidth: 0.7).opacity(barsOpacity)
-            // Housing: a brass beam with rivets.
-            RoundedRectangle(cornerRadius: g.housingSize.height * 0.35)
-                .fill(GateMetal.brass)
-                .overlay(RoundedRectangle(cornerRadius: g.housingSize.height * 0.35).stroke(Brass.dark, lineWidth: 0.8))
-                .overlay {
-                    HStack(spacing: g.housingSize.width * 0.5) {
-                        ForEach(0..<3, id: \.self) { _ in
-                            Circle().fill(Brass.dark).frame(width: g.housingSize.height * 0.32)
+            Group {
+                bars.fill(GateMetal.iron).opacity(barsOpacity)
+                bars.stroke(GateMetal.ironLight.opacity(0.9), lineWidth: 0.7).opacity(barsOpacity)
+                // Housing: a brass beam with rivets.
+                RoundedRectangle(cornerRadius: g.housingSize.height * 0.35)
+                    .fill(GateMetal.brass)
+                    .overlay(RoundedRectangle(cornerRadius: g.housingSize.height * 0.35).stroke(Brass.dark, lineWidth: 0.8))
+                    .overlay {
+                        HStack(spacing: g.housingSize.width * 0.5) {
+                            ForEach(0..<3, id: \.self) { _ in
+                                Circle().fill(Brass.dark).frame(width: g.housingSize.height * 0.32)
+                            }
                         }
                     }
-                }
-                .frame(width: g.housingSize.width, height: g.housingSize.height)
-                .position(g.housing)
+                    .frame(width: g.housingSize.width, height: g.housingSize.height)
+                    .position(g.housing)
+            }
+            .opacity(gateAway ? 0 : 1)
             Group {
                 lever(at: pivot, w: w)
                 SwitchGem(size: g.gemSize, lit: open, flare: flare)
