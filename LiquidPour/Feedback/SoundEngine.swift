@@ -51,6 +51,9 @@ final class SoundEngine {
         case gateOpen
         /// A portcullis dropping: a short falling rattle and a heavy iron clank (a gate shut).
         case gateShut
+        /// A gold seal is pressed (perfect brew, a new Rush best): a bright bell with a shimmer
+        /// of high partials, after the level's arpeggio.
+        case goldSeal
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -314,6 +317,20 @@ nonisolated enum SoundSynthesis {
                 let local = t - start
                 let decay = k == notes.count - 1 ? 2.2 : 3.5
                 sum += Self.softNote(t: local, f: f) * exp(-local * decay)
+            }
+            return sum
+        }
+        out.sounds[.goldSeal] = render(1.6, peak: 0.16) { t in
+            // Two bell strikes a fifth apart (G6, then D7), each with inharmonic shimmer.
+            var sum = 0.0
+            for (k, f) in [1567.98, 2349.32].enumerated() {
+                let start = Double(k) * 0.14
+                guard t >= start else { continue }
+                let local = t - start
+                let shimmer = 1 + 0.25 * sin(2 * .pi * 7 * local)
+                sum += (sin(2 * .pi * f * local) + 0.35 * sin(2 * .pi * f * 2.76 * local) * exp(-local * 6)
+                        + 0.2 * sin(2 * .pi * f * 5.4 * local) * exp(-local * 12)) * exp(-local * 2.6) * shimmer
+                    * min(1, local * 400)
             }
             return sum
         }

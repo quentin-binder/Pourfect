@@ -23,7 +23,8 @@ struct PackView: View {
                         // Not `.disabled`: on the Mac that greys the label out a second time and the
                         // locked cells became unreadable in light mode. The cell draws its own locked look.
                         Button { if unlocked { onSelect(index) } } label: {
-                            LevelCell(number: index + 1, stars: progress.stars(for: ids[index]), unlocked: unlocked)
+                            LevelCell(number: index + 1, stars: progress.stars(for: ids[index]), unlocked: unlocked,
+                                      goldSeal: progress.hasGoldSeal(ids[index]))
                         }
                         .buttonStyle(.plain)
                         .allowsHitTesting(unlocked)
@@ -81,6 +82,8 @@ struct PackView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(Text("\(earned.stars) of \(earned.maxStars) stars"))
+            GoldSealCount(progress: progress.goldSeals(of: pack), font: .subheadline.weight(.semibold))
+                .foregroundStyle(.white.opacity(0.9))
             if let note = gateNote(earned) {
                 Label(note, systemImage: earned.opensNextChapter ? "lock.open.fill" : "lock.fill")
                     .font(.footnote.weight(.medium))
@@ -120,6 +123,8 @@ struct LevelCell: View {
     let number: Int
     let stars: Int
     let unlocked: Bool
+    /// Solved in the minimum without a hint (R6).
+    var goldSeal = false
 
     var body: some View {
         VStack(spacing: 4) {
@@ -137,8 +142,19 @@ struct LevelCell: View {
         .foregroundStyle(unlocked ? Color.primary : Color.primary.opacity(0.6))
         .background(RoundedRectangle(cornerRadius: 14).fill(unlocked ? Color.accentColor.opacity(0.18) : Color.gray.opacity(0.18)))
         .background(unlocked ? .thinMaterial : .regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+        .overlay(alignment: .topTrailing) {
+            if unlocked && goldSeal { GoldSealMark(size: 15).padding(5) }
+        }
         .contentShape(Rectangle())
-        .accessibilityLabel(unlocked ? Text("Recipe \(number), \(stars) stars") : Text("Recipe \(number), locked"))
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: Text {
+        guard unlocked else { return Text("Recipe \(number), locked") }
+        if goldSeal {
+            return Text("Recipe \(number), \(stars) stars, gold seal", comment: "VoiceOver: a recipe tile solved perfectly")
+        }
+        return Text("Recipe \(number), \(stars) stars")
     }
 }
 

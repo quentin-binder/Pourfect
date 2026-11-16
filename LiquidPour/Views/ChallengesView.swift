@@ -1,22 +1,29 @@
 import BottleSortCore
 import SwiftUI
 
-/// The optional Challenges area: hard recipe books (never gated) and Random Brew.
+/// The Challenges hub (R6), off the calm main path: Rush, the hard recipe books (never gated)
+/// and Random Brew. Nothing here counts toward the chapter map's star gates.
 struct ChallengesView: View {
     let onOpenPack: (_ packID: String) -> Void
     let onRandom: () -> Void
+    let onRush: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
+    @Environment(RushRecordModel.self) private var rushRecords
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 14) {
                 header
-                randomCard
+                sectionTitle("Rush", symbol: "timer")
+                rushCard
+                sectionTitle("Recipe books", symbol: "book.closed.fill")
                 ForEach(catalog.challenges) { pack in
                     packCard(pack)
                 }
+                sectionTitle("Random Brew", symbol: "dice.fill")
+                randomCard
             }
             .padding()
             .frame(maxWidth: 640)
@@ -34,7 +41,8 @@ struct ChallengesView: View {
             Label("Challenges", systemImage: "trophy.fill")
                 .font(.largeTitle.bold())
                 .foregroundStyle(.white)
-            Text("Hard recipe books for practiced alchemists. Always open; they don't count toward the chapter map.")
+            Text("A race against the clock, hard recipe books and random brews. Always open; nothing here counts toward the chapter map.",
+                 comment: "Challenges hub header")
                 .font(.callout)
                 .foregroundStyle(.white.opacity(0.85))
         }
@@ -54,8 +62,61 @@ struct ChallengesView: View {
         .padding(.bottom, 6)
     }
 
+    private func sectionTitle(_ title: LocalizedStringKey, symbol: String) -> some View {
+        Label(title, systemImage: symbol)
+            .font(.title3.weight(.bold))
+            .foregroundStyle(.white)
+            .shadow(color: .black.opacity(0.5), radius: 3)
+            .padding(.top, 8)
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    private var rushCard: some View {
+        let record = rushRecords.record
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 14) {
+                Image(systemName: "hourglass")
+                    .font(.title)
+                    .foregroundStyle(.orange)
+                    .frame(width: 40)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Rush").font(.headline)
+                    Text("Brew as many recipes as you can in 3 minutes. Each brew adds \(Int(RushClock.solveBonus)) s, a skip costs \(Int(RushClock.skipPenalty)) s. No hints; recipes grow harder and bring in the mechanics you have met on the map.",
+                         comment: "Rush description in the Challenges hub; the arguments are the time bonus and the skip penalty in seconds")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+            HStack(spacing: 14) {
+                Label { Text("Best \(record.best)", comment: "Rush best score").monospacedDigit() } icon: {
+                    Image(systemName: "trophy.fill").foregroundStyle(.yellow)
+                }
+                .font(.subheadline.weight(.semibold))
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(Text("Best Rush: \(record.best) recipes", comment: "VoiceOver: Rush best score"))
+                if record.runs > 0 {
+                    Text("\(record.runs) runs", comment: "Rush runs played").font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button(action: onRush) {
+                    Label("Start Rush", systemImage: "play.fill").font(.headline)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.orange)
+                .controlSize(.large)
+                .accessibilityHint(Text("Starts a 3 minute run", comment: "VoiceOver hint on Start Rush"))
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity)
+        .background(RoundedRectangle(cornerRadius: 14).fill(Color.orange.opacity(0.16)))
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 14))
+    }
+
     private func packCard(_ pack: LevelPackInfo) -> some View {
         let earned = progress.progress(of: pack)
+        let seals = progress.goldSeals(of: pack)
         return Button { onOpenPack(pack.id) } label: {
             HStack(spacing: 14) {
                 Image(systemName: icon(for: pack))
@@ -71,6 +132,9 @@ struct ChallengesView: View {
                         Label { Text("\(earned.stars) / \(earned.maxStars)").monospacedDigit() } icon: {
                             Image(systemName: "star.fill").foregroundStyle(.yellow)
                         }
+                        Label { Text("\(seals.earned) / \(seals.total)").monospacedDigit() } icon: {
+                            Image(systemName: "checkmark.seal.fill").foregroundStyle(PerfectBadge.gold)
+                        }
                         Text("\(pack.levels.count) recipes").foregroundStyle(.secondary)
                     }
                     .font(.caption)
@@ -84,7 +148,8 @@ struct ChallengesView: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(Text("\(pack.name), \(earned.stars) of \(earned.maxStars) stars"))
+        .accessibilityLabel(Text("\(pack.name), \(earned.stars) of \(earned.maxStars) stars, \(seals.earned) gold seals",
+                                 comment: "VoiceOver: a challenge book in the hub"))
     }
 
     /// Flame for the first book, then hotter symbols for the harder ones.

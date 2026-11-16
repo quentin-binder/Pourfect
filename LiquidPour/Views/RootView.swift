@@ -11,12 +11,15 @@ enum Route: Hashable {
     case random(LevelDefinition, RandomLevelOptions)
     case daily
     case dailyPlay(LevelDefinition, DailyDate)
+    /// A new Rush run (R6).
+    case rush
 }
 
 struct RootView: View {
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
     @Environment(DailyModel.self) private var daily
+    @Environment(RushRecordModel.self) private var rushRecords
     @Environment(\.scenePhase) private var scenePhase
     @State private var path: [Route] = []
     #if DEBUG && os(macOS)
@@ -36,7 +39,8 @@ struct RootView: View {
                         }
                     case .challenges:
                         ChallengesView(onOpenPack: { path.append(.pack($0)) },
-                                       onRandom: { path.append(.randomSettings) })
+                                       onRandom: { path.append(.randomSettings) },
+                                       onRush: { path.append(.rush) })
                     case .level(let packID, let index):
                         if let pack = catalog.pack(id: packID) {
                             GameView(model: GameViewModel(levels: pack.levels, index: index, progress: progress,
@@ -50,6 +54,8 @@ struct RootView: View {
                         DailyView { level, date in path.append(.dailyPlay(level, date)) }
                     case .dailyPlay(let level, let date):
                         GameView(model: GameViewModel(dailyLevel: level, date: date, daily: daily))
+                    case .rush:
+                        RushView(makeRun: makeRushRun)
                     }
                 }
         }
@@ -58,6 +64,25 @@ struct RootView: View {
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
         .task { await openFromLaunchArguments() }
+        #endif
+    }
+
+    /// A new Rush run with a fresh seed, using the mechanics the player has met on the main path.
+    private func makeRushRun() -> RushRun {
+        let seed = Self.debugNumber("LPRushSeed").map { UInt64($0) } ?? UInt64.random(in: 1...999_999_999)
+        let duration = Self.debugNumber("LPRushDuration") ?? RushClock.duration
+        let autoplay = Self.debugNumber("LPRushAutoplay") != nil
+        let mechanics = RushMechanic.unlocked(by: progress.learnedMechanics(catalog.chapters))
+        return RushRun(seed: seed, mechanics: mechanics, duration: duration, records: rushRecords, autoplay: autoplay)
+    }
+
+    /// A positive launch-argument number in DEBUG builds (`-LPRushSeed 42`); always nil in release.
+    private static func debugNumber(_ key: String) -> Double? {
+        #if DEBUG
+        let value = UserDefaults.standard.double(forKey: key)
+        return value > 0 ? value : nil
+        #else
+        return nil
         #endif
     }
 
@@ -70,6 +95,8 @@ struct RootView: View {
     ///   Expert, Master (with 4 chapters: 1–4, then 5–7; default 1).
     /// - `-LPRandomSettings 1` opens the Random Brew screen; `-LPRandomMode classic|locks|hidden`
     ///   (+ optional `-LPRandomSeed S`) generates a random recipe with the saved settings and opens it.
+    /// - `-LPOpenRush 1` starts a Rush run (`-LPRushSeed N`, `-LPRushDuration S`, `-LPRushAutoplay 1`:
+    ///   each recipe plays itself and nothing is saved).
     /// - `-LPOpenDaily 1` opens the Daily Brew screen; `-LPPlayDaily 1` also starts today's puzzle
     ///   (pretend date and fake results: `-LPDailyDate`, `-LPDailySeedResults`, see `DailyModel`).
     private func openFromLaunchArguments() async {
@@ -110,6 +137,7 @@ struct RootView: View {
             return
         }
         if defaults.bool(forKey: "LPOpenChallenges") { path = [.challenges]; return }
+        if defaults.bool(forKey: "LPOpenRush") { path = [.challenges, .rush]; return }
         if defaults.bool(forKey: "LPRandomSettings") { path = [.challenges, .randomSettings]; return }
         guard let raw = defaults.string(forKey: "LPRandomMode") else { return }
         var options = RandomSettings.load()

@@ -3,6 +3,9 @@ import SwiftUI
 
 struct GameView: View {
     @State var model: GameViewModel
+    /// The Rush run this board belongs to (R6): the HUD shows its clock, Skip replaces Hint and
+    /// a win hands over to the run instead of showing the win card.
+    var rush: RushRun?
     @Environment(AppSettings.self) private var settings
     /// Reduce Motion after the in-app override.
     @Environment(\.effectiveReduceMotion) private var reduceMotion
@@ -49,7 +52,9 @@ struct GameView: View {
         .task(id: model.level.id) {
             // First time a mechanic appears: show its tip once the screen has settled.
             let unseen = tutorials.unseen(model.tutorialTopics)
-            guard tip == nil, !unseen.isEmpty else { return }
+            // Rush never opens a tip by itself: its clock is running (its mechanics come from
+            // chapters already played; "?" still explains them, with the clock stopped).
+            guard tip == nil, !unseen.isEmpty, rush == nil else { return }
             try? await Task.sleep(for: .milliseconds(350))
             withAnimation { tip = unseen }
         }
@@ -62,6 +67,7 @@ struct GameView: View {
             }
         }
         .onChange(of: model.cancelledPours) { FeedbackPlayer.cancelPending() }
+        .onChange(of: tip == nil) { _, closed in rush?.isShowingTip = !closed }
         .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }
         .navigationTitle(model.title)
         .onDisappear {
@@ -143,8 +149,12 @@ struct GameView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)
             Spacer()
+            if let rush {
+                RushTimerView(run: rush)
+                    .padding(.trailing, 4)
+            }
             Text("Moves \(model.moveCount)").font(.headline.monospacedDigit())
-            if let best = model.minMoves {
+            if let best = model.minMoves, rush == nil {
                 Text("· Best \(best)").font(.subheadline.monospacedDigit()).foregroundStyle(.secondary)
             }
             Button { withAnimation { tip = model.tutorialTopics } } label: {
@@ -175,11 +185,23 @@ struct GameView: View {
             .keyboardShortcut("r", modifiers: .command)
             .disabled(model.moveCount == 0)
 
-            Button { model.requestHint() } label: {
-                Label(model.isThinking ? "Thinking…" : "Hint", systemImage: "lightbulb")
+            if let rush {
+                // Hints are off in Rush; a skip costs time instead.
+                Button { withAnimation(.easeInOut(duration: 0.3)) { rush.skip() } } label: {
+                    Label("Skip −\(Int(RushClock.skipPenalty)) s", systemImage: "forward.fill")
+                }
+                .keyboardShortcut("s", modifiers: [.command, .shift])
+                .disabled(isWon || rush.phase != .playing)
+                .accessibilityLabel(Text("Skip this recipe"))
+                .accessibilityHint(Text("Costs \(Int(RushClock.skipPenalty)) seconds",
+                                        comment: "VoiceOver hint on Rush's Skip button; the argument is the time penalty"))
+            } else {
+                Button { model.requestHint() } label: {
+                    Label(model.isThinking ? "Thinking…" : "Hint", systemImage: "lightbulb")
+                }
+                .keyboardShortcut("h", modifiers: [.command, .shift])
+                .disabled(isWon || model.isThinking)
             }
-            .keyboardShortcut("h", modifiers: [.command, .shift])
-            .disabled(isWon || model.isThinking)
         }
         .buttonStyle(.bordered)
         .controlSize(.large)
@@ -456,14 +478,41 @@ struct GameView: View {
 
     @ViewBuilder private var overlay: some View {
         switch showsResult ? model.status : .playing {
+        case .won where model.isRush:
+            EmptyView()   // the run moves on (`RushView` shows "+5 s")
         case .won where model.isDaily:
             dailyWinCard
         case .won(let stars):
             card {
-                Text("Brewed!").font(.largeTitle.bold())
+                if model.earnedGoldSeal {
+                    GoldSealFlourish()
+                    Text("Perfect brew!", comment: "Win card title: solved in the fewest moves without a hint")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(PerfectBadge.gold)
+                } else {
+                    Text("Brewed!").font(.largeTitle.bold())
+                }
                 StarsView(count: stars, size: 32)
                 Text("\(model.moveCount) moves · best possible \(model.minMoves ?? model.moveCount)")
                     .foregroundStyle(.secondary)
+                if model.earnedGoldSeal {
+                    Group {
+                        if model.isRandom {
+                            Text("The fewest moves, without a hint.", comment: "Win card line under a perfect random brew")
+                        } else {
+                            Text("The fewest moves, without a hint: a gold seal for this recipe.",
+                                 comment: "Win card line under a perfect brew")
+                        }
+                    }
+                        .font(.callout)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: 320)
+                } else if stars == 3, model.usedHint {
+                    Label("A hint was used, so no gold seal this time", systemImage: "lightbulb")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                }
                 if model.isRandom {
                     randomStatus
                 }

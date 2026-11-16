@@ -48,6 +48,8 @@ struct MapChapter: Identifiable {
     let name: String
     let pack: LevelPackInfo?
     let state: State
+    /// Every recipe of the (open) chapter has a gold seal (R6).
+    var goldComplete = false
 
     var id: Int { number }
     var isOpen: Bool { if case .open = state { return true } else { return false } }
@@ -62,7 +64,10 @@ struct MapChapter: Identifiable {
                 return MapChapter(number: number, name: name, pack: nil, state: .comingSoon)
             }
             let pack = catalog.chapters[index]
-            if open[index] { return MapChapter(number: number, name: name, pack: pack, state: .open(progress.progress(of: pack))) }
+            if open[index] {
+                return MapChapter(number: number, name: name, pack: pack, state: .open(progress.progress(of: pack)),
+                                  goldComplete: progress.goldSeals(of: pack).isComplete)
+            }
             let previous = index > 0 ? catalog.chapters[index - 1] : nil
             let needed = (index > 0 && open[index - 1]) ? previous.map { progress.progress(of: $0).starsToOpenNext } : nil
             return MapChapter(number: number, name: name, pack: pack,
@@ -239,7 +244,7 @@ struct ChapterMapView: View {
                 Image(systemName: "trophy.fill").font(.title).foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Challenges").font(.headline)
-                    Text("Hard recipe books and Random Brew, open any time")
+                    Text("Rush, hard recipe books and Random Brew, open any time")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -360,6 +365,10 @@ private struct ChapterMarker: View {
                 .background(Circle().fill(entry.isOpen ? ringColor : Color.black.opacity(0.75)))
                 .overlay(Circle().strokeBorder(.white.opacity(0.6), lineWidth: 1))
                 .offset(x: -size * 0.38, y: -size * 0.38)
+            if entry.isOpen && entry.goldComplete {
+                GoldSealMark(size: 20 * scale)
+                    .offset(x: size * 0.38, y: -size * 0.38)
+            }
         }
         .frame(width: size, height: size)
         .shadow(color: .black.opacity(0.5), radius: 4, y: 2)
@@ -404,6 +413,10 @@ private struct ChapterMarker: View {
     private var accessibilityText: Text {
         switch entry.state {
         case .open(let p):
+            if entry.goldComplete {
+                return Text("Chapter \(entry.number), \(entry.name), \(p.stars) of \(p.maxStars) stars, every recipe gold-sealed",
+                            comment: "VoiceOver: a chapter on the map whose recipes all have a gold seal")
+            }
             return Text("Chapter \(entry.number), \(entry.name), \(p.stars) of \(p.maxStars) stars")
         case .locked(let previous, let needed):
             if let needed {

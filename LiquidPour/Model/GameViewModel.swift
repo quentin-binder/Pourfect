@@ -130,6 +130,8 @@ final class GameViewModel {
         case flaskCompleted(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
         case levelWon(stars: Int)
+        /// The solve earned a gold seal (R6 "perfect brewer"); right after `levelWon`.
+        case goldSeal
     }
 
     struct Feedback: Identifiable, Equatable {
@@ -154,8 +156,18 @@ final class GameViewModel {
     /// The daily's result after a win (first solve, replay, or too late to count).
     private(set) var dailyOutcome: DailyModel.RecordOutcome?
     /// A hint was shown on this daily (kept across Restart, and saved per date in `DailyModel`, so
-    /// reopening the puzzle keeps it): it forfeits "perfect" (DECISIONS 109, 115).
+    /// reopening the puzzle keeps it): it forfeits "perfect" (DECISIONS 109, 115). On a recipe it
+    /// forfeits the gold seal for this visit (kept across Restart, cleared when another recipe
+    /// starts; DECISIONS 224).
     private(set) var usedHint = false
+    /// The last win earned a gold seal (minimum moves, no hint; recipes and random brews).
+    private(set) var earnedGoldSeal = false
+    /// Set when playing a Rush run (R6): no stars, seals or hints; each win is handed to the run.
+    let isRush: Bool
+    /// The recipe's number in the Rush run (1-based).
+    private(set) var rushNumber = 1
+    /// Called when a Rush recipe's win has been announced (its last pour landed).
+    @ObservationIgnored var onRushWin: (() -> Void)?
 
     private(set) var levelIndex: Int
     private(set) var session: GameSession
@@ -230,6 +242,7 @@ final class GameViewModel {
         self.levels = levels
         self.introduces = introduces
         self.progress = progress
+        self.isRush = false
         self.randomOptions = nil
         self.dailyDate = nil
         self.daily = nil
@@ -243,6 +256,7 @@ final class GameViewModel {
         self.levels = [randomLevel]
         self.introduces = []
         self.progress = nil
+        self.isRush = false
         self.randomOptions = options
         self.dailyDate = nil
         self.daily = nil
@@ -256,12 +270,34 @@ final class GameViewModel {
         self.levels = [dailyLevel]
         self.introduces = []
         self.progress = nil
+        self.isRush = false
         self.randomOptions = nil
         self.dailyDate = date
         self.daily = daily
         self.usedHint = daily.hintUsed(on: date)
         self.levelIndex = 0
         self.session = GameSession(dailyLevel.gameState, hidden: dailyLevel.isHidden)
+        startLevel(0)
+    }
+
+    /// Plays a Rush run's recipes (`RushRun` loads each with `loadRush`). Saves nothing.
+    init(rushLevel: LevelDefinition) {
+        self.levels = [rushLevel]
+        self.introduces = []
+        self.progress = nil
+        self.isRush = true
+        self.randomOptions = nil
+        self.dailyDate = nil
+        self.daily = nil
+        self.levelIndex = 0
+        self.session = GameSession(rushLevel.gameState, hidden: rushLevel.isHidden)
+        startLevel(0)
+    }
+
+    /// Rush: the next recipe of the run replaces the board.
+    func loadRush(_ level: LevelDefinition, number: Int) {
+        levels = [level]
+        rushNumber = number
         startLevel(0)
     }
 
@@ -272,6 +308,7 @@ final class GameViewModel {
             return String(localized: "Daily Brew · \(dailyDate.weekday.localizedName)")
         }
         if let randomOptions { return String(localized: "Random Brew · \(randomOptions.mode.title)") }
+        if isRush { return String(localized: "Rush · Recipe \(rushNumber)", comment: "Game title in Rush mode; the argument is the recipe's number in the run") }
         return String(localized: "Recipe \(levelIndex + 1)")
     }
 
@@ -448,7 +485,7 @@ final class GameViewModel {
             startMix(mix, completes: landed.completed.contains(mix.bottle), reduceMotion: reduceMotion)
         } else if case .won(let stars) = status, mixes.isEmpty {
             // (While a mix still swirls, its end announces the win.)
-            emit(.levelWon(stars: stars))
+            announceWin(stars: stars)
         }
         replayQueuedTaps()
     }
@@ -473,7 +510,7 @@ final class GameViewModel {
     }
 
     func requestHint() {
-        guard !isWon else { return }
+        guard !isWon, !isRush else { return }
         selected = nil
         if let solution, solution.state == state, let first = solution.moves.first {
             showHint(first)
@@ -509,6 +546,8 @@ final class GameViewModel {
         session = GameSession(shuffled, hidden: levels[index].isHidden)
         cancelPour()
         minMoves = levels[index].meta?.minMoves
+        if dailyDate == nil { usedHint = false }   // a daily keeps its saved hint flag
+        earnedGoldSeal = false
         shakes = Array(repeating: 0, count: session.state.bottles.count)
         refusals = Array(repeating: 0, count: session.state.bottles.count)
         linkRefusals = Array(repeating: 0, count: session.state.links.count)
@@ -897,7 +936,7 @@ final class GameViewModel {
                     self.completions[mark.bottle] += 1
                     self.emit(.flaskCompleted(bottles: [mark.bottle]))
                 }
-                if case .won(let stars) = self.status { self.emit(.levelWon(stars: stars)) }
+                if case .won(let stars) = self.status { self.announceWin(stars: stars) }
                 // A pour that waited for this cauldron starts now.
                 self.replayQueuedTaps()
             }
@@ -908,6 +947,14 @@ final class GameViewModel {
     func feedback(after id: Int?) -> [Feedback] {
         guard let id else { return feedback }
         return feedback.filter { $0.id > id }
+    }
+
+    /// The win is announced once its last pour (and any swirl) has landed: stars, a gold seal,
+    /// and in Rush the run moves on.
+    private func announceWin(stars: Int) {
+        emit(.levelWon(stars: stars))
+        if earnedGoldSeal { emit(.goldSeal) }
+        onRushWin?()
     }
 
     private func emit(_ event: FeedbackEvent) {
@@ -925,6 +972,10 @@ final class GameViewModel {
             let earned = StarRating.stars(moves: moveCount, minMoves: best)
             status = .won(stars: earned)
             if !isDemo { progress?.record(stars: earned, for: level.id) }
+            // The daily has its own "perfect"; Rush recipes earn nothing.
+            earnedGoldSeal = !isDaily && !isRush
+                && GoldSeal.isEarned(moves: moveCount, minMoves: minMoves, usedHint: usedHint)
+            if earnedGoldSeal, !isDemo { progress?.recordGoldSeal(for: level.id) }
             if let daily, let dailyDate, dailyOutcome == nil, !isDemo {
                 dailyOutcome = daily.record(date: dailyDate, moves: moveCount, minMoves: best, usedHint: usedHint)
             }
@@ -966,10 +1017,8 @@ final class GameViewModel {
     }
 
     private func showHint(_ move: Move) {
-        if let dailyDate {
-            usedHint = true
-            daily?.markHintUsed(on: dailyDate)
-        }
+        usedHint = true
+        if let dailyDate { daily?.markHintUsed(on: dailyDate) }
         hint = move
         hintMessage = nil
         scheduleHintClear()

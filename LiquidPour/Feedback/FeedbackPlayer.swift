@@ -86,6 +86,10 @@ enum FeedbackPlayer {
             // Leaves room for the cork pop of the last flask.
             if sound { engine.play(.success, after: 0.35) }
             if haptics { delayed(0.35) { Haptics.levelWon() } }
+        case .goldSeal:
+            // The seal is pressed on the win card as the arpeggio ends.
+            if sound { engine.play(.goldSeal, after: 0.85) }
+            if haptics { delayed(0.85) { Haptics.flaskCompleted() } }
         }
     }
 

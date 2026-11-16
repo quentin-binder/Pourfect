@@ -7,37 +7,8 @@
     "%@ · %@" : {
       "comment" : "Daily puzzle label: weekday · difficulty, e.g. Sunday · Grand Brew"
     },
-    "%@, %lld of %lld stars" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%1$@, %2$lld of %#@stars@"
-          },
-          "substitutions" : {
-            "stars" : {
-              "argNum" : 3,
-              "formatSpecifier" : "lld",
-              "variations" : {
-                "plural" : {
-                  "one" : {
-                    "stringUnit" : {
-                      "state" : "translated",
-                      "value" : "%arg star"
-                    }
-                  },
-                  "other" : {
-                    "stringUnit" : {
-                      "state" : "translated",
-                      "value" : "%arg stars"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    "%@, %lld of %lld stars, %lld gold seals" : {
+      "comment" : "VoiceOver: a challenge book in the hub"
     },
     "%lld %@" : {
       "comment" : "Layer count and potion name, e.g. 2 Moonshade"
@@ -261,6 +232,9 @@
         }
       }
     },
+    "%lld of %lld recipes with a gold seal" : {
+      "comment" : "VoiceOver: gold seals earned in a chapter"
+    },
     "%lld of %lld stars" : {
       "localizations" : {
         "en" : {
@@ -347,14 +321,172 @@
         }
       }
     },
+    "%lld recipes brewed" : {
+      "comment" : "VoiceOver: Rush score",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@n@"
+          },
+          "substitutions" : {
+            "n" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg recipe brewed"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg recipes brewed"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld runs" : {
+      "comment" : "Rush runs played",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%#@n@"
+          },
+          "substitutions" : {
+            "n" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg run"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg runs"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "+%lld" : {
       "comment" : "Push preview under a flask: how many layers a pour would push into its bottom through a pressure pipe"
     },
+    "+%lld s" : {
+      "comment" : "Rush: time bonus for a solved recipe"
+    },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {},
     "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {},
+    "A hint was used, so no gold seal this time" : {},
     "A hint was used, so this brew can't be perfect" : {},
     "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises." : {},
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
+    "A race against the clock, hard recipe books and random brews. Always open; nothing here counts toward the chapter map." : {
+      "comment" : "Challenges hub header"
+    },
+    "Best Rush: %lld recipes" : {
+      "comment" : "VoiceOver: Rush best score",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Best Rush: %#@n@"
+          },
+          "substitutions" : {
+            "n" : {
+              "argNum" : 1,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg recipe"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg recipes"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Brew as many recipes as you can in 3 minutes. Each brew adds %lld s, a skip costs %lld s. No hints; recipes grow harder and bring in the mechanics you have met on the map." : {
+      "comment" : "Rush description in the Challenges hub; the arguments are the time bonus and the skip penalty in seconds"
+    },
+    "Brewing the first recipe…" : {
+      "comment" : "Rush: the first recipe is being generated"
+    },
+    "Brewing the next recipe… the clock waits" : {
+      "comment" : "Rush: the next recipe is being generated; the timer is paused meanwhile"
+    },
+    "Chapter %lld, %@, %lld of %lld stars, every recipe gold-sealed" : {
+      "comment" : "VoiceOver: a chapter on the map whose recipes all have a gold seal"
+    },
+    "Costs %lld seconds" : {
+      "comment" : "VoiceOver hint on Rush's Skip button; the argument is the time penalty"
+    },
+    "Gold seal" : {
+      "comment" : "VoiceOver: the win card's gold seal for a perfect brew"
+    },
+    "Gold seals %lld / %lld" : {
+      "comment" : "Gold seals earned in a chapter out of its recipes"
+    },
+    "New best!" : {
+      "comment" : "Rush end card: the run beat the saved best"
+    },
+    "Perfect brew!" : {
+      "comment" : "Win card title: solved in the fewest moves without a hint"
+    },
+    "Recipe %lld, %lld stars, gold seal" : {
+      "comment" : "VoiceOver: a recipe tile solved perfectly"
+    },
+    "Recipe books" : {},
+    "Rush" : {},
+    "Rush Again" : {},
+    "Rush · Recipe %lld" : {
+      "comment" : "Game title in Rush mode; the argument is the recipe's number in the run"
+    },
+    "Rush, hard recipe books and Random Brew, open any time" : {},
+    "Skip this recipe" : {},
+    "Skip −%lld s" : {},
+    "Skipped %lld" : {
+      "comment" : "Rush end card: recipes skipped in this run"
+    },
+    "Start Rush" : {},
+    "Starts a 3 minute run" : {
+      "comment" : "VoiceOver hint on Start Rush"
+    },
+    "The fewest moves, without a hint." : {
+      "comment" : "Win card line under a perfect random brew"
+    },
+    "The fewest moves, without a hint: a gold seal for this recipe." : {
+      "comment" : "Win card line under a perfect brew"
+    },
     "The pipe can only push when the far flask has room. Any color goes through, but only in the arrow's direction." : {},
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
     "Accessibility" : {},
@@ -380,6 +512,13 @@
     },
     "Brews solved" : {
       "comment" : "Number of daily puzzles solved"
+    },
+    "Time left" : {
+      "comment" : "VoiceOver: Rush timer"
+    },
+    "Time's up!" : {},
+    "Your best was %lld." : {
+      "comment" : "Rush end card: the best before this run"
     },
     "bubbling flask, its bottom potion rises to the top in %lld moves" : {
       "comment" : "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises",
@@ -666,8 +805,6 @@
       "comment" : "Daily puzzle difficulty (Sunday)"
     },
     "Haptics" : {},
-    "Hard recipe books and Random Brew, open any time" : {},
-    "Hard recipe books for practiced alchemists. Always open; they don't count toward the chapter map." : {},
     "Heart" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -839,6 +976,12 @@
       "comment" : "Daily puzzle difficulty (Wednesday)"
     },
     "Sealed flasks open when you pour their rune key into them. Keys move alone." : {},
+    "recipe brewed" : {
+      "comment" : "Rush end card, under the number of solved recipes (one)"
+    },
+    "recipes brewed" : {
+      "comment" : "Rush end card, under the number of solved recipes"
+    },
     "sealed with a %@ rune" : {
       "comment" : "A sealed flask; the argument is the key metal"
     },
