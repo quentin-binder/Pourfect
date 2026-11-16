@@ -347,6 +347,7 @@
         }
       }
     },
+    "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {},
     "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {},
     "A full flask with the same potion on top lets the whole pour through. The far flask takes it like any pour, or the rest stays where it was." : {},
     "A glass pipe runs from one flask's rim to another flask. When a pour doesn't fit, the rest runs on through the pipe." : {},
@@ -615,6 +616,8 @@
     },
     "Feedback" : {},
     "Fill every flask with a single potion. Undo, Restart and Hint are always there to help." : {},
+    "Fill the switch" : {},
+    "Fill the switch flask to the top with one potion: its gem lights up, the lever swings over and the gate opens." : {},
     "Flask %lld" : {},
     "Flask %lld bubbled up: %@ rose to the top" : {
       "comment" : "VoiceOver: a bubbling flask's bottom layer rose to the top; the arguments are the flask number and the potion"
@@ -631,6 +634,12 @@
     },
     "Friday" : {
       "comment" : "Weekday of the daily puzzle"
+    },
+    "gate open while flask %lld stays full of one potion" : {
+      "comment" : "VoiceOver: an open gate flask; the argument is its switch's flask number"
+    },
+    "gate shut, nothing pours in or out until flask %lld is full of one potion" : {
+      "comment" : "VoiceOver: a closed gate flask; the argument is its switch's flask number"
     },
     "Gentle" : {
       "comment" : "Daily puzzle difficulty (Monday)"
@@ -661,6 +670,7 @@
     "How this recipe works" : {},
     "How to play" : {},
     "How to play this recipe" : {},
+    "Keep it full" : {},
     "Liquid Sunlight" : {
       "comment" : "Potion name of the yellow liquid"
     },
@@ -711,6 +721,7 @@
     "New: murky potions" : {},
     "New: overflow pipes" : {},
     "New: sealed flasks" : {},
+    "New: switches and gates" : {},
     "New: twin flasks" : {},
     "Next" : {},
     "Next month" : {},
@@ -737,6 +748,7 @@
     "Pour" : {},
     "Pour off the top potion to reveal the layer below it. Hints still work." : {},
     "Pour out freely" : {},
+    "Pour out of a full switch and the gate shuts again, with whatever is inside. The gate's potions count too, so open it to sort them." : {},
     "Pour the rune-stone key of the same color onto the sealed flask to break the seal." : {},
     "Pourfect" : {},
     "Pourfect Daily %@ · %@ · 🔥 %lld" : {
@@ -867,12 +879,28 @@
     "Sunday" : {
       "comment" : "Weekday of the daily puzzle"
     },
+    "switch flask, fill it with one potion to open the gate of flask %lld" : {
+      "comment" : "VoiceOver: a switch flask that is not complete; the argument is its gate's flask number"
+    },
+    "switch flask, full of one potion: the gate of flask %lld is open" : {
+      "comment" : "VoiceOver: a switch flask that is complete; the argument is its gate's flask number"
+    },
+    "Switches and gates" : {},
     "System" : {},
     "Tap a flask to pick it up, then tap another flask to pour into it." : {},
     "Th" : {
       "comment" : "Calendar column: Thursday"
     },
     "The dial under the flask lights up after every pour, wherever you pour. Its number is the moves left until it bubbles up." : {},
+    "The gate is shut. Fill flask %lld with one potion to open it." : {
+      "comment" : "Shown when the player pours into or out of a closed gate flask; the argument is the number of its switch flask"
+    },
+    "The gate of flask %@ opened" : {
+      "comment" : "VoiceOver: a switch flask became full of one potion and opened its gate; the argument lists flask numbers"
+    },
+    "The gate of flask %@ shut" : {
+      "comment" : "VoiceOver: a switch flask stopped being full of one potion and its gate closed; the argument lists flask numbers"
+    },
     "the overflow pipe of flask %lld runs into it" : {
       "comment" : "VoiceOver: the flask an overflow pipe ends over; the argument is the flask it starts from"
     },

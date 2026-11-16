@@ -10,6 +10,7 @@ struct TutorialStep: Identifiable {
         case bubbleRises, bubbleDial, bubbleUse
         case twinSplit, twinEven, twinOut, pipeOverflow, pipePassOn
         case cauldronMix, cauldronPairs, cauldronOnly
+        case gateShut, switchOpens, switchEmptied
     }
 
     let id: String
@@ -143,6 +144,18 @@ struct TutorialStep: Identifiable {
                              text: String(localized: "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each."),
                              scene: .cauldronOnly),
             ]
+        case .switches:
+            return [
+                TutorialStep(id: "switch.gate", topic: topic, title: String(localized: "Switches and gates"),
+                             text: String(localized: "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it."),
+                             scene: .gateShut),
+                TutorialStep(id: "switch.opens", topic: topic, title: String(localized: "Fill the switch"),
+                             text: String(localized: "Fill the switch flask to the top with one potion: its gem lights up, the lever swings over and the gate opens."),
+                             scene: .switchOpens),
+                TutorialStep(id: "switch.empties", topic: topic, title: String(localized: "Keep it full"),
+                             text: String(localized: "Pour out of a full switch and the gate shuts again, with whatever is inside. The gate's potions count too, so open it to sort them."),
+                             scene: .switchEmptied),
+            ]
         }
     }
 }
@@ -242,6 +255,7 @@ extension TutorialTopic {
         case .twins: return String(localized: "New: twin flasks")
         case .overflow: return String(localized: "New: overflow pipes")
         case .cauldron: return String(localized: "New: mixing cauldron")
+        case .switches: return String(localized: "New: switches and gates")
         }
     }
 }
@@ -468,6 +482,32 @@ private struct TutorialScene: View {
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                     BottleView(bottle: cauldron([4, 4]), width: w)
                 }
+            case .gateShut:
+                BottleView(bottle: Bottle([4, 1], capacity: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                Image(systemName: "nosign").font(.title).foregroundStyle(.secondary).padding(.bottom, w)
+                VStack(spacing: 6) {
+                    LinkedPair(kind: .switchGate, first: Bottle([2, 5], capacity: 3), second: Bottle([0, 1], capacity: 3),
+                               width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+            case .switchOpens:
+                BottleView(bottle: Bottle([0, 2], capacity: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                LinkedPair(kind: .switchGate, first: Bottle([2, 2], capacity: 3), second: Bottle([3, 1], capacity: 3),
+                           width: w, spacing: 14)
+                equals
+                LinkedPair(kind: .switchGate, first: Bottle([2, 2, 2], capacity: 3), second: Bottle([3, 1], capacity: 3),
+                           width: w, spacing: 14)
+            case .switchEmptied:
+                LinkedPair(kind: .switchGate, first: Bottle([6, 6, 6], capacity: 3), second: Bottle([4, 0], capacity: 3),
+                           width: w, firstSelected: true, spacing: 14)
+                arrow
+                BottleView(bottle: Bottle([6], capacity: 3), width: w)
+                equals
+                LinkedPair(kind: .switchGate, first: Bottle([6], capacity: 3), second: Bottle([4, 0], capacity: 3),
+                           width: w, spacing: 14)
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
