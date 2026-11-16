@@ -6,6 +6,8 @@ import Observation
 enum TutorialTopic: String, CaseIterable, Hashable {
     case basic, sealed, murky, essence, narrowNeck, funnel, tap, frozen, bubbling, twins, overflow, cauldron
     case switches = "switch"
+    /// R7 customer orders and layered recipes (level goals, not flask mechanics).
+    case order, layered
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 

@@ -11,6 +11,7 @@ struct TutorialStep: Identifiable {
         case twinSplit, twinEven, twinOut, pipePush, pipeRoom
         case cauldronMix, cauldronPairs, cauldronOnly
         case gateShut, switchOpens, switchEmptied
+        case orderTicket, orderRest, layeredTicket, layeredBuild
     }
 
     let id: String
@@ -156,6 +157,24 @@ struct TutorialStep: Identifiable {
                              text: String(localized: "Pour out of a full switch and the gate shuts again, with whatever is inside. The gate's potions count too, so open it to sort them."),
                              scene: .switchEmptied),
             ]
+        case .order:
+            return [
+                TutorialStep(id: "order.ticket", topic: topic, title: String(localized: "Customer orders"),
+                             text: String(localized: "A villager has ordered a potion. The flask with the paper ticket must end full of the potion shown on it."),
+                             scene: .orderTicket),
+                TutorialStep(id: "order.rest", topic: topic, title: String(localized: "Then sort the rest"),
+                             text: String(localized: "The recipe is done when every order is filled and every other flask holds one potion or nothing. The card above the board ticks each order off."),
+                             scene: .orderRest),
+            ]
+        case .layered:
+            return [
+                TutorialStep(id: "layered.ticket", topic: topic, title: String(localized: "Layered recipes"),
+                             text: String(localized: "This ticket shows layers, bottom to top. Its flask must end with exactly that pattern."),
+                             scene: .layeredTicket),
+                TutorialStep(id: "layered.build", topic: topic, title: String(localized: "Keep the bottom"),
+                             text: String(localized: "A potion only pours onto the same potion, so keep the bottom layers that match and top them up. Gather the rest of each potion in one flask."),
+                             scene: .layeredBuild),
+            ]
         }
     }
 }
@@ -256,6 +275,8 @@ extension TutorialTopic {
         case .overflow: return String(localized: "New: pressure pipes")
         case .cauldron: return String(localized: "New: mixing cauldron")
         case .switches: return String(localized: "New: switches and gates")
+        case .order: return String(localized: "New: customer orders")
+        case .layered: return String(localized: "New: layered recipes")
         }
     }
 }
@@ -514,6 +535,33 @@ private struct TutorialScene: View {
                 equals
                 LinkedPair(kind: .switchGate, first: Bottle([6], capacity: 3), second: Bottle([4, 0], capacity: 3),
                            width: w, spacing: 14)
+            case .orderTicket:
+                BottleView(bottle: Bottle([1, 1, 1], capacity: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                ticketed(Bottle([], capacity: 3), order(1), selected: false)
+                equals
+                ticketed(Bottle([1, 1, 1], capacity: 3), order(1), selected: false, filled: true)
+            case .orderRest:
+                ticketed(Bottle([1, 1, 1], capacity: 3), order(1), selected: false, filled: true)
+                BottleView(bottle: Bottle([0, 0, 0], capacity: 3), width: w)
+                BottleView(bottle: Bottle([], capacity: 3), width: w)
+                BottleView(bottle: Bottle([3, 3, 3], capacity: 3), width: w)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).padding(.bottom, w)
+            case .layeredTicket:
+                ticketed(Bottle([0, 2, 2, 2], capacity: 4), pattern([0, 2, 2, 2]), selected: false, filled: true)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).padding(.bottom, w)
+                ticketed(Bottle([2, 2, 2, 0], capacity: 4), pattern([0, 2, 2, 2]), selected: false)
+                Image(systemName: "xmark.circle.fill").foregroundStyle(.red).padding(.bottom, w)
+            case .layeredBuild:
+                BottleView(bottle: Bottle([2, 2], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                ticketed(Bottle([0, 2, 1], capacity: 4), pattern([0, 2, 2, 2]), selected: false)
+                Image(systemName: "nosign").font(.title3).foregroundStyle(.secondary).padding(.bottom, w)
+                arrow
+                ticketed(Bottle([0, 2], capacity: 4), pattern([0, 2, 2, 2]), selected: false)
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(.green).padding(.bottom, w)
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
@@ -572,6 +620,24 @@ private struct TutorialScene: View {
     private func bubbling(_ colors: [Int], every: Int, phase: Int) -> Bottle {
         Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4,
                modifiers: [.bubbling(every: every, phase: phase)])
+    }
+
+    /// A flask with its order ticket hanging at the shoulder (as on the board).
+    private func ticketed(_ bottle: Bottle, _ target: GoalTarget, selected: Bool, filled: Bool = false) -> some View {
+        BottleView(bottle: bottle, width: w, isSelected: selected)
+            .overlay(alignment: .topTrailing) {
+                OrderTag(target: target, width: w, filled: filled, tick: 0)
+                    .offset(x: OrderTag.size(w) * 0.55, y: -OrderTag.size(w) * 0.2)
+            }
+            .padding(.trailing, OrderTag.size(w) * 0.5)
+    }
+
+    private func order(_ color: Int, capacity: Int = 3) -> GoalTarget {
+        .order(bottle: 0, color: ColorID(color), capacity: capacity)
+    }
+
+    private func pattern(_ colors: [Int]) -> GoalTarget {
+        GoalTarget(bottle: 0, layers: colors.map { .color(ColorID($0)) })
     }
 
     private var equals: some View {

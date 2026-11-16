@@ -82,6 +82,10 @@ enum FeedbackPlayer {
         case .flaskCompleted:
             if sound { engine.play(.corkPop) }
             if haptics { Haptics.flaskCompleted() }
+        case .orderFilled:
+            // A shop bell: the customer's order is ready (R7).
+            if sound { engine.play(.orderBell) }
+            if haptics { Haptics.flaskCompleted() }
         case .levelWon:
             // Leaves room for the cork pop of the last flask.
             if sound { engine.play(.success, after: 0.35) }

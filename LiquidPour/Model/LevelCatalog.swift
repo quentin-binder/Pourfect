@@ -16,6 +16,8 @@ struct LevelPackInfo: Identifiable, Hashable {
 
     var isChapter: Bool { kind == .chapter }
     var maxStars: Int { ChapterGate.maxStars(recipeCount: levels.count) }
+    /// Stars the chapter gate counts half of: customer orders (R7) are bonus recipes.
+    var gateMaxStars: Int { ChapterGate.maxStars(recipeCount: levels.filter { !$0.isCustomerOrder }.count) }
 }
 
 /// All recipe packs shipped in the app bundle: chapters by number, then challenges by file name.

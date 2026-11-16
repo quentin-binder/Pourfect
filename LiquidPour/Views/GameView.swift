@@ -14,6 +14,12 @@ struct GameView: View {
     @Environment(\.dismiss) private var dismiss
     /// The tip on screen, if any (first time a mechanic appears, or the "?" button).
     @State private var tip: [TutorialTopic]?
+    #if os(iOS)
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    private var compactCard: Bool { sizeClass == .compact }
+    #else
+    private var compactCard: Bool { false }
+    #endif
 
     var body: some View {
         VStack(spacing: 16) {
@@ -24,6 +30,12 @@ struct GameView: View {
                     message.alignmentGuide(.bottom) { $0[.top] - 8 }
                 }
                 .zIndex(1)
+            // R7: the customer's order card, above the board.
+            if !model.state.goal.targets.isEmpty {
+                OrderCard(villager: model.villager, targets: model.state.goal.targets, filled: model.filledOrders,
+                          ticks: model.orderTicks, compact: compactCard, reduceMotion: reduceMotion)
+                    .padding(.top, 6)
+            }
             GeometryReader { geo in
                 board(in: geo.size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -291,6 +303,16 @@ struct GameView: View {
                         }
                         .buttonStyle(.plain)
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }
+                        // R7: the ticket of an order flask hangs at its shoulder.
+                        .overlay(alignment: .topTrailing) {
+                            if let target = model.state.goalTarget(at: index) {
+                                OrderTag(target: target, width: width, filled: model.filledOrders.contains(index),
+                                         tick: model.orderTicks.indices.contains(index) ? model.orderTicks[index] : 0,
+                                         reduceMotion: reduceMotion)
+                                    .offset(x: OrderTag.size(width) * 0.45, y: -OrderTag.size(width) * 0.1)
+                                    .opacity(isPouring(index) ? 0 : 1)
+                            }
+                        }
                         // The pour animation draws these two bottles itself; swap without fading.
                         .animation(nil) { $0.opacity(isPouring(index) ? 0 : 1) }
                         .accessibilityLabel(Text("Flask \(index + 1)"))
@@ -320,7 +342,15 @@ struct GameView: View {
 
     /// The flask's contents for VoiceOver, plus its link (twin chain, pressure pipe, switch or gate).
     private func spokenValue(_ index: Int) -> String {
-        let contents = model.state.bottles[index].spokenContents(hidden: model.hiddenMask(index))
+        var contents = model.state.bottles[index].spokenContents(hidden: model.hiddenMask(index))
+        // R7: "order flask, wanted: 4 layers of Dragon's Blood" (and whether it is filled).
+        if let target = model.state.goalTarget(at: index) {
+            contents += ", " + String(localized: "order flask, wanted: \(target.spokenWanted)",
+                                      comment: "VoiceOver: a customer's order flask; the argument says what it must end with")
+            if model.filledOrders.contains(index) {
+                contents += ", " + String(localized: "order filled", comment: "VoiceOver: an order flask holds what was asked for")
+            }
+        }
         switch LinkRole(model.state, bottle: index) {
         case .twin(let other):
             return contents + ", " + String(localized: "twin of flask \(other + 1), every pour into either is split evenly between both",

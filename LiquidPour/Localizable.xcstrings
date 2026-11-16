@@ -1322,7 +1322,62 @@
     "Pair by pair" : {},
     "Each poured layer mixes with one layer below it into two layers of the new potion. Poured layers left over stay on top." : {},
     "Only in the cauldron" : {},
-    "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {}
+    "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {},
+    "Order filled: flask %lld" : {
+      "comment" : "VoiceOver: a customer's order flask now holds what was asked for; the argument is the flask number"
+    },
+    "Bram" : {
+      "comment" : "Name of the village baker who orders potions"
+    },
+    "Sir Rowan" : {
+      "comment" : "Name of the young knight who orders potions"
+    },
+    "Mira" : {
+      "comment" : "Name of the farmer who orders potions"
+    },
+    "Orrin" : {
+      "comment" : "Name of the travelling merchant who orders potions"
+    },
+    "Pip" : {
+      "comment" : "Name of the child with a cat who orders potions"
+    },
+    "Old Hazel" : {
+      "comment" : "Name of the elderly herbalist who orders potions"
+    },
+    "%lld layers of %@" : {
+      "comment" : "VoiceOver: what an order flask wants; the arguments are the layer count and the potion"
+    },
+    "bottom to top %@" : {
+      "comment" : "VoiceOver: the layers a layered-recipe flask wants, listed from the bottom; the argument lists them"
+    },
+    "%@ wants a layered brew, bottom to top as shown" : {
+      "comment" : "Order card: a villager asks for a flask with an exact layer pattern; the argument is the villager's name"
+    },
+    "%@ needs a flask of %@" : {
+      "comment" : "Order card: a villager orders one flask of a potion; the arguments are the villager's name and the potion"
+    },
+    "%@ needs flasks of %@" : {
+      "comment" : "Order card: a villager orders several flasks; the arguments are the villager's name and the list of potions"
+    },
+    "%lld of %lld filled" : {
+      "comment" : "VoiceOver: how many order flasks hold what they should"
+    },
+    "Customer orders" : {},
+    "A villager has ordered a potion. The flask with the paper ticket must end full of the potion shown on it." : {},
+    "Then sort the rest" : {},
+    "The recipe is done when every order is filled and every other flask holds one potion or nothing. The card above the board ticks each order off." : {},
+    "Layered recipes" : {},
+    "This ticket shows layers, bottom to top. Its flask must end with exactly that pattern." : {},
+    "Keep the bottom" : {},
+    "A potion only pours onto the same potion, so keep the bottom layers that match and top them up. Gather the rest of each potion in one flask." : {},
+    "New: customer orders" : {},
+    "New: layered recipes" : {},
+    "order flask, wanted: %@" : {
+      "comment" : "VoiceOver: a customer's order flask; the argument says what it must end with"
+    },
+    "order filled" : {
+      "comment" : "VoiceOver: an order flask holds what was asked for"
+    }
   },
   "version" : "1.0"
 }

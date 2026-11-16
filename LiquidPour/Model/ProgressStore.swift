@@ -91,14 +91,17 @@ final class ProgressModel {
     /// Stars earned in a pack out of its maximum. Ids that no longer ship (old Locks & Keys and
     /// Hidden Depths recipes) are simply never asked for.
     func progress(of pack: LevelPackInfo) -> ChapterProgress {
-        ChapterProgress(stars: pack.levels.reduce(0) { $0 + stars(for: $1.id) }, maxStars: pack.maxStars)
+        ChapterProgress(stars: pack.levels.reduce(0) { $0 + stars(for: $1.id) }, maxStars: pack.maxStars,
+                        gateMaxStars: pack.gateMaxStars)
     }
 
     /// Open flags for `chapters` (in chapter order) under the 50 % star gate. Reads only the
     /// chapters' own recipe stars (challenge books, gold seals and Rush never count).
     func unlockedChapters(_ chapters: [LevelPackInfo]) -> [Bool] {
         if Self.unlockAll { return chapters.map { _ in true } }
-        return ChapterGate.unlockedChapters(recipeIDs: chapters.map { $0.levels.map(\.id) }) { stars(for: $0) }
+        // Customer orders (R7) add stars but never raise a chapter's gate (DECISIONS 233).
+        let bonus = Set(chapters.flatMap { $0.levels.filter(\.isCustomerOrder).map(\.id) })
+        return ChapterGate.unlockedChapters(recipeIDs: chapters.map { $0.levels.map(\.id) }, bonus: bonus) { stars(for: $0) }
     }
 
     func record(stars: Int, for id: String) {

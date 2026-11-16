@@ -128,6 +128,8 @@ final class GameViewModel {
         case gate(opened: Bool, gates: [Int])
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
         case flaskCompleted(bottles: [Int])
+        /// Customer orders (R7) these flasks now hold; fires when the pour lands (a shop bell).
+        case orderFilled(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
         case levelWon(stars: Int)
         /// The solve earned a gold seal (R6 "perfect brewer"); right after `levelWon`.
@@ -196,6 +198,12 @@ final class GameViewModel {
     private(set) var feedback: [Feedback] = []
     /// Incremented per bottle each time it becomes complete (drives the cork / burst visuals).
     private(set) var completions: [Int] = []
+    /// R7: the order flasks shown as filled (updated when a pour lands, so the tick waits for
+    /// the potion), and per bottle how often its order was filled (drives the tick's bounce).
+    private(set) var filledOrders: Set<Int> = []
+    private(set) var orderTicks: [Int] = []
+    /// R7: the customer of this recipe (the same one every time it is played).
+    var villager: Villager { Villager.forRecipe(level.id) }
     /// The pour being animated, if any. While set, taps are queued (not applied) so the
     /// board the view shows and the session can't drift apart.
     private(set) var pour: PourEvent?
@@ -481,6 +489,7 @@ final class GameViewModel {
             for index in completed where completions.indices.contains(index) { completions[index] += 1 }
             emit(.flaskCompleted(bottles: completed))
         }
+        syncOrders(announce: true)
         if let mix = landed.mix {
             startMix(mix, completes: landed.completed.contains(mix.bottle), reduceMotion: reduceMotion)
         } else if case .won(let stars) = status, mixes.isEmpty {
@@ -497,6 +506,7 @@ final class GameViewModel {
         selected = nil
         clearHint()
         afterStateChange()
+        syncOrders(announce: false)
     }
 
     func restart() {
@@ -507,6 +517,7 @@ final class GameViewModel {
         selected = nil
         clearHint()
         afterStateChange()
+        syncOrders(announce: false)
     }
 
     func requestHint() {
@@ -552,10 +563,13 @@ final class GameViewModel {
         refusals = Array(repeating: 0, count: session.state.bottles.count)
         linkRefusals = Array(repeating: 0, count: session.state.links.count)
         completions = Array(repeating: 0, count: session.state.bottles.count)
+        orderTicks = Array(repeating: 0, count: session.state.bottles.count)
+        filledOrders = []
         selected = nil
         solution = nil
         clearHint()
         afterStateChange()
+        syncOrders(announce: false)
     }
 
     func nextLevel() {
@@ -940,6 +954,23 @@ final class GameViewModel {
                 // A pour that waited for this cauldron starts now.
                 self.replayQueuedTaps()
             }
+        }
+    }
+
+    /// R7: shows the order flasks that hold what they should now. With `announce` (a pour has
+    /// landed), each newly filled one ticks with a bell and VoiceOver hears it; after undo,
+    /// restart or a new recipe the ticks just follow the board.
+    private func syncOrders(announce: Bool) {
+        let now = Set(Rules.metTargets(in: state))
+        let new = now.subtracting(filledOrders).sorted()
+        filledOrders = now
+        guard announce, !new.isEmpty else { return }
+        for index in new where orderTicks.indices.contains(index) { orderTicks[index] += 1 }
+        emit(.orderFilled(bottles: new))
+        for index in new {
+            AccessibilityNotification.Announcement(
+                String(localized: "Order filled: flask \(index + 1)",
+                       comment: "VoiceOver: a customer's order flask now holds what was asked for; the argument is the flask number")).post()
         }
     }
 

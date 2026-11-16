@@ -54,6 +54,8 @@ final class SoundEngine {
         /// A gold seal is pressed (perfect brew, a new Rush best): a bright bell with a shimmer
         /// of high partials, after the level's arpeggio.
         case goldSeal
+        /// A customer's order is filled (R7): a small shop bell, two quick strikes.
+        case orderBell
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -331,6 +333,18 @@ nonisolated enum SoundSynthesis {
                 sum += (sin(2 * .pi * f * local) + 0.35 * sin(2 * .pi * f * 2.76 * local) * exp(-local * 6)
                         + 0.2 * sin(2 * .pi * f * 5.4 * local) * exp(-local * 12)) * exp(-local * 2.6) * shimmer
                     * min(1, local * 400)
+            }
+            return sum
+        }
+        // R7, after every older sound (no noise drawn, so nothing else changes).
+        out.sounds[.orderBell] = render(0.9, peak: 0.12) { t in
+            var sum = 0.0
+            for (k, f) in [2093.0, 2637.0].enumerated() {
+                let start = Double(k) * 0.09
+                guard t >= start else { continue }
+                let local = t - start
+                sum += (sin(2 * .pi * f * local) + 0.3 * sin(2 * .pi * f * 2.4 * local) * exp(-local * 9))
+                    * exp(-local * 5.5) * min(1, local * 500)
             }
             return sum
         }
