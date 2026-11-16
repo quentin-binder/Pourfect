@@ -8,6 +8,7 @@ struct TutorialStep: Identifiable {
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
         case iceHolds, iceSeals, iceThaws
         case bubbleRises, bubbleDial, bubbleUse
+        case twinSplit, twinEven, twinOut, pipeOverflow, pipePassOn
     }
 
     let id: String
@@ -108,6 +109,27 @@ struct TutorialStep: Identifiable {
                              text: String(localized: "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises."),
                              scene: .bubbleUse),
             ]
+        case .twins:
+            return [
+                TutorialStep(id: "twins.split", topic: topic, title: String(localized: "Twin flasks"),
+                             text: String(localized: "Two flasks on a silver chain are twins. Pour into either one and the pour is split evenly: half lands in each."),
+                             scene: .twinSplit),
+                TutorialStep(id: "twins.even", topic: topic, title: String(localized: "Fair shares"),
+                             text: String(localized: "Both twins must take the potion, and each gets the same amount. A single layer can't be split, so it can't go in."),
+                             scene: .twinEven),
+                TutorialStep(id: "twins.out", topic: topic, title: String(localized: "Pour out freely"),
+                             text: String(localized: "Pouring out of a twin works as usual: only the flask you pick up pours. One twin can't pour into the other."),
+                             scene: .twinOut),
+            ]
+        case .overflow:
+            return [
+                TutorialStep(id: "overflow.pipe", topic: topic, title: String(localized: "Overflow pipes"),
+                             text: String(localized: "A glass pipe runs from one flask's rim to another flask. When a pour doesn't fit, the rest runs on through the pipe."),
+                             scene: .pipeOverflow),
+                TutorialStep(id: "overflow.spill", topic: topic, title: String(localized: "Mind the spill"),
+                             text: String(localized: "A full flask with the same potion on top lets the whole pour through. The far flask takes it like any pour, or the rest stays where it was."),
+                             scene: .pipePassOn),
+            ]
         }
     }
 }
@@ -204,6 +226,8 @@ extension TutorialTopic {
         case .tap: return String(localized: "New: tap flasks")
         case .frozen: return String(localized: "New: frozen layers")
         case .bubbling: return String(localized: "New: bubbling flasks")
+        case .twins: return String(localized: "New: twin flasks")
+        case .overflow: return String(localized: "New: overflow pipes")
         }
     }
 }
@@ -360,6 +384,46 @@ private struct TutorialScene: View {
                     .offset(y: -14)
                 arrow
                 BottleView(bottle: Bottle([0, 0], capacity: 4), width: w)
+            case .twinSplit:
+                BottleView(bottle: Bottle([0, 3, 3], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                LinkedPair(kind: .twins, first: Bottle([], capacity: 4), second: Bottle([], capacity: 4), width: w)
+                equals
+                LinkedPair(kind: .twins, first: Bottle([3], capacity: 4), second: Bottle([3], capacity: 4), width: w)
+            case .twinEven:
+                VStack(spacing: 6) {
+                    LinkedPair(kind: .twins, first: Bottle([4], capacity: 4), second: Bottle([4], capacity: 4), width: w)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
+                BottleView(bottle: Bottle([2, 4, 4], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                    .padding(.bottom, 22)
+                VStack(spacing: 6) {
+                    LinkedPair(kind: .twins, first: Bottle([4], capacity: 4), second: Bottle([2], capacity: 4), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+            case .twinOut:
+                LinkedPair(kind: .twins, first: Bottle([6, 6, 1], capacity: 4), second: Bottle([6, 6, 1], capacity: 4),
+                           width: w, firstSelected: true)
+                arrow
+                BottleView(bottle: Bottle([5, 1], capacity: 4), width: w)
+                equals
+                LinkedPair(kind: .twins, first: Bottle([6, 6], capacity: 4), second: Bottle([6, 6, 1], capacity: 4), width: w)
+            case .pipeOverflow:
+                BottleView(bottle: Bottle([2, 2, 2], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                LinkedPair(kind: .pipe, first: Bottle([5, 5, 2], capacity: 4), second: Bottle([], capacity: 4), width: w)
+                equals
+                LinkedPair(kind: .pipe, first: Bottle([5, 5, 2, 2], capacity: 4), second: Bottle([2, 2], capacity: 4), width: w)
+            case .pipePassOn:
+                BottleView(bottle: Bottle([1, 6], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                LinkedPair(kind: .pipe, first: Bottle([3, 3, 6, 6], capacity: 4), second: Bottle([6], capacity: 4), width: w)
+                equals
+                LinkedPair(kind: .pipe, first: Bottle([3, 3, 6, 6], capacity: 4), second: Bottle([6, 6], capacity: 4), width: w)
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
