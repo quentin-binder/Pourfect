@@ -109,6 +109,19 @@ private func layers(_ values: [Int]) -> [Layer] {
         #expect(s.canPour(Move(from: 1, to: 0)) && Rules.refusal(of: Move(from: 1, to: 0), in: s) == nil)
     }
 
+    @Test func closedSidesExplainEvenWhenTheBaseRuleRefuses() {
+        // Every chapter 5 tap starts full: pouring into it is still "a tap never fills".
+        let s = GameState(bottles: [bottle([1, 0], capacity: 3), bottle([0, 1, 2], capacity: 3, [.tap]),
+                                    bottle([2, 2], capacity: 2, [.funnel]), bottle([0, 0, 0], capacity: 3)])
+        #expect(Rules.refusal(of: Move(from: 0, to: 1), in: s)! == (1, .tap))       // full and a tap
+        // A funnel never pours, even onto a full flask or a wrong color.
+        #expect(Rules.refusal(of: Move(from: 2, to: 3), in: s)! == (2, .funnel))
+        #expect(Rules.refusal(of: Move(from: 2, to: 0), in: s)! == (2, .funnel))
+        // Conditional modifiers keep the old rule: a full essence flask refuses for being full.
+        let full = GameState(bottles: [bottle([1], capacity: 2), bottle([0, 0], capacity: 2, [.essence(0)])])
+        #expect(Rules.refusal(of: Move(from: 0, to: 1), in: full) == nil)
+    }
+
     @Test func tapPoursABottomKeyAlone() throws {
         let s = GameState(bottles: [Bottle(layers: layers([-1, 0, 0]), capacity: 3, modifiers: [.tap]),
                                     Bottle(layers: layers([1, 1, 1]), capacity: 3, lockedBy: 1),

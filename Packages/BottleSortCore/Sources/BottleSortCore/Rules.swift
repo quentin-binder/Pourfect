@@ -317,6 +317,9 @@ public enum Rules {
     /// without that modifier (so the modifier is *the* reason). nil if the move is legal, or
     /// illegal for a base reason too (same flask, empty source, full target, colors differ):
     /// a full essence flask refuses every pour for being full, not for its rune.
+    /// Exception: a modifier that shuts its side for good (`closesSide`: a tap never
+    /// receives, a funnel never pours) is always the reason, even when the base rule would
+    /// also refuse; a full tap flask is still "a tap never fills", not "it is full".
     public static func refusal(of move: Move, in state: GameState) -> (bottle: Int, modifier: BottleModifier)? {
         guard move.from != move.to, state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
               let top = state.bottles[move.from].topLayer else { return nil }
@@ -329,10 +332,19 @@ public enum Rules {
                 without.modifiers.removeAll { $0 == modifier }
                 let legalWithout = side == .source ? Self.plan(from: without, to: target) != nil
                                                    : Self.plan(from: source, to: without) != nil
-                return legalWithout ? (bottle, modifier) : nil
+                return legalWithout || closesSide(modifier, side) ? (bottle, modifier) : nil
             }
         }
         return nil
+    }
+
+    /// Whether `modifier` refuses every pour on `side`, whatever the flasks hold:
+    /// a funnel never pours out, a tap never receives.
+    static func closesSide(_ modifier: BottleModifier, _ side: PourSide) -> Bool {
+        switch (modifier, side) {
+        case (.funnel, .source), (.tap, .target): return true
+        default: return false
+        }
     }
 
     /// Whether `move` is legal in `state`: step 1 of `resolve` succeeds (same check).
