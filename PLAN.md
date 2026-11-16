@@ -221,8 +221,8 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 ## R7 — Orders & story (Milestone 6)
 - [ ] `Goal` variants in core + solver: order (specific flask = specific color), partial order, layered recipe (exact pattern), rescue (free all seals within N moves)
 - [ ] Customer-order levels with villager cards; generator per goal type
-- [ ] Short dialogue between chapters (apprentice + old alchemist)
-- [ ] Cosmetic rewards: workbench themes, flask shapes, potion effects
+- [x] Short dialogue between chapters (apprentice + old alchemist): a scene on each chapter's first opening and an ending, portraits per mood, Skip, Story replay, VoiceOver, Reduce Motion (DECISIONS 400, 401, 404)
+- [x] Cosmetic rewards: workbench themes, flask shapes, potion effects, unlocked by milestones (`Rewards` in core), Lab Style screen, New reward toast (DECISIONS 402–405)
 
 ## R8 — Release readiness (Milestone 7, no iCloud / Game Center / notifications)
 - [ ] Final bundle id + target rename to Pourfect; app icon, launch screen, App Store screenshots
