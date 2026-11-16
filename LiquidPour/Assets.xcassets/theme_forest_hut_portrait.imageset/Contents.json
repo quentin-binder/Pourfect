@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "theme_forest_hut_portrait.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "theme_frost_lab_landscape.jpg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
