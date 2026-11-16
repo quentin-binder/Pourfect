@@ -1485,6 +1485,157 @@
         "seed" : 10014001,
         "statesExplored" : 120504
       }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [11, 3, 11, 9]
+        },
+        {
+          "layers" : [10, 10, 10, 3]
+        },
+        {
+          "layers" : [3, 9]
+        },
+        {
+          "layers" : [9, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [0, 0, 10, 9],
+          "modifiers" : [
+            {
+              "recipes" : [
+                {
+                  "a" : 0,
+                  "b" : 11,
+                  "result" : 7
+                }
+              ],
+              "type" : "cauldron"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 1,
+            "layers" : [7, 7, 7, 7]
+          }
+        ],
+        "type" : "order"
+      },
+      "id" : "c9_031",
+      "meta" : {
+        "branchingFactor" : 5.42,
+        "deadEndRatio" : 0.029,
+        "minMoves" : 12,
+        "score" : 32,
+        "seed" : 11014000,
+        "statesExplored" : 1717
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 5, 4, 0]
+        },
+        {
+          "layers" : [0, 0]
+        },
+        {
+          "layers" : [2]
+        },
+        {
+          "layers" : [9, 9, 9, 2]
+        },
+        {
+          "layers" : [4, 4, 4, 9]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : [0, 2, 0, 2]
+        },
+        {
+          "layers" : [2],
+          "modifiers" : [
+            {
+              "recipes" : [
+                {
+                  "a" : 0,
+                  "b" : 2,
+                  "result" : 5
+                }
+              ],
+              "type" : "cauldron"
+            }
+          ]
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 4,
+            "layers" : [5, 5, 5, 5]
+          }
+        ],
+        "type" : "order"
+      },
+      "id" : "c9_032",
+      "meta" : {
+        "branchingFactor" : 11.45,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 40,
+        "seed" : 12014004,
+        "statesExplored" : 46739
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 2, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 1, 2, 1]
+        },
+        {
+          "layers" : [1, 0, 2, 0]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 2,
+            "layers" : [1, 0, 0, 0]
+          }
+        ],
+        "type" : "pattern"
+      },
+      "id" : "c9_033",
+      "meta" : {
+        "branchingFactor" : 3.1,
+        "deadEndRatio" : 0.689,
+        "minMoves" : 10,
+        "score" : 48.5,
+        "seed" : 13014018,
+        "statesExplored" : 77
+      }
     }
   ],
   "location" : "Alchemist's Hall",

@@ -1303,6 +1303,147 @@
         "seed" : 13010121,
         "statesExplored" : 369
       }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 4, 2, 0],
+          "modifiers" : [
+            {
+              "type" : "narrowNeck"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 0, 2, 3]
+        },
+        {
+          "layers" : [1, 1, 4, 4]
+        },
+        {
+          "layers" : [1, 4, 2, 3]
+        },
+        {
+          "layers" : [0, 3, 1, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 0,
+            "layers" : [0, 0, 0, 0]
+          }
+        ],
+        "type" : "order"
+      },
+      "id" : "c5_031",
+      "meta" : {
+        "branchingFactor" : 5.59,
+        "deadEndRatio" : 0.003,
+        "minMoves" : 17,
+        "score" : 36.8,
+        "seed" : 15010008,
+        "statesExplored" : 2457
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 1, 0, 4]
+        },
+        {
+          "layers" : [3, 4, 0, 4]
+        },
+        {
+          "layers" : [2, 0, 4, 3]
+        },
+        {
+          "layers" : [3, 1, 1, 0]
+        },
+        {
+          "layers" : [2, 2, 1, 2],
+          "modifiers" : [
+            {
+              "type" : "tap"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 2,
+            "layers" : [0, 0, 0, 0]
+          }
+        ],
+        "type" : "order"
+      },
+      "id" : "c5_032",
+      "meta" : {
+        "branchingFactor" : 4.83,
+        "deadEndRatio" : 0.216,
+        "minMoves" : 18,
+        "score" : 43.4,
+        "seed" : 16010077,
+        "statesExplored" : 776
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 1, 2]
+        },
+        {
+          "layers" : [2, 0, 1, 2]
+        },
+        {
+          "layers" : [2, 0, 1, 1],
+          "modifiers" : [
+            {
+              "type" : "tap"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 1,
+            "layers" : [2, 0, 0, 0]
+          }
+        ],
+        "type" : "pattern"
+      },
+      "id" : "c5_033",
+      "meta" : {
+        "branchingFactor" : 3.88,
+        "deadEndRatio" : 0.59,
+        "minMoves" : 8,
+        "score" : 43.6,
+        "seed" : 17010012,
+        "statesExplored" : 103
+      }
     }
   ],
   "location" : "Glass Works",

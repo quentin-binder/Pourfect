@@ -13,6 +13,8 @@ import Foundation
 //   levelgen --colors 4 --empty 2 --twins 1 --link-placement filled --link-cost 2 --count 5 --out twins.json
 //   levelgen --colors 4 --empty 1 --cauldron 1 --ingredients fresh --mix-pairs 2 --scramble 60 --mixing-matter --count 5 --out brew.json
 //   levelgen --colors 5 --empty 2 --switch 1 --switch-placement closed --switch-cost 2 --count 5 --out hoard.json
+//   levelgen --colors 5 --empty 2 --order 1 --order-cost 2 --count 5 --out orders.json
+//   levelgen --colors 5 --empty 2 --layered 1 --count 5 --out layered.json
 //   levelgen --preset chapter2 --out Levels/chapter_02.json
 //   levelgen --preset all --out-dir Levels
 //   levelgen --report Levels            (every *.json in the folder)
@@ -31,9 +33,12 @@ usage:
            [--twins N] [--overflow N] [--link-placement any|filled|empty|mixed] [--links-matter | --link-cost C] [--needs-split]
            [--cauldron RECIPES [--ingredients fresh|sorted] [--mix-pairs N] [--scramble STEPS] [--mixing-matter] [--teaches-mixing]]
            [--switch N [--switch-placement closed|empty|emptySwitch|any] [--switch-matter | --switch-cost C] [--teaches-switch]]
+           [--order N] [--layered N] [--order-matter | --order-cost C]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
   levelgen --preset chapter1|…|chapter10|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
+  levelgen --preset chapter2 --append --out FILE
+           (keeps FILE's recipes and regenerates only the appended order tiers after them)
            (writes chapter_01…10.json and challenge_challenger|expert|master.json)
   levelgen --rush SEED [--count 20] [--mechanics all|sealed,murky,essence,narrowNeck,frozen]
            (times the recipes of one Rush run)
@@ -42,7 +47,7 @@ usage:
            [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS] [--bubbling N:PERIOD]
            [--twins 0] [--overflow 0] [--link-placement any]
            [--cauldron 0 [--ingredients fresh] [--mix-pairs 1] [--scramble 40]]
-           [--switch 0 [--switch-placement closed]] [--count 10] [--seed 1]
+           [--switch 0 [--switch-placement closed]] [--order 0] [--layered 0] [--count 10] [--seed 1]
 """
 
 func fail(_ message: String) -> Never {
@@ -60,7 +65,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--needs-split", "--easiest", "--mixing-matter", "--teaches-mixing", "--switch-matter", "--teaches-switch"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--needs-split", "--easiest", "--mixing-matter", "--teaches-mixing", "--switch-matter", "--teaches-switch", "--order-matter", "--append"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -157,6 +162,13 @@ func switchOptions() -> (count: Int, placement: SwitchPlacement) {
     return (count, placement)
 }
 
+/// `--order N` and `--layered N` (R7 customer orders and layered recipes), both ≥ 0.
+func orderOptions() -> (orders: Int, layered: Int) {
+    let orders = int("--order", default: 0)!, layered = int("--layered", default: 0)!
+    guard orders >= 0, layered >= 0 else { fail("--order and --layered must not be negative") }
+    return (orders, layered)
+}
+
 func pad(_ s: String, _ width: Int, right: Bool = false) -> String {
     let fill = String(repeating: " ", count: max(0, width - s.count))
     return right ? fill + s : s + fill
@@ -175,7 +187,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let links: String; let mix: Int; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let links: String; let mix: Int; let goal: String; let r: DifficultyReport }
     var rows: [Row] = []
     var problems = 0
     for (i, level) in pack.levels.enumerated() {
@@ -198,13 +210,13 @@ func report(path: String) -> Int {
                         runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state),
                         ice: state.bottles.reduce(0) { $0 + $1.frozenLayers.count },
                         bub: state.bottles.filter(\.isBubbling).count, links: linkSummary(state),
-                        mix: state.bottles.reduce(0) { $0 + $1.recipes.count }, r: r))
+                        mix: state.bottles.reduce(0) { $0 + $1.recipes.count }, goal: goalSummary(state), r: r))
     }
     var title = pack.name ?? path
     if let kind = pack.kind { title += " (\(kind.rawValue)\(pack.chapter.map { " \($0)" } ?? ""))" }
     if let mechanics = pack.introduces { title += ", introduces " + mechanics.map(\.rawValue).joined(separator: ", ") }
     print("== \(title) — \(path)")
-    let header = "  #  id         colors empty locks runes glass ice bub links mix minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks runes glass ice bub links mix goal minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -216,7 +228,8 @@ func report(path: String) -> Int {
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
               + String(format: " %6d %5d %5d %5d ", row.colors, row.empty, row.locks, row.runes) + pad(row.glass, 5, right: true)
               + String(format: " %3d %3d ", row.ice, row.bub) + pad(row.links, 5, right: true)
-              + String(format: " %3d %8d %7d ", row.mix, row.r.minMoves, row.r.statesExplored)
+              + String(format: " %3d ", row.mix) + pad(row.goal, 4, right: true)
+              + String(format: " %8d %7d ", row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -246,6 +259,15 @@ func linkSummary(_ state: GameState) -> String {
     let o = state.links.filter { if case .overflow = $0 { return true } else { return false } }.count
     let w = state.links.filter { if case .switchGate = $0 { return true } else { return false } }.count
     let parts = [(t, "t"), (o, "o"), (w, "s")].filter { $0.0 > 0 }.map { "\($0.1)\($0.0)" }
+    return parts.isEmpty ? "-" : parts.joined()
+}
+
+/// Customer orders and layered recipes of a level as "oO lL" letters (e.g. "o1", "l1"; "-" for
+/// the standard goal).
+func goalSummary(_ state: GameState) -> String {
+    let targets = state.goal.targets
+    let o = targets.filter { !$0.isLayered }.count, l = targets.filter(\.isLayered).count
+    let parts = [(o, "o"), (l, "l")].filter { $0.0 > 0 }.map { "\($0.1)\($0.0)" }
     return parts.isEmpty ? "-" : parts.joined()
 }
 
@@ -335,6 +357,14 @@ struct Tier {
     /// no pure wait (`SwitchImpact.solvesWithoutWaiting`) and no first move is a dead end
     /// (`MechanicImpact.everyFirstMoveSolvable`).
     var teachesSwitch = false
+    /// R7 customer orders and layered recipes per level, and the moves each order must add
+    /// (`OrderImpact`; nil = no must-matter check).
+    var orders = 0
+    var layered = 0
+    var orderCost: Int? = nil
+    /// R7: the tier is one of the order recipes appended after a chapter's original recipes
+    /// (`--append` regenerates only these; they sit in sections after every earlier one).
+    var appended = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
     /// Candidates tried per level before giving up (`GeneratorConfig.maxAttempts`).
@@ -391,6 +421,14 @@ let packPresets: [String: PackPreset] = [
         // Two seals.
         Tier(count: 4, colors: 6, capacity: 4, empty: 2, locks: 2, moves: 19...99, score: 45...51, locksMatter: true, strongLocks: true, section: 2),
         Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 2, moves: 21...99, score: 50...58, locksMatter: true, strongLocks: true, section: 2),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): two orders with a strong seal, after a tiny tutorial order (3 colors in size-3 flasks, the easiest of 8).
+        Tier(count: 1, colors: 3, capacity: 3, empty: 2, moves: any, pool: 8, keepEasiest: true, orders: 1,
+             orderCost: OrderImpact.minimumCost, appended: true, section: 90),
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, locks: 1, moves: any, score: 30...38, locksMatter: true,
+             strongLocks: true, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, locks: 1, moves: any, score: 38...45, locksMatter: true,
+             strongLocks: true, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 92),
     ]),
     "chapter3": PackPreset(file: "chapter_03", idPrefix: "c3", name: "Misty Marsh",
                            subtitle: "Murky potions hide what lies beneath", kind: .chapter, chapter: 3,
@@ -407,6 +445,14 @@ let packPresets: [String: PackPreset] = [
              locksMatter: true, strongLocks: true, section: 2),
         Tier(count: 4, colors: 7, capacity: 4, empty: 2, locks: 1, hidden: true, moves: 20...99, score: 49...57,
              locksMatter: true, strongLocks: true, section: 2),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): murky orders; the last one a partial order of two flasks.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, hidden: true, moves: any, score: 28...36, orders: 1,
+             orderCost: OrderImpact.strongCost, appended: true, section: 90),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 33...40, orders: 1,
+             orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 36...42, orders: 2,
+             orderCost: OrderImpact.strongCost, appended: true, section: 92),
     ]),
     "chapter4": PackPreset(file: "chapter_04", idPrefix: "c4", name: "Glyph Library",
                            subtitle: "A flask etched with a rune takes only its own color", kind: .chapter, chapter: 4,
@@ -435,6 +481,14 @@ let packPresets: [String: PackPreset] = [
              strongLocks: true, essence: 1, essenceCost: EssenceImpact.strongCost, section: 2),
         Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, hidden: true, moves: any, score: 48...57,
              locksMatter: true, strongLocks: true, essence: 1, essenceCost: EssenceImpact.strongCost, section: 2),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): two orders beside a rune, then the first layered recipe.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 28...36, essence: 1,
+             essenceCost: EssenceImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 35...42, essence: 1,
+             essenceCost: EssenceImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 2, moves: 8...16, score: 38...50, essence: 1, essenceCost: EssenceImpact.minimumCost,
+             layered: 1, appended: true, section: 92),
     ]),
     "chapter5": PackPreset(file: "chapter_05", idPrefix: "c5", name: "Glass Works",
                            subtitle: "Narrow necks, funnels and taps change how potions flow", kind: .chapter, chapter: 5,
@@ -474,6 +528,14 @@ let packPresets: [String: PackPreset] = [
              essenceCost: EssenceImpact.minimumCost, tap: 1, glassCost: GlassImpact.strongCost, section: 4),
         Tier(count: 1, colors: 7, capacity: 4, empty: 2, moves: any, score: 51...58, narrow: 1, funnel: 1, tap: 1,
              glassCost: GlassImpact.strongCost, section: 4),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): a narrow neck, a tap, and a layered recipe beside a tap.
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 34...42, narrow: 1,
+             glassCost: GlassImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 36...44, tap: 1,
+             glassCost: GlassImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 2, moves: 8...16, score: 38...50, tap: 1, glassCost: GlassImpact.minimumCost,
+             layered: 1, appended: true, section: 92),
     ]),
     "chapter6": PackPreset(file: "chapter_06", idPrefix: "c6", name: "Frost Peak",
                            subtitle: "Frozen layers wait for the thaw", kind: .chapter, chapter: 6,
@@ -512,6 +574,14 @@ let packPresets: [String: PackPreset] = [
              section: 2),
         Tier(count: 3, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...58, locksMatter: true,
              strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): one and two frozen layers, then a layered recipe with ice.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 1, moves: any, score: 30...38, frozen: 1, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 35...42, frozen: 2, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 2, moves: 8...16, score: 38...50, frozen: 1, frozenTurns: 4,
+             frozenCost: FrozenImpact.minimumCost, layered: 1, appended: true, section: 92),
     ]),
     "chapter7": PackPreset(file: "chapter_07", idPrefix: "c7", name: "Bubbling Bog",
                            subtitle: "Bubbling flasks lift their bottom layer to the top", kind: .chapter, chapter: 7,
@@ -547,6 +617,14 @@ let packPresets: [String: PackPreset] = [
              bubblingCost: BubblingImpact.strongCost, section: 2),
         Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...56, locksMatter: true,
              strongLocks: true, bubbling: 1, bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): a bubbling flask (periods 3 and 4), then a layered recipe beside one.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 30...37, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 90),
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 33...40, bubbling: 1, bubblingPeriod: 4,
+             bubblingCost: BubblingImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 2, moves: 8...16, score: 38...50, bubbling: 1, bubblingPeriod: 3,
+             bubblingCost: BubblingImpact.minimumCost, layered: 1, appended: true, section: 92),
     ]),
     "chapter8": PackPreset(file: "chapter_08", idPrefix: "c8", name: "Twin Towers",
                            subtitle: "Chained twins share every pour; pressure pipes push a full flask's bottom away",
@@ -604,6 +682,15 @@ let packPresets: [String: PackPreset] = [
         // …and 5 colors.
         Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 34...42, overflow: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, section: 2),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): twins that must split, a pressure pipe that must push, then a layered recipe fed through a pipe.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 29...36, twins: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, needsSplit: true, orders: 1, orderCost: OrderImpact.strongCost,
+             appended: true, section: 90),
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 29...36, overflow: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost, appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 2, moves: 8...16, score: 40...56, overflow: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.minimumCost, layered: 1, appended: true, section: 92),
     ]),
     "chapter9": PackPreset(file: "chapter_09", idPrefix: "c9", name: "Alchemist's Hall",
                            subtitle: "Pour one ingredient onto the other in the cauldron to brew a new potion",
@@ -641,6 +728,16 @@ let packPresets: [String: PackPreset] = [
              strongLocks: true, cauldron: 1, mixPairs: 2, scramble: 250, mixingMatter: true, section: 4),
         Tier(count: 2, colors: 8, capacity: 4, empty: 1, moves: any, score: 50...58, cauldron: 2, ingredients: .sorted,
              mixPairs: 1, scramble: 600, mixingMatter: true, section: 4),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): the customer wants the brew itself (the order takes a recipe's result); a layered recipe can't share a level with a cauldron (DECISIONS 229), so the third is layered behind a strong seal.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 1, moves: any, score: 28...36, cauldron: 1, ingredients: .fresh,
+             mixPairs: 2, scramble: 60, mixingMatter: true, orders: 1, orderCost: OrderImpact.strongCost,
+             appended: true, section: 90),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 36...44, cauldron: 1, ingredients: .sorted,
+             mixPairs: 1, scramble: 60, mixingMatter: true, orders: 1, orderCost: OrderImpact.strongCost,
+             appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 1, locks: 1, moves: 8...16, score: 38...50, locksMatter: true, strongLocks: true,
+             layered: 1, appended: true, section: 92),
     ]),
     "chapter10": PackPreset(file: "chapter_10", idPrefix: "c10", name: "Dragon's Hoard",
                             subtitle: "Fill a switch flask with one potion to lift its gate",
@@ -708,6 +805,16 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 1, colors: 6, capacity: 4, empty: 1, moves: any, pool: 2, score: 43...52, cauldron: 2, mixPairs: 2,
              scramble: 300, mixingMatter: true, switches: 1, switchPlacement: .closed,
              switchCost: SwitchImpact.strongCost, section: 5),
+        // R7 customer orders (DECISIONS 229-236), appended after every earlier section so the recipes
+        // above keep their ids and content (`--append`): behind a closed gate, twice, then a layered recipe beside a switch.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, score: 28...36, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost,
+             appended: true, section: 90),
+        Tier(count: 1, colors: 5, capacity: 4, empty: 2, moves: any, score: 36...44, switches: 1,
+             switchPlacement: .closed, switchCost: SwitchImpact.strongCost, orders: 1, orderCost: OrderImpact.strongCost,
+             appended: true, section: 91),
+        Tier(count: 1, colors: 3, capacity: 4, empty: 2, moves: 8...16, score: 38...50, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.minimumCost, layered: 1, appended: true, section: 92),
     ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
@@ -736,9 +843,13 @@ let packPresets: [String: PackPreset] = [
 ]
 let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "chapter9", "chapter10", "challenger", "expert", "master"]
 
-func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
+/// `fromTier` > 0 generates only tiers `fromTier...` (their seeds as in a full run), numbered
+/// after `firstNumber - 1` existing levels: the same result as a full run when those tiers sort
+/// into sections of their own after every earlier tier (R7 order recipes, `--append`).
+func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?,
+              fromTier: Int = 0, firstNumber: Int = 1) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
-    for (t, tier) in tiers.enumerated() {
+    for (t, tier) in tiers.enumerated() where t >= fromTier {
         // Separate seed space per tier, so editing one tier doesn't change the others.
         let config = GeneratorConfig(colors: tier.colors, capacity: tier.capacity, emptyBottles: tier.empty,
                                      locks: tier.locks, seed: seed &+ UInt64(t) * 1_000_000, minMoves: tier.moves,
@@ -763,7 +874,9 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      ingredients: tier.ingredients, mixPairs: tier.mixPairs, scramble: tier.scramble,
                                      requireMixing: tier.mixingMatter, switches: tier.switches,
                                      switchPlacement: tier.switchPlacement, requireSwitchMatter: tier.switchCost != nil,
-                                     switchCost: tier.switchCost ?? SwitchImpact.minimumCost, maxAttempts: tier.maxAttempts)
+                                     switchCost: tier.switchCost ?? SwitchImpact.minimumCost,
+                                     orders: tier.orders, layered: tier.layered, requireOrderMatter: tier.orderCost != nil,
+                                     orderCost: tier.orderCost ?? OrderImpact.minimumCost, maxAttempts: tier.maxAttempts)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -818,7 +931,7 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
     // Sort by score within each section, so difficulty rises through the whole pack.
     return all.sorted { ($0.section, $0.level.report.score, $0.level.seed) < ($1.section, $1.level.report.score, $1.level.seed) }
         .enumerated().map { i, entry in
-            LevelDefinition(id: String(format: "%@_%03d", idPrefix, i + 1), state: entry.level.state,
+            LevelDefinition(id: String(format: "%@_%03d", idPrefix, i + firstNumber), state: entry.level.state,
                             hidden: entry.hidden, meta: LevelMeta(seed: entry.level.seed, report: entry.level.report))
         }
 }
@@ -849,6 +962,7 @@ func bench() {
     let links = linkOptions()
     let mix = cauldronOptions()
     let switches = switchOptions()
+    let goal = orderOptions()
     let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks,
                                  essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"),
                                  narrowNecks: int("--narrow", default: 0)!, funnels: int("--funnel", default: 0)!,
@@ -857,7 +971,8 @@ func bench() {
                                  twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption(),
                                  cauldron: mix.recipes > 0 ? 1 : 0, recipes: max(1, mix.recipes), ingredients: mix.ingredients,
                                  mixPairs: mix.pairs, scramble: mix.scramble,
-                                 switches: switches.count, switchPlacement: switches.placement)
+                                 switches: switches.count, switchPlacement: switches.placement,
+                                 orders: goal.orders, layered: goal.layered)
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
@@ -939,6 +1054,18 @@ if let path = options["--report"] {
             let seed = options["--seed"].map { _ in UInt64(int("--seed")!) } ?? preset.seed
             let template = LevelPack(name: preset.name, subtitle: preset.subtitle, kind: preset.kind, chapter: preset.chapter,
                                      location: preset.location, introduces: preset.introduces, levels: [])
+            if flags.contains("--append") {
+                // R7: keep the file's recipes byte for byte and generate only the appended tiers
+                // (the first one in a section after every earlier section), numbered after them.
+                guard let first = preset.tiers.firstIndex(where: { $0.appended }) else { fail("\(n) has no appended tiers") }
+                let existing: LevelPack
+                do { existing = try LevelLoader.load(contentsOf: URL(fileURLWithPath: out)) } catch { fail("\(out): \(error)") }
+                let kept = existing.levels.filter { !$0.isCustomerOrder }
+                let added = generate(tiers: preset.tiers, seed: seed, idPrefix: options["--id-prefix"] ?? preset.idPrefix,
+                                     scoreRange: scores, fromTier: first, firstNumber: kept.count + 1)
+                write(kept + added, to: out, pack: template)
+                continue
+            }
             write(generate(tiers: preset.tiers, seed: seed, idPrefix: options["--id-prefix"] ?? preset.idPrefix, scoreRange: scores),
                   to: out, pack: template)
         }
@@ -963,6 +1090,8 @@ if let path = options["--report"] {
         let linkCost = int("--link-cost") ?? (flags.contains("--links-matter") ? LinkImpact.minimumCost : nil)
         let switches = switchOptions()
         let switchCost = int("--switch-cost") ?? (flags.contains("--switch-matter") ? SwitchImpact.minimumCost : nil)
+        let goal = orderOptions()
+        let orderCost = int("--order-cost") ?? (flags.contains("--order-matter") ? OrderImpact.minimumCost : nil)
         let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
                         empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
                         pool: int("--pool", default: 1)!, locksMatter: flags.contains("--locks-matter"),
@@ -976,7 +1105,8 @@ if let path = options["--report"] {
                         mixPairs: mix.pairs, scramble: mix.scramble, mixingMatter: flags.contains("--mixing-matter"),
                         teachesMixing: flags.contains("--teaches-mixing"), switches: switches.count,
                         switchPlacement: switches.placement, switchCost: switchCost,
-                        teachesSwitch: flags.contains("--teaches-switch"))
+                        teachesSwitch: flags.contains("--teaches-switch"), orders: goal.orders, layered: goal.layered,
+                        orderCost: orderCost)
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }
             return k

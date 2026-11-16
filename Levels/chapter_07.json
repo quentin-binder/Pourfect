@@ -1279,6 +1279,147 @@
         "seed" : 11012134,
         "statesExplored" : 87149
       }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 3, 3, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 1, 0, 1]
+        },
+        {
+          "layers" : [2, 3, 3, 0]
+        },
+        {
+          "layers" : [2, 0, 1, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 1,
+            "layers" : [1, 1, 1, 1]
+          }
+        ],
+        "type" : "order"
+      },
+      "id" : "c7_031",
+      "meta" : {
+        "branchingFactor" : 6.45,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 33.1,
+        "seed" : 12012793,
+        "statesExplored" : 6089
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 1, 1]
+        },
+        {
+          "layers" : [0, 3, 3, 0],
+          "modifiers" : [
+            {
+              "every" : 4,
+              "phase" : 2,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [2, 0, 2, 3]
+        },
+        {
+          "layers" : [0, 2, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 2,
+            "layers" : [3, 3, 3, 3]
+          }
+        ],
+        "type" : "order"
+      },
+      "id" : "c7_032",
+      "meta" : {
+        "branchingFactor" : 5.42,
+        "deadEndRatio" : 0,
+        "minMoves" : 12,
+        "score" : 34.1,
+        "seed" : 13012644,
+        "statesExplored" : 7895
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 0, 2],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [1, 0, 2, 1]
+        },
+        {
+          "layers" : [1, 2, 0, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "goal" : {
+        "targets" : [
+          {
+            "bottle" : 0,
+            "layers" : [0, 2, 0, 0]
+          }
+        ],
+        "type" : "pattern"
+      },
+      "id" : "c7_033",
+      "meta" : {
+        "branchingFactor" : 4.7,
+        "deadEndRatio" : 0.349,
+        "minMoves" : 10,
+        "score" : 42.6,
+        "seed" : 14012023,
+        "statesExplored" : 1830
+      }
     }
   ],
   "location" : "Bubbling Bog",
