@@ -38,14 +38,17 @@ enum FeedbackPlayer {
             // The portcullis slides up (or drops) as the gate changes (`GatePose`).
             if sound { engine.play(opened ? .gateOpen : .gateShut) }
             if haptics { Haptics.gate(opened: opened) }
+        case .refusedPipe:
+            if sound { engine.play(.brassKnock) }
+            if haptics { Haptics.illegal() }
         case .split:
             // The chain chimes softly as the stream forks between the twins.
             if sound { engine.play(.chainRattle, after: reduceMotion ? 0 : PourPose.flowStart, volume: 0.45) }
-        case .overflow(_, let start):
-            // The rest runs through the pipe once the full flask's share has gone in.
+        case .push(_, let start):
+            // The push starts once the flask is full: the pipe thumps, the layers glug through.
             let delay = reduceMotion ? 0.05 : PourPose.flowStart + start * (PourPose.flowEnd - PourPose.flowStart)
-            if sound { engine.play(.pipeGlug, after: delay) }
-            if haptics { delayed(delay + 0.25) { Haptics.overflow() } }
+            if sound { engine.play(.pipePush, after: delay) }
+            if haptics { delayed(delay) { Haptics.push() } }
         case .pour(_, _, let amount, let isKey, let fromBottom):
             // Liquid starts moving at `flowStart` (immediately with reduce motion).
             let flowStart = reduceMotion ? 0 : PourPose.flowStart

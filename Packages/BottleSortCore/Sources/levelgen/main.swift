@@ -122,7 +122,7 @@ func linkPlacementOption() -> LinkPlacement {
     return placement
 }
 
-/// `--twins N` and `--overflow N` (twin pairs and overflow pipes), both ≥ 0.
+/// `--twins N` and `--overflow N` (twin pairs and pressure pipes, `Link.overflow`), both ≥ 0.
 func linkOptions() -> (twins: Int, overflow: Int) {
     let twins = int("--twins", default: 0)!, overflow = int("--overflow", default: 0)!
     guard twins >= 0, overflow >= 0 else { fail("--twins and --overflow must not be negative") }
@@ -237,7 +237,7 @@ func glassSummary(_ state: GameState) -> String {
     return parts.isEmpty ? "-" : parts.joined()
 }
 
-/// Twin pairs, overflow pipes and switches of a level as "tT oO sS" letters (e.g. "t1o1",
+/// Twin pairs, pressure pipes and switches of a level as "tT oO sS" letters (e.g. "t1o1",
 /// "s2"; "-" for none).
 func linkSummary(_ state: GameState) -> String {
     let t = state.links.filter { if case .twins = $0 { return true } else { return false } }.count
@@ -287,12 +287,12 @@ struct Tier {
     var bubblingPeriod = 3
     /// Moves each bubbling flask must change (`BubblingImpact`); nil = no must-matter check.
     var bubblingCost: Int? = nil
-    /// Twin pairs (F1) and overflow pipes (F2) per level, and which flasks they go on.
+    /// Twin pairs (F1) and pressure pipes (F2) per level, and which flasks they go on.
     var twins = 0
     var overflow = 0
     var linkPlacement: LinkPlacement = .any
-    /// Moves each link must change (`LinkImpact`; an overflow pipe may instead set a spill
-    /// trap); nil = no must-matter check.
+    /// Moves each link must change (`LinkImpact`: either way for twins; a pressure pipe must
+    /// save that many, so every optimal solution pushes); nil = no must-matter check.
     var linkCost: Int? = nil
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
@@ -305,7 +305,7 @@ struct Tier {
     /// no first move is a dead end (`MechanicImpact.everyFirstMoveSolvable`).
     var teachesBubbling = false
     /// Link tutorial: an optimal solution needs no relocation and uses every link (a split
-    /// pour, a pour through each pipe; `LinkImpact.solvesUsingEveryLink`), and no first move
+    /// pour, a push through each pipe; `LinkImpact.solvesUsingEveryLink`), and no first move
     /// is a dead end (`MechanicImpact.everyFirstMoveSolvable`).
     var teachesLinks = false
     /// Every optimal solution pours into the twins (`GeneratorConfig.requireSplit`): the
@@ -547,9 +547,12 @@ let packPresets: [String: PackPreset] = [
              strongLocks: true, bubbling: 1, bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
     ]),
     "chapter8": PackPreset(file: "chapter_08", idPrefix: "c8", name: "Twin Towers",
-                           subtitle: "Chained twins share every pour; overflow pipes catch what doesn't fit",
+                           subtitle: "Chained twins share every pour; pressure pipes push a full flask's bottom away",
                            kind: .chapter, chapter: 8, location: "Twin Towers", introduces: [.twins, .overflow],
                            seed: 13_000, tiers: [
+        // Tier indices fix each tier's seeds (`generate`): the twin tiers (0–5, 7, 9–11) keep their
+        // places so their recipes stay the same; the pressure-pipe tiers (6, 8, 12, 13, 14) were
+        // rebuilt for the push rule (DECISIONS 212–215).
         // Tutorial: 3 colors in size-3 flasks; two of the three empty flasks are chained twins; the chain
         // costs 2+ moves, an optimal solution splits a pour into the twins without parking a flask, and
         // no first move is a dead end.
@@ -567,16 +570,16 @@ let packPresets: [String: PackPreset] = [
              linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
         Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 37...45, twins: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
-        // Overflow pipes (from a filled flask into an empty one; a pipe matters by the spill trap it
-        // sets, DECISIONS 181): 6 colors in size-3 flasks.
-        Tier(count: 5, colors: 6, capacity: 3, empty: 2, moves: any, overflow: 1, linkPlacement: .mixed,
+        // Pressure pipes between two filled flasks: without the pipe every recipe takes 2+ more moves
+        // (or can't be solved), so every optimal solution pushes. 4 colors…
+        Tier(count: 2, colors: 4, capacity: 4, empty: 2, moves: any, score: 26...34, overflow: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, section: 2),
         // With earlier mechanics: murky twins and pipes, twins with a strong seal (one empty flask, or
         // two with 6 colors).
         Tier(count: 3, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 38...46, twins: 1,
              linkPlacement: .filled, linkCost: LinkImpact.strongCost, needsSplit: true, section: 3),
-        Tier(count: 2, colors: 6, capacity: 3, empty: 2, hidden: true, moves: any, overflow: 1, linkPlacement: .mixed,
-             linkCost: LinkImpact.strongCost, section: 3),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 40...48, overflow: 1,
+             linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
         Tier(count: 3, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 38...48, locksMatter: true,
              strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost,
              needsSplit: true, section: 3),
@@ -586,10 +589,19 @@ let packPresets: [String: PackPreset] = [
         // The hardest: 7 colors, twins on two filled flasks.
         Tier(count: 2, colors: 7, capacity: 4, empty: 2, moves: any, score: 50...57, twins: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, needsSplit: true, section: 3),
-        // The finale, both links in one recipe: a twin chain and a pipe, each mattering on its own, and
-        // the split needed (rare: ~1 candidate in 1000). Its own last section, so the chapter ends with both.
-        Tier(count: 2, colors: 6, capacity: 3, empty: 2, moves: any, twins: 1, overflow: 1, linkPlacement: .any,
+        // The finale, both links in one recipe: a twin chain and a pressure pipe, each mattering on its
+        // own (the split and the push both needed). Its own last section, so the chapter ends with both.
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 46...56, twins: 1, overflow: 1, linkPlacement: .filled,
              linkCost: LinkImpact.strongCost, needsSplit: true, section: 4, maxAttempts: 8_000),
+        // Pipe tutorial, first of the pipe section: 3 colors in size-3 flasks, one empty flask, a pipe
+        // from a filled flask into the empty one (`.mixed`); the pipe saves 2+ moves (the shipped one is
+        // unsolvable without it), an optimal solution pushes without parking a flask, and no first move
+        // is a dead end.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 1, moves: any, pool: 16, overflow: 1, linkPlacement: .mixed,
+             linkCost: LinkImpact.strongCost, keepEasiest: true, teachesLinks: true, section: 2),
+        // …and 5 colors.
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 34...42, overflow: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, section: 2),
     ]),
     "chapter9": PackPreset(file: "chapter_09", idPrefix: "c9", name: "Alchemist's Hall",
                            subtitle: "Pour one ingredient onto the other in the cauldron to brew a new potion",

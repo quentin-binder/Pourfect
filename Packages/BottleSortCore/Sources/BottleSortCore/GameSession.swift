@@ -17,7 +17,8 @@
 /// together with the full `GameState` (modifiers, seals and any counter, e.g. the thaw
 /// counters of frozen layers, D1: they live in the state's modifiers, so undo restores them
 /// and a thawed layer freezes again; likewise the phases of bubbling flasks, D2). Links
-/// (twins, overflow pipes) are static and travel with the state. A cauldron (E1) has no
+/// (twins, pressure pipes) are static and travel with the state; a push moves the hidden
+/// flags with the pushed layers (`masks(_:after:)`). A cauldron (E1) has no
 /// counter either: undo restores the layers as they were before they mixed. Mixing never
 /// touches a hidden layer (it changes only the cauldron's top run, which is in view, and the
 /// layers that just landed), and keeps the layer count, so the masks need no extra step.
@@ -110,8 +111,10 @@ public struct GameSession: Sendable {
     }
 
     /// The hidden flags after `turn`: the poured layers leave the source at the end the
-    /// event names, land visible on the target and on every bottle they were shared with (a
-    /// twin, the far end of an overflow pipe; `PourEvent.landings`; nothing lands when a key
+    /// event names; a push (F2, `PourEvent.push`) moves the target's bottom flags into the
+    /// bottom of the pipe's far end (`Rules.pushed`: a pushed layer keeps its flag, so a
+    /// hidden layer stays hidden down there); the poured layers land visible on the target and
+    /// on a twin they were shared with (`PourEvent.landings`; nothing lands when a key
     /// opened a seal and was used up), each bubbled flask's bottom flag moves to its top (`Rules.bubbledUp`), then every
     /// layer in view is revealed. A bottle whose layer count no longer
     /// matches (a later mechanic changing layers some other way) keeps its flags from the
@@ -124,6 +127,13 @@ public struct GameSession: Sendable {
                 masks[pour.move.from].removeFirst(amount)
             } else {
                 masks[pour.move.from].removeLast(amount)
+            }
+            // F2: a push moves the target's bottom flags into the far end's bottom with their
+            // layers (hidden stays hidden, revealed stays revealed), before the pour lands.
+            if let push = pour.push, masks.indices.contains(push.bottle) {
+                let moved = Rules.pushed(from: masks[pour.move.to], into: masks[push.bottle], count: push.amount)
+                masks[pour.move.to] = moved.from
+                masks[push.bottle] = moved.into
             }
             for landing in pour.landings where masks.indices.contains(landing.bottle) {
                 masks[landing.bottle] += Array(repeating: false, count: landing.amount)

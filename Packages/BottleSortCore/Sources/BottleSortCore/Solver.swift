@@ -152,7 +152,7 @@ public struct Solver: Sendable {
     /// and phase if they bubble) give permuted states before and after the timed step
     /// (DECISIONS 172).
     ///
-    /// Links (twins F1, overflow pipes F2; static, no counter): a pour into a linked flask
+    /// Links (twins F1, pressure pipes F2; static, no counter): a pour into a linked flask
     /// goes through the link (`Rules.actionPlan`), and a linked flask is never *alike* any
     /// other: an empty linked flask is a target of its own (rule 3 never skips it, and its
     /// presence turns rule 1 off), and a linked source is never relocated (rules 1 and 2:
@@ -161,7 +161,10 @@ public struct Solver: Sendable {
     /// same state (both get `k`, the source loses `2k`; legality is symmetric, and pouring
     /// from one twin into the other is illegal both ways), so only the twin with the lower
     /// index is tried. With a timed modifier and a link together every legal move is tried
-    /// (no level combines them yet; DECISIONS 179).
+    /// (no level combines them yet; DECISIONS 179). Pressure-pipe pushes (DECISIONS 215) make
+    /// a full flask a target, but only the pipe's own flask, which is linked and never skipped;
+    /// a push moves layers without changing color counts, so rule 1's premise still holds, and
+    /// rules 2 and 3 only touch unlinked flasks: no rule changed.
     ///
     /// Switches and gates (A3; no stored state, the gate follows its switch): both ends are
     /// linked flasks, so the link rules above already cover them, and they are safe. A switch

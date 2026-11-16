@@ -6,9 +6,11 @@ import SwiftUI
 //
 // - Twin flasks (F1): each twin wears a silver band around its shoulder with a ring on either
 //   side (`TwinBand`), and a silver chain hangs between the rings of the two (`ChainView`).
-// - Overflow pipe (F2): a glass tube with brass fittings rises from the rim of the first flask
-//   and comes down over the mouth of the second, a brass arrow on it pointing the way
-//   (`PipeView`). Overflowing potion runs through it (`PipeGeometry.path`, drawn by the pour).
+// - Pressure pipe (F2): a brass pipe leaves a spout under the first flask's base, runs along the
+//   floor under the flasks and enters a spout under the second's base, a brass arrow on it
+//   pointing the way (`PipeView`). Pushed layers run through it (`PipeGeometry.path`, drawn by
+//   the pour). It is drawn behind the flasks, so where it crosses to another row it passes
+//   behind the glass.
 //
 // All sizes follow the flask width `w`. Everything here is drawn with paths, which aren't
 // clipped by their frame, so a link may reach outside the view it sits in.
@@ -156,89 +158,120 @@ struct ChainView: View {
     }
 }
 
-// MARK: Overflow pipe
+// MARK: Pressure pipe
 
-/// Where an overflow pipe runs: from the rim of flask `a` on the side facing `b`, up and over,
-/// and down onto `b`'s mouth (its end points straight down, a little off center, so a stream
-/// poured into `b` from above still has room).
+/// Where a pressure pipe runs: out of a brass spout under flask `a`'s base, down to the floor,
+/// along the floor under the flasks and up into a spout under flask `b`'s base. Flasks in
+/// different rows: along `a`'s floor to the gap beside `b`, down (or up) that gap to `b`'s
+/// floor, then under `b`. A polyline with rounded corners, so liquid can run along it
+/// (`path`, trimmed) and the arrow sits on its longest level run.
 struct PipeGeometry {
-    let start: CGPoint
-    let end: CGPoint
-    let control1: CGPoint
-    let control2: CGPoint
+    /// Corner points from `a`'s spout to `b`'s spout.
+    let points: [CGPoint]
     /// Tube width.
     let tube: CGFloat
 
-    init(from a: CGRect, to b: CGRect) {
+    /// `a`, `b`: the flasks' frames at rest; `liftA` / `liftB`: how far each is raised (picked
+    /// up): its spout rises with it and the pipe stretches, its run along the floor stays put.
+    init(from a: CGRect, to b: CGRect, liftA: CGFloat = 0, liftB: CGFloat = 0) {
         let w = a.width
-        let dir: CGFloat = abs(b.midX - a.midX) < 1 ? 1 : (b.midX > a.midX ? 1 : -1)
-        start = CGPoint(x: a.midX + dir * w * 0.40, y: a.minY - w * 0.05)
-        end = CGPoint(x: b.midX - dir * b.width * 0.16, y: b.minY - b.width * 0.16)
-        let lift = w * 0.72 + max(0, start.y - end.y) * 0.3
-        let top = min(start.y, end.y) - lift
-        control1 = CGPoint(x: start.x + dir * w * 0.05, y: top)
-        control2 = CGPoint(x: end.x, y: top - w * 0.05)
-        tube = max(5, w * 0.16)
-    }
-
-    var path: Path {
-        Path { p in
-            p.move(to: start)
-            p.addCurve(to: end, control1: control1, control2: control2)
+        tube = max(5, w * 0.15)
+        let drop = Self.drop(w)
+        let floorA = a.maxY + drop, floorB = b.maxY + drop
+        let start = CGPoint(x: a.midX, y: a.maxY - liftA + tube * 0.2)
+        let end = CGPoint(x: b.midX, y: b.maxY - liftB + tube * 0.2)
+        if abs(floorA - floorB) < 1 {
+            points = [start, CGPoint(x: a.midX, y: floorA), CGPoint(x: b.midX, y: floorB), end]
+        } else {
+            // The gap beside `b` on the side facing `a` (the right side if `a` stands above or below).
+            let side: CGFloat = abs(b.midX - a.midX) < w * 0.5 ? 1 : (a.midX > b.midX ? 1 : -1)
+            let gap = b.midX + side * (b.width / 2 + max(7, b.width * 0.13))
+            points = [start, CGPoint(x: a.midX, y: floorA), CGPoint(x: gap, y: floorA),
+                      CGPoint(x: gap, y: floorB), CGPoint(x: b.midX, y: floorB), end]
         }
     }
 
-    /// Point and direction (radians) at `t` along the curve (0 = start).
-    func point(at t: CGFloat) -> (CGPoint, CGFloat) {
-        let u = 1 - t
-        let x = u * u * u * start.x + 3 * u * u * t * control1.x + 3 * u * t * t * control2.x + t * t * t * end.x
-        let y = u * u * u * start.y + 3 * u * u * t * control1.y + 3 * u * t * t * control2.y + t * t * t * end.y
-        let dx = 3 * u * u * (control1.x - start.x) + 6 * u * t * (control2.x - control1.x) + 3 * t * t * (end.x - control2.x)
-        let dy = 3 * u * u * (control1.y - start.y) + 6 * u * t * (control2.y - control1.y) + 3 * t * t * (end.y - control2.y)
-        return (CGPoint(x: x, y: y), atan2(dy, dx))
+    /// How far below the flasks' bases the pipe runs along the floor (room the board keeps
+    /// under a row with a pipe: `room`).
+    static func drop(_ w: CGFloat) -> CGFloat { w * 0.26 }
+    /// Room under a flask's base for its pipe (the drop plus half a tube and the shadow).
+    static func room(_ w: CGFloat) -> CGFloat { drop(w) + max(5, w * 0.15) * 0.5 + 4 }
+
+    var start: CGPoint { points[0] }
+    var end: CGPoint { points[points.count - 1] }
+
+    var path: Path {
+        Path { p in
+            let r = tube * 1.1
+            p.move(to: points[0])
+            for i in 1..<points.count - 1 {
+                // Round each corner, never more than half of either leg.
+                let legs = min(hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y),
+                               hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y))
+                p.addArc(tangent1End: points[i], tangent2End: points[i + 1], radius: min(r, legs / 2))
+            }
+            p.addLine(to: points[points.count - 1])
+        }
+    }
+
+    /// The middle of the longest level run and the way the potion flows there (radians).
+    var arrow: (CGPoint, CGFloat) {
+        var best = (CGPoint(x: (start.x + end.x) / 2, y: (start.y + end.y) / 2), CGFloat(0)), length: CGFloat = -1
+        for i in 1..<points.count {
+            let p = points[i - 1], q = points[i]
+            guard abs(p.y - q.y) < 0.5, abs(q.x - p.x) > length else { continue }
+            length = abs(q.x - p.x)
+            best = (CGPoint(x: (p.x + q.x) / 2, y: p.y), q.x >= p.x ? 0 : .pi)
+        }
+        return best
     }
 }
 
-/// The overflow pipe at rest: a glass tube with a brass clamp on the first flask's rim, a brass
-/// nozzle over the second's mouth, and a brass arrow halfway along pointing the way.
+/// The pressure pipe at rest: a brass tube with a spout under each flask's base (a brass
+/// collar under the first, a flared inlet under the second) and a brass arrow on its floor run
+/// pointing the way the bottom layers are pushed. `flare` 0…1 brightens it (it refused a pour).
 struct PipeView: View {
     let geometry: PipeGeometry
+    var flare: Double = 0
 
     var body: some View {
         let g = geometry
         let path = g.path
-        let (mid, angle) = g.point(at: 0.5)
+        let (mid, angle) = g.arrow
         ZStack {
-            // Glass like the flasks': a light outline, a smoky inside, a highlight along the top.
-            path.stroke(Color.black.opacity(0.45), style: StrokeStyle(lineWidth: g.tube + 3, lineCap: .butt))
-            path.stroke(Color.white.opacity(0.5), style: StrokeStyle(lineWidth: g.tube + 1.5, lineCap: .butt))
-            path.stroke(Color(white: 0.1), style: StrokeStyle(lineWidth: g.tube - 1, lineCap: .butt))
-            path.stroke(Color.white.opacity(0.08), style: StrokeStyle(lineWidth: g.tube - 1, lineCap: .butt))
-            path.stroke(.white.opacity(0.4), style: StrokeStyle(lineWidth: max(1, g.tube * 0.16), lineCap: .round))
-                .offset(x: -g.tube * 0.16, y: -g.tube * 0.2)
-            fitting(at: g.start, angle: 0, length: g.tube * 1.9, thickness: g.tube * 0.9)
-            fitting(at: g.end, angle: .pi / 2, length: g.tube * 1.15, thickness: g.tube * 1.45)
-            PipeArrow(size: g.tube * 2.4)
+            // Brass: a dark rim, the metal, a light streak along the top.
+            path.stroke(Brass.dark, style: StrokeStyle(lineWidth: g.tube + 2, lineCap: .butt, lineJoin: .round))
+            path.stroke(Brass.mid, style: StrokeStyle(lineWidth: g.tube, lineCap: .butt, lineJoin: .round))
+            path.stroke(Color(white: 0.08).opacity(0.55),
+                        style: StrokeStyle(lineWidth: g.tube * 0.5, lineCap: .butt, lineJoin: .round))
+            path.stroke(Brass.light.opacity(0.75 + 0.25 * flare),
+                        style: StrokeStyle(lineWidth: max(1, g.tube * 0.16), lineCap: .round, lineJoin: .round))
+                .offset(x: -g.tube * 0.12, y: -g.tube * 0.22)
+            spout(at: g.start, width: g.tube * 1.9, height: g.tube * 0.85)
+            spout(at: g.end, width: g.tube * 2.2, height: g.tube * 0.85)
+            PipeArrow(size: g.tube * 2.2)
                 .rotationEffect(.radians(Double(angle)))
                 .position(mid)
         }
+        .shadow(color: .black.opacity(0.4), radius: 1.5, y: 1)
+        .shadow(color: Brass.light.opacity(0.8 * flare), radius: 6 * flare)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
 
-    /// A brass ring around the tube: `length` along `angle`, `thickness` across.
-    private func fitting(at point: CGPoint, angle: CGFloat, length: CGFloat, thickness: CGFloat) -> some View {
-        RoundedRectangle(cornerRadius: thickness * 0.3)
-            .fill(LinearGradient(colors: [Brass.light, Brass.mid, Brass.dark], startPoint: .top, endPoint: .bottom))
-            .overlay(RoundedRectangle(cornerRadius: thickness * 0.3).stroke(Brass.dark, lineWidth: 0.8))
-            .frame(width: length, height: thickness)
-            .rotationEffect(.radians(Double(angle)))
-            .position(point)
+    /// A brass spout under a flask's base: a flange where the pipe meets the glass.
+    private func spout(at point: CGPoint, width: CGFloat, height: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: height * 0.35)
+            .fill(LinearGradient(colors: [flare > 0 ? .white : Brass.light, Brass.mid, Brass.dark],
+                                 startPoint: .top, endPoint: .bottom))
+            .overlay(RoundedRectangle(cornerRadius: height * 0.35).stroke(Brass.dark, lineWidth: 0.8))
+            .frame(width: width, height: height)
+            .position(x: point.x, y: point.y + height * 0.15)
     }
 }
 
 /// The brass arrowhead on a pipe, pointing right (turn it along the pipe).
-private struct PipeArrow: View {
+struct PipeArrow: View {
     let size: CGFloat
 
     var body: some View {
@@ -325,7 +358,11 @@ struct LinkView: View, Animatable {
         case .twins:
             ChainView(a: a, b: b, flare: flare)
         case .overflow:
-            PipeView(geometry: PipeGeometry(from: a, to: b))
+            // The floor run stays put; only the spout of a raised flask rises with it.
+            PipeView(geometry: PipeGeometry(from: self.a.offsetBy(dx: ShakeEffect.offset(shakeA), dy: 0),
+                                            to: self.b.offsetBy(dx: ShakeEffect.offset(shakeB), dy: 0),
+                                            liftA: liftA, liftB: liftB),
+                     flare: flare)
         case .switchGate:
             LeverView(geometry: LeverGeometry(switch: a, gate: b, gateRise: gateRise),
                       open: open, slides: slides, flare: flare, switchAway: switchAway,
@@ -336,8 +373,9 @@ struct LinkView: View, Animatable {
 
 // MARK: Tips
 
-/// Two flasks side by side with their link, for the tips: twins on a chain, a pipe from the
-/// first to the second, or a switch (first) and its gate (drawn with `BottleView`, like every tip). Both flasks hold 4 layers.
+/// Two flasks side by side with their link, for the tips: twins on a chain, a pressure pipe
+/// from the first's base to the second's, or a switch (first) and its gate (drawn with
+/// `BottleView`, like every tip). Both flasks hold 4 layers.
 /// `firstSelected`: the first flask is picked up (it rises, and its chain follows).
 struct LinkedPair: View {
     /// `.switchGate`: the first flask is the switch, the second its gate (open while the switch
@@ -356,22 +394,38 @@ struct LinkedPair: View {
         let h = BottleView.height(width: width, capacity: first.capacity)
         let a = CGRect(x: 0, y: 0, width: width, height: h)
         let b = CGRect(x: width + spacing, y: 0, width: width, height: h)
+        HStack(alignment: .bottom, spacing: spacing) {
+            BottleView(bottle: first, width: width, isSelected: firstSelected, twin: kind == .twins)
+            BottleView(bottle: second, width: width, isSelected: secondSelected, twin: kind == .twins)
+        }
+        .background(alignment: .topLeading) {
+            // A pipe runs behind the flasks (`GameView`), a chain or a lever in front of them.
+            if kind == .pipe { link(a, b, h) }
+        }
+        .overlay(alignment: .topLeading) {
+            if kind != .pipe { link(a, b, h) }
+        }
+        // Room for the lever's arch above the rims, and for the pipe under the bases.
+        .padding(.top, kind == .switchGate ? width * 0.7 : 0)
+        .padding(.bottom, kind == .pipe ? PipeGeometry.room(width) : 0)
+    }
+
+    private func link(_ a: CGRect, _ b: CGRect, _ h: CGFloat) -> some View {
         let link: BottleSortCore.Link = switch kind {
         case .twins: .twins(0, 1)
         case .pipe: .overflow(from: 0, to: 1)
         case .switchGate: .switchGate(switch: 0, gate: 1)
         }
-        HStack(alignment: .bottom, spacing: spacing) {
-            BottleView(bottle: first, width: width, isSelected: firstSelected, twin: kind == .twins)
-            BottleView(bottle: second, width: width, isSelected: secondSelected, twin: kind == .twins)
-        }
-        .overlay(alignment: .topLeading) {
-            LinkView(link: link, a: a, b: b, liftA: firstSelected ? width * 0.3 : 0,
-                     liftB: secondSelected ? width * 0.3 : 0,
-                     open: Rules.isSwitchOn(first) ? 1 : 0, gateRise: GlassParts(second).rise(width))
-                .frame(width: 2 * width + spacing, height: h, alignment: .topLeading)
-        }
-        // Room for the pipe's or the lever's arch above the rims.
-        .padding(.top, kind == .twins ? 0 : width * (kind == .switchGate ? 0.7 : 0.5))
+        return LinkView(link: link, a: a, b: b, liftA: firstSelected ? width * 0.3 : 0,
+                        liftB: secondSelected ? width * 0.3 : 0,
+                        open: Rules.isSwitchOn(first) ? 1 : 0, gateRise: GlassParts(second).rise(width))
+            .frame(width: 2 * width + spacing, height: h, alignment: .topLeading)
+    }
+}
+
+extension BottleSortCore.Link {
+    /// A pressure pipe (`overflow`, F2): drawn behind the flasks, along the floor.
+    var isPipe: Bool {
+        if case .overflow = self { return true } else { return false }
     }
 }

@@ -486,25 +486,13 @@
     {
       "bottles" : [
         {
-          "layers" : [1, 4, 3]
+          "layers" : [2, 0, 0]
         },
         {
-          "layers" : [2, 5, 5]
+          "layers" : [1, 0, 1]
         },
         {
-          "layers" : [0, 0, 3]
-        },
-        {
-          "layers" : [2, 4, 3]
-        },
-        {
-          "layers" : [2, 1, 4]
-        },
-        {
-          "layers" : [0, 5, 1]
-        },
-        {
-          "layers" : []
+          "layers" : [2, 2, 1]
         },
         {
           "layers" : []
@@ -515,38 +503,32 @@
       "links" : [
         {
           "from" : 1,
-          "to" : 6,
+          "to" : 3,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 6.15,
-        "deadEndRatio" : 0.023,
-        "minMoves" : 13,
-        "score" : 35.2,
-        "seed" : 6014475,
-        "statesExplored" : 4466
+        "branchingFactor" : 2.25,
+        "deadEndRatio" : 0,
+        "minMoves" : 4,
+        "score" : 10.8,
+        "seed" : 13013035,
+        "statesExplored" : 14
       }
     },
     {
       "bottles" : [
         {
-          "layers" : [1, 5, 4]
+          "layers" : [3, 2, 0, 0]
         },
         {
-          "layers" : [1, 2, 3]
+          "layers" : [1, 2, 2, 1]
         },
         {
-          "layers" : [2, 3, 0]
+          "layers" : [3, 0, 3, 0]
         },
         {
-          "layers" : [0, 0, 5]
-        },
-        {
-          "layers" : [1, 4, 5]
-        },
-        {
-          "layers" : [2, 4, 3]
+          "layers" : [3, 1, 2, 1]
         },
         {
           "layers" : []
@@ -555,43 +537,37 @@
           "layers" : []
         }
       ],
-      "capacity" : 3,
+      "capacity" : 4,
       "id" : "c8_014",
       "links" : [
         {
-          "from" : 5,
-          "to" : 6,
+          "from" : 3,
+          "to" : 2,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 5.21,
-        "deadEndRatio" : 0.005,
-        "minMoves" : 14,
-        "score" : 35.8,
-        "seed" : 6013862,
-        "statesExplored" : 6324
+        "branchingFactor" : 6.8,
+        "deadEndRatio" : 0,
+        "minMoves" : 10,
+        "score" : 29.4,
+        "seed" : 6013015,
+        "statesExplored" : 1658
       }
     },
     {
       "bottles" : [
         {
-          "layers" : [4, 1, 0]
+          "layers" : [2, 0, 3, 0]
         },
         {
-          "layers" : [2, 0, 3]
+          "layers" : [1, 0, 1, 2]
         },
         {
-          "layers" : [3, 5, 4]
+          "layers" : [2, 0, 1, 3]
         },
         {
-          "layers" : [2, 0, 5]
-        },
-        {
-          "layers" : [4, 5, 1]
-        },
-        {
-          "layers" : [3, 1, 2]
+          "layers" : [3, 1, 3, 2]
         },
         {
           "layers" : []
@@ -600,43 +576,40 @@
           "layers" : []
         }
       ],
-      "capacity" : 3,
+      "capacity" : 4,
       "id" : "c8_015",
       "links" : [
         {
-          "from" : 5,
-          "to" : 6,
+          "from" : 0,
+          "to" : 2,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 4.8,
-        "deadEndRatio" : 0.049,
-        "minMoves" : 15,
-        "score" : 38,
-        "seed" : 6014612,
-        "statesExplored" : 5495
+        "branchingFactor" : 6.58,
+        "deadEndRatio" : 0,
+        "minMoves" : 12,
+        "score" : 32.9,
+        "seed" : 6013014,
+        "statesExplored" : 3343
       }
     },
     {
       "bottles" : [
         {
-          "layers" : [4, 5, 1]
+          "layers" : [1, 3, 4, 2]
         },
         {
-          "layers" : [2, 4, 3]
+          "layers" : [0, 0, 4, 0]
         },
         {
-          "layers" : [2, 5, 0]
+          "layers" : [1, 3, 2, 4]
         },
         {
-          "layers" : [1, 3, 4]
+          "layers" : [1, 2, 2, 4]
         },
         {
-          "layers" : [2, 0, 5]
-        },
-        {
-          "layers" : [1, 0, 3]
+          "layers" : [0, 3, 3, 1]
         },
         {
           "layers" : []
@@ -645,43 +618,40 @@
           "layers" : []
         }
       ],
-      "capacity" : 3,
+      "capacity" : 4,
       "id" : "c8_016",
       "links" : [
         {
-          "from" : 5,
-          "to" : 7,
+          "from" : 3,
+          "to" : 0,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 5.47,
-        "deadEndRatio" : 0.023,
-        "minMoves" : 15,
-        "score" : 38.1,
-        "seed" : 6014199,
-        "statesExplored" : 7924
+        "branchingFactor" : 4.92,
+        "deadEndRatio" : 0.007,
+        "minMoves" : 13,
+        "score" : 34.8,
+        "seed" : 14013106,
+        "statesExplored" : 6600
       }
     },
     {
       "bottles" : [
         {
-          "layers" : [1, 3, 5]
+          "layers" : [0, 1, 4, 2]
         },
         {
-          "layers" : [1, 4, 0]
+          "layers" : [0, 0, 4, 1]
         },
         {
-          "layers" : [2, 4, 0]
+          "layers" : [3, 1, 2, 3]
         },
         {
-          "layers" : [3, 0, 4]
+          "layers" : [2, 1, 0, 3]
         },
         {
-          "layers" : [3, 2, 5]
-        },
-        {
-          "layers" : [2, 1, 5]
+          "layers" : [2, 4, 3, 4]
         },
         {
           "layers" : []
@@ -690,68 +660,22 @@
           "layers" : []
         }
       ],
-      "capacity" : 3,
+      "capacity" : 4,
       "id" : "c8_017",
       "links" : [
         {
-          "from" : 2,
-          "to" : 7,
+          "from" : 4,
+          "to" : 3,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 6.6,
-        "deadEndRatio" : 0.009,
+        "branchingFactor" : 5,
+        "deadEndRatio" : 0.001,
         "minMoves" : 15,
-        "score" : 38.4,
-        "seed" : 6013061,
-        "statesExplored" : 9235
-      }
-    },
-    {
-      "bottles" : [
-        {
-          "layers" : [5, 0, 1]
-        },
-        {
-          "layers" : [3, 2, 0]
-        },
-        {
-          "layers" : [4, 2, 5]
-        },
-        {
-          "layers" : [2, 1, 0]
-        },
-        {
-          "layers" : [4, 1, 3]
-        },
-        {
-          "layers" : [3, 4, 5]
-        },
-        {
-          "layers" : []
-        },
-        {
-          "layers" : []
-        }
-      ],
-      "capacity" : 3,
-      "hidden" : true,
-      "id" : "c8_018",
-      "links" : [
-        {
-          "from" : 3,
-          "to" : 6,
-          "type" : "overflow"
-        }
-      ],
-      "meta" : {
-        "branchingFactor" : 5.5,
-        "deadEndRatio" : 0.012,
-        "minMoves" : 14,
-        "score" : 36.3,
-        "seed" : 8013026,
-        "statesExplored" : 6579
+        "score" : 36.8,
+        "seed" : 14013023,
+        "statesExplored" : 7504
       }
     },
     {
@@ -780,7 +704,7 @@
       ],
       "capacity" : 4,
       "hidden" : true,
-      "id" : "c8_019",
+      "id" : "c8_018",
       "links" : [
         {
           "between" : [2, 1],
@@ -799,22 +723,19 @@
     {
       "bottles" : [
         {
-          "layers" : [1, 5, 2]
+          "layers" : [2, 4, 0, 1]
         },
         {
-          "layers" : [3, 2, 4]
+          "layers" : [2, 3, 4, 0]
         },
         {
-          "layers" : [0, 4, 5]
+          "layers" : [2, 3, 3, 0]
         },
         {
-          "layers" : [0, 5, 3]
+          "layers" : [2, 4, 0, 1]
         },
         {
-          "layers" : [1, 4, 3]
-        },
-        {
-          "layers" : [0, 2, 1]
+          "layers" : [1, 4, 3, 1]
         },
         {
           "layers" : []
@@ -823,23 +744,66 @@
           "layers" : []
         }
       ],
-      "capacity" : 3,
+      "capacity" : 4,
       "hidden" : true,
-      "id" : "c8_020",
+      "id" : "c8_019",
       "links" : [
         {
-          "from" : 1,
-          "to" : 6,
+          "from" : 3,
+          "to" : 4,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 4.93,
-        "deadEndRatio" : 0.073,
-        "minMoves" : 15,
-        "score" : 39.4,
-        "seed" : 8013095,
-        "statesExplored" : 6507
+        "branchingFactor" : 6.19,
+        "deadEndRatio" : 0.011,
+        "minMoves" : 16,
+        "score" : 40,
+        "seed" : 8014526,
+        "statesExplored" : 12710
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 0, 1]
+        },
+        {
+          "layers" : [4, 2, 1, 3]
+        },
+        {
+          "layers" : [4, 2, 3, 0]
+        },
+        {
+          "layers" : [3, 4, 3, 4]
+        },
+        {
+          "layers" : [2, 1, 2, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c8_020",
+      "links" : [
+        {
+          "from" : 0,
+          "to" : 2,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 7.69,
+        "deadEndRatio" : 0.002,
+        "minMoves" : 16,
+        "score" : 40.7,
+        "seed" : 8013864,
+        "statesExplored" : 14702
       }
     },
     {
@@ -1293,22 +1257,22 @@
     {
       "bottles" : [
         {
-          "layers" : [5, 3, 4]
+          "layers" : [1, 5, 3, 4]
         },
         {
-          "layers" : [2, 0, 0]
+          "layers" : [3, 4, 1, 2]
         },
         {
-          "layers" : [5, 1, 1]
+          "layers" : [5, 1, 4, 0]
         },
         {
-          "layers" : [4, 3, 5]
+          "layers" : [4, 2, 2, 0]
         },
         {
-          "layers" : [3, 0, 1]
+          "layers" : [2, 3, 5, 0]
         },
         {
-          "layers" : [2, 2, 4]
+          "layers" : [5, 1, 0, 3]
         },
         {
           "layers" : []
@@ -1317,57 +1281,8 @@
           "layers" : []
         }
       ],
-      "capacity" : 3,
+      "capacity" : 4,
       "id" : "c8_031",
-      "links" : [
-        {
-          "between" : [1, 3],
-          "type" : "twins"
-        },
-        {
-          "from" : 4,
-          "to" : 7,
-          "type" : "overflow"
-        }
-      ],
-      "meta" : {
-        "branchingFactor" : 4.07,
-        "deadEndRatio" : 0.172,
-        "minMoves" : 14,
-        "score" : 36,
-        "seed" : 12013331,
-        "statesExplored" : 424
-      }
-    },
-    {
-      "bottles" : [
-        {
-          "layers" : [5, 1, 4]
-        },
-        {
-          "layers" : [0, 5, 2]
-        },
-        {
-          "layers" : [0, 2, 4]
-        },
-        {
-          "layers" : [0, 1, 3]
-        },
-        {
-          "layers" : [3, 3, 5]
-        },
-        {
-          "layers" : [1, 2, 4]
-        },
-        {
-          "layers" : []
-        },
-        {
-          "layers" : []
-        }
-      ],
-      "capacity" : 3,
-      "id" : "c8_032",
       "links" : [
         {
           "between" : [0, 1],
@@ -1375,22 +1290,71 @@
         },
         {
           "from" : 2,
-          "to" : 6,
+          "to" : 3,
           "type" : "overflow"
         }
       ],
       "meta" : {
-        "branchingFactor" : 5.13,
-        "deadEndRatio" : 0.338,
-        "minMoves" : 16,
-        "score" : 47,
-        "seed" : 12013445,
-        "statesExplored" : 972
+        "branchingFactor" : 3.71,
+        "deadEndRatio" : 0.156,
+        "minMoves" : 21,
+        "score" : 46.3,
+        "seed" : 12013027,
+        "statesExplored" : 2806
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 2, 5, 2]
+        },
+        {
+          "layers" : [1, 3, 1, 0]
+        },
+        {
+          "layers" : [4, 5, 5, 4]
+        },
+        {
+          "layers" : [5, 0, 3, 4]
+        },
+        {
+          "layers" : [3, 2, 3, 1]
+        },
+        {
+          "layers" : [0, 0, 2, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_032",
+      "links" : [
+        {
+          "between" : [5, 3],
+          "type" : "twins"
+        },
+        {
+          "from" : 2,
+          "to" : 4,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.29,
+        "deadEndRatio" : 0.378,
+        "minMoves" : 24,
+        "score" : 55,
+        "seed" : 12013013,
+        "statesExplored" : 712
       }
     }
   ],
   "location" : "Twin Towers",
   "name" : "Twin Towers",
-  "subtitle" : "Chained twins share every pour; overflow pipes catch what doesn't fit",
+  "subtitle" : "Chained twins share every pour; pressure pipes push a full flask's bottom away",
   "version" : 2
 }

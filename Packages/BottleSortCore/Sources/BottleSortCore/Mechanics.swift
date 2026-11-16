@@ -179,8 +179,10 @@ public enum Link: Hashable, Sendable, CustomStringConvertible {
     /// pours out of a twin are normal, and one twin can't pour into the other. Symmetric.
     /// Implemented (chapter 8, Twin Towers; `Rules.linkedPlan`).
     case twins(Int, Int)
-    /// F2 overflow pipe from `from`'s rim to `to`: what doesn't fit into a full `from` flows
-    /// on into `to` (if `to` can take it; one hop only). Implemented (chapter 8).
+    /// F2 pressure pipe from `from`'s base to `to`'s base (JSON id "overflow", kept from the
+    /// rim overflow it replaced, DECISIONS 212): a pour into `from` that doesn't fit pushes
+    /// `from`'s bottom layers through the pipe into the bottom of `to`, one per extra layer,
+    /// while `to` has room (one hop; `Rules.linkedPlan`). Implemented (chapter 8).
     case overflow(from: Int, to: Int)
     /// A3 switch → gate, joined by a brass lever: while flask `switch` is *complete* (full with
     /// a single color, unsealed and without ice: `Rules.isSwitchOn`), flask `gate` is open and

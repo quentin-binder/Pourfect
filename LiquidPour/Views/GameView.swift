@@ -24,8 +24,11 @@ struct GameView: View {
             GeometryReader { geo in
                 board(in: geo.size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    // Chains and pipes between linked flasks, at the flasks' actual places.
-                    .overlayPreferenceValue(BottleFramesKey.self) { linkLayer($0) }
+                    // Links between flasks, at the flasks' actual places: pressure pipes run
+                    // behind the flasks (along the floor, behind the glass across rows), twin
+                    // chains hang in front of them.
+                    .backgroundPreferenceValue(BottleFramesKey.self) { linkLayer($0, pipes: true) }
+                    .overlayPreferenceValue(BottleFramesKey.self) { linkLayer($0, pipes: false) }
                     .overlayPreferenceValue(BottleFramesKey.self) { pourLayer($0) }
             }
             controls
@@ -87,8 +90,8 @@ struct GameView: View {
                 try? await Task.sleep(for: .seconds(iceDelay))
                 withAnimation(.easeInOut(duration: 0.3)) { model.debugIcePour() }
             }
-            // `-LPDemoLinkPour S`: then, after S seconds, plays a pour that runs through an
-            // overflow pipe (else one split between twins).
+            // `-LPDemoLinkPour S`: then, after S seconds, plays a pour that pushes through a
+            // pressure pipe (else one split between twins).
             let linkDelay = UserDefaults.standard.double(forKey: "LPDemoLinkPour")
             if linkDelay > 0 {
                 while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
@@ -179,11 +182,14 @@ struct GameView: View {
         // more room between flasks.
         let spacing: CGFloat = bottles.contains { $0.hasTap || $0.isCauldron } ? 22 : 14
         // A narrow neck or a funnel stands above its flask (in widths): room for it on every row.
-        // An overflow pipe arches above the rims of its flasks (about half a width), and so does
-        // a switch's lever (over a gate's housing).
-        let pipe: CGFloat = model.state.links.contains { if case .twins = $0 { return false } else { return true } }
+        let glass = bottles.map { GlassParts($0).riseInWidths }.max() ?? 0
+        // A switch's lever arches above the rims of its flasks (about half a width, over a gate's
+        // housing).
+        let lever: CGFloat = model.state.links.contains { if case .switchGate = $0 { return true } else { return false } }
             ? 0.6 : 0
-        let parts = max(bottles.map { GlassParts($0).riseInWidths }.max() ?? 0, pipe)
+        let parts = max(glass, lever)
+        // A pressure pipe runs along the floor under its flasks (about 0.4 widths).
+        let hasPipe = model.state.links.contains(where: \.isPipe)
         // Fit width: perRow bottles + spacing. Fit height: rows × (capacity × 0.78w + 0.45w) + lift room.
         // Linked flasks side by side get a wider gap for their chain or pipe (`linkGap`, in widths).
         let pairsPerRow = rows.map { row in row.filter { linkedRight(of: $0, in: row) }.count }.max() ?? 0
@@ -193,10 +199,12 @@ struct GameView: View {
         let recipeRows = bottles.map(\.recipes.count).max() ?? 0
         let card = RecipeCard.roomInWidths(rows: recipeRows)
         let dial: CGFloat = bottles.contains { $0.bubbling != nil } ? 0.52 : 0
+        let floorPipe: CGFloat = hasPipe ? 0.45 : 0
         let byHeight = (size.height - 40 * CGFloat(rowCount))
-            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts + max(dial, card)))
+            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts + max(dial, card, floorPipe)))
         let width = max(24, min(byWidth, byHeight, 72))
-        let dialRoom = max(dial > 0 ? BubbleGauge.room(width) : 0, RecipeCard.room(width, rows: recipeRows))
+        let dialRoom = max(dial > 0 ? BubbleGauge.room(width) : 0, RecipeCard.room(width, rows: recipeRows),
+                           hasPipe ? PipeGeometry.room(width) : 0)
 
         return VStack(spacing: 40 + parts * width + dialRoom) {
             ForEach(rows, id: \.self) { row in
@@ -233,8 +241,8 @@ struct GameView: View {
             }
         }
         .padding(.bottom, dialRoom)
-        // The top row's pipe arches above its rims.
-        .padding(.top, pipe * width)
+        // The top row's switch lever arches above its rims.
+        .padding(.top, lever * width)
     }
 
     /// Extra room (in flask widths) between two linked flasks standing side by side.
@@ -250,7 +258,7 @@ struct GameView: View {
         model.pour?.bottles.contains(index) ?? false
     }
 
-    /// The flask's contents for VoiceOver, plus its link (twin chain, overflow pipe, switch or gate).
+    /// The flask's contents for VoiceOver, plus its link (twin chain, pressure pipe, switch or gate).
     private func spokenValue(_ index: Int) -> String {
         let contents = model.state.bottles[index].spokenContents(hidden: model.hiddenMask(index))
         switch LinkRole(model.state, bottle: index) {
@@ -258,11 +266,11 @@ struct GameView: View {
             return contents + ", " + String(localized: "twin of flask \(other + 1), every pour into either is split evenly between both",
                                             comment: "VoiceOver: a twin flask; the argument is the other twin's number")
         case .pipeOut(let to):
-            return contents + ", " + String(localized: "overflow pipe into flask \(to + 1), what doesn't fit runs on",
-                                            comment: "VoiceOver: the flask an overflow pipe starts from; the argument is the flask it runs into")
+            return contents + ", " + String(localized: "pressure pipe, pushes its bottom layer into the bottom of flask \(to + 1)",
+                                            comment: "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into")
         case .pipeIn(let from):
-            return contents + ", " + String(localized: "the overflow pipe of flask \(from + 1) runs into it",
-                                            comment: "VoiceOver: the flask an overflow pipe ends over; the argument is the flask it starts from")
+            return contents + ", " + String(localized: "the pressure pipe of flask \(from + 1) pushes layers into its bottom",
+                                            comment: "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from")
         case .switchOf(let gate):
             if Rules.isSwitchOn(model.state.bottles[index]) {
                 return contents + ", " + String(localized: "switch flask, full of one potion: the gate of flask \(gate + 1) is open",
@@ -289,13 +297,14 @@ struct GameView: View {
         return model.linkRefusals[i]
     }
 
-    /// The chains, pipes and switch levers, drawn between the flasks' frames on the board (after the shuffle and
-    /// any resize). A link follows a flask that is picked up, and fades while one of its flasks
-    /// is in the air pouring (the pour animation draws that flask); a switch link fades only the
-    /// parts on the flask in the air.
+    /// The chains and switch levers (`pipes` false) or the pipes (true), drawn between the flasks'
+    /// frames on the board (after the shuffle and any resize). A link follows a flask that is
+    /// picked up. A chain fades while one of its flasks is in the air pouring (the pour animation
+    /// draws that flask); a switch link fades only the parts on the flask in the air; a pipe
+    /// stays: it runs along the floor, so it keeps the source's resting frame while it flies.
     @ViewBuilder
-    private func linkLayer(_ frames: [Int: Anchor<CGRect>]) -> some View {
-        let links = model.state.links
+    private func linkLayer(_ frames: [Int: Anchor<CGRect>], pipes: Bool) -> some View {
+        let links = model.state.links.filter { $0.isPipe == pipes }
         GeometryReader { proxy in
             ZStack(alignment: .topLeading) {
                 ForEach(links.indices, id: \.self) { i in
@@ -310,11 +319,13 @@ struct GameView: View {
                         let isSwitch: Bool = { if case .switchGate = link { return true } else { return false } }()
                         let switchAway = isSwitch && model.pour?.from == a
                         let gateAway = isSwitch && model.pour?.from == b
-                        let flying = !isSwitch && (model.pour?.from == a || model.pour?.from == b)
-                        let refusals = model.linkRefusals.indices.contains(i) ? model.linkRefusals[i] : 0
+                        let flying = !isSwitch && !link.isPipe && (model.pour?.from == a || model.pour?.from == b)
+                        // `links` holds this layer's links only: the link's index in the state.
+                        let index = model.state.links.firstIndex(of: link) ?? 0
+                        let refusals = model.linkRefusals.indices.contains(index) ? model.linkRefusals[index] : 0
                         // A switch link: the gate shown open or shut (as before the move while a
                         // pour is in the air), and how far the gate's neck or funnel stands up.
-                        let open: Double = model.gateOpen(link: i) ? 1 : 0
+                        let open: Double = model.gateOpen(link: index) ? 1 : 0
                         let rise = GlassParts(model.state.bottles[b]).rise(rb.width)
                         let slides = !reduceMotion
                         let gateAnimation = GatePose.animation(reduceMotion: reduceMotion)
@@ -357,8 +368,9 @@ struct GameView: View {
                 let shareFrames = Dictionary(uniqueKeysWithValues: pour.shares.compactMap { share in
                     frames[share.bottle].map { (share.bottle, proxy[$0]) }
                 })
-                // Chains and pipes of the flasks drawn by the pour (not the flying source's: they
-                // fade on the board meanwhile), redrawn above those flasks.
+                // Chains, pipes and levers of the flasks drawn by the pour, redrawn above those
+                // flasks; not the flying source's (its chain fades, its pipe stays on the board at
+                // rest, its switch link keeps the other end's parts on the board).
                 let links = model.state.links.indices.compactMap { i -> PourLink? in
                     let link = model.state.links[i]
                     let (a, b) = link.endpoints

@@ -132,10 +132,10 @@ Puzzle depth: how much new thinking it adds for the player.
 - **Rules:** a pour *into* twin A also pours the same layer(s) into twin B if they fit and the colors match; otherwise the pour is illegal.
 - **Depth:** forces symmetrical thinking. High depth, small rule.
 
-#### F2. Overflow pipes ★★
-- **Theme:** a pipe from flask A's rim to flask B.
-- **Rules:** if a pour into A would overflow it, the extra layers flow into B (if legal), instead of the pour being cut short.
-- **Depth:** enables big combo moves.
+#### F2. Pressure pipes ★★ (was: overflow pipes; link id `overflow`)
+- **Theme:** a brass pipe from flask A's base to flask B's base.
+- **Rules:** a pour into A that doesn't fit pushes A's bottom layers, one per extra layer, through the pipe into the bottom of B (while B has room); color never matters. A full A with the poured color on top accepts the pour iff B has room. Both ends plain, one hop (DECISIONS 212).
+- **Depth:** frees a buried bottom layer without digging, at the price of burying it in B.
 
 #### F3. Teleport flasks ★★
 - **Theme:** two flasks with matching portal swirls.
@@ -181,7 +181,7 @@ Implementation hint: make the win condition a `Goal` protocol / enum stored in t
 | 5 | Glass Works | C2 Narrow neck + C4 Funnels/taps | C1 |
 | 6 | Frost Peak | D1 Frozen layers (+ fire potion variant) | A1, C1 |
 | 7 | Bubbling Bog | D2 Bubbling flasks | B1 |
-| 8 | Twin Towers | F1 Twin flasks + F2 Overflow pipes | C2 |
+| 8 | Twin Towers | F1 Twin flasks + F2 Pressure pipes | C2 |
 | 9 | Alchemist's Hall | E1 Mixing cauldron | everything light |
 | 10 | Dragon's Hoard | A3 Switch flasks + combos | all |
 
@@ -192,7 +192,7 @@ Orders/story mode can reuse each chapter's mechanics with the special goals from
 ## 4. Turn order (with several mechanics active)
 
 After every player action:
-1. Apply the player's pour/action (including twin/overflow/teleport effects).
+1. Apply the player's pour/action (including twin/pressure-pipe/teleport effects).
 2. Resolve immediate effects: unseal (A1), reveal murky layers (B1), mixing (E1), switch gates (A3).
 3. Increase `moveCount`.
 4. Run timed effects in a fixed order: corks (A2) → thaw (D1) → bubbling (D2) → evaporation (D4) → conveyor (D3).

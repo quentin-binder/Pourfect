@@ -494,13 +494,14 @@ public struct GameState: Hashable, Sendable, CustomStringConvertible {
         return a == bottle ? b : a
     }
 
-    /// F2: the flask that `bottle`'s overflow pipe runs into (from `bottle`'s rim), or nil.
+    /// F2: the flask that `bottle`'s pressure pipe pushes into (from `bottle`'s base to the
+    /// other flask's base), or nil.
     public func overflowTarget(of bottle: Int) -> Int? {
         guard case let .overflow(from, to)? = link(at: bottle), from == bottle else { return nil }
         return to
     }
 
-    /// F2: the flask whose overflow pipe runs into `bottle` (its mouth), or nil.
+    /// F2: the flask whose pressure pipe pushes into `bottle` (into its base), or nil.
     public func overflowSource(of bottle: Int) -> Int? {
         guard case let .overflow(from, to)? = link(at: bottle), to == bottle else { return nil }
         return from

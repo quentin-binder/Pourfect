@@ -24,13 +24,14 @@ final class GameViewModel {
         /// The layer kind that moved (all moved layers are identical).
         let layer: Layer
         /// Number of layers that left the source (`targetAmount` landed in `to`, the rest in
-        /// `shares`).
+        /// the twin's share).
         let amount: Int
-        /// Layers that landed in `to`: all of them, unless the pour was split between twins (F1)
-        /// or ran on through an overflow pipe (F2). 0 when a full flask passed it all on.
+        /// Layers that landed in `to`: all of them, unless the pour was split between twins (F1).
+        /// (A push through a pressure pipe, F2, lands every poured layer in `to`.)
         let targetAmount: Int
-        /// The other flasks the pour filled (the target's twin, or the far end of its pipe),
-        /// as they were before the move.
+        /// The other flasks the pour changed, as they were before the move: the target's twin
+        /// (route `.twin`: its half landed there), or the far end of the target's pressure pipe
+        /// (route `.push`: `amount` of the target's bottom layers were pushed into its bottom).
         let shares: [Landing]
         /// Every twin flask of the level (they wear a silver band, also in flight).
         let twins: Set<Int>
@@ -71,8 +72,9 @@ final class GameViewModel {
         var isKey: Bool { layer.isKey }
         /// The pour was split evenly between twins.
         var isSplit: Bool { shares.contains { $0.route == .twin } }
-        /// What ran on through the target's overflow pipe, if anything.
-        var overflow: Landing? { shares.first { $0.route == .overflow } }
+        /// The far end of the target's pressure pipe, when the pour pushed the target's bottom
+        /// layers into it (`amount` of them).
+        var push: Landing? { shares.first { $0.route == .push } }
         /// Every flask the pour animation draws: the source, the target and the shares.
         var bottles: [Int] { [from, to] + shares.map(\.bottle) }
     }
@@ -99,15 +101,18 @@ final class GameViewModel {
         case refusedLink(bottles: [Int])
         /// A shut gate refused the pour or the pick-up (A3): its portcullis rattles.
         case refusedGate(bottle: Int)
+        /// A pressure pipe refused the pour (its flask is full and it can't push): the brass knocks.
+        case refusedPipe(bottles: [Int])
         /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved;
         /// `fromBottom`: poured through a tap (the valve opens instead of the lip clinking).
         case pour(from: Int, to: Int, amount: Int, isKey: Bool, fromBottom: Bool)
         /// The pour that just started is split between twins (F1): the chain chimes as the
         /// stream forks.
         case split(bottles: [Int])
-        /// Part of the pour that just started runs on through an overflow pipe (F2), once
-        /// `start` (0…1) of the flow has gone into the full flask: the pipe glugs.
-        case overflow(into: Int, start: Double)
+        /// The pour that just started pushes the target's bottom layers through its pressure
+        /// pipe (F2), once `start` (0…1) of the flow has gone in and the target is full: the
+        /// pipe thumps and glugs.
+        case push(into: Int, start: Double)
         /// Frozen layers of these bottles thawed (D1); fires when the pour animation lands, as
         /// the ice cracks and melts.
         case thawed(bottles: [Int])
@@ -357,7 +362,7 @@ final class GameViewModel {
     /// playing: the pour waits for it, so the flask never jumps to its new order (DECISIONS 177).
     private func waitsForRise(_ index: Int) -> Bool {
         guard let from = selected, from != index else { return false }
-        // A pour into a linked flask may also fill its twin or the far end of its pipe.
+        // A pour into a linked flask may also fill its twin or push into the far end of its pipe.
         let touched = [from, index, state.twin(of: index), state.overflowTarget(of: index)].compactMap { $0 }
         return rises.contains { touched.contains($0.bottle) } || mixes.contains { touched.contains($0.bottle) }
     }
@@ -559,8 +564,9 @@ final class GameViewModel {
         emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
                    fromBottom: event.fromBottom))
         if let pour, pour.isSplit { emit(.split(bottles: [move.to] + shares.map(\.bottle))) }
-        if let overflow = pour?.overflow {
-            emit(.overflow(into: overflow.bottle, start: Double(event.targetAmount) / Double(event.amount)))
+        if let push = pour?.push {
+            // The target fills to the rim first; the push runs while the rest of the flow goes in.
+            emit(.push(into: push.bottle, start: Double(event.amount - push.amount) / Double(event.amount)))
         }
         pourTimeout?.cancel()
         pourTimeout = Task {
@@ -634,18 +640,34 @@ final class GameViewModel {
         emit(.refused(bottle: bottle, modifier: modifier))
     }
 
-    /// A twin chain said no (`Rules.linkRefusal`): both twins shake, the chain glints and
-    /// rattles, and a short line says why.
+    /// A link said no (`Rules.linkRefusal`): both twins shake, the chain glints and rattles; or
+    /// the full flask of a pressure pipe and its far end shake and the pipe glints. A short line
+    /// says why.
     private func refuse(_ move: Move, link: BottleSortCore.Link) {
         if case let .switchGate(_, gate) = link {
             refuseGate(gate)
             return
         }
         let twins: [Int]
-        if case let .twins(a, b) = link { twins = [a, b] } else { twins = [move.to] }
+        if case let .twins(a, b) = link { twins = [a, b] } else { twins = [link.endpoints.0, link.endpoints.1] }
         for bottle in twins where shakes.indices.contains(bottle) { shakes[bottle] += 1 }
         if let index = state.links.firstIndex(of: link), linkRefusals.indices.contains(index) {
             linkRefusals[index] += 1
+        }
+        if case let .overflow(_, to: end) = link {
+            // The flask is full and nothing can be pushed out of it (`Rules.linkRefusal`).
+            if end == move.from {
+                flash(String(localized: "This flask is full, and its pipe can't push back into the flask you pour from.",
+                             comment: "Shown when the player pours from the far end of a pressure pipe into its full first flask"))
+            } else if state.bottles[end].isFull {
+                flash(String(localized: "This flask is full, and its pipe can't push: flask \(end + 1) is full too.",
+                             comment: "Shown when a pour into a full pressure-pipe flask is refused because the flask at the pipe's far end is full; the argument is that flask's number"))
+            } else {
+                flash(String(localized: "This flask is full, and its pipe can't push into flask \(end + 1).",
+                             comment: "Shown when a pour into a full pressure-pipe flask is refused because the pipe's far end can't take a push; the argument is that flask's number"))
+            }
+            emit(.refusedPipe(bottles: twins))
+            return
         }
         let source = state.bottles[move.from]
         if twins.contains(move.from) {
@@ -731,18 +753,21 @@ final class GameViewModel {
         }
     }
 
-    /// VoiceOver: where a pour that used a link landed (split between twins, or run through a
-    /// pipe), said when it lands.
+    /// VoiceOver: what a pour that used a link did (split between twins, or pushed through a
+    /// pressure pipe), said when it lands.
     private func announceLanding(_ pour: PourEvent) {
         if pour.isSplit, let twin = pour.shares.first(where: { $0.route == .twin }) {
             AccessibilityNotification.Announcement(
                 String(localized: "Split between flask \(pour.to + 1) and flask \(twin.bottle + 1)",
                        comment: "VoiceOver: a pour into a twin flask was shared evenly with its twin; the arguments are flask numbers")).post()
         }
-        if let overflow = pour.overflow {
-            AccessibilityNotification.Announcement(
-                String(localized: "The rest ran through the pipe into flask \(overflow.bottle + 1)",
-                       comment: "VoiceOver: what didn't fit into a full flask ran on through its overflow pipe; the argument is the flask number")).post()
+        if let push = pour.push {
+            let text = push.amount == 1
+                ? String(localized: "Flask \(pour.to + 1) pushed its bottom layer into the bottom of flask \(push.bottle + 1)",
+                         comment: "VoiceOver: a pour into a full flask pushed its bottom layer through its pressure pipe; the arguments are the flask poured into and the flask at the pipe's far end")
+                : String(localized: "Flask \(pour.to + 1) pushed its \(push.amount) bottom layers into the bottom of flask \(push.bottle + 1)",
+                         comment: "VoiceOver: a pour into a full flask pushed several bottom layers through its pressure pipe; the arguments are the flask poured into, the number of layers (2 or more) and the flask at the pipe's far end")
+            AccessibilityNotification.Announcement(text).post()
         }
     }
 
@@ -1014,17 +1039,16 @@ final class GameViewModel {
         }
     }
 
-    /// Dev aid: plays one legal pour that uses a link (part of it runs through an overflow pipe,
-    /// else one split between twins), to see it in flight.
+    /// Dev aid: plays one legal pour that uses a link (it pushes through a pressure pipe, else
+    /// it is split between twins), to see it in flight.
     func debugLinkPour() {
         let n = state.bottles.count
         let pours = (0..<n).flatMap { from in (0..<n).map { Move(from: from, to: $0) } }
             .filter { $0.from != $0.to }
             .compactMap { Rules.resolve(state, afterAction: .pour($0))?.pour }
             .filter { !$0.shares.isEmpty }
-        let overflow = pours.filter { $0.shares.contains { $0.route == .overflow } }
-        // A pour that fills the first flask partly and then runs on reads best.
-        guard let pour = overflow.first(where: { $0.targetAmount > 0 }) ?? overflow.first ?? pours.first else { return }
+        let pushes = pours.filter { $0.push != nil }
+        guard let pour = pushes.first ?? pours.first else { return }
         tap(bottle: pour.move.from)
         tap(bottle: pour.move.to)
     }

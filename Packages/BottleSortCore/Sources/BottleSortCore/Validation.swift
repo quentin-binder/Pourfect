@@ -64,7 +64,7 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     case bubblingWithIce(bottle: Int)
     /// More than `Rules.maxBubblingFlasks` bubbling flasks in the level.
     case tooManyBubblingFlasks(count: Int)
-    /// A flask is an end of more than one link (twins, overflow pipes): each flask has at
+    /// A flask is an end of more than one link (twins, pressure pipes): each flask has at
     /// most one, so a pour never follows a chain of links.
     case flaskInSeveralLinks(bottle: Int)
     /// A twin flask (F1) is sealed: a key never splits, so the seal could never open.

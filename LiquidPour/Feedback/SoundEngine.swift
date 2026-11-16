@@ -40,8 +40,9 @@ final class SoundEngine {
         /// Silver chain links jingling: a twin chain refuses a pour (softly: a pour splits
         /// between twins).
         case chainRattle
-        /// A hollow glug running through a tube: what didn't fit runs on through an overflow pipe.
-        case pipeGlug
+        /// A pressure pipe pushes (F2): a low pneumatic thump and hiss, then hollow glugs as the
+        /// bottom layers run through the tube into the far flask.
+        case pipePush
         /// Brewing in a cauldron: a stirring swish with bubbles, then a soft sparkling chime as
         /// the new potion blooms (two ingredients mixed).
         case brew
@@ -298,7 +299,7 @@ nonisolated enum SoundSynthesis {
         out.sounds[.thaw] = renderThaw(rng: &rng)
         out.sounds[.bubbleUp] = renderBubbleUp(rng: &rng)
         out.sounds[.chainRattle] = renderChainRattle(rng: &rng)
-        out.sounds[.pipeGlug] = renderPipeGlug(rng: &rng)
+        out.sounds[.pipePush] = renderPipePush(rng: &rng)
         out.sounds[.brew] = renderBrew(rng: &rng)
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         // After every older sound, so their noise stays the same.
@@ -494,17 +495,25 @@ nonisolated enum SoundSynthesis {
         return normalized(samples, peak: 0.15)
     }
 
-    /// Overflow pipe (F2), timed on the pour's pipe flow: a soft rush of liquid in a tube (low
-    /// passed noise swelling and fading) with three hollow glugs (low sines gliding up, slow decay)
-    /// as the potion runs through and drops into the far flask.
-    private static func renderPipeGlug(rng: inout NoiseGenerator) -> [Float] {
+    /// Pressure pipe (F2), timed on the push: a low thump (a sine dropping from 95 to 55 Hz,
+    /// fast decay) with a short pneumatic hiss (noise, quick fade) as the flask's bottom gives
+    /// way, a soft rush of liquid in a tube (low-passed noise swelling and fading) and three
+    /// hollow glugs (low sines gliding up) as the layers run through and rise into the far flask.
+    private static func renderPipePush(rng: inout NoiseGenerator) -> [Float] {
         let duration = 0.62
         let count = Int(duration * sampleRate)
         var samples = Self.lowpassedNoise(count: count, cutoff: 380, rng: &rng).enumerated().map { i, v in
             let t = Double(i) / sampleRate
-            return v * 0.35 * sin(.pi * min(1, t / duration))
+            return v * 0.3 * sin(.pi * min(1, t / duration))
         }
-        for (k, start) in [0.04, 0.2, 0.38].enumerated() {
+        var thump = 0.0
+        for j in 0..<Int(0.16 * sampleRate) {
+            let t = Double(j) / sampleRate
+            thump += 2 * .pi * (55 + 40 * exp(-t * 30)) / sampleRate
+            let hiss = (rng.unit() * 2 - 1) * 0.25 * exp(-t * 28)
+            samples[j] += (1.1 * sin(thump) * exp(-t * 22) + hiss) * min(1, t / 0.003)
+        }
+        for (k, start) in [0.1, 0.25, 0.4].enumerated() {
             let f0 = 170 + Double(k) * 45 + rng.unit() * 20
             let first = Int(start * sampleRate)
             var phase = 0.0

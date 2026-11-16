@@ -349,11 +349,10 @@
     },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {},
     "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {},
-    "A full flask with the same potion on top lets the whole pour through. The far flask takes it like any pour, or the rest stays where it was." : {},
-    "A glass pipe runs from one flask's rim to another flask. When a pour doesn't fit, the rest runs on through the pipe." : {},
     "A hint was used, so this brew can't be perfect" : {},
     "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises." : {},
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {},
+    "The pipe can only push when the far flask has room. Any color goes through, but only in the arrow's direction." : {},
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {},
     "Accessibility" : {},
     "An alchemist's journey from the cellar to the dragon's hoard." : {},
@@ -618,6 +617,12 @@
     "Fill every flask with a single potion. Undo, Restart and Hint are always there to help." : {},
     "Fill the switch" : {},
     "Fill the switch flask to the top with one potion: its gem lights up, the lever swings over and the gate opens." : {},
+    "Flask %lld pushed its %lld bottom layers into the bottom of flask %lld" : {
+      "comment" : "VoiceOver: a pour into a full flask pushed several bottom layers through its pressure pipe; the arguments are the flask poured into, the number of layers (2 or more) and the flask at the pipe's far end"
+    },
+    "Flask %lld pushed its bottom layer into the bottom of flask %lld" : {
+      "comment" : "VoiceOver: a pour into a full flask pushed its bottom layer through its pressure pipe; the arguments are the flask poured into and the flask at the pipe's far end"
+    },
     "Flask %lld" : {},
     "Flask %lld bubbled up: %@ rose to the top" : {
       "comment" : "VoiceOver: a bubbling flask's bottom layer rose to the top; the arguments are the flask number and the potion"
@@ -685,7 +690,6 @@
     "Midnight Ink" : {
       "comment" : "Potion name of the navy liquid"
     },
-    "Mind the spill" : {},
     "Mo" : {
       "comment" : "Calendar column: Monday"
     },
@@ -719,7 +723,7 @@
     "New: bubbling flasks" : {},
     "New: essence flasks" : {},
     "New: murky potions" : {},
-    "New: overflow pipes" : {},
+    "New: pressure pipes" : {},
     "New: sealed flasks" : {},
     "New: switches and gates" : {},
     "New: twin flasks" : {},
@@ -730,10 +734,6 @@
     "No solution from here — undo?" : {},
     "Off" : {},
     "On" : {},
-    "overflow pipe into flask %lld, what doesn't fit runs on" : {
-      "comment" : "VoiceOver: the flask an overflow pipe starts from; the argument is the flask it runs into"
-    },
-    "Overflow pipes" : {},
     "Perfect" : {
       "comment" : "Daily puzzle solved in the fewest possible moves without a hint"
     },
@@ -746,6 +746,7 @@
     },
     "Potions" : {},
     "Pour" : {},
+    "Pour into a full flask to push its bottom layer through the pipe into the bottom of the other flask." : {},
     "Pour off the top potion to reveal the layer below it. Hints still work." : {},
     "Pour out freely" : {},
     "Pour out of a full switch and the gate shuts again, with whatever is inside. The gate's potions count too, so open it to sort them." : {},
@@ -755,6 +756,10 @@
       "comment" : "Shared daily result: date, moves, streak"
     },
     "Pouring out of a twin works as usual: only the flask you pick up pours. One twin can't pour into the other." : {},
+    "pressure pipe, pushes its bottom layer into the bottom of flask %lld" : {
+      "comment" : "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into"
+    },
+    "Pressure pipes" : {},
     "Previous month" : {},
     "Random Brew" : {},
     "Random Brew · %@" : {},
@@ -799,6 +804,7 @@
     "Ring" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Room to push" : {},
     "Rose Gold" : {
       "comment" : "Metal of a rune key and its seal"
     },
@@ -901,16 +907,22 @@
     "The gate of flask %@ shut" : {
       "comment" : "VoiceOver: a switch flask stopped being full of one potion and its gate closed; the argument lists flask numbers"
     },
-    "the overflow pipe of flask %lld runs into it" : {
-      "comment" : "VoiceOver: the flask an overflow pipe ends over; the argument is the flask it starts from"
-    },
-    "The rest ran through the pipe into flask %lld" : {
-      "comment" : "VoiceOver: what didn't fit into a full flask ran on through its overflow pipe; the argument is the flask number"
+    "the pressure pipe of flask %lld pushes layers into its bottom" : {
+      "comment" : "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from"
     },
     "Thinking…" : {},
     "This brew's day ended at midnight UTC, so it no longer counts. Today's new brew is waiting." : {},
     "This essence flask only takes %@" : {
       "comment" : "Shown when an essence flask refuses a pour; the argument is a potion name"
+    },
+    "This flask is full, and its pipe can't push back into the flask you pour from." : {
+      "comment" : "Shown when the player pours from the far end of a pressure pipe into its full first flask"
+    },
+    "This flask is full, and its pipe can't push into flask %lld." : {
+      "comment" : "Shown when a pour into a full pressure-pipe flask is refused because the pipe's far end can't take a push; the argument is that flask's number"
+    },
+    "This flask is full, and its pipe can't push: flask %lld is full too." : {
+      "comment" : "Shown when a pour into a full pressure-pipe flask is refused because the flask at the pipe's far end is full; the argument is that flask's number"
     },
     "Thursday" : {
       "comment" : "Weekday of the daily puzzle"

@@ -69,11 +69,12 @@ public struct GeneratorConfig: Sendable, Hashable {
     public var bubblingCost: Int
     /// Twin pairs (F1). 0 = none. See `Generator.candidate` (step 9) for the placement.
     public var twins: Int
-    /// Overflow pipes (F2). 0 = none. Placed after the twins (step 9).
+    /// Pressure pipes (F2, `Link.overflow`). 0 = none. Placed after the twins (step 9).
     public var overflow: Int
     /// Where links go: `.any` plain flask, only `.filled` ones, or only `.empty` ones.
     public var linkPlacement: LinkPlacement
-    /// Reject levels where some link doesn't matter (`LinkImpact`, cost `linkCost`, either way).
+    /// Reject levels where some link doesn't matter (`LinkImpact`, cost `linkCost`: either
+    /// way for twins; a pressure pipe must save that many moves, and the solution must push).
     public var requireLinksMatter: Bool
     /// Moves each link must change for `requireLinksMatter` (`LinkImpact.minimumCost` or `.strongCost`).
     public var linkCost: Int
@@ -176,7 +177,7 @@ public struct GeneratorConfig: Sendable, Hashable {
     }
 }
 
-/// Which flasks the generator links (twins, overflow pipes; `GeneratorConfig.linkPlacement`).
+/// Which flasks the generator links (twins, pressure pipes; `GeneratorConfig.linkPlacement`).
 public enum LinkPlacement: String, Sendable, Hashable, CaseIterable {
     /// Any plain flask, filled or empty.
     case any
@@ -184,7 +185,7 @@ public enum LinkPlacement: String, Sendable, Hashable, CaseIterable {
     case filled
     /// Only empty flasks.
     case empty
-    /// Twins on empty flasks; an overflow pipe from a filled flask into an empty one.
+    /// Twins on empty flasks; a pressure pipe from a filled flask into an empty one.
     case mixed
 }
 
@@ -285,7 +286,7 @@ public enum Generator {
     /// 9. The bottle indices are shuffled again. Walking that order over plain flasks (no
     ///    modifier at all: links stay on flasks that read at a glance) that aren't linked
     ///    yet and fit `linkPlacement`, the first two make a twin pair, T times, then the next
-    ///    two an overflow pipe (from the first to the second), O times. `.mixed` puts twins on
+    ///    two a pressure pipe (from the first to the second), O times. `.mixed` puts twins on
     ///    empty flasks and runs each pipe from a filled flask into an empty one. Placement reads
     ///    only which flasks are empty, never colors (murky-safe). Fewer links are placed only
     ///    if the level has too few such flasks.
@@ -557,6 +558,10 @@ public enum Generator {
                                         limits: config.solverLimits) { return nil }
         if config.requireSplit, state.links.contains(where: { if case .twins = $0 { true } else { false } }),
            LinkImpact.solvesWithoutSplitting(state, in: moves.count) != false { return nil }
+        // A pipe that matters (a helper) is pushed through by every optimal solution (one that
+        // never pushed would play the same without the pipe); a cheap guard on the one found.
+        if config.requireLinksMatter, state.links.contains(where: { if case .overflow = $0 { true } else { false } }),
+           LinkImpact.pushes(in: state, solution: moves) == 0 { return nil }
         if config.requireSwitchMatter,
            !SwitchImpact.everySwitchMatters(state, minMoves: moves.count, cost: config.switchCost,
                                             limits: config.solverLimits) { return nil }
@@ -695,11 +700,11 @@ public enum MechanicImpact {
         case .unsolvable: return true
         case .solved(let moves, _):
             let saved = minMoves - moves.count
+            // A pressure pipe must help: without it the level takes `cost` more moves.
+            if isHelper(instance) { return -saved >= cost }
             if (isTwoSided(instance) ? abs(saved) : saved) >= cost { return true }
             // A funnel never changes the optimal length; it matters by the trap it sets.
             if case .modifier(_, .funnel) = instance { return trapDepth(of: instance, in: state) != nil }
-            // Nor does an overflow pipe in practice; it matters by the spill it can force.
-            if case .link(.overflow) = instance { return spillDepth(of: instance, in: state) != nil }
             return false
         case .unknown: return false
         }
@@ -707,15 +712,25 @@ public enum MechanicImpact {
 
     /// Whether the instance can make a level shorter as well as longer (`matters` then
     /// counts the change either way): a narrow neck, a tap, a bubbling flask (a rise can
-    /// bring the needed color up as well as bury it), twins (a split adds a pour no plain
-    /// flask makes, and closes the twins to every other pour) or an overflow pipe (it saves a
-    /// pour, or spills what the player wanted to keep in the source).
+    /// bring the needed color up as well as bury it) or twins (a split adds a pour no plain
+    /// flask makes, and closes the twins to every other pour).
     public static func isTwoSided(_ instance: MechanicInstance) -> Bool {
         switch instance {
-        case .modifier(_, .narrowNeck), .modifier(_, .tap), .modifier(_, .bubbling),
-             .link(.twins), .link(.overflow): return true
+        case .modifier(_, .narrowNeck), .modifier(_, .tap), .modifier(_, .bubbling), .link(.twins): return true
         default: return false
         }
+    }
+
+    /// Whether the instance matters only by *shortening* the level (`matters` then asks the
+    /// level without it to need `cost` more moves, or to be unsolvable): a pressure pipe (F2),
+    /// whose push is a tool. It also changes a few pours the player might not want (a pour
+    /// that doesn't fit pushes instead of stopping at the rim), but a pipe that only did that
+    /// would be a hazard, not the chapter's tool (DECISIONS 214). If the level without the
+    /// pipe is longer, every optimal solution with it pushes: a solution that never pushed
+    /// would play the same without the pipe.
+    public static func isHelper(_ instance: MechanicInstance) -> Bool {
+        if case .link(.overflow) = instance { return true }
+        return false
     }
 
     /// Whether every mechanic instance in the level matters at its minimum cost (true for a
@@ -1022,65 +1037,16 @@ extension MechanicImpact {
         }
         return nil
     }
-
-    /// The shallowest *spill* `instance` sets in `state`: a pour from a still-solvable
-    /// position that loses the level, while the same pour from the same position without the
-    /// instance doesn't (its result is still solvable). Returns the depth of the position
-    /// after the pour (moves from the start), or nil if none was found within the budget
-    /// (the reachable graph must have at most `maxStates` states; at most `maxChecks` losing
-    /// pours, shallowest first, are re-played and re-solved without the instance, each within
-    /// `checkLimits`).
-    ///
-    /// This is how an overflow pipe matters (DECISIONS 181): it never makes a level shorter
-    /// in practice (a pour split between a flask and its pipe is never part of an optimal
-    /// solution, see there), but a pour into its flask can spill the rest of a run where the
-    /// player can't afford it. Unlike `trapDepth` it compares the *pour* with and without the
-    /// instance, because the pipe changes what the pour does, not the position it leaves.
-    public static func spillDepth(of instance: MechanicInstance, in state: GameState, maxStates: Int = 300_000,
-                                  maxChecks: Int = 40,
-                                  checkLimits: SolverLimits = SolverLimits(maxStates: 200_000)) -> Int? {
-        guard let graph = StateGraph.explore(from: state, maxStates: maxStates, keepStates: true) else { return nil }
-        let solvable = graph.solvableFlags()
-        guard solvable.first == true else { return nil }
-        var depth = [Int](repeating: -1, count: graph.nodeCount)
-        depth[0] = 0
-        var queue = [0], head = 0
-        var checks = 0
-        while head < queue.count {
-            let node = queue[head]
-            head += 1
-            let first = Int(graph.edgeStart[node]), last = Int(graph.edgeStart[node + 1])
-            // Edges were added in `Solver.candidateMoves` order (every candidate is legal).
-            let moves = solvable[node] && first < last ? Solver.candidateMoves(graph.states[node]) : []
-            for e in first..<last {
-                let child = Int(graph.edges[e])
-                if depth[child] < 0 {
-                    depth[child] = depth[node] + 1
-                    queue.append(child)
-                }
-                guard solvable[node], !solvable[child], moves.count == last - first else { continue }
-                let move = moves[e - first]
-                let without = removing(instance, from: graph.states[node])
-                // A pour the instance doesn't change leaves the same flasks either way (compare
-                // only the flasks: the states differ in their links by construction).
-                guard let next = without.pouring(move),
-                      next.bottles != graph.states[node].pouring(move)?.bottles else { continue }
-                guard checks < maxChecks else { return nil }
-                checks += 1
-                if case .solved = Solver().solve(next, limits: checkLimits) { return depth[node] + 1 }
-            }
-        }
-        return nil
-    }
 }
 
-/// Whether a twin chain or an overflow pipe changes a level (the "must matter" check for F1
+/// Whether a twin chain or a pressure pipe changes a level (the "must matter" check for F1
 /// and F2): the `.link(.twins / .overflow)` cases of `MechanicImpact`. Removing the instance
 /// means the same flasks without the link.
 ///
-/// Both are two-sided (`MechanicImpact.isTwoSided`): twins add a pour no plain flask can make
-/// (a run split in two) and refuse every pour that can't be split; a pipe saves the second
-/// pour of a full flask's leftovers but also spills what the player would keep in the source.
+/// Twins are two-sided (`MechanicImpact.isTwoSided`): they add a pour no plain flask can make
+/// (a run split in two) and refuse every pour that can't be split. A pressure pipe is a
+/// helper (`MechanicImpact.isHelper`): it matters when the level without it takes `cost` more
+/// moves (or can't be solved), so every optimal solution pushes.
 public enum LinkImpact {
     /// Smallest change that counts as "matters": one move (`MechanicImpact.minimumCost`).
     public static let minimumCost = 1
@@ -1088,7 +1054,7 @@ public enum LinkImpact {
     /// least two moves (or the level can't be solved without it).
     public static let strongCost = 2
 
-    /// The twin and overflow instances of `state` (one per link).
+    /// The twin and pressure-pipe instances of `state` (one per link).
     public static func instances(in state: GameState) -> [MechanicInstance] {
         MechanicImpact.instances(in: state).filter {
             switch $0 {
@@ -1098,10 +1064,22 @@ public enum LinkImpact {
         }
     }
 
-    /// Whether every twin chain and overflow pipe matters (true for a level without one).
+    /// Whether every twin chain and pressure pipe matters (true for a level without one).
     public static func everyLinkMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
                                         limits: SolverLimits = .default) -> Bool {
         instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+
+    /// How many pours of `solution` (played from `state`) push through a pressure pipe (F2).
+    /// 0 for an illegal solution.
+    public static func pushes(in state: GameState, solution: [Move]) -> Int {
+        var current = state, count = 0
+        for move in solution {
+            guard let turn = Rules.resolve(current, afterAction: .pour(move)) else { return 0 }
+            if turn.pour?.push != nil { count += 1 }
+            current = turn.state
+        }
+        return count
     }
 
     /// Whether `state` can be solved in `moves` moves or fewer without ever pouring into a
@@ -1135,7 +1113,7 @@ public enum LinkImpact {
 
     /// Whether `state` can be solved in `moves` moves or fewer without a relocation
     /// (`FrozenImpact.isRelocation`: a pure wait or park), with every link of the level used
-    /// on the way: a pour split between twins, and a pour that ran through each overflow pipe
+    /// on the way: a pour split between twins, and a pour that pushed through each pressure pipe
     /// (for a tutorial: an optimal solution shows the mechanic, and a player who never parks a
     /// flask still gets every star). Breadth-first over exact states (which links were used is
     /// part of the node), at most `maxStates`; false if the budget runs out.
@@ -1155,7 +1133,8 @@ public enum LinkImpact {
                 for move in current.legalMoves() where !FrozenImpact.isRelocation(move, in: current) {
                     guard let turn = Rules.resolve(current, afterAction: .pour(move)), let pour = turn.pour else { continue }
                     var used = node.used
-                    if !pour.shares.isEmpty, let link = current.link(at: move.to), let i = links.firstIndex(of: link) {
+                    if !pour.shares.isEmpty || pour.push != nil, let link = current.link(at: move.to),
+                       let i = links.firstIndex(of: link) {
                         used |= 1 << UInt64(i)
                     }
                     if turn.isWon {
