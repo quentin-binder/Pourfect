@@ -194,15 +194,18 @@ struct StateGraph {
     var solved: [Bool] = []
     var edgeStart: [Int32] = []   // CSR: edges of node i are edges[edgeStart[i]..<edgeStart[i+1]]
     var edges: [Int32] = []
+    /// The states by node id, only when explored with `keepStates` (else empty).
+    var states: [GameState] = []
 
     var nodeCount: Int { solved.count }
 
     /// Explores every reachable state, or returns nil if there are more than `maxStates`.
-    static func explore(from start: GameState, maxStates: Int) -> StateGraph? {
+    static func explore(from start: GameState, maxStates: Int, keepStates: Bool = false) -> StateGraph? {
         guard StateKey.canEncode(start), Rules.isSupported(start) else { return nil }
         var graph = StateGraph()
         var index: [StateKey: Int32] = [start.canonicalKey: 0]
         graph.solved.append(start.isSolved)
+        if keepStates { graph.states.append(start) }
         // FIFO queue of states still to expand (node ids are assigned in queue
         // order). Processed states are dropped periodically to save memory.
         var queue: [GameState] = [start]
@@ -222,6 +225,7 @@ struct StateGraph {
                         if id >= maxStates { return nil }
                         index[key] = Int32(id)
                         queue.append(turn.state)
+                        if keepStates { graph.states.append(turn.state) }
                         graph.solved.append(turn.isWon)
                         graph.edges.append(Int32(id))
                     }

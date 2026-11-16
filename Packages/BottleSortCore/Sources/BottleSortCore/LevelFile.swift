@@ -94,6 +94,12 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     /// Essence flasks: a flask with a color rune receives only that color
     /// (`BottleModifier.essence`; chapter 4).
     public static let essence: Mechanic = "essence"
+    /// Narrow-neck flasks: one layer per pour, in or out (`BottleModifier.narrowNeck`; chapter 5).
+    public static let narrowNeck: Mechanic = "narrowNeck"
+    /// Funnel flasks: receive, never pour out (`BottleModifier.funnel`; chapter 5).
+    public static let funnel: Mechanic = "funnel"
+    /// Tap flasks: pour from the bottom, never receive (`BottleModifier.tap`; chapter 5).
+    public static let tap: Mechanic = "tap"
 
     public var description: String { rawValue }
 }
@@ -134,7 +140,8 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     /// Whether the level is played with hidden layers.
     public var isHidden: Bool { hidden ?? false }
 
-    /// The mechanics this level actually uses, in chapter order (sealed, murky, essence),
+    /// The mechanics this level actually uses, in chapter order (sealed, murky, essence,
+    /// narrow neck, funnel, tap),
     /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
     public var mechanics: [Mechanic] {
         let all = bottles.flatMap(\.allModifiers)
@@ -142,6 +149,9 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
         if all.contains(where: \.isSeal) { result.append(.sealed) }
         if isHidden { result.append(.murky) }
         if all.contains(where: { if case .essence = $0 { return true } else { return false } }) { result.append(.essence) }
+        if all.contains(.narrowNeck) { result.append(.narrowNeck) }
+        if all.contains(.funnel) { result.append(.funnel) }
+        if all.contains(.tap) { result.append(.tap) }
         return result
     }
 

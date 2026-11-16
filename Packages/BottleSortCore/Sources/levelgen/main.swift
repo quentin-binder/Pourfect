@@ -7,6 +7,7 @@ import Foundation
 //            --min-moves 8 --max-moves 15 --seed 1 --out my_pack.json
 //   levelgen --colors 5 --empty 2 --locks 1 --locks-matter --count 5 --out locks.json
 //   levelgen --colors 5 --empty 2 --essence 1 --essence-cost 2 --count 5 --out runes.json
+//   levelgen --colors 5 --empty 2 --narrow 1 --tap 1 --glass-cost 2 --count 5 --out glass.json
 //   levelgen --preset chapter2 --out Levels/chapter_02.json
 //   levelgen --preset all --out-dir Levels
 //   levelgen --report Levels            (every *.json in the folder)
@@ -19,12 +20,14 @@ usage:
            [--id-prefix p1] --out FILE
            [--hidden] [--locks-matter] [--pool K] [--easiest]
            [--essence N [--essence-empty K] [--essence-matter | --essence-cost C]]
+           [--narrow N] [--funnel N] [--tap N] [--glass-matter | --glass-cost C]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
-  levelgen --preset chapter1|chapter2|chapter3|chapter4|challenger|expert|master [--seed S] --out FILE
+  levelgen --preset chapter1|chapter2|chapter3|chapter4|chapter5|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
-           (writes chapter_01…04.json and challenge_challenger|expert|master.json)
+           (writes chapter_01…05.json and challenge_challenger|expert|master.json)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
+           [--narrow 0] [--funnel 0] [--tap 0]
            [--count 10] [--seed 1]
 """
 
@@ -43,7 +46,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--easiest"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--easiest"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -92,7 +95,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let r: DifficultyReport }
     var rows: [Row] = []
     var problems = 0
     for (i, level) in pack.levels.enumerated() {
@@ -112,13 +115,13 @@ func report(path: String) -> Int {
         let colors = Set(state.bottles.flatMap(\.layers).compactMap(\.colorID)).count
         rows.append(Row(index: i + 1, id: level.id, colors: colors, empty: state.bottles.filter(\.isEmpty).count,
                         locks: state.bottles.filter { $0.lockedBy != nil }.count,
-                        runes: state.bottles.filter { $0.essenceColor != nil }.count, r: r))
+                        runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state), r: r))
     }
     var title = pack.name ?? path
     if let kind = pack.kind { title += " (\(kind.rawValue)\(pack.chapter.map { " \($0)" } ?? ""))" }
     if let mechanics = pack.introduces { title += ", introduces " + mechanics.map(\.rawValue).joined(separator: ", ") }
     print("== \(title) — \(path)")
-    let header = "  #  id         colors empty locks runes minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks runes glass minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -128,8 +131,8 @@ func report(path: String) -> Int {
         case .sampled: dead = String(format: "~%.2f", row.r.deadEndRatio)
         }
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
-              + String(format: " %6d %5d %5d %5d %8d %7d ", row.colors, row.empty, row.locks, row.runes, row.r.minMoves,
-                       row.r.statesExplored)
+              + String(format: " %6d %5d %5d %5d ", row.colors, row.empty, row.locks, row.runes) + pad(row.glass, 5, right: true)
+              + String(format: " %8d %7d ", row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -141,6 +144,15 @@ func report(path: String) -> Int {
     }
     print("\(problems) problem(s)\n")
     return problems
+}
+
+/// Narrow necks, funnels and taps of a level as "nN fF tT" letters (e.g. "n2t1"; "-" for none).
+func glassSummary(_ state: GameState) -> String {
+    let n = state.bottles.filter(\.hasNarrowNeck).count
+    let f = state.bottles.filter(\.isFunnel).count
+    let t = state.bottles.filter(\.hasTap).count
+    let parts = [(n, "n"), (f, "f"), (t, "t")].filter { $0.0 > 0 }.map { "\($0.1)\($0.0)" }
+    return parts.isEmpty ? "-" : parts.joined()
 }
 
 // MARK: Generation
@@ -167,6 +179,12 @@ struct Tier {
     var essenceEmpty: Int? = nil
     /// Moves each essence flask must add (`EssenceImpact`); nil = no must-matter check.
     var essenceCost: Int? = nil
+    /// Narrow-neck, funnel and tap flasks per level (C2, C4).
+    var narrow = 0
+    var funnel = 0
+    var tap = 0
+    /// Moves each narrow neck, funnel and tap must change (`GlassImpact`); nil = no must-matter check.
+    var glassCost: Int? = nil
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
@@ -268,6 +286,45 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, hidden: true, moves: any, score: 48...57,
              locksMatter: true, strongLocks: true, essence: 1, essenceCost: EssenceImpact.strongCost, section: 2),
     ]),
+    "chapter5": PackPreset(file: "chapter_05", idPrefix: "c5", name: "Glass Works",
+                           subtitle: "Narrow necks, funnels and taps change how potions flow", kind: .chapter, chapter: 5,
+                           location: "Glass Works", introduces: [.narrowNeck, .funnel, .tap], seed: 10_000, tiers: [
+        // Tutorial: 3 colors in size-3 flasks; one narrow neck that costs at least 2 moves.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 2, moves: any, pool: 8, narrow: 1,
+             glassCost: GlassImpact.strongCost, keepEasiest: true, section: 0),
+        // Narrow necks only (every glass flask changes the optimum by 2+ moves).
+        Tier(count: 3, colors: 4, capacity: 4, empty: 2, moves: any, score: 22...29, narrow: 1,
+             glassCost: GlassImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, moves: any, score: 28...35, narrow: 1,
+             glassCost: GlassImpact.strongCost, section: 1),
+        // Funnels (they matter by the trap they set), then with a narrow neck.
+        Tier(count: 1, colors: 4, capacity: 4, empty: 2, moves: any, pool: 4, funnel: 1,
+             glassCost: GlassImpact.strongCost, keepEasiest: true, section: 2),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, moves: any, score: 32...38, funnel: 1,
+             glassCost: GlassImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 36...42, narrow: 1, funnel: 1,
+             glassCost: GlassImpact.strongCost, section: 2),
+        // Taps, then with a narrow neck.
+        Tier(count: 1, colors: 4, capacity: 3, empty: 2, moves: any, pool: 4, tap: 1,
+             glassCost: GlassImpact.strongCost, keepEasiest: true, section: 3),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, moves: any, score: 36...44, tap: 1,
+             glassCost: GlassImpact.strongCost, section: 3),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 40...46, narrow: 1, tap: 1,
+             glassCost: GlassImpact.strongCost, section: 3),
+        // All three, and with earlier mechanics: murky layers, a strong seal, an essence rune.
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 42...48, narrow: 1, funnel: 1,
+             glassCost: GlassImpact.strongCost, section: 4),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 45...51, funnel: 1, tap: 1,
+             glassCost: GlassImpact.strongCost, section: 4),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, hidden: true, moves: any, score: 46...53, narrow: 1, tap: 1,
+             glassCost: GlassImpact.strongCost, section: 4),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, locks: 1, moves: any, score: 46...54, locksMatter: true,
+             strongLocks: true, narrow: 1, glassCost: GlassImpact.strongCost, section: 4),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 2, moves: any, score: 49...56, essence: 1, essenceEmpty: 0,
+             essenceCost: EssenceImpact.minimumCost, tap: 1, glassCost: GlassImpact.strongCost, section: 4),
+        Tier(count: 1, colors: 7, capacity: 4, empty: 2, moves: any, score: 51...58, narrow: 1, funnel: 1, tap: 1,
+             glassCost: GlassImpact.strongCost, section: 4),
+    ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
         Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
@@ -293,7 +350,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
     ]),
 ]
-let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "challenger", "expert", "master"]
+let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "challenger", "expert", "master"]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
@@ -306,7 +363,9 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      essence: tier.essence, essenceEmpty: tier.essenceEmpty,
                                      requireEssenceMatter: tier.essenceCost != nil,
                                      essenceCost: tier.essenceCost ?? EssenceImpact.minimumCost,
-                                     hidden: tier.hidden)
+                                     hidden: tier.hidden, narrowNecks: tier.narrow, funnels: tier.funnel, taps: tier.tap,
+                                     requireGlassMatter: tier.glassCost != nil,
+                                     glassCost: tier.glassCost ?? GlassImpact.minimumCost)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -319,7 +378,7 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
         let kept = tier.keepEasiest ? hardestFirst.reversed().prefix(tier.count) : hardestFirst.prefix(tier.count)
         all += kept.map { ($0, tier.hidden, tier.section) }
         let pooled = tier.pool > 1 ? " (\(tier.keepEasiest ? "easiest" : "best") of \(tier.count * tier.pool))" : ""
-        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
+        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
     }
     // Sort by score within each section, so difficulty rises through the whole pack.
     return all.sorted { ($0.section, $0.level.report.score, $0.level.seed) < ($1.section, $1.level.report.score, $1.level.seed) }
@@ -351,7 +410,9 @@ func bench() {
     let seed = UInt64(int("--seed", default: 1)!)
     let locks = int("--locks", default: 0)!
     let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks,
-                                 essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"))
+                                 essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"),
+                                 narrowNecks: int("--narrow", default: 0)!, funnels: int("--funnel", default: 0)!,
+                                 taps: int("--tap", default: 0)!)
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
@@ -415,10 +476,14 @@ if let path = options["--report"] {
         let essence = int("--essence", default: 0)!
         guard essence >= 0, essence <= colors else { fail("--essence must be between 0 and colors") }
         let essenceCost = int("--essence-cost") ?? (flags.contains("--essence-matter") ? EssenceImpact.minimumCost : nil)
+        let glassCost = int("--glass-cost") ?? (flags.contains("--glass-matter") ? GlassImpact.minimumCost : nil)
+        let narrow = int("--narrow", default: 0)!, funnel = int("--funnel", default: 0)!, tap = int("--tap", default: 0)!
+        guard narrow >= 0, funnel >= 0, tap >= 0 else { fail("--narrow, --funnel and --tap must not be negative") }
         let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
                         empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
                         pool: int("--pool", default: 1)!, locksMatter: flags.contains("--locks-matter"),
                         essence: essence, essenceEmpty: int("--essence-empty"), essenceCost: essenceCost,
+                        narrow: narrow, funnel: funnel, tap: tap, glassCost: glassCost,
                         keepEasiest: flags.contains("--easiest"))
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }

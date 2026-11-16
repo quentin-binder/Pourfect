@@ -31,6 +31,19 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Moves each essence flask must add for `requireEssenceMatter`
     /// (`EssenceImpact.minimumCost` or `.strongCost`).
     public var essenceCost: Int
+    /// Narrow-neck flasks (C2): one layer per pour, in or out. 0 = none. See
+    /// `Generator.candidate` (step 6) for the placement of all glass modifiers.
+    public var narrowNecks: Int
+    /// Funnel flasks (C4, receive only), placed on empty flasks. 0 = none.
+    public var funnels: Int
+    /// Tap flasks (C4, pour from the bottom, never receive), placed on filled flasks. 0 = none.
+    public var taps: Int
+    /// Reject levels where some narrow neck, funnel or tap doesn't matter (`GlassImpact`,
+    /// cost `glassCost`).
+    public var requireGlassMatter: Bool
+    /// Moves each glass modifier must change for `requireGlassMatter`
+    /// (`GlassImpact.minimumCost` or `.strongCost`).
+    public var glassCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -39,6 +52,8 @@ public struct GeneratorConfig: Sendable, Hashable {
                 requireLocksMatter: Bool = false, lockCost: Int = LockImpact.minimumCost,
                 essence: Int = 0, essenceEmpty: Int? = nil, requireEssenceMatter: Bool = false,
                 essenceCost: Int = EssenceImpact.minimumCost, hidden: Bool = false,
+                narrowNecks: Int = 0, funnels: Int = 0, taps: Int = 0, requireGlassMatter: Bool = false,
+                glassCost: Int = GlassImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -54,6 +69,11 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.requireEssenceMatter = requireEssenceMatter
         self.essenceCost = essenceCost
         self.hidden = hidden
+        self.narrowNecks = narrowNecks
+        self.funnels = funnels
+        self.taps = taps
+        self.requireGlassMatter = requireGlassMatter
+        self.glassCost = glassCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -105,6 +125,16 @@ public enum Generator {
     ///    For a murky level (`hidden`) a filled flask gets a random free color too, like an
     ///    empty one: its bottom layer is hidden, and a rune of that color would reveal it.
     ///    Fewer than `E` flasks are marked only if the level has too few candidates.
+    ///
+    /// Glass modifiers (`narrowNecks`, `funnels`, `taps`), drawn after step 5 from the same
+    /// stream (nothing is drawn when all three are 0, so every older level is unchanged):
+    /// 6. The bottle indices are shuffled again. Walking that order over flasks without any
+    ///    modifier (no seal, no rune; one glass modifier per flask): a filled flask gets a
+    ///    tap while taps are left, an empty flask a funnel while funnels are left (a funnel
+    ///    never pours out, so it must start empty), and any other such flask a narrow neck
+    ///    while necks are left. Placement reads only which flasks are empty, never colors,
+    ///    so it tells nothing about murky layers. Fewer are placed only if the level has too
+    ///    few candidates.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         var rng = SplitMix64(seed: seed)
         let capacity = config.capacity
@@ -154,7 +184,32 @@ public enum Generator {
         bottles += Array(repeating: Bottle(capacity: capacity), count: config.emptyBottles)
         // 5. Essence flasks.
         if config.essence > 0 { markEssence(&bottles, config: config, rng: &rng) }
+        // 6. Glass modifiers.
+        if config.narrowNecks > 0 || config.funnels > 0 || config.taps > 0 { markGlass(&bottles, config: config, rng: &rng) }
         return GameState(bottles: bottles)
+    }
+
+    /// Step 6 of `candidate`.
+    static func markGlass(_ bottles: inout [Bottle], config: GeneratorConfig, rng: inout SplitMix64) {
+        var order = Array(bottles.indices)
+        rng.shuffle(&order)
+        var necks = config.narrowNecks, funnels = config.funnels, taps = config.taps
+        for i in order where bottles[i].isPlain {
+            let modifier: BottleModifier
+            if !bottles[i].isEmpty && taps > 0 {
+                modifier = .tap
+                taps -= 1
+            } else if bottles[i].isEmpty && funnels > 0 {
+                modifier = .funnel
+                funnels -= 1
+            } else if necks > 0 {
+                modifier = .narrowNeck
+                necks -= 1
+            } else {
+                continue
+            }
+            bottles[i].modifiers.append(modifier)
+        }
     }
 
     /// Step 5 of `candidate`.
@@ -213,6 +268,9 @@ public enum Generator {
         if config.requireEssenceMatter,
            !EssenceImpact.everyEssenceMatters(state, minMoves: moves.count, cost: config.essenceCost,
                                               limits: config.solverLimits) { return nil }
+        if config.requireGlassMatter,
+           !GlassImpact.everyGlassMatters(state, minMoves: moves.count, cost: config.glassCost,
+                                          limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -272,7 +330,14 @@ public enum MechanicInstance: Hashable, Sendable, CustomStringConvertible {
 /// instance removed and compare.
 ///
 /// An instance *matters* when the level without it is unsolvable, or the level with it
-/// needs at least `cost` more moves. The default cost is `minimumCost(of:)`: the
+/// needs at least `cost` more moves. A narrow neck or a tap (`isTwoSided`) also matters
+/// when the level with it needs at least `cost` *fewer* moves: both take options away
+/// and add one (a narrow neck splits a run, a tap reaches the bottom layer), and an
+/// optimal solution that relies on the new option uses the flask as much as one that
+/// works around it. A funnel (which in practice never changes the optimal length: whatever
+/// goes into it can always be completed there) also matters when it sets a trap
+/// (`trapDepth(of:in:)`): a position one pour from a solvable one that is lost only because
+/// the flask is a funnel. The default cost is `minimumCost(of:)`: the
 /// instance's inherent cost (what it costs even when it changes nothing: a seal always
 /// costs the key pour, 1 move; everything else 0) plus one. A caller may ask for more
 /// (stronger locks: `LockImpact.strongCost`, DECISIONS 104). An undecided solve (limits
@@ -330,8 +395,22 @@ public enum MechanicImpact {
         let cost = cost ?? minimumCost(of: instance)
         switch Solver().solve(removing(instance, from: state), limits: limits) {
         case .unsolvable: return true
-        case .solved(let moves, _): return minMoves - moves.count >= cost
+        case .solved(let moves, _):
+            let saved = minMoves - moves.count
+            if (isTwoSided(instance) ? abs(saved) : saved) >= cost { return true }
+            // A funnel never changes the optimal length; it matters by the trap it sets.
+            if case .modifier(_, .funnel) = instance { return trapDepth(of: instance, in: state) != nil }
+            return false
         case .unknown: return false
+        }
+    }
+
+    /// Whether the instance can make a level shorter as well as longer (`matters` then
+    /// counts the change either way): a narrow neck or a tap.
+    public static func isTwoSided(_ instance: MechanicInstance) -> Bool {
+        switch instance {
+        case .modifier(_, .narrowNeck), .modifier(_, .tap): return true
+        default: return false
         }
     }
 
@@ -402,5 +481,77 @@ public enum EssenceImpact {
     public static func everyEssenceMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
                                            limits: SolverLimits = .default) -> Bool {
         instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+}
+
+/// Whether a narrow neck, funnel or tap changes a level (the "must matter" check for C2 and
+/// C4): the `.modifier(_, .narrowNeck / .funnel / .tap)` cases of `MechanicImpact`.
+///
+/// A funnel only takes moves away (it never pours out), so the level without it is never
+/// longer; in practice it is never shorter either, so a funnel matters by the trap it sets
+/// (`MechanicImpact.trapDepth(of:in:)`), whatever the cost. A narrow neck or a tap can also make a level shorter (`MechanicImpact.isTwoSided`),
+/// so for them the change counts either way.
+public enum GlassImpact {
+    /// Smallest cost that counts as "matters": one move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Cost required in the chapter 5 recipes after the tutorial: the flask changes the
+    /// optimal solution by at least two moves.
+    public static let strongCost = 2
+
+    /// The narrow-neck, funnel and tap instances of `state` (one per marked flask).
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        MechanicImpact.instances(in: state).filter {
+            switch $0 {
+            case .modifier(_, .narrowNeck), .modifier(_, .funnel), .modifier(_, .tap): return true
+            default: return false
+            }
+        }
+    }
+
+    /// Whether every narrow neck, funnel and tap matters (true for a level without one).
+    public static func everyGlassMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                         limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+}
+
+extension MechanicImpact {
+    /// The shallowest *trap* `instance` sets in `state`: a position one pour away from a
+    /// still-solvable one, that is a dead end with the instance but solvable without it
+    /// (the same layers, the instance removed). Returns its depth (moves from the start),
+    /// or nil if none was found within the budget: the reachable graph must have at most
+    /// `maxStates` states, and at most `maxChecks` dead ends (shallowest first) are
+    /// re-solved without the instance, each within `checkLimits`.
+    ///
+    /// This is how a funnel matters (DECISIONS 150): it never changes the optimal length
+    /// (whatever goes into a funnel can always be completed there), but pouring the wrong
+    /// potion in at the wrong time can lose a level that a plain flask would have saved.
+    public static func trapDepth(of instance: MechanicInstance, in state: GameState, maxStates: Int = 300_000,
+                                 maxChecks: Int = 40,
+                                 checkLimits: SolverLimits = SolverLimits(maxStates: 200_000)) -> Int? {
+        guard let graph = StateGraph.explore(from: state, maxStates: maxStates, keepStates: true) else { return nil }
+        let solvable = graph.solvableFlags()
+        guard solvable.first == true else { return nil }
+        // Depths by BFS over the graph (node 0 is the start).
+        var depth = [Int](repeating: -1, count: graph.nodeCount)
+        depth[0] = 0
+        var queue = [0], head = 0
+        var traps: [Int] = []   // dead ends entered from a solvable node, in BFS order
+        while head < queue.count {
+            let node = queue[head]
+            head += 1
+            for e in Int(graph.edgeStart[node])..<Int(graph.edgeStart[node + 1]) {
+                let child = Int(graph.edges[e])
+                guard depth[child] < 0 else { continue }
+                depth[child] = depth[node] + 1
+                queue.append(child)
+                if solvable[node] && !solvable[child] { traps.append(child) }
+            }
+        }
+        for node in traps.prefix(maxChecks) {
+            let without = removing(instance, from: graph.states[node])
+            if case .solved = Solver().solve(without, limits: checkLimits) { return depth[node] }
+        }
+        return nil
     }
 }
