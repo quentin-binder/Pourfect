@@ -228,9 +228,12 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] R7 review fixes: the pour leaves through a narrow mouth, Potion Bottle / Round-Bottom full width where the potion stands, reward toast waits for a story scene, story scenes take the keyboard, `LevelPack.progress` treats orders as bonus (DECISIONS 243)
 
 ## R8 — Release readiness (Milestone 7, no iCloud / Game Center / notifications)
-- [ ] Final bundle id + target rename to Pourfect; app icon, launch screen, App Store screenshots
-- [ ] Accessibility pass: VoiceOver labels for flasks and layers, Dynamic Type in menus, reduce-motion everywhere
-- [ ] Optional: TestFlight beta (App Store Connect stats only, no third-party analytics)
+- [x] Final target rename to Pourfect: project, target, scheme, app folder and product (bundle id `dev.qbi.pourfect` kept; DECISIONS 244)
+- [x] App icon (approved candidate; Mac sizes with the rounded-rect body) and iOS launch screen (DECISIONS 245)
+- [ ] App Store screenshots (separate task)
+- [x] Release polish: privacy manifest, About page, DEBUG hooks checked out of Release, size report, App Store notes in `docs/APP_STORE.md` (DECISIONS 246–248)
+- [ ] Accessibility pass: VoiceOver labels for flasks and layers, Dynamic Type in menus, reduce-motion everywhere — not in scope (user)
+- [ ] Optional: TestFlight beta (App Store Connect stats only, no third-party analytics) — `scripts/testflight.sh` is ready (DECISIONS 249); the upload is the operator's
 - [ ] Business decision point; `HintService` and `ProgressStore` stay behind protocols
 
 ## Parked ideas (user, not scheduled)

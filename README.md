@@ -66,6 +66,9 @@ else is a challenge).
   "Daily solved!", the **Perfect** badge (fewest moves, no hint), the streak and a **Share Result** button with
   spoiler-free text such as `Pourfect Daily 2026-11-15 · 22 moves (perfect) · 🔥 6`. Daily results never touch
   chapter stars.
+- **Settings → About Pourfect:** version and build, the art licensing note (FLUX 1.1 [pro] Ultra via Replicate,
+  Bria background removal), sound and font credits and the privacy note (no data collected). A pushed page on iOS,
+  a sheet over the Settings window on the Mac.
 - **Chapter screen:** vignette header with name, subtitle, stars, gold seals ("Gold seals 4 / 30") and what the
   stars open ("Earn 12 more stars to open Misty Marsh"), then the recipe grid (recipes open in order; a cleared
   recipe with a gold seal wears it in its corner).
@@ -135,15 +138,19 @@ Pourfect/                    SwiftUI app
   Views/                     RootView, ChapterMapView (home), PackView (chapter / challenge recipes), ChallengesView,
                              GameView, TutorialOverlay, BottleView, RandomLevelView, PourAnimationView,
                              TiltedLiquid, FlaskDecor, GlassDecor, FrostDecor, BubbleDecor, LinkDecor, CauldronDecor,
-                             SwitchDecor, WorkbenchBackground, SettingsView
+                             SwitchDecor, WorkbenchBackground, SettingsView, AboutView
   Assets.xcassets            Optimized painted art (workbench backgrounds, chapter map, chapter vignettes)
   Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
+  PrivacyInfo.xcprivacy      Privacy manifest (no tracking, no collected data, UserDefaults CA92.1)
+  Info-iOS.plist             iOS-only Info.plist keys (launch screen); everything else is generated
 Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
   Sources/BottleSortCore/    Model, Mechanics, Rules, StateKey, Solver, Difficulty, Generator, LevelFile, GameSession,
                              RandomLevel, Settings
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
+scripts/                     test-fast.sh (optimized core tests), testflight.sh + ExportOptions.plist (release upload)
+docs/APP_STORE.md            Store category, age rating, privacy answers, size report, App Store Connect steps
 Levels/chapter_0N.json       Main-path chapters 1–3; challenge_*.json: optional challenges (synchronized folder: every JSON file is bundled)
 ```
 
@@ -167,6 +174,21 @@ xcodebuild -project Pourfect.xcodeproj -scheme Pourfect -destination 'platform=m
 # iOS Simulator
 xcodebuild -project Pourfect.xcodeproj -scheme Pourfect -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 ```
+
+### Release builds
+
+```sh
+# Unsigned iOS Release archive only (nothing is signed or uploaded)
+scripts/testflight.sh 7 --archive-only
+# Archive, then sign (automatic, team MVC97L8VQ3) and upload to App Store Connect for TestFlight
+scripts/testflight.sh 7
+```
+
+The argument is the build number (`CFBundleVersion`, must grow with every upload); the version comes from
+`MARKETING_VERSION`. Output goes to a new temporary directory printed by the script. The export uses
+`scripts/ExportOptions.plist` (method `app-store-connect`, destination `upload`, symbols uploaded) and the Apple ID
+signed in to Xcode. Every DEBUG launch argument and demo hook is inside `#if DEBUG` and absent from a Release
+binary (`strings` finds none of the `LP…` keys). Store metadata, age rating and privacy answers: `docs/APP_STORE.md`.
 
 ### How to play
 
@@ -312,7 +334,12 @@ Boards with no empty bottle are almost always unsolvable. Random levels are play
   These are JPEG copies made with `sips` from the full-resolution originals in `Art/` (kept local, see
   `Art/README.md`); about 6 MB in total. R7 adds the three theme paintings (`theme_<name>_landscape`
   2752 × 1536 and `_portrait` 1179 × 2752, JPEG quality 72, ≈ 3.6 MB) and the six story portraits (512 px PNG with
-  transparency, ≈ 1.7 MB).
+  transparency, ≈ 1.7 MB). The six villager portraits are 256 px (shown at 58 pt at most).
+- **App icon and launch:** `AppIcon` holds the approved `Art/icon/app_icon_candidate.png` as the full-bleed iOS
+  1024 px icon (the system masks it) and as the Mac sizes 16–1024 px drawn on Apple's grid (824 px rounded-rect body
+  with a 100 px margin and a soft shadow, as macOS expects). The iOS launch screen is a plain colour
+  (`LaunchBackground`, a dark workbench brown) from `UILaunchScreen` in `Pourfect/Info-iOS.plist` (merged into the
+  generated Info.plist on iOS only).
 - **Flask shapes:** `FlaskShape(style:)` (`Cosmetics.swift`) draws the body inside the flask's unchanged frame; every
   fill, outline and clip of a flask goes through it (`BottleView.shape(width:style:)`, `.flaskClip(width:)`), the
   narrow neck rises from the shape's mouth, the rim and cork follow the mouth, and the pour leaves from the mouth's
