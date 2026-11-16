@@ -24,7 +24,7 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_07` | 7 Bubbling Bog | `c7_001…` | 30 | 4–25 | 15–52 | Bubbling flasks: one, then two (4 colors); at the end with murky layers and seals |
 | `chapter_08` | 8 Twin Towers | `c8_001…` | 32 | 4–25 | 11–56 | Twin flasks (every one needs a split), then pressure pipes (tutorial `c8_013`, then 4–5 colors; every pipe must be pushed through), then murky twins and pipes, seals and 7 colors; the last two recipes have both links |
 | `chapter_09` | 9 Alchemist's Hall | `c9_001…` | 30 | 4–19 | 15–52 | Mixing cauldron: one recipe with ingredients that must all be brewed, then ingredients that are potions of their own (one pair to brew for the shortest win), then two recipes; at the end murky layers, a seal and 8 colors. Built backwards from a solved board |
-| `chapter_10` | 10 Dragon's Hoard | `c10_001…` | 30 | 6–32 | 14–63 | Switch flasks and gates: one switch (gate full of potion, empty gate, empty switch), then two; then one earlier mechanic each (murky, seal, rune, narrow neck, ice, bubbling, twins); the finale (8–9 colors, 58–63) is the hardest of the main path |
+| `chapter_10` | 10 Dragon's Hoard | `c10_001…` | 32 | 6–32 | 14–63 | Switch flasks and gates: one switch (gate full of potion, empty gate, empty switch), then two; then one earlier mechanic each (murky, seal, rune, narrow neck, ice, bubbling, twins); the finale 26–30 (8–9 colors, 58–63) is the hardest of the main path; 31–32 (41, 50) add a mixing cauldron to a switch (appended after the finale so 1–30 keep their ids) |
 
 All ten chapters of `ChapterOutline.plan` ship.
 Optional **Challenges** (never gated):
@@ -176,6 +176,15 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   push. So a pour into a full A with the color on top is legal exactly when B has room. Pushes need both ends free
   of modifiers, never go into the source, and happen only for pours into A (one hop; a pour into B is ordinary). A
   pushed murky layer stays hidden at B's bottom. A flask is an end of at most one link (twin chain or pipe).
+  Exactly, for a pour whose movable run is `r` layers (after every limit) into A with `f` free slots: `r ≤ f` is an
+  ordinary pour. Otherwise `p = min(r − f, free space of B, layers in A)` of A's bottom layers go to B's bottom
+  (the bottommost first, so B gets them in A's order under its own layers), A receives `f + p` layers and the
+  remaining `r − f − p` stay in the source. If A and B are both full (`f = 0` and B has no room), the pour is refused
+  (the pipe glints and says so). A push is forced: a pour that doesn't fit always pushes as far as it can.
+  **Push preview:** while a flask is held, every pipe whose flask would push on a pour from it glows, light runs
+  along it towards B and its arrow nudges (Reduce Motion: a steady glow), and a brass "+N" tag under B shows how
+  many layers would be pushed (`Rules.push(of:in:)`); nothing shows when no pour would push. VoiceOver adds
+  "pouring here pushes N layers into flask M" to the pipe flask's description.
 - **Mixing cauldron** (chapter 9). A cauldron carries one or two recipes `X + Y → Z` (red + blue → purple). Inside
   it (and only there) a color may be poured onto its recipe partner: each poured layer mixes with one layer of the
   partner's top run into two layers of Z, so n poured layers on a run of m mix min(n, m) pairs:
@@ -264,6 +273,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
 | `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask, else a pour a twin chain or a shut gate refuses (picking up a shut gate). |
 | `-LPDemoIcePour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a legal pour out of a flask that holds ice (the potion above the ice pours, the ice stays pinned). |
+| `-LPDemoSelect N` | After `-LPDemoMoves` / `-LPDemoUndo`, picks up flask N (1-based in the shuffled level); `-LPDemoSelect push` picks up the first flask whose pour into a pressure-pipe flask would push (to see the push preview; e.g. chapter 8 recipe 13). |
 | `-LPDemoLinkPour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a pour that uses a link (a push through a pressure pipe, else a split between twins; e.g. chapter 8 recipe 13). |
 | `-LPSlowMotion F` | Plays the pour, thaw, bubble-up, cauldron mix and gate animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
@@ -295,7 +305,7 @@ LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 d
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-This runs 462 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 465 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -345,7 +355,9 @@ switch levels (and positions a few moves on, with seals, runes, necks, ice, bubb
 every distinct child, permutation-invariant keys that tell the lever's direction, JSON, validation, undo/restart,
 murky masks, the generator options and placements, switches beside pressure pipes (no flask in both, the shut gate named
 as the reason), and chapter 10 (every switch adds 2+ moves, an optimal solution
-opens a gate, the finale is the hardest of the main path).
+opens a gate, the finale is the hardest of the main path, the two cauldron recipes mix by counting and their optimal
+solution both brews and opens the gate); the backwards cauldron walk places switches after its seals without changing
+the walk.
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels

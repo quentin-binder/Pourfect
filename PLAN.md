@@ -207,6 +207,7 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
   - [x] Review fixes: solver candidates never pour out of a closed gate (every candidate is legal), a gate in the air keeps the switch's gem, rod and lever on the board (DECISIONS 211)
   - [x] Merged with the pressure-pipe rework (r5-8): both features in `Rules`, generator, `levelgen` presets and the app; chapters 8 and 10 regenerate byte-identical; a closed gate is named when a pour would push into a full pipe flask (DECISIONS 221)
   - Not covered: iPhone not screenshotted this round (iOS Simulator build only); haptics untested on hardware; a gate whose switch both ends of a pour touch (switch pours into its own gate) shuts when the pour lands, not while it flows
+  - [x] R5 known limits fixed: the backwards cauldron generator places switches (step 5, `SwitchImpact` strong, optimal solution brews and opens a gate); chapter 10 gains `c10_031` (41.4) and `c10_032` (50.4), appended after the finale so 1–30 keep their ids (DECISIONS 222); pressure-pipe push preview while a flask is held (glow, running light, "+N" under the far flask, Reduce Motion static, VoiceOver) (DECISIONS 223); tests 462 → 465
 - [ ] After each: solver timing check on the hardest preset; cap counters if needed
 
 ## R6 — Challenge modes (Milestone 5, separate from the calm main path)
