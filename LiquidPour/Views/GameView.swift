@@ -217,7 +217,7 @@ struct GameView: View {
             if let pour = model.pour, let from = frames[pour.from], let to = frames[pour.to] {
                 PourAnimationView(event: pour, sourceFrame: proxy[from], targetFrame: proxy[to],
                                   boardSize: proxy.size, reduceMotion: reduceMotion) {
-                    withAnimation(.easeInOut(duration: 0.3)) { model.finishPour(pour.id) }
+                    withAnimation(.easeInOut(duration: 0.3)) { model.finishPour(pour.id, reduceMotion: reduceMotion) }
                 }
                 .id(pour.id)
                 .transition(.identity)   // the board's own bottles take over in the same frame

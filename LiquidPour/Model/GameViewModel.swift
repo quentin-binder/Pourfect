@@ -238,11 +238,9 @@ final class GameViewModel {
                 reject(index)
             } else if Rules.outlet(of: bottle) == nil {
                 // Nothing can leave it right now (a seal, a funnel, ice on top or in a tap
-                // flask): it isn't picked up.
-                if bottle.isFunnel {
-                    refuse(index, modifier: .funnel)
-                } else if let ice = Self.blockingIce(of: bottle) {
-                    refuse(index, modifier: ice)
+                // flask): it isn't picked up. `Rules.outletBlocker` names the reason.
+                if let blocker = Rules.outletBlocker(of: bottle), Self.explains(blocker) {
+                    refuse(index, modifier: blocker)
                 } else {
                     reject(index)
                 }
@@ -268,11 +266,12 @@ final class GameViewModel {
     }
 
     /// Called by the view when the pour animation `id` has finished. Replays queued taps.
-    func finishPour(_ id: Int) {
+    /// `reduceMotion`: the thaw plays as a short fade, so its marks clear sooner.
+    func finishPour(_ id: Int, reduceMotion: Bool = false) {
         guard let landed = pour, landed.id == id else { return }
         pour = nil
         pourTimeout?.cancel()
-        startThaws(landed.events)
+        startThaws(landed.events, reduceMotion: reduceMotion)
         if !landed.completed.isEmpty {
             for index in landed.completed where completions.indices.contains(index) { completions[index] += 1 }
             emit(.flaskCompleted(bottles: landed.completed))
@@ -447,17 +446,9 @@ final class GameViewModel {
         emit(.refused(bottle: bottle, modifier: modifier))
     }
 
-    /// The frozen layer that keeps anything from leaving `bottle` (its top layer is frozen, or
-    /// it is a tap flask holding ice), for the refusal; nil if ice isn't the reason.
-    private static func blockingIce(of bottle: Bottle) -> BottleModifier? {
-        guard bottle.holdsIce, bottle.isIcedOver || bottle.hasTap else { return nil }
-        let ice = bottle.isIcedOver ? bottle.frozenLayers.last : bottle.frozenLayers.max { $0.turns < $1.turns }
-        return ice.map { .frozen(layer: $0.layer, turns: $0.turns) }
-    }
-
     /// The pour landed: the layers that thawed after it crack and melt now (`ThawingIce`), with
     /// a sound and, for VoiceOver, a line naming the flasks.
-    private func startThaws(_ events: [TurnEvent]) {
+    private func startThaws(_ events: [TurnEvent], reduceMotion: Bool) {
         var bottles: [Int] = []
         for event in events {
             guard case let .thawed(bottle, layer) = event else { continue }
@@ -474,7 +465,9 @@ final class GameViewModel {
         let lastID = thawCount
         thawClearTask?.cancel()
         thawClearTask = Task {
-            try? await Task.sleep(for: .seconds((ThawPose.duration + 0.15) * DebugTiming.slow))
+            // As long as `ThawingIce` plays (the frost rim stays while a mark is left).
+            let duration = reduceMotion ? ThawPose.reducedDuration : ThawPose.duration
+            try? await Task.sleep(for: .seconds((duration + 0.15) * DebugTiming.slow))
             guard !Task.isCancelled else { return }
             self.thaws.removeAll { $0.id <= lastID }
         }

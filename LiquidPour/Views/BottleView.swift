@@ -220,7 +220,9 @@ struct BottleView: View {
 
     // MARK: Completed flask
 
-    private var isCompleted: Bool { Rules.isCompleted(bottle) }
+    /// Complete only once the ice shown is gone: a flask beside a pour keeps the ice it had
+    /// before the move (`ice`) until the pour lands, and its cork waits for that too.
+    private var isCompleted: Bool { frozen.isEmpty && Rules.isCompleted(bottle) }
 
     /// The cork sits in the mouth while the flask is complete. It drops in when the pour that
     /// completed it lands (`completions` changes) and pops off when the flask stops being complete.
