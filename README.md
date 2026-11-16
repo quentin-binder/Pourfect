@@ -61,9 +61,28 @@ else is a challenge).
   "Daily solved!", the **Perfect** badge (fewest moves, no hint), the streak and a **Share Result** button with
   spoiler-free text such as `Pourfect Daily 2026-11-15 · 22 moves (perfect) · 🔥 6`. Daily results never touch
   chapter stars.
-- **Chapter screen:** vignette header with name, subtitle, stars and what they open ("Earn 12 more stars to open
-  Misty Marsh"), then the recipe grid (recipes open in order).
-- **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
+- **Chapter screen:** vignette header with name, subtitle, stars, gold seals ("Gold seals 4 / 30") and what the
+  stars open ("Earn 12 more stars to open Misty Marsh"), then the recipe grid (recipes open in order; a cleared
+  recipe with a gold seal wears it in its corner).
+- **Gold seals ("perfect brewer"):** a recipe solved in exactly its solver minimum *without a hint* earns a gold
+  seal (Undo is fine, only the final count matters, as for stars; a hint forfeits it until another recipe starts,
+  Restart included). Stored per recipe apart from the stars (`progress.goldSeals.v1`). The win card then says
+  **Perfect brew!** with the seal stamping in over a burst of gold rays and a bell chime (a still seal with Reduce
+  Motion); 3 stars after a hint add "A hint was used, so no gold seal this time". A chapter whose every recipe has
+  its seal gets a small gold seal on its map button. Random brews show the card too but save nothing; the daily
+  keeps its own "Perfect" badge (same look).
+- **Challenges** (trophy on the map; never gated, nothing here counts toward the chapter map's star gates):
+  - **Rush:** solve as many generated recipes as you can in **3:00**. Each solve adds **+5 s**, **Skip** costs
+    **10 s**, no hints (Undo and Restart are fine). The clock stops while the next recipe is still brewing (they
+    are made one ahead in the background, so normally there is no wait), during the short "Brewed! +5 s" pause,
+    as soon as the board is solved (the winning pour counts even if its animation lands after 0:00), while a
+    "?" tip is open and while the app is in the background. Recipes start at 3 colors and ramp up; from the sixth
+    on they take turns with the mechanics you have met on the map (a chapter's tutorial recipe cleared): rune
+    seals, murky potions, essence flasks, narrow necks, frozen layers. End card: recipes brewed, best, skips,
+    **New best!** with the gold seal. Best and runs are stored on their own keys (`rush.best.v1`,
+    `rush.runs.v1`); leaving a run before time is up records nothing.
+  - **Recipe books:** Challenger, Expert and Master, with their stars and gold seals (recipes inside open in order).
+  - **Random Brew** (below).
 - **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow
   necks, funnels, taps, frozen layers, bubbling flasks, twin flasks, pressure pipes, the mixing cauldron, switches and
   gates) the game shows a
@@ -280,6 +299,10 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
 | `-LPRandomSeed S` | Seed for `-LPRandomMode` (default 1), so the same level comes back every time. |
+| `-LPOpenRush 1` | Opens Challenges and starts a Rush run. |
+| `-LPRushSeed N` | Seed of the Rush run (else a random one), so the same recipes come back. |
+| `-LPRushDuration S` | Rush starts with S seconds instead of 180 (e.g. 12 to see the end card). |
+| `-LPRushAutoplay 1` | Every Rush recipe plays itself (like `-LPDemoMoves 99`); the run's result is not saved. |
 | `-LPOpenDaily 1` | Opens the Daily Brew screen. |
 | `-LPPlayDaily 1` | Opens the Daily Brew screen and starts today's puzzle (once it is generated). |
 | `-LPDailyDate YYYY-MM-DD` | Pretends today is that UTC date (the clock is shifted by whole days, so the countdown and "solved today" still work). Results stay in memory only. |
@@ -291,6 +314,10 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
 Daily win card: `open -n LiquidPour.app --args -LPDailySeedResults 40 -LPPlayDaily 1 -LPSkipTutorials 1 -LPDemoMoves 99`.
+Gold-seal win card: `-LPOpenChapter 1 -LPOpenLevel 3 -LPDemoMoves 99 -LPSkipTutorials 1` (a demo win saves nothing).
+Rush end card with a new best: `-LPOpenRush 1 -LPRushSeed 42 -LPRushAutoplay 1 -LPRushDuration 14 -rush.best.v1 0`.
+Saved progress can be faked for one run through the argument domain (nothing is written), e.g.
+`-progress.goldSeals.v1 '(p1_001,p1_002)' -progress.bestStars.v1 '<dict><key>p1_001</key><integer>3</integer></dict>'`.
 On the Mac, if a killed debug run left no window to restore, add `-ApplePersistenceIgnoreState YES`.
 
 ## Run the tests
@@ -357,7 +384,12 @@ murky masks, the generator options and placements, switches beside pressure pipe
 as the reason), and chapter 10 (every switch adds 2+ moves, an optimal solution
 opens a gate, the finale is the hardest of the main path, the two cauldron recipes mix by counting and their optimal
 solution both brews and opens the gate); the backwards cauldron walk places switches after its seals without changing
-the walk.
+the walk. Challenge modes (`ChallengeTests.swift`): the gold seal rule (minimum, no hint, always with three stars) and
+counts, the main-path gate reading only chapter recipe ids (three-starred challenge, Rush, random and daily ids open
+nothing), the Rush clock (bonus, penalty, end), the best-score record, the unlocked mechanics, the Rush plan
+(deterministic, difficulty only rises, no mechanic twice in a row, every unlocked one within a round) and every
+recipe of a run valid and solvable in its stored minimum with its mechanic; the slow suite generates 300 Rush
+recipes and checks each takes under 2 s (worst ≈ 0.3 s in release).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -435,6 +467,10 @@ swift run -c release levelgen --report ../../Levels
 # Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty, --narrow, --funnel, --tap, --frozen, --bubbling,
 # --twins, --overflow, --link-placement, --cauldron, --ingredients, --mix-pairs, --scramble, --switch, --switch-placement)
 swift run -c release levelgen --bench --colors 8 --count 10
+
+# Time the recipes of one Rush run (R6): spec, phase, minMoves and generation time per recipe
+# (--mechanics all by default; or a list such as sealed,frozen; "" = classic only)
+swift run -c release levelgen --rush 42 --count 25
 ```
 
 Optional generator flags: `--min-score/--max-score`, `--id-prefix`, `--easiest` (keep the easiest of the pool) and
@@ -564,7 +600,9 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 - The chapter map's button positions are hand-placed for this painting; new map art needs new `ChapterArt.mapSpots`.
 - One empty bottle makes almost every puzzle with 6+ colors (bottle size 4) unsolvable, so one-empty levels stay at
   5 colors, or 6 colors with size-5 bottles.
-- Progress and daily results live in `UserDefaults` on each device, with no iCloud sync.
+- Progress, gold seals, Rush bests and daily results live in `UserDefaults` on each device, with no iCloud sync.
+- Rush's clock pauses whenever the app is inactive (on the Mac: another app in front), so a run can't be timed
+  across a break; leaving the Rush screen mid-run drops the run.
 - The daily calendar and countdown use UTC days, so for players far from UTC the puzzle changes during their
   day (by design, same puzzle for everyone).
 - No full accessibility pass beyond labels and VoiceOver flask contents (color runes are available in Settings).

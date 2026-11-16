@@ -211,10 +211,11 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [ ] After each: solver timing check on the hardest preset; cap counters if needed
 
 ## R6 — Challenge modes (Milestone 5, separate from the calm main path)
-- [ ] Move-limit recipes (solver minimum + slack); fail → free retry
-- [ ] Rush: as many generated levels as possible in 3 minutes
-- [ ] Perfect brewer: gold seal for matching the solver minimum
-- [ ] Challenge results stored separately from main-path stars; the existing Random Level screen moves here
+- [ ] Move-limit recipes (solver minimum + slack); fail → free retry — not in scope (user)
+- [x] Rush: as many generated levels as possible in 3 minutes (+5 s per solve, skip −10 s; `RushPlan` seeded per run, ramping from 3 colors to 5 colors + a learned mechanic; next recipe generated in the background, the clock waits; best stored apart; DECISIONS 225)
+- [x] Perfect brewer: gold seal for matching the solver minimum without a hint (tiles, chapter count, map mark, win card with flourish and chime; DECISIONS 224)
+- [x] Challenge results stored separately from main-path stars (gate reads chapter ids only, tested; DECISIONS 226); Challenges hub with Rush, the recipe books and Random Brew, which already lived here since R2 (DECISIONS 227)
+- Not covered in R6: iPhone layout of the hub, Rush HUD and end card was not screenshotted (Simulator build only); VoiceOver not listened to on a device
 
 ## R7 — Orders & story (Milestone 6)
 - [ ] `Goal` variants in core + solver: order (specific flask = specific color), partial order, layered recipe (exact pattern), rescue (free all seals within N moves)
