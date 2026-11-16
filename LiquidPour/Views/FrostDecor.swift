@@ -202,7 +202,7 @@ struct IceLayers: View {
             }
         }
         .frame(width: width, height: height)
-        .clipShape(BottleView.shape(width: width))
+        .flaskClip(width: width)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
@@ -280,7 +280,7 @@ private struct ThawingLayer: View {
                     melt: ThawPose.ease(t, 0, ThawPose.reducedDuration))
                 .position(x: width / 2, y: centerY)
                 .frame(width: width, height: height)
-                .clipShape(BottleView.shape(width: width))
+                .flaskClip(width: width)
         } else {
             let crack = ThawPose.ease(t, 0.02, ThawPose.crackEnd)
             let melt = ThawPose.ease(t, ThawPose.crackEnd, ThawPose.duration - 0.05)
@@ -291,7 +291,7 @@ private struct ThawingLayer: View {
                 drips(t: t, top: centerY - layerHeight / 2, layerHeight: layerHeight)
             }
             .frame(width: width, height: height)
-            .clipShape(BottleView.shape(width: width))
+            .flaskClip(width: width)
             .overlay(alignment: .topLeading) { mist(t: t, y: centerY - layerHeight / 2) }
         }
     }
@@ -393,9 +393,10 @@ struct FrostRim: View {
 /// on the edges, over the liquid. Fills the flask body's frame.
 struct FrostGlass: View {
     let width: CGFloat
+    @Environment(\.flaskStyle) private var flaskStyle
 
     var body: some View {
-        let shape = BottleView.shape(width: width)
+        let shape = BottleView.shape(width: width, style: flaskStyle)
         shape.strokeBorder(Ice.frost.opacity(0.5), lineWidth: max(2, width * 0.09))
             .blur(radius: max(1, width * 0.05))
             .clipShape(shape)

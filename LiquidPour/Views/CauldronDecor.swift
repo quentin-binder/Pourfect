@@ -375,7 +375,7 @@ struct MixSwirl: View {
             ZStack(alignment: .top) {
                 content(t: t)
                     .frame(width: width, height: height)
-                    .clipShape(BottleView.shape(width: width))
+                    .flaskClip(width: width)
                 if !reduceMotion { steam(t: t) }
             }
             .frame(width: width, height: height, alignment: .top)

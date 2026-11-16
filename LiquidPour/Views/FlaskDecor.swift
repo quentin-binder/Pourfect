@@ -27,7 +27,7 @@ struct GlassSheen: View {
             }
             .blur(radius: width * 0.02)
         }
-        .clipShape(BottleView.shape(width: width))
+        .flaskClip(width: width)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
