@@ -62,7 +62,7 @@ else is a challenge).
   Misty Marsh"), then the recipe grid (recipes open in order).
 - **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
 - **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow
-  necks, funnels, taps, frozen layers) the game shows a
+  necks, funnels, taps, frozen layers, bubbling flasks) the game shows a
   short illustrated tip drawn with the real flasks (2–3 steps, **Got it**). The **?** in the game's top bar (⌘/)
   shows the tips for the current recipe again. Seen tips are stored per mechanic (`TutorialStore`, UserDefaults).
 
@@ -155,7 +155,9 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   layer rises to the *top* of the same flask (after the pour has landed, and after any thaw). An empty, one-layer or
   one-color flask still counts but nothing visibly moves. A full one-color bubbling flask counts as sorted. It never
   carries a tap or ice (a seal or a rune is fine). In murky levels the risen layer is on top, so it is revealed.
-  Undo restores the phases.
+  Undo restores the phases. On screen: bubbles rise through its potion (livelier one move before the rise), and a
+  small brass dial under the flask lights one segment per move and shows the moves left; when the layer rises it
+  swells into a big bubble that climbs through the stack after the pour lands, with a bubbly sound.
 
 ### Random Brew (random levels)
 
@@ -209,7 +211,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
 | `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask. |
 | `-LPDemoIcePour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a legal pour out of a flask that holds ice (the potion above the ice pours, the ice stays pinned). |
-| `-LPSlowMotion F` | Plays the pour and thaw animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
+| `-LPSlowMotion F` | Plays the pour, thaw and bubble-up animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
