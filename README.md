@@ -243,7 +243,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
 | `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask, else a pour a twin chain refuses. |
 | `-LPDemoIcePour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a legal pour out of a flask that holds ice (the potion above the ice pours, the ice stays pinned). |
-| `-LPDemoLinkPour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a pour that uses a link (a split between twins, or a pour through a pipe; e.g. chapter 8 recipe 13). |
+| `-LPDemoLinkPour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a pour that uses a link (a push through a pressure pipe, else a split between twins; e.g. chapter 8 recipe 13). |
 | `-LPSlowMotion F` | Plays the pour, thaw, bubble-up and cauldron mix animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
@@ -522,6 +522,6 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 ## Next steps
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
-2. More chapters as their mechanics land (R5: chapters 9–10); chapter 8 needs its app part (chain, pipe, split stream).
+2. More chapters as their mechanics land (R5: chapter 10).
 3. A full accessibility pass (VoiceOver already reads flask contents).
 4. Optional iCloud progress sync.
