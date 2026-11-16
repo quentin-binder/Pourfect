@@ -25,14 +25,28 @@ struct LiquidSegment {
 /// down axis — pass the bottle's tilt angle (plus any slosh). Each band keeps its area
 /// (`fraction × layerHeight × width`); its boundaries are found by bisection on the area of the
 /// bottle rectangle below a level line. At `gravity == 0` it matches the upright `BottleView`.
+///
+/// `rigidLayers` bottom layers don't move (D1: a frozen layer and everything under it): they are
+/// drawn upright and level with the bottle whatever the tilt, and the free liquid above them
+/// tilts in the space that is left.
 struct TiltedLiquid: View {
     let segments: [LiquidSegment]   // bottom → top
     let layerHeight: CGFloat
     var gravity: Double = 0
+    var rigidLayers = 0
 
     var body: some View {
         Canvas { context, size in
-            let rect = CGRect(origin: .zero, size: size)
+            let rigid = min(max(rigidLayers, 0), segments.count)
+            let pinned = Array(segments.prefix(rigid))
+            let free = Array(segments.dropFirst(rigid))
+            let rigidHeight = pinned.reduce(CGFloat(0)) { $0 + $1.fraction * layerHeight }
+            if !pinned.isEmpty {
+                drawUpright(pinned, bottom: size.height, width: size.width,
+                            overlapsTop: free.contains { $0.fraction > 0.001 }, in: context)
+            }
+            let rect = CGRect(x: 0, y: 0, width: size.width, height: max(0, size.height - rigidHeight))
+            guard rect.height > 0.5 else { return }
             let down = CGPoint(x: sin(gravity), y: cos(gravity))
             let depth = { (p: CGPoint) in p.x * down.x + p.y * down.y }   // larger = lower
             let corners = Self.corners(of: rect)
@@ -41,7 +55,7 @@ struct TiltedLiquid: View {
 
             var bottom = deepest + 1
             var area: CGFloat = 0
-            let bands = Self.merged(segments)
+            let bands = Self.merged(free)
             for (index, segment) in bands.enumerated() where segment.fraction > 0.001 {
                 area += segment.fraction * layerHeight * size.width
                 let top = Self.level(forArea: area, in: corners, depth: depth, range: highest...deepest)
@@ -59,17 +73,47 @@ struct TiltedLiquid: View {
                 }
                 bottom = top
             }
-            if segments.contains(where: { $0.rune != nil }) {
-                drawRunes(in: context, corners: corners, depth: depth, range: highest...deepest,
+            if free.contains(where: { $0.rune != nil }) {
+                drawRunes(free, in: context, corners: corners, depth: depth, range: highest...deepest,
                           width: size.width)
             }
         }
     }
 
+    /// The pinned bottom layers, level in the bottle's frame like `BottleView` draws them: runs of
+    /// the same color share one band (and one gradient), glyphs and runes sit in each layer's middle.
+    private func drawUpright(_ pinned: [LiquidSegment], bottom: CGFloat, width: CGFloat, overlapsTop: Bool,
+                             in context: GraphicsContext) {
+        var y = bottom
+        let bands = Self.merged(pinned)
+        for (index, segment) in bands.enumerated() {
+            let h = segment.fraction * layerHeight
+            // The top band reaches 1pt under the free liquid, so no seam shows.
+            let extra: CGFloat = index < bands.count - 1 || overlapsTop ? 1 : 0
+            let rect = CGRect(x: 0, y: y - h - extra, width: width, height: h + extra)
+            context.fill(Path(rect), with: .style(segment.color.gradient))
+            if let glyph = segment.glyph {
+                drawGlyph(glyph, at: CGPoint(x: width / 2, y: y - h / 2), size: layerHeight * min(segment.fraction, 1),
+                          in: context)
+            }
+            y -= h
+        }
+        y = bottom
+        for segment in pinned {
+            let h = segment.fraction * layerHeight
+            if let rune = segment.rune, segment.fraction > 0.25 {
+                let side = layerHeight * 0.5 * min(segment.fraction, 1)
+                rune.draw(in: context, rect: CGRect(x: width / 2 - side / 2, y: y - h / 2 - side / 2,
+                                                    width: side, height: side))
+            }
+            y -= h
+        }
+    }
+
     /// One rune per layer (also inside merged bands), at the center of that layer's own slice,
     /// the same size as `BottleView`'s; it shrinks with a draining or filling layer.
-    private func drawRunes(in context: GraphicsContext, corners: [CGPoint], depth: (CGPoint) -> CGFloat,
-                           range: ClosedRange<CGFloat>, width: CGFloat) {
+    private func drawRunes(_ segments: [LiquidSegment], in context: GraphicsContext, corners: [CGPoint],
+                           depth: (CGPoint) -> CGFloat, range: ClosedRange<CGFloat>, width: CGFloat) {
         var bottom = range.upperBound + 1
         var area: CGFloat = 0
         for segment in segments where segment.fraction > 0.001 {

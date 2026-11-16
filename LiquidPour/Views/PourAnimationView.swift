@@ -75,6 +75,11 @@ struct PourPose {
 /// target's mouth, the valve turns, a stream runs from the nozzle, and its bottom layers drain
 /// while the stack above slides down. A narrow neck (C2) pours from its neck's lip in a thin
 /// stream; a funnel target catches the stream in its cone.
+///
+/// Ice (D1) stays put: a frozen layer and everything under it don't tilt or slosh
+/// (`TiltedLiquid.rigidLayers`), only the potion above it pours; both flasks keep their ice,
+/// counters and frost rim from before the move. The counters tick and thawed ice melts on the
+/// board once the pour has landed (`ThawingIce`).
 struct PourAnimationView: View {
     let event: GameViewModel.PourEvent
     let sourceFrame: CGRect
@@ -90,13 +95,13 @@ struct PourAnimationView: View {
 
     var body: some View {
         TimelineView(.animation) { timeline in
-            let t = min(timeline.date.timeIntervalSince(start), duration)
+            let t = min(timeline.date.timeIntervalSince(start) / DebugTiming.slow, duration)
             let pose = PourPose.at(t, reduceMotion: reduceMotion)
             if event.fromBottom { tapFrame(pose) } else { frame(pose) }
         }
         .allowsHitTesting(false)
         .task(id: event.id) {
-            try? await Task.sleep(for: .seconds(duration))
+            try? await Task.sleep(for: .seconds(duration * DebugTiming.slow))
             guard !Task.isCancelled else { return }
             onFinish()
         }
@@ -135,7 +140,7 @@ struct PourAnimationView: View {
 
         return ZStack(alignment: .topLeading) {
             bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: targetFrame,
-                   gravity: pose.targetSlosh, drawsMarks: false, unlock: unlockProgress(pose))
+                   gravity: pose.targetSlosh, hidden: event.targetHiddenBefore, drawsMarks: false, unlock: unlockProgress(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
 
             if event.isKey {
@@ -143,7 +148,7 @@ struct PourAnimationView: View {
             }
 
             bottle(event.sourceBefore, segments: sourceSegments(pose.flow), frame: sourceFrame,
-                   gravity: angle * .pi / 180 + pose.sourceSlosh,
+                   gravity: angle * .pi / 180 + pose.sourceSlosh, hidden: event.sourceHiddenBefore,
                    corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
                    opaque: min(1, pose.rise * 1.6))   // opaque before it crosses another flask
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
@@ -187,15 +192,16 @@ struct PourAnimationView: View {
     /// `drawsMarks`: false when the caller draws the rune and funnel itself, above the stream.
     /// `valve`: a tap's handle, 0 = closed … 1 = open.
     private func bottle(_ model: Bottle, segments: [LiquidSegment], frame: CGRect, gravity: Double,
-                        drawsMarks: Bool = true, unlock: Double = 0, corkOff: Double? = nil,
+                        hidden: [Bool] = [], drawsMarks: Bool = true, unlock: Double = 0, corkOff: Double? = nil,
                         opaque: Double = 0, valve: Double = 0) -> some View {
         let w = frame.width
         let shape = BottleView.shape(width: w)
         let parts = GlassParts(model)
         let essence = model.essenceColor
         let lock = model.lockedBy
-        // Same outline as at rest (`BottleView`): the seal's metal, else plain glass.
-        let plainOutline = BottleView.outlineColor
+        let ice = model.frozenLayers
+        // Same outline as at rest (`BottleView`): the seal's metal, else frosted or plain glass.
+        let plainOutline = ice.isEmpty ? BottleView.outlineColor : Ice.outline
         let sealOutline = lock.map { Palette.keyColor($0.rawValue).opacity(0.8) }
         let cork = Cork.placement(for: model, width: w)
         return ZStack {
@@ -206,9 +212,13 @@ struct PourAnimationView: View {
             FlaskGlass(style: BottleView.glassColor, width: w, necked: parts.neck)
             if let essence { shape.fill(EssenceMark.tint(essence)) }
             TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: w),
-                         gravity: gravity)
+                         gravity: gravity, rigidLayers: Self.rigidLayers(model))
                 .clipShape(shape)
                 .potionGlow(width: w)
+            if !ice.isEmpty {
+                FrostGlass(width: w)
+                IceLayers(ice: ice, width: w, height: frame.height, runes: runesEnabled, hidden: hidden)
+            }
             GlassSheen(width: w)
             if let lock {
                 shape.fill(BottleView.lockedDim.opacity(1 - unlock))
@@ -235,6 +245,9 @@ struct PourAnimationView: View {
             if parts.neck { NeckCollar(width: w, color: outline) } else { FlaskRim(width: w, color: outline) }
         }
         .overlay(alignment: .top) {
+            if !ice.isEmpty { FrostRim(width: w, necked: parts.neck) }
+        }
+        .overlay(alignment: .top) {
             if parts.funnel, drawsMarks, !Rules.isCompleted(model) { FunnelMark(width: w) }
         }
         .overlay(alignment: .top) {
@@ -246,6 +259,11 @@ struct PourAnimationView: View {
                     .opacity(1 - corkOff)
             }
         }
+    }
+
+    /// Bottom layers of `bottle` that can't move: its highest frozen layer and everything under it.
+    private static func rigidLayers(_ bottle: Bottle) -> Int {
+        (bottle.frozenLayers.map(\.layer).max() ?? -1) + 1
     }
 
     /// Layer `index` of a bottle whose layers flagged in `hidden` show as "?", drawn like
@@ -309,11 +327,11 @@ struct PourAnimationView: View {
 
         return ZStack(alignment: .topLeading) {
             bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: target,
-                   gravity: pose.targetSlosh, drawsMarks: false, unlock: unlockProgress(pose))
+                   gravity: pose.targetSlosh, hidden: event.targetHiddenBefore, drawsMarks: false, unlock: unlockProgress(pose))
                 .position(x: target.midX, y: target.midY)
 
             bottle(event.sourceBefore, segments: sourceSegments(pose.flow), frame: sourceFrame,
-                   gravity: pose.sourceSlosh * 0.5,
+                   gravity: pose.sourceSlosh * 0.5, hidden: event.sourceHiddenBefore,
                    corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
                    opaque: min(1, pose.rise * 1.6), valve: pose.tilt)
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)
@@ -428,10 +446,13 @@ struct PourAnimationView: View {
     /// Tilt (degrees from upright) at which the liquid left in the source just reaches the lip,
     /// so the stream always leaves from the liquid surface. Steeper as the bottle empties.
     /// Uses the bottle's bounding rectangle tilted about its top corner.
+    /// Frozen layers (D1) stay at the bottom: only the free potion above them counts, in the
+    /// part of the flask above the ice.
     private func pourAngle(flow: Double) -> Double {
-        let layers = CGFloat(event.sourceBefore.layers.count) - CGFloat(event.amount) * flow
-        let liquid = layers * BottleView.layerHeight(width: width) * width
-        let w = width, h = height
+        let rigid = CGFloat(Self.rigidLayers(event.sourceBefore))
+        let layers = CGFloat(event.sourceBefore.layers.count) - rigid - CGFloat(event.amount) * flow
+        let liquid = max(0, layers) * BottleView.layerHeight(width: width) * width
+        let w = width, h = height - rigid * BottleView.layerHeight(width: width)
         let belowLip = { (radians: Double) -> CGFloat in
             let t = tan(radians)
             return w * t <= h ? w * h - w * w * t / 2 : h * h / (2 * t)

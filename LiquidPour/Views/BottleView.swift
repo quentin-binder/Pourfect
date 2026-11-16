@@ -3,7 +3,7 @@ import SwiftUI
 
 /// One bottle: rounded outline with stacked layers (bottom → top). Draws key layers,
 /// a lock badge on locked bottles, "?" for layers the session reports as hidden, and the mark of
-/// each flask modifier (essence rune, narrow neck, funnel, spigot).
+/// each flask modifier (essence rune, narrow neck, funnel, spigot, ice with its frost rim).
 struct BottleView: View {
     let bottle: Bottle
     let width: CGFloat
@@ -18,6 +18,11 @@ struct BottleView: View {
     /// Goes up each time this flask's modifier refuses a pour (`GameViewModel.refusals`): its
     /// rune, funnel or spigot flares.
     var refusals = 0
+    /// The frozen layers to draw (D1). nil = the bottle's own; the board passes the counters from
+    /// before the move while a pour is in the air, so they tick when it lands.
+    var ice: [FrozenLayer]? = nil
+    /// Layers that just thawed: their ice cracks and melts (`ThawingIce`).
+    var thaws: [ThawMark] = []
 
     /// A mask with the bottom `count` of `total` layers hidden (tips and previews).
     static func bottomHidden(_ count: Int, of total: Int) -> [Bool] {
@@ -92,6 +97,10 @@ struct BottleView: View {
             .frame(width: width, height: height, alignment: .bottom)
             .clipShape(shape)
             .potionGlow(width: width)
+            iceLayers
+            if !thaws.isEmpty {
+                ThawingIce(thaws: thaws, width: width, height: height, reduceMotion: reduceMotion)
+            }
             GlassSheen(width: width)
             if let key = bottle.lockedBy {
                 shape.fill(Self.lockedDim)
@@ -108,6 +117,11 @@ struct BottleView: View {
         .overlay(alignment: .top) {
             if necked { NeckCollar(width: width, color: outline) } else { FlaskRim(width: width, color: outline) }
         }
+        .overlay(alignment: .top) {
+            // The frost stays until the last thawing ice has melted.
+            if holdsIce || !thaws.isEmpty { FrostRim(width: width, necked: necked).transition(.opacity) }
+        }
+        .animation(.easeOut(duration: 0.4), value: thaws.isEmpty)
         .overlay(alignment: .top) { funnel }
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
@@ -143,6 +157,28 @@ struct BottleView: View {
                         LinearKeyframe(0, duration: 0.45, timingCurve: .easeIn)
                     }
                 }
+        }
+    }
+
+    // MARK: Frozen layers
+
+    private var frozen: [FrozenLayer] { ice ?? bottle.frozenLayers }
+    private var holdsIce: Bool { !frozen.isEmpty }
+
+    /// The ice over each frozen layer with its thaw counter, and frost on the glass. The ice
+    /// brightens (and its crystal swells, with motion on) when it refuses a pour.
+    @ViewBuilder private var iceLayers: some View {
+        if holdsIce {
+            let swells = !reduceMotion
+            let frozen = self.frozen
+            let runes = runesEnabled
+            let width = self.width, height = self.height, hidden = self.hidden
+            FrostGlass(width: width).transition(.opacity)
+            IceLayers(ice: frozen, width: width, height: height, runes: runes, hidden: hidden)
+                .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
+                    IceLayers(ice: frozen, width: width, height: height, runes: runes, hidden: hidden,
+                              flare: flare, swells: swells)
+                } keyframes: { _ in Self.flareKeyframes }
         }
     }
 
@@ -237,6 +273,7 @@ struct BottleView: View {
         case nil:
             if isSelected { return .accentColor }
             if let key = bottle.lockedBy { return Palette.keyColor(key.rawValue).opacity(0.8) }
+            if holdsIce { return Ice.outline }
             return Self.outlineColor
         }
     }
