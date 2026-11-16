@@ -5,8 +5,10 @@ import SwiftUI
 // silhouette and the completion effect. The choice comes from `GameSettings.cosmetics`, resolved
 // against the unlocked rewards at the root (`RootView`) and published in the environment.
 // Nothing here changes a flask's frame, capacity or hit area: the silhouette is drawn inside
-// the same `width × height` frame, the layers keep their heights and the body stays full width
-// where the potion stands (narrowing only in the headroom above a full flask and towards the top).
+// the same `width × height` frame and the layers keep their heights. Potion Bottle and
+// Round-Bottom are full width wherever a full flask's potion stands (their shoulders fit in the
+// 0.45 w headroom above it; the rounded bottom is like the classic one). Conical is the one
+// exception: its sloping sides are the silhouette, so its higher layers are drawn narrower.
 
 // MARK: Environment
 
@@ -105,27 +107,28 @@ struct FlaskShape: InsettableShape {
                                           bottomTrailingRadius: max(0, w * 0.45 - inset),
                                           topTrailingRadius: max(0, w * 0.12 - inset)).path(in: rect)
         case .potionBottle:
-            // A short neck, round shoulders that reach full width just below the top of a full
-            // flask's liquid (0.45 w down), straight sides and a flat bottom with soft corners.
+            // A short neck, round shoulders that reach full width at the top of a full flask's
+            // liquid (0.45 w down), straight sides and a flat bottom with soft corners.
             return Self.symmetric(rect) { half, x, y in
                 let neck = half * self.style.mouth
                 let corner = w * 0.2
                 return [
                     .move(x(-neck), y(0)),
                     .line(x(-neck), y(w * 0.12)),
-                    .curve(x(-half), y(w * 0.55), c1: (x(-neck), y(w * 0.3)), c2: (x(-half), y(w * 0.26))),
+                    .curve(x(-half), y(w * 0.45), c1: (x(-neck), y(w * 0.26)), c2: (x(-half), y(w * 0.22))),
                     .line(x(-half), rect.maxY - corner),
                     .quad(x(-half + corner), rect.maxY, control: (x(-half), rect.maxY)),
                 ]
             }
         case .roundBottom:
-            // A long tapering neck flowing into a round belly with a round bottom.
+            // A neck flowing into wide, sloping round shoulders (full width at the top of a full
+            // flask's liquid, 0.45 w down) and a round bottom.
             return Self.symmetric(rect) { half, x, y in
                 let neck = half * self.style.mouth
                 return [
                     .move(x(-neck), y(0)),
-                    .line(x(-neck), y(w * 0.22)),
-                    .curve(x(-half), y(w * 1.0), c1: (x(-neck), y(w * 0.62)), c2: (x(-half), y(w * 0.6))),
+                    .line(x(-neck), y(w * 0.06)),
+                    .curve(x(-half), y(w * 0.45), c1: (x(-neck - w * 0.12), y(w * 0.12)), c2: (x(-half), y(w * 0.2))),
                     .line(x(-half), rect.maxY - half),
                     .quad(x(0), rect.maxY, control: (x(-half), rect.maxY)),
                 ]

@@ -340,7 +340,8 @@ struct PourAnimationView: View {
                    gravity: angle * .pi / 180 + pose.sourceSlosh, hidden: event.sourceHiddenBefore,
                    corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
                    opaque: min(1, pose.rise * 1.6),   // opaque before it crosses another flask
-                   bubbles: 1 - min(1, pose.tilt * 2), twin: event.twins.contains(event.from))
+                   bubbles: 1 - min(1, pose.tilt * 2), twin: event.twins.contains(event.from),
+                   pourLip: sourcePourLip(right: right, pose: pose))
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
                 .rotationEffect(.degrees(angle), anchor: right ? .topTrailing : .topLeading)
                 // The rotation anchor is the pouring corner, so place the frame by that corner.
@@ -387,7 +388,7 @@ struct PourAnimationView: View {
     private func bottle(_ model: Bottle, segments: [LiquidSegment], frame: CGRect, gravity: Double,
                         hidden: [Bool] = [], drawsMarks: Bool = true, unlock: Double = 0, corkOff: Double? = nil,
                         opaque: Double = 0, valve: Double = 0, bubbles: Double = 1, twin: Bool = false,
-                        card: Double? = nil) -> some View {
+                        card: Double? = nil, pourLip: (point: CGPoint, reach: CGFloat)? = nil) -> some View {
         let w = frame.width
         let shape = BottleView.shape(width: w, style: flaskStyle)
         let parts = GlassParts(model)
@@ -406,7 +407,8 @@ struct PourAnimationView: View {
             FlaskGlass(style: BottleView.glassColor, width: w, necked: parts.neck)
             if let essence { shape.fill(EssenceMark.tint(essence)) }
             TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: w),
-                         gravity: gravity, rigidLayers: Self.rigidLayers(model))
+                         gravity: gravity, rigidLayers: Self.rigidLayers(model),
+                         lip: pourLip?.point, lipReach: pourLip?.reach ?? 0)
                 .clipShape(shape)
                 .potionGlow(width: w)
             if let gauge = model.bubbling, bubbles > 0.01 {
@@ -504,6 +506,17 @@ struct PourAnimationView: View {
         return layers.enumerated().map { i, layer in
             segment(layer, index: i, hidden: event.sourceHiddenBefore, fraction: moved.contains(i) ? leaving : 1)
         }
+    }
+
+    /// A narrower mouth (R7 flask shapes) pours from its own lip, inward of the frame corner the
+    /// level surface reaches: while the stream runs, the source's surface rises to that lip so
+    /// the potion leaves through the mouth (bottle space; nil for the classic mouth or a neck).
+    private func sourcePourLip(right: Bool, pose: PourPose) -> (point: CGPoint, reach: CGFloat)? {
+        guard flaskStyle != .classic, !sourceParts.neck, !event.isKey else { return nil }
+        let reach = CGFloat(min(1, max(0, pose.streamHead - pose.streamTail) * 6))
+        guard reach > 0 else { return nil }
+        let inset = flaskStyle.lipInset(width)
+        return (CGPoint(x: right ? width - inset : inset, y: 0), reach)
     }
 
     /// Target keeps its layers and gains `targetAmount` layers that grow with the flow (none

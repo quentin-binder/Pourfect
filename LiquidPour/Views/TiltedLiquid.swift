@@ -34,6 +34,11 @@ struct TiltedLiquid: View {
     let layerHeight: CGFloat
     var gravity: Double = 0
     var rigidLayers = 0
+    /// A pouring source's lip in bottle space (a narrower mouth, R7 flask shapes): with `lipReach`
+    /// 1 the top surface rises to the lip, so the potion runs out of the mouth instead of stopping
+    /// at the shoulder that the shape clips off (0 = the plain level surface).
+    var lip: CGPoint? = nil
+    var lipReach: CGFloat = 0
 
     var body: some View {
         Canvas { context, size in
@@ -56,9 +61,15 @@ struct TiltedLiquid: View {
             var bottom = deepest + 1
             var area: CGFloat = 0
             let bands = Self.merged(free)
+            let surfaceIndex = bands.lastIndex { $0.fraction > 0.001 }
             for (index, segment) in bands.enumerated() where segment.fraction > 0.001 {
                 area += segment.fraction * layerHeight * size.width
-                let top = Self.level(forArea: area, in: corners, depth: depth, range: highest...deepest)
+                var top = Self.level(forArea: area, in: corners, depth: depth, range: highest...deepest)
+                if index == surfaceIndex, let lip, lipReach > 0 {
+                    // Up to (just over) the lip, never down.
+                    let lipDepth = depth(lip) - 1
+                    if top > lipDepth { top += (lipDepth - top) * min(lipReach, 1) }
+                }
                 // Overlap the next band by 1pt so no background seam shows between bands.
                 let isTop = index == bands.count - 1
                 var band = Self.clip(corners) { depth($0) - (isTop ? top : top - 1) }
