@@ -525,7 +525,8 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(pack.introduces == [.switches])
         #expect((28...32).contains(pack.levels.count))
         #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c10_%03d", $0 + 1) })
-        let allowed: Set<Mechanic> = [.switches, .sealed, .murky, .essence, .narrowNeck, .frozen, .bubbling, .twins]
+        let allowed: Set<Mechanic> = [.switches, .sealed, .murky, .essence, .narrowNeck, .frozen, .bubbling, .twins,
+                                      .cauldron]
         for level in pack.levels {
             let s = level.gameState
             #expect((1...2).contains(Self.gates(s).count), "\(level.id)")
@@ -547,13 +548,41 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         // Switches alone first; earlier mechanics only near the end.
         let firstCombo = try #require(pack.levels.firstIndex { $0.mechanics.count > 1 })
         #expect(firstCombo >= 14 && pack.levels[..<firstCombo].allSatisfy { $0.mechanics == [.switches] })
-        // The curve rises from ~15, and the last five recipes are the hardest of the main path.
-        let scores = pack.levels.compactMap { $0.meta?.score }
-        #expect(scores.count == pack.levels.count && scores.first! < 20)
+        // The cauldron combinations come after the finale (appended so that 1–30 keep their ids):
+        // the last two recipes, and only they, brew.
+        let brewing = pack.levels.filter { $0.mechanics.contains(.cauldron) }
+        #expect(brewing.map(\.id) == ["c10_031", "c10_032"])
+        for level in brewing {
+            #expect(level.mechanics == [.cauldron, .switches], "\(level.id)")
+            #expect(CauldronImpact.mixingRequired(level.gameState), "\(level.id)")
+            #expect((40...55).contains(level.meta?.score ?? 0), "\(level.id)")
+        }
+        // The curve rises from ~15, and the finale (26–30) holds the hardest recipes of the main path.
+        let main = pack.levels.prefix(30)
+        let scores = main.compactMap { $0.meta?.score }
+        #expect(scores.count == main.count && scores.first! < 20)
         let earlierBest = try (1...9).flatMap { try LevelFileTests.load(String(format: "chapter_%02d", $0)).levels }
             .compactMap { $0.meta?.score }.max() ?? 0
         #expect(scores.suffix(5).allSatisfy { $0 > earlierBest && $0 <= 72 })
-        #expect(scores.dropLast(5).allSatisfy { $0 < scores.suffix(5).min()! })
+        let others = scores.dropLast(5) + brewing.compactMap { $0.meta?.score }
+        #expect(others.allSatisfy { $0 < scores.suffix(5).min()! })
+    }
+
+    /// The cauldron + switch recipes: every solution mixes (by counting), the switch costs 2+
+    /// moves, and an optimal solution both brews and opens the gate.
+    @Test func cauldronCombinations() throws {
+        for level in try Self.pack().levels where level.mechanics.contains(.cauldron) {
+            let s = level.gameState
+            let minMoves = try #require(level.meta?.minMoves)
+            #expect(s.validate().isEmpty, "\(level.id)")
+            #expect(s.links.allSatisfy { !s.bottles[$0.endpoints.0].isCauldron && !s.bottles[$0.endpoints.1].isCauldron })
+            #expect(CauldronImpact.everyCauldronMatters(s, minMoves: minMoves), "\(level.id)")
+            #expect(SwitchImpact.everySwitchMatters(s, minMoves: minMoves, cost: SwitchImpact.strongCost), "\(level.id)")
+            let moves = try #require(Solver().solve(s).moves, "\(level.id)")
+            #expect(moves.count == minMoves, "\(level.id)")
+            #expect(CauldronImpact.mixedPairs(in: s, solution: moves) > 0, "\(level.id)")
+            #expect(!SwitchImpact.gateOpenings(in: s, solution: moves).isEmpty, "\(level.id)")
+        }
     }
 
     /// Every switch matters by 2+ moves (the closed gate changes what optimal play does), and so

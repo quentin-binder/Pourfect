@@ -695,6 +695,17 @@ let packPresets: [String: PackPreset] = [
              switchPlacement: .emptySwitch, switchCost: SwitchImpact.strongCost, section: 4),
         Tier(count: 2, colors: 9, capacity: 4, empty: 2, moves: any, score: 58...70, switches: 2,
              switchPlacement: .any, switchCost: SwitchImpact.strongCost, section: 4),
+        // Cauldron combinations (added after the finale so that recipes 1–30 keep their ids and
+        // content): built backwards with a switch placed after the walk (`cauldronCandidate`
+        // step 5); every solution mixes, the switch costs 2+ moves, and the optimal solution
+        // found both brews and opens the gate. One recipe with fresh ingredients among 7 potions,
+        // then two recipes among 6.
+        Tier(count: 1, colors: 7, capacity: 4, empty: 1, moves: any, pool: 2, score: 40...48, cauldron: 1, mixPairs: 2,
+             scramble: 300, mixingMatter: true, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 5),
+        Tier(count: 1, colors: 6, capacity: 4, empty: 1, moves: any, pool: 2, score: 43...52, cauldron: 2, mixPairs: 2,
+             scramble: 300, mixingMatter: true, switches: 1, switchPlacement: .closed,
+             switchCost: SwitchImpact.strongCost, section: 5),
     ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
