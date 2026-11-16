@@ -7,6 +7,9 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     /// Shows a Done button (sheet presentation).
     var showsDone = false
+    #if os(macOS)
+    @State private var showsAbout = false
+    #endif
 
     var body: some View {
         @Bindable var settings = settings
@@ -42,6 +45,27 @@ struct SettingsView: View {
                 Text("Accessibility")
             } footer: {
                 Text("Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle change of the potion levels; System follows your device setting.")
+            }
+
+            Section {
+                #if os(iOS)
+                NavigationLink {
+                    AboutView()
+                } label: {
+                    Label("About Pourfect", systemImage: "info.circle")
+                }
+                #else
+                Button {
+                    showsAbout = true
+                } label: {
+                    Label("About Pourfect", systemImage: "info.circle")
+                }
+                .sheet(isPresented: $showsAbout) {
+                    AboutView(showsDone: true)
+                }
+                #endif
+            } footer: {
+                Text("Version \(AboutView.versionText)", comment: "App version and build number, e.g. Version 1.0 (3)")
             }
         }
         .formStyle(.grouped)

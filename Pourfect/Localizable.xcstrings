@@ -1628,6 +1628,31 @@
     },
     "Solve the Daily Brew %lld days in a row" : {
       "comment" : "Lab Style milestone"
+    },
+    "About Pourfect" : {},
+    "About" : {
+      "comment" : "About screen title"
+    },
+    "Version %@" : {
+      "comment" : "App version and build number, e.g. Version 1.0 (3)"
+    },
+    "Art" : {
+      "comment" : "About screen section header"
+    },
+    "Sounds and Fonts" : {
+      "comment" : "About screen section header"
+    },
+    "Privacy" : {
+      "comment" : "About screen section header"
+    },
+    "The paintings (workbench, chapter map, chapter scenes, characters, lab themes and the app icon) were generated with FLUX 1.1 [pro] Ultra by Black Forest Labs through Replicate. Character cut-outs use Bria's background removal. Both are used under their providers' commercial terms." : {
+      "comment" : "About screen: art credits and licensing note"
+    },
+    "Every sound is synthesized by the app while you play; there are no recorded samples. Text uses Apple's system fonts (SF Pro, SF Pro Rounded and New York)." : {
+      "comment" : "About screen: sound and font credits"
+    },
+    "Pourfect collects no data: no accounts, no ads, no analytics. Your progress is saved only on this device." : {
+      "comment" : "About screen: privacy note"
     }
   },
   "version" : "1.0"
