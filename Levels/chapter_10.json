@@ -1,0 +1,1409 @@
+{
+  "chapter" : 10,
+  "introduces" : [
+    "switch"
+  ],
+  "kind" : "chapter",
+  "levels" : [
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 1]
+        },
+        {
+          "layers" : [1, 1, 2]
+        },
+        {
+          "layers" : [0, 2, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c10_001",
+      "links" : [
+        {
+          "gate" : 0,
+          "switch" : 1,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.17,
+        "deadEndRatio" : 0,
+        "minMoves" : 6,
+        "score" : 14.2,
+        "seed" : 15069,
+        "statesExplored" : 17
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 2, 0, 0]
+        },
+        {
+          "layers" : [2, 1, 2, 1]
+        },
+        {
+          "layers" : [1, 1, 0, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_002",
+      "links" : [
+        {
+          "gate" : 0,
+          "switch" : 1,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.63,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 17,
+        "seed" : 1015016,
+        "statesExplored" : 28
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 2, 0, 0]
+        },
+        {
+          "layers" : [1, 1, 2, 1]
+        },
+        {
+          "layers" : [2, 0, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_003",
+      "links" : [
+        {
+          "gate" : 1,
+          "switch" : 0,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.89,
+        "deadEndRatio" : 0,
+        "minMoves" : 9,
+        "score" : 19.5,
+        "seed" : 1015001,
+        "statesExplored" : 53
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 3, 0]
+        },
+        {
+          "layers" : [1, 1, 0]
+        },
+        {
+          "layers" : [2, 2, 3]
+        },
+        {
+          "layers" : [3, 2, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c10_004",
+      "links" : [
+        {
+          "gate" : 1,
+          "switch" : 5,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.44,
+        "deadEndRatio" : 0,
+        "minMoves" : 9,
+        "score" : 21.8,
+        "seed" : 2015057,
+        "statesExplored" : 135
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 2]
+        },
+        {
+          "layers" : [3, 0, 3]
+        },
+        {
+          "layers" : [0, 1, 0]
+        },
+        {
+          "layers" : [1, 3, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c10_005",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 4,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.18,
+        "deadEndRatio" : 0,
+        "minMoves" : 11,
+        "score" : 24.6,
+        "seed" : 2015014,
+        "statesExplored" : 208
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 3, 2]
+        },
+        {
+          "layers" : [0, 3, 3, 2]
+        },
+        {
+          "layers" : [1, 0, 0, 1]
+        },
+        {
+          "layers" : [2, 3, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_006",
+      "links" : [
+        {
+          "gate" : 1,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.57,
+        "deadEndRatio" : 0,
+        "minMoves" : 14,
+        "score" : 26.2,
+        "seed" : 3015002,
+        "statesExplored" : 123
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 1, 3, 2]
+        },
+        {
+          "layers" : [1, 0, 3, 2]
+        },
+        {
+          "layers" : [1, 2, 2, 0]
+        },
+        {
+          "layers" : [1, 0, 0, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_007",
+      "links" : [
+        {
+          "gate" : 0,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.14,
+        "deadEndRatio" : 0.018,
+        "minMoves" : 14,
+        "score" : 27.6,
+        "seed" : 3015001,
+        "statesExplored" : 145
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 3, 2]
+        },
+        {
+          "layers" : [1, 0, 2, 3]
+        },
+        {
+          "layers" : [2, 1, 2, 0]
+        },
+        {
+          "layers" : [3, 1, 3, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_008",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 0,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0.017,
+        "minMoves" : 16,
+        "score" : 29.8,
+        "seed" : 3015000,
+        "statesExplored" : 174
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 4, 2, 1]
+        },
+        {
+          "layers" : [3, 3, 2, 0]
+        },
+        {
+          "layers" : [4, 4, 0, 1]
+        },
+        {
+          "layers" : [0, 3, 1, 3]
+        },
+        {
+          "layers" : [2, 4, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_009",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 6,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.19,
+        "deadEndRatio" : 0.025,
+        "minMoves" : 16,
+        "score" : 33.4,
+        "seed" : 5015100,
+        "statesExplored" : 735
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 4, 1]
+        },
+        {
+          "layers" : [4, 3, 2, 1]
+        },
+        {
+          "layers" : [4, 2, 4, 3]
+        },
+        {
+          "layers" : [1, 0, 0, 3]
+        },
+        {
+          "layers" : [2, 3, 0, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_010",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 5,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.72,
+        "deadEndRatio" : 0.001,
+        "minMoves" : 18,
+        "score" : 34.2,
+        "seed" : 5015111,
+        "statesExplored" : 725
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 3, 2]
+        },
+        {
+          "layers" : [2, 0, 4, 3]
+        },
+        {
+          "layers" : [0, 4, 1, 4]
+        },
+        {
+          "layers" : [3, 2, 1, 1]
+        },
+        {
+          "layers" : [2, 1, 4, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_011",
+      "links" : [
+        {
+          "gate" : 6,
+          "switch" : 4,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.53,
+        "deadEndRatio" : 0.032,
+        "minMoves" : 17,
+        "score" : 36.3,
+        "seed" : 4015260,
+        "statesExplored" : 1466
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 4, 0, 1]
+        },
+        {
+          "layers" : [3, 4, 3, 1]
+        },
+        {
+          "layers" : [2, 1, 2, 4]
+        },
+        {
+          "layers" : [0, 4, 0, 2]
+        },
+        {
+          "layers" : [2, 1, 0, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_012",
+      "links" : [
+        {
+          "gate" : 6,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.84,
+        "deadEndRatio" : 0.042,
+        "minMoves" : 19,
+        "score" : 37.8,
+        "seed" : 4015270,
+        "statesExplored" : 1124
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 3, 2]
+        },
+        {
+          "layers" : [2, 3, 1, 4]
+        },
+        {
+          "layers" : [3, 1, 2, 4]
+        },
+        {
+          "layers" : [0, 3, 1, 2]
+        },
+        {
+          "layers" : [4, 4, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_013",
+      "links" : [
+        {
+          "gate" : 1,
+          "switch" : 6,
+          "type" : "switchGate"
+        },
+        {
+          "gate" : 2,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0.014,
+        "minMoves" : 18,
+        "score" : 35.1,
+        "seed" : 6015164,
+        "statesExplored" : 815
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 2, 3, 4]
+        },
+        {
+          "layers" : [3, 0, 1, 2]
+        },
+        {
+          "layers" : [1, 2, 2, 4]
+        },
+        {
+          "layers" : [0, 1, 0, 4]
+        },
+        {
+          "layers" : [4, 0, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_014",
+      "links" : [
+        {
+          "gate" : 4,
+          "switch" : 5,
+          "type" : "switchGate"
+        },
+        {
+          "gate" : 3,
+          "switch" : 6,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.28,
+        "deadEndRatio" : 0.019,
+        "minMoves" : 18,
+        "score" : 36.1,
+        "seed" : 6015123,
+        "statesExplored" : 1125
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 5, 0]
+        },
+        {
+          "layers" : [5, 3, 4, 1]
+        },
+        {
+          "layers" : [4, 1, 3, 4]
+        },
+        {
+          "layers" : [0, 4, 3, 2]
+        },
+        {
+          "layers" : [1, 0, 3, 1]
+        },
+        {
+          "layers" : [2, 5, 2, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_015",
+      "links" : [
+        {
+          "gate" : 4,
+          "switch" : 0,
+          "type" : "switchGate"
+        },
+        {
+          "gate" : 2,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4,
+        "deadEndRatio" : 0.009,
+        "minMoves" : 24,
+        "score" : 43.8,
+        "seed" : 7015068,
+        "statesExplored" : 3171
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 4, 5, 4]
+        },
+        {
+          "layers" : [4, 3, 3, 1]
+        },
+        {
+          "layers" : [0, 5, 3, 5]
+        },
+        {
+          "layers" : [2, 0, 5, 2]
+        },
+        {
+          "layers" : [4, 1, 0, 1]
+        },
+        {
+          "layers" : [2, 1, 2, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_016",
+      "links" : [
+        {
+          "gate" : 0,
+          "switch" : 2,
+          "type" : "switchGate"
+        },
+        {
+          "gate" : 4,
+          "switch" : 1,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.18,
+        "deadEndRatio" : 0.018,
+        "minMoves" : 22,
+        "score" : 44.3,
+        "seed" : 7015058,
+        "statesExplored" : 6388
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 2, 3, 4]
+        },
+        {
+          "layers" : [3, 1, 4, 5]
+        },
+        {
+          "layers" : [0, 5, 2, 1]
+        },
+        {
+          "layers" : [1, 3, 5, 1]
+        },
+        {
+          "layers" : [4, 0, 2, 5]
+        },
+        {
+          "layers" : [3, 0, 4, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c10_017",
+      "links" : [
+        {
+          "gate" : 1,
+          "switch" : 4,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.22,
+        "deadEndRatio" : 0.036,
+        "minMoves" : 23,
+        "score" : 41.4,
+        "seed" : 8015009,
+        "statesExplored" : 950
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 2, 1]
+        },
+        {
+          "layers" : [3, 5, 0, 3]
+        },
+        {
+          "layers" : [0, 4, 3, 1]
+        },
+        {
+          "layers" : [5, 1, 5, 4]
+        },
+        {
+          "layers" : [3, 2, 2, 4]
+        },
+        {
+          "layers" : [4, 0, 2, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c10_018",
+      "links" : [
+        {
+          "gate" : 2,
+          "switch" : 5,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.38,
+        "deadEndRatio" : 0.047,
+        "minMoves" : 21,
+        "score" : 41.4,
+        "seed" : 8015014,
+        "statesExplored" : 1868
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 3, 4]
+        },
+        {
+          "layers" : [4, 1, 5, 5]
+        },
+        {
+          "layers" : [3, 2, 4, 2],
+          "modifiers" : [
+            {
+              "layer" : 2,
+              "turns" : 5,
+              "type" : "frozen"
+            }
+          ]
+        },
+        {
+          "layers" : [3, 5, 4, 0]
+        },
+        {
+          "layers" : [0, 1, 5, 1]
+        },
+        {
+          "layers" : [1, 2, 3, 2],
+          "modifiers" : [
+            {
+              "layer" : 2,
+              "turns" : 5,
+              "type" : "frozen"
+            }
+          ]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_019",
+      "links" : [
+        {
+          "gate" : 1,
+          "switch" : 4,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.1,
+        "deadEndRatio" : 0.104,
+        "minMoves" : 21,
+        "score" : 42.1,
+        "seed" : 12015082,
+        "statesExplored" : 964
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 3, 5],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, 1, 5, 0]
+        },
+        {
+          "layers" : [3, 4, {"key": 1}, 2]
+        },
+        {
+          "layers" : [0, 3, 4, 0]
+        },
+        {
+          "layers" : [3, 4, 1, 5]
+        },
+        {
+          "layers" : [5, 4, 2, 0]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_020",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 5,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.78,
+        "deadEndRatio" : 0.032,
+        "minMoves" : 23,
+        "score" : 43,
+        "seed" : 9015487,
+        "statesExplored" : 2419
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 2, 0, 1]
+        },
+        {
+          "layers" : [0, 3, 5, 3]
+        },
+        {
+          "layers" : [4, 3, 1, 0]
+        },
+        {
+          "layers" : [1, 2, 0, 4]
+        },
+        {
+          "layers" : [5, 3, 5, 4]
+        },
+        {
+          "layers" : [4, 1, 2, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_021",
+      "links" : [
+        {
+          "between" : [7, 8],
+          "type" : "twins"
+        },
+        {
+          "gate" : 1,
+          "switch" : 4,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.5,
+        "deadEndRatio" : 0.006,
+        "minMoves" : 24,
+        "score" : 44.1,
+        "seed" : 14015003,
+        "statesExplored" : 2723
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 6, 2, 2]
+        },
+        {
+          "layers" : [4, 0, 1, 3]
+        },
+        {
+          "layers" : [6, 3, 1, 4],
+          "modifiers" : [
+            {
+              "color" : 6,
+              "type" : "essence"
+            }
+          ]
+        },
+        {
+          "layers" : [6, 4, 5, 0]
+        },
+        {
+          "layers" : [3, 1, 3, 0]
+        },
+        {
+          "layers" : [1, 5, 4, 6]
+        },
+        {
+          "layers" : [0, 5, 2, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_022",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 6,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.16,
+        "deadEndRatio" : 0.051,
+        "minMoves" : 25,
+        "score" : 44.7,
+        "seed" : 10015050,
+        "statesExplored" : 1352
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 1, 1, 4],
+          "modifiers" : [
+            {
+              "every" : 3,
+              "phase" : 0,
+              "type" : "bubbling"
+            }
+          ]
+        },
+        {
+          "layers" : [4, 3, 0, 5]
+        },
+        {
+          "layers" : [4, 4, 5, 2]
+        },
+        {
+          "layers" : [2, 5, 3, 1]
+        },
+        {
+          "layers" : [0, 2, 0, 0]
+        },
+        {
+          "layers" : [2, 3, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_023",
+      "links" : [
+        {
+          "gate" : 2,
+          "switch" : 5,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.58,
+        "deadEndRatio" : 0.028,
+        "minMoves" : 19,
+        "score" : 45,
+        "seed" : 13015084,
+        "statesExplored" : 34236
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 2, 0]
+        },
+        {
+          "layers" : [5, 3, 1, 2],
+          "modifiers" : [
+            {
+              "type" : "narrowNeck"
+            }
+          ]
+        },
+        {
+          "layers" : [0, 6, 2, 6]
+        },
+        {
+          "layers" : [3, 5, 1, 4]
+        },
+        {
+          "layers" : [4, 5, 3, 0]
+        },
+        {
+          "layers" : [2, 5, 6, 4]
+        },
+        {
+          "layers" : [3, 6, 4, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_024",
+      "links" : [
+        {
+          "gate" : 0,
+          "switch" : 6,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.65,
+        "deadEndRatio" : 0.017,
+        "minMoves" : 26,
+        "score" : 46.1,
+        "seed" : 11015007,
+        "statesExplored" : 3478
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 3, 1, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 0, 5, 3]
+        },
+        {
+          "layers" : [5, 1, 4, 1]
+        },
+        {
+          "layers" : [4, 3, 5, 2]
+        },
+        {
+          "layers" : [2, {"key": 1}, 2, 0]
+        },
+        {
+          "layers" : [4, 0, 5, 3]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_025",
+      "links" : [
+        {
+          "gate" : 2,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.21,
+        "deadEndRatio" : 0.14,
+        "minMoves" : 24,
+        "score" : 46.5,
+        "seed" : 9015288,
+        "statesExplored" : 912
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 3, 8]
+        },
+        {
+          "layers" : [2, 8, 0, 6]
+        },
+        {
+          "layers" : [0, 3, 5, 4]
+        },
+        {
+          "layers" : [4, 1, 2, 2]
+        },
+        {
+          "layers" : [7, 5, 3, 7]
+        },
+        {
+          "layers" : [4, 0, 1, 7]
+        },
+        {
+          "layers" : [6, 6, 8, 1]
+        },
+        {
+          "layers" : [6, 3, 8, 2]
+        },
+        {
+          "layers" : [1, 7, 5, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_026",
+      "links" : [
+        {
+          "gate" : 5,
+          "switch" : 1,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.39,
+        "deadEndRatio" : 0.028,
+        "minMoves" : 31,
+        "score" : 57.7,
+        "seed" : 15015011,
+        "statesExplored" : 39106
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [8, 0, 1, 4]
+        },
+        {
+          "layers" : [3, 5, 3, 1]
+        },
+        {
+          "layers" : [7, 6, 7, 1]
+        },
+        {
+          "layers" : [8, 2, 3, 0]
+        },
+        {
+          "layers" : [5, 1, 2, 2]
+        },
+        {
+          "layers" : [6, 0, 0, 4]
+        },
+        {
+          "layers" : [5, 3, 7, 8]
+        },
+        {
+          "layers" : [7, 5, 4, 2]
+        },
+        {
+          "layers" : [6, 8, 4, 6]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_027",
+      "links" : [
+        {
+          "gate" : 0,
+          "switch" : 7,
+          "type" : "switchGate"
+        },
+        {
+          "gate" : 1,
+          "switch" : 3,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.45,
+        "deadEndRatio" : 0.017,
+        "minMoves" : 31,
+        "score" : 58,
+        "seed" : 17015079,
+        "statesExplored" : 53308
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [6, 8, 2, 3]
+        },
+        {
+          "layers" : [4, 0, 7, 4]
+        },
+        {
+          "layers" : [0, 5, 8, 5]
+        },
+        {
+          "layers" : [8, 7, 6, 1]
+        },
+        {
+          "layers" : [8, 6, 4, 7]
+        },
+        {
+          "layers" : [1, 0, 6, 1]
+        },
+        {
+          "layers" : [4, 3, 3, 2]
+        },
+        {
+          "layers" : [2, 5, 5, 7]
+        },
+        {
+          "layers" : [0, 2, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_028",
+      "links" : [
+        {
+          "gate" : 3,
+          "switch" : 6,
+          "type" : "switchGate"
+        },
+        {
+          "gate" : 2,
+          "switch" : 4,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.44,
+        "deadEndRatio" : 0.017,
+        "minMoves" : 32,
+        "score" : 61.1,
+        "seed" : 17015113,
+        "statesExplored" : 141739
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 6, 2, 4]
+        },
+        {
+          "layers" : [7, 6, 2, 5]
+        },
+        {
+          "layers" : [0, 7, 3, 3]
+        },
+        {
+          "layers" : [1, 7, 0, 1]
+        },
+        {
+          "layers" : [2, 4, 5, 4]
+        },
+        {
+          "layers" : [2, 3, 5, 0]
+        },
+        {
+          "layers" : [7, 4, 3, 5]
+        },
+        {
+          "layers" : [6, 6, 0, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_029",
+      "links" : [
+        {
+          "gate" : 6,
+          "switch" : 8,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.18,
+        "deadEndRatio" : 0.314,
+        "minMoves" : 28,
+        "score" : 61.6,
+        "seed" : 16015014,
+        "statesExplored" : 5049
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 7, 1, 4]
+        },
+        {
+          "layers" : [0, 0, 5, 2]
+        },
+        {
+          "layers" : [6, 5, 7, 8]
+        },
+        {
+          "layers" : [3, 0, 3, 4]
+        },
+        {
+          "layers" : [2, 1, 3, 8]
+        },
+        {
+          "layers" : [1, 8, 6, 8]
+        },
+        {
+          "layers" : [4, 5, 7, 3]
+        },
+        {
+          "layers" : [2, 7, 6, 1]
+        },
+        {
+          "layers" : [2, 5, 4, 6]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c10_030",
+      "links" : [
+        {
+          "gate" : 4,
+          "switch" : 5,
+          "type" : "switchGate"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.47,
+        "deadEndRatio" : 0.16,
+        "minMoves" : 32,
+        "score" : 63.2,
+        "seed" : 15015032,
+        "statesExplored" : 34528
+      }
+    }
+  ],
+  "location" : "Dragon's Hoard",
+  "name" : "Dragon's Hoard",
+  "subtitle" : "Fill a switch flask with one potion to lift its gate",
+  "version" : 2
+}
