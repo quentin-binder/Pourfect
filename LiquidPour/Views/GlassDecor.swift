@@ -51,23 +51,27 @@ enum NarrowNeck {
 /// neck above the frame's top edge. Used for the glass fills and the outline only; the liquid
 /// is still clipped to the body (it never reaches the shoulders: a full flask leaves 0.45 w).
 struct NeckedFlaskShape: Shape {
+    /// The body's style (R7): the shoulders rise from its mouth.
+    var style: FlaskShapeStyle = .classic
+
     func path(in rect: CGRect) -> Path {
         let w = rect.width
         let nw = NarrowNeck.width(w), nh = NarrowNeck.height(w)
         let x0 = rect.minX + (w - nw) / 2, x1 = x0 + nw
+        let left = rect.minX + style.lipInset(w), right = rect.maxX - style.lipInset(w)
         let top = rect.minY - nh, shoulder = rect.minY - nh * 0.3, side = rect.minY + w * 0.18
         let neck = Path { p in
             p.move(to: CGPoint(x: x0, y: top))
             p.addLine(to: CGPoint(x: x0, y: shoulder))
-            p.addQuadCurve(to: CGPoint(x: rect.minX, y: side), control: CGPoint(x: rect.minX, y: shoulder))
-            p.addLine(to: CGPoint(x: rect.minX, y: rect.minY + w * 0.3))
-            p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY + w * 0.3))
-            p.addLine(to: CGPoint(x: rect.maxX, y: side))
-            p.addQuadCurve(to: CGPoint(x: x1, y: shoulder), control: CGPoint(x: rect.maxX, y: shoulder))
+            p.addQuadCurve(to: CGPoint(x: left, y: side), control: CGPoint(x: left, y: shoulder))
+            p.addLine(to: CGPoint(x: left, y: rect.minY + w * 0.3))
+            p.addLine(to: CGPoint(x: right, y: rect.minY + w * 0.3))
+            p.addLine(to: CGPoint(x: right, y: side))
+            p.addQuadCurve(to: CGPoint(x: x1, y: shoulder), control: CGPoint(x: right, y: shoulder))
             p.addLine(to: CGPoint(x: x1, y: top))
             p.closeSubpath()
         }
-        return BottleView.shape(width: w).path(in: rect).union(neck)
+        return BottleView.shape(width: w, style: style).path(in: rect).union(neck)
     }
 }
 
@@ -281,12 +285,13 @@ struct FlaskGlass<S: ShapeStyle>: View {
     let style: S
     let width: CGFloat
     let necked: Bool
+    @Environment(\.flaskStyle) private var flaskStyle
 
     var body: some View {
         if necked {
-            NeckedFlaskShape().fill(style)
+            NeckedFlaskShape(style: flaskStyle).fill(style)
         } else {
-            BottleView.shape(width: width).fill(style)
+            BottleView.shape(width: width, style: flaskStyle).fill(style)
         }
     }
 }
@@ -298,19 +303,23 @@ struct FlaskOutline<S: ShapeStyle>: View {
     let width: CGFloat
     let necked: Bool
     let lineWidth: CGFloat
+    @Environment(\.flaskStyle) private var flaskStyle
 
     var body: some View {
         if necked {
-            NeckedFlaskShape().stroke(style, lineWidth: lineWidth)
+            NeckedFlaskShape(style: flaskStyle).stroke(style, lineWidth: lineWidth)
         } else {
-            BottleView.shape(width: width).strokeBorder(style, lineWidth: lineWidth)
+            BottleView.shape(width: width, style: flaskStyle).strokeBorder(style, lineWidth: lineWidth)
         }
     }
 }
 
 extension Cork {
     /// The cork of `bottle` at rest: `Cork` width parameter and offset from the body's top.
-    static func placement(for bottle: Bottle, width w: CGFloat) -> (width: CGFloat, offsetY: CGFloat) {
-        bottle.hasNarrowNeck ? (NarrowNeck.corkWidth(w), NarrowNeck.corkOffsetY(w)) : (w, offsetY(width: w))
+    static func placement(for bottle: Bottle, width w: CGFloat,
+                          style: FlaskShapeStyle = .classic) -> (width: CGFloat, offsetY: CGFloat) {
+        if bottle.hasNarrowNeck { return (NarrowNeck.corkWidth(w), NarrowNeck.corkOffsetY(w)) }
+        let cork = style.corkWidth(w)
+        return (cork, offsetY(width: cork))
     }
 }

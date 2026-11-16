@@ -12,6 +12,9 @@ struct GameView: View {
     @Environment(TutorialModel.self) private var tutorials
     @Environment(DailyModel.self) private var daily
     @Environment(\.dismiss) private var dismiss
+    @Environment(LevelCatalog.self) private var catalog
+    @Environment(ProgressModel.self) private var progress
+    @Environment(StoryPresenter.self) private var story
     /// The tip on screen, if any (first time a mechanic appears, or the "?" button).
     @State private var tip: [TutorialTopic]?
     #if os(iOS)
@@ -52,7 +55,8 @@ struct GameView: View {
         .padding()
         .overlay { overlay }
         .overlay {
-            if let tip {
+            // A story scene comes first; its tips wait underneath until it ends.
+            if let tip, story.scene == nil {
                 TutorialOverlay(topics: tip) {
                     tutorials.markSeen(tip)
                     withAnimation { self.tip = nil }
@@ -61,12 +65,13 @@ struct GameView: View {
                 .transition(.opacity)
             }
         }
-        .task(id: model.level.id) {
-            // First time a mechanic appears: show its tip once the screen has settled.
+        .task(id: TipTrigger(level: model.level.id, storyShowing: story.scene != nil)) {
+            // First time a mechanic appears: show its tip once the screen has settled, and after
+            // a story scene on screen (R7) has ended.
             let unseen = tutorials.unseen(model.tutorialTopics)
             // Rush never opens a tip by itself: its clock is running (its mechanics come from
             // chapters already played; "?" still explains them, with the clock stopped).
-            guard tip == nil, !unseen.isEmpty, rush == nil else { return }
+            guard tip == nil, !unseen.isEmpty, rush == nil, story.scene == nil else { return }
             try? await Task.sleep(for: .milliseconds(350))
             withAnimation { tip = unseen }
         }
@@ -79,6 +84,19 @@ struct GameView: View {
             }
         }
         .onChange(of: model.cancelledPours) { FeedbackPlayer.cancelPending() }
+        // The ending (R7) plays once after the last own recipe of the final chapter is solved
+        // (the bonus orders after it don't hold it back), a moment after the win card appears.
+        // Leaving the card sooner ("Next" to the first order) plays it at once instead of losing
+        // it; the next recipe's tips wait for it.
+        .task(id: showsResult && isWon) {
+            guard showsResult, isWon, !model.isDemo, !model.isRush, !model.isDaily, !model.isRandom,
+                  let scene = Story.sceneAfterWin(recipeID: model.level.id,
+                                                  finalRecipeID: Story.finalRecipeID(
+                                                      of: catalog.chapter(Story.finalChapter)?.levels ?? []),
+                                                  seen: progress.storySeen) else { return }
+            try? await Task.sleep(for: .seconds(1.6))
+            story.show(scene)
+        }
         .onChange(of: tip == nil) { _, closed in rush?.isShowingTip = !closed }
         .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }
         .navigationTitle(model.title)
@@ -737,4 +755,10 @@ private struct CompactLabelStyle: LabelStyle {
             Label(configuration).labelStyle(.titleAndIcon).lineLimit(1)
         }
     }
+}
+
+/// When the first-time tips are looked at again: a new recipe, or a story scene opening or ending.
+private struct TipTrigger: Equatable {
+    let level: String
+    let storyShowing: Bool
 }

@@ -1,7 +1,8 @@
+import BottleSortCore
 import SwiftUI
 
 /// The painted alchemist's workbench (asset catalog `bg_workbench_landscape` /
-/// `bg_workbench_portrait`), aspect-filled behind a screen. Picks the landscape painting for
+/// `bg_workbench_portrait`, or a theme's `theme_*_landscape` / `_portrait`, R7), aspect-filled behind a screen. Picks the landscape painting for
 /// wide areas (Mac, iPad and iPhone in landscape) and the portrait one for tall ones.
 ///
 /// - `.game`: the workbench as the play surface. Slightly softened and dimmed, darkest in the
@@ -16,17 +17,19 @@ struct WorkbenchBackground: View {
     enum Style { case game, menu }
 
     var style: Style = .game
+    /// The chosen workbench theme (R7 cosmetics); the default is the alchemist's workbench.
+    @Environment(\.workbenchTheme) private var theme
 
     /// Wider than this aspect ratio (width / height) uses the landscape painting.
     static let landscapeThreshold: CGFloat = 0.9
 
-    static func image(for size: CGSize) -> ImageResource {
-        size.width >= size.height * landscapeThreshold ? .bgWorkbenchLandscape : .bgWorkbenchPortrait
+    static func image(for size: CGSize, theme: WorkbenchTheme = .workbench) -> ImageResource {
+        theme.image(landscape: size.width >= size.height * landscapeThreshold)
     }
 
     var body: some View {
         GeometryReader { proxy in
-            Image(Self.image(for: proxy.size))
+            Image(Self.image(for: proxy.size, theme: theme))
                 .resizable()
                 .interpolation(.medium)
                 .aspectRatio(contentMode: .fill)
@@ -44,7 +47,9 @@ struct WorkbenchBackground: View {
         switch style {
         case .game:
             ZStack {
-                Color.black.opacity(0.28)
+                // The theme paintings are more detailed than the workbench (Art/README): a
+                // little more dimming keeps the flasks readable.
+                Color.black.opacity(theme == .workbench ? 0.28 : 0.36)
                 // Darker band across the middle, where the flasks stand.
                 LinearGradient(stops: [.init(color: .black.opacity(0), location: 0.05),
                                        .init(color: .black.opacity(0.32), location: 0.35),

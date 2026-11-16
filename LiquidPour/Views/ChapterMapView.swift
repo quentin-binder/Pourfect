@@ -83,6 +83,7 @@ struct ChapterMapView: View {
     let onOpenChapter: (_ packID: String) -> Void
     let onChallenges: () -> Void
     let onDaily: () -> Void
+    let onLabStyle: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
@@ -124,6 +125,10 @@ struct ChapterMapView: View {
             ToolbarItem(placement: .primaryAction) {
                 Button(action: onChallenges) { Label("Challenges", systemImage: "trophy") }
                     .help("Challenge recipes and Random Brew")
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button(action: onLabStyle) { Label("Lab Style", systemImage: "paintpalette") }
+                    .help(Text("Workbench themes, flask shapes and potion effects", comment: "Tooltip of the Lab Style button"))
             }
             ToolbarItem(placement: .primaryAction) { SettingsButton() }
         }

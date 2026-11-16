@@ -127,7 +127,7 @@ struct BubbleStream: View {
             }
         }
         .frame(width: width, height: height)
-        .clipShape(BottleView.shape(width: width))
+        .flaskClip(width: width)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
@@ -211,7 +211,7 @@ struct BubbleRise: View {
             content(t: t)
         }
         .frame(width: width, height: height)
-        .clipShape(BottleView.shape(width: width))
+        .flaskClip(width: width)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }

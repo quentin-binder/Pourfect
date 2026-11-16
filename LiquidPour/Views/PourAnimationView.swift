@@ -122,6 +122,7 @@ struct PourAnimationView: View {
     let onFinish: () -> Void
 
     @Environment(\.colorRunesEnabled) private var runesEnabled
+    @Environment(\.flaskStyle) private var flaskStyle
     @State private var start = Date()
 
     private var duration: Double { reduceMotion ? PourPose.reducedDuration : PourPose.duration }
@@ -317,7 +318,9 @@ struct PourAnimationView: View {
         let lip = lipPosition(pose, right: right)
         // A narrow neck pours from its neck's lip, not the body's corner: the flask is shifted
         // (more as it tilts) so the neck's lip ends where the corner would have been.
-        let neck = sourceParts.neck ? Self.rotated(NarrowNeck.lipOffset(width, right: right), degrees: angle) : .zero
+        // A narrower mouth (R7 flask shapes) pours from its own lip the same way.
+        let mouth = CGPoint(x: (right ? -1 : 1) * flaskStyle.lipInset(width), y: 0)
+        let neck = Self.rotated(sourceParts.neck ? NarrowNeck.lipOffset(width, right: right) : mouth, degrees: angle)
         let corner = CGPoint(x: lip.x - neck.x * pose.tilt, y: lip.y - neck.y * pose.tilt)
         let spout = CGPoint(x: corner.x + neck.x, y: corner.y + neck.y)
 
@@ -386,7 +389,7 @@ struct PourAnimationView: View {
                         opaque: Double = 0, valve: Double = 0, bubbles: Double = 1, twin: Bool = false,
                         card: Double? = nil) -> some View {
         let w = frame.width
-        let shape = BottleView.shape(width: w)
+        let shape = BottleView.shape(width: w, style: flaskStyle)
         let parts = GlassParts(model)
         let essence = model.essenceColor
         let lock = model.lockedBy
@@ -394,7 +397,7 @@ struct PourAnimationView: View {
         // Same outline as at rest (`BottleView`): the seal's metal, else frosted or plain glass.
         let plainOutline = !ice.isEmpty ? Ice.outline : model.isCauldron ? Iron.outline : BottleView.outlineColor
         let sealOutline = lock.map { Palette.keyColor($0.rawValue).opacity(0.8) }
-        let cork = Cork.placement(for: model, width: w)
+        let cork = Cork.placement(for: model, width: w, style: flaskStyle)
         return ZStack {
             // Same smoky backing as at rest; a lifted flask turns to frosted glass so bottles it
             // passes in front of don't show through.
@@ -445,7 +448,7 @@ struct PourAnimationView: View {
             if parts.neck {
                 NeckCollar(width: w, color: outline)
             } else if !model.isCauldron {
-                FlaskRim(width: w, color: outline)
+                FlaskRim(width: flaskStyle.rimWidth(w), color: outline)
             }
         }
         .overlay(alignment: .top) {

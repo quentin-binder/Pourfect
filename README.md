@@ -88,6 +88,38 @@ else is a challenge).
     `rush.runs.v1`); leaving a run before time is up records nothing.
   - **Recipe books:** Challenger, Expert and Master, with their stars and gold seals (recipes inside open in order).
   - **Random Brew** (below).
+- **Story:** the first time a chapter's recipe list opens, a short scene (2–4 speech bubbles) plays between the
+  apprentice and the old alchemist about the place and its new mechanic; after the last recipe of Dragon's Hoard is
+  solved for the first time (its own last recipe: the customer orders after it are bonus recipes), the ending plays
+  over the win card. A scene always comes before a recipe's first-time tips, which wait until it ends. Portraits change expression per line (generated
+  `portrait_apprentice_*` / `portrait_alchemist_*`, 512 px). Tap or click anywhere, Space, Return or **Next** to go
+  on, **Skip** (Esc) to end; **Story** on a chapter screen replays its scene (on Dragon's Hoard also the ending once
+  seen). Reduce Motion swaps lines without sliding or bouncing; VoiceOver reads "Alchemist: …" and announces each
+  new line. Lines are in `StoryScript.swift` (String catalog), when they play is core logic (`Story`); seen scenes
+  are stored in `progress.storySeen.v1`.
+- **Lab Style (cosmetic rewards):** the palette button on the map opens the rewards: **workbench themes**
+  (Alchemist's Workbench, Forest Hut, Frost Lab, Dragon's Lair), **flask shapes** (Classic, Potion Bottle,
+  Round-Bottom, Conical: one silhouette for every flask of the board, same capacity, frames and tap areas) and
+  **potion effects** when a flask is corked (Sparkles, Bubble Pop, Fireflies, Starburst; none with Reduce Motion).
+  Rewards unlock by milestones, no currency; locked ones say how to earn them with your progress. Customer orders
+  count like the chapter gate counts them: their stars and gold seals count, but finishing a chapter doesn't need
+  them, so orders added to a finished chapter never take a theme back:
+
+  | Reward | Milestone |
+  |---|---|
+  | Forest Hut | solve every recipe in Misty Marsh (ch. 3; customer orders not needed) |
+  | Frost Lab | solve every recipe in Frost Peak (ch. 6; customer orders not needed) |
+  | Dragon's Lair | solve every recipe in Dragon's Hoard (ch. 10; customer orders not needed) |
+  | Potion Bottle | 100 stars in the chapters |
+  | Round-Bottom Flask | 10 gold seals |
+  | Conical Flask | 10 recipes in one Rush |
+  | Bubble Pop | Daily Brew 3 days in a row (best streak) |
+  | Fireflies | 400 stars in the chapters |
+  | Starburst | 50 gold seals |
+
+  A **New reward!** banner drops in when one unlocks (tap it to open Lab Style). The choice is a setting
+  (`settings.theme`, `settings.flaskShape`, `settings.potionEffect`); a choice that isn't unlocked shows the
+  default. Announced rewards: `progress.rewardsAnnounced.v1`.
 - **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow
   necks, funnels, taps, frozen layers, bubbling flasks, twin flasks, pressure pipes, the mixing cauldron, switches and
   gates) the game shows a
@@ -278,7 +310,13 @@ Boards with no empty bottle are almost always unsolvable. Random levels are play
   (`chapter_map`) is the home screen; the chapter vignettes (`chapter_01`…`chapter_10`) are the map buttons and the
   chapter headers. `PaintedBackdrop(image:)` blurs any painting into a backdrop.
   These are JPEG copies made with `sips` from the full-resolution originals in `Art/` (kept local, see
-  `Art/README.md`); about 6 MB in total.
+  `Art/README.md`); about 6 MB in total. R7 adds the three theme paintings (`theme_<name>_landscape`
+  2752 × 1536 and `_portrait` 1179 × 2752, JPEG quality 72, ≈ 3.6 MB) and the six story portraits (512 px PNG with
+  transparency, ≈ 1.7 MB).
+- **Flask shapes:** `FlaskShape(style:)` (`Cosmetics.swift`) draws the body inside the flask's unchanged frame; every
+  fill, outline and clip of a flask goes through it (`BottleView.shape(width:style:)`, `.flaskClip(width:)`), the
+  narrow neck rises from the shape's mouth, the rim and cork follow the mouth, and the pour leaves from the mouth's
+  lip.
 - **Potion names:** the 12 palette colors have potion names (`Palette.potionNames`, e.g. Dragon's Blood,
   Mermaid Teal) and the key metals have names (`Palette.keyNames`); VoiceOver reads a flask as
   "Flask 3, 2 Dragon's Blood, Moonshade, corked".
@@ -303,6 +341,11 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPResetTutorials 1` | Forgets which tips were seen (at launch), so they show again. |
 | `-LPSkipTutorials 1` | Never shows a tip on its own this run (nothing saved); for screenshots. |
 | `-LPTutorialPage N` | Opens tips on step N (1-based). |
+| `-LPShowStory N` | Plays chapter N's story scene at launch (`-LPShowStory ending`: the ending), over whatever else opens. |
+| `-LPStoryLine K` | With `-LPShowStory`: opens the scene on line K (1-based). |
+| `-LPResetStory 1` | Forgets which story scenes were played (at launch), so they play again. `-LPSkipTutorials 1` also keeps scenes from starting on their own. |
+| `-LPOpenLabStyle 1` | Opens Lab Style (the rewards) at launch. With `-LPUnlockAll 1` every reward is unlocked (and none is announced). |
+| `-settings.theme T` / `-settings.flaskShape S` / `-settings.potionEffect E` | Picks a cosmetic: `workbench`, `forestHut`, `frostLab`, `dragonLair` / `classic`, `potionBottle`, `roundBottom`, `conical` / `sparkle`, `bubbles`, `fireflies`, `starburst` (only shown when unlocked, e.g. with `-LPUnlockAll 1`). |
 | `-LPMapAnchor Y` | Opens the chapter map scrolled to height Y (0 = top / dragon, 1 = bottom / cellar). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). A demo win saves no stars and no daily result. |
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
@@ -331,6 +374,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 Example: `xcrun simctl launch <device> <bundle id> -LPRandomMode locks -LPRandomSeed 5 -random.colors 6 -random.locks 2`.
 Daily win card: `open -n LiquidPour.app --args -LPDailySeedResults 40 -LPPlayDaily 1 -LPSkipTutorials 1 -LPDemoMoves 99`.
 Gold-seal win card: `-LPOpenChapter 1 -LPOpenLevel 3 -LPDemoMoves 99 -LPSkipTutorials 1` (a demo win saves nothing).
+Story scene: `-LPShowStory 5 -LPStoryLine 2`. Themed board mid-pour: `-LPUnlockAll 1 -LPSkipTutorials 1 -LPOpenChapter 1 -LPOpenLevel 3 -LPDemoMoves 99 -settings.theme dragonLair -settings.flaskShape conical -settings.potionEffect starburst`.
 Rush end card with a new best: `-LPOpenRush 1 -LPRushSeed 42 -LPRushAutoplay 1 -LPRushDuration 14 -rush.best.v1 0`.
 Saved progress can be faked for one run through the argument domain (nothing is written), e.g.
 `-progress.goldSeals.v1 '(p1_001,p1_002)' -progress.bestStars.v1 '<dict><key>p1_001</key><integer>3</integer></dict>'`.
@@ -348,7 +392,7 @@ LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 d
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-This runs 500 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 515 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -413,6 +457,11 @@ finished flask still moves into the flask that ordered it, an ordered twin), per
 marks apart, JSON, validation, generator placement, determinism and must-matter, the bonus-recipe gate, and the 27
 shipped order recipes (appended last, valid, not met at the start, solving in their recorded minimum, the goal
 mattering; chapter 2's first a tiny tutorial; layered from chapter 4).
+Rewards and story (`RewardsTests.swift`): one
+starter per category, thresholds, finishing a chapter needs every own recipe (customer orders are bonus: their
+stars count, finishing doesn't need them), only main-path stars and shipped seals count, announcements once and in order, locked choices fall back to the starter, every threshold reachable in the
+shipped game, the cosmetic settings round trip (old saves load the defaults), and when story scenes play (the
+ending after Dragon's Hoard's last own recipe, not its bonus orders).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels

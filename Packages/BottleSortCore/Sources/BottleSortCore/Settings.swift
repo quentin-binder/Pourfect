@@ -26,13 +26,18 @@ public struct GameSettings: Equatable, Codable, Sendable {
     /// Draw a rune on every liquid layer so colors can be told apart without hue.
     public var colorRunesEnabled: Bool
     public var reduceMotion: ReduceMotionPreference
+    /// The chosen workbench theme, flask shape and completion effect (R7). Only the choice is
+    /// stored; the app resolves it against the unlocked rewards (`CosmeticSelection.resolved`).
+    public var cosmetics: CosmeticSelection
 
     public init(soundEnabled: Bool = true, hapticsEnabled: Bool = true,
-                colorRunesEnabled: Bool = false, reduceMotion: ReduceMotionPreference = .system) {
+                colorRunesEnabled: Bool = false, reduceMotion: ReduceMotionPreference = .system,
+                cosmetics: CosmeticSelection = .starter) {
         self.soundEnabled = soundEnabled
         self.hapticsEnabled = hapticsEnabled
         self.colorRunesEnabled = colorRunesEnabled
         self.reduceMotion = reduceMotion
+        self.cosmetics = cosmetics
     }
 
     public static let defaults = GameSettings()
@@ -55,6 +60,9 @@ public struct UserDefaultsSettingsStore: SettingsStore, @unchecked Sendable {
         public static let haptics = "settings.haptics"
         public static let colorRunes = "settings.colorRunes"
         public static let reduceMotion = "settings.reduceMotion"
+        public static let theme = "settings.theme"
+        public static let flaskShape = "settings.flaskShape"
+        public static let potionEffect = "settings.potionEffect"
     }
 
     public init(defaults: UserDefaults = .standard) {
@@ -68,14 +76,23 @@ public struct UserDefaultsSettingsStore: SettingsStore, @unchecked Sendable {
             hapticsEnabled: bool(Key.haptics) ?? fallback.hapticsEnabled,
             colorRunesEnabled: bool(Key.colorRunes) ?? fallback.colorRunesEnabled,
             reduceMotion: defaults.string(forKey: Key.reduceMotion).flatMap(ReduceMotionPreference.init(rawValue:))
-                ?? fallback.reduceMotion)
+                ?? fallback.reduceMotion,
+            cosmetics: CosmeticSelection(
+                theme: raw(Key.theme).flatMap(WorkbenchTheme.init(rawValue:)) ?? fallback.cosmetics.theme,
+                flask: raw(Key.flaskShape).flatMap(FlaskShapeStyle.init(rawValue:)) ?? fallback.cosmetics.flask,
+                effect: raw(Key.potionEffect).flatMap(PotionEffect.init(rawValue:)) ?? fallback.cosmetics.effect))
     }
+
+    private func raw(_ key: String) -> String? { defaults.string(forKey: key) }
 
     public func save(_ settings: GameSettings) {
         defaults.set(settings.soundEnabled, forKey: Key.sound)
         defaults.set(settings.hapticsEnabled, forKey: Key.haptics)
         defaults.set(settings.colorRunesEnabled, forKey: Key.colorRunes)
         defaults.set(settings.reduceMotion.rawValue, forKey: Key.reduceMotion)
+        defaults.set(settings.cosmetics.theme.rawValue, forKey: Key.theme)
+        defaults.set(settings.cosmetics.flask.rawValue, forKey: Key.flaskShape)
+        defaults.set(settings.cosmetics.effect.rawValue, forKey: Key.potionEffect)
     }
 
     /// A stored Bool. Also accepts strings such as "1" / "YES" (launch arguments like

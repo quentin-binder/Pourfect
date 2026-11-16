@@ -46,6 +46,8 @@ struct BottleView: View {
 
     @Environment(\.colorRunesEnabled) private var runesEnabled
     @Environment(\.effectiveReduceMotion) private var reduceMotion
+    @Environment(\.flaskStyle) private var flaskStyle
+    @Environment(\.potionEffect) private var potionEffect
     @State private var burst: Date?
     /// Replays the cork drop. Follows `completions` only with motion on, so toggling Reduce
     /// Motion never replays a drop.
@@ -58,9 +60,9 @@ struct BottleView: View {
     static func height(width: CGFloat, capacity: Int) -> CGFloat {
         CGFloat(capacity) * layerHeight(width: width) + width * 0.45
     }
-    static func shape(width: CGFloat) -> UnevenRoundedRectangle {
-        UnevenRoundedRectangle(topLeadingRadius: width * 0.12, bottomLeadingRadius: width * 0.45,
-                               bottomTrailingRadius: width * 0.45, topTrailingRadius: width * 0.12)
+    /// The flask body in `style` (R7 cosmetics; `.classic` is the original rounded tube).
+    static func shape(width: CGFloat, style: FlaskShapeStyle) -> FlaskShape {
+        FlaskShape(style: style)
     }
     static let outlineColor = Color.primary.opacity(0.45)
     static let glassColor = Color.primary.opacity(0.05)
@@ -86,7 +88,7 @@ struct BottleView: View {
 
     private var layerHeight: CGFloat { Self.layerHeight(width: width) }
     private var height: CGFloat { Self.height(width: width, capacity: bottle.capacity) }
-    private var shape: UnevenRoundedRectangle { Self.shape(width: width) }
+    private var shape: FlaskShape { Self.shape(width: width, style: flaskStyle) }
 
     private var glass: GlassParts { GlassParts(bottle) }
 
@@ -157,7 +159,7 @@ struct BottleView: View {
             if necked {
                 NeckCollar(width: width, color: outline)
             } else if !bottle.isCauldron {
-                FlaskRim(width: width, color: outline)
+                FlaskRim(width: flaskStyle.rimWidth(width), color: outline)
             }
         }
         .overlay(alignment: .top) {
@@ -300,7 +302,7 @@ struct BottleView: View {
     /// completed it lands (`completions` changes) and pops off when the flask stops being complete.
     @ViewBuilder private var cork: some View {
         if isCompleted {
-            let place = Cork.placement(for: bottle, width: width)
+            let place = Cork.placement(for: bottle, width: width, style: flaskStyle)
             Cork(width: place.width)
                 .corkDrop(width: width, trigger: corkDrops)
                 .offset(y: place.offsetY)
@@ -312,10 +314,11 @@ struct BottleView: View {
 
     @ViewBuilder private var sparkles: some View {
         if let burst, case .color(let id)? = bottle.layers.last {
-            SparkleBurst(start: burst, color: Palette.color(id.rawValue), width: width)
-                .offset(y: -SparkleBurst.size(width: width).height / 2)   // centered on the mouth
+            let effect = potionEffect
+            CompletionBurst(effect: effect, start: burst, color: Palette.color(id.rawValue), width: width)
+                .offset(y: -CompletionBurst.size(width: width).height / 2)   // centered on the mouth
                 .task(id: burst) {
-                    try? await Task.sleep(for: .seconds(burst.timeIntervalSinceNow + SparkleBurst.duration))
+                    try? await Task.sleep(for: .seconds(burst.timeIntervalSinceNow + CompletionBurst.duration(effect)))
                     if self.burst == burst { self.burst = nil }
                 }
         }
