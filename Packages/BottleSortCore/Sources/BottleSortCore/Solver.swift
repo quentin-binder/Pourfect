@@ -108,23 +108,26 @@ public struct Solver: Sendable {
     /// current one (a no-op) or to a sibling that is already generated.
     ///
     /// The rules hold for states without links, goal or counter whose flasks share one
-    /// capacity (as `validate()` requires) and carry only *gate* modifiers (`BottleModifier.isGate`: a seal, an
-    /// essence rune), which decide what a flask accepts but not how a pour moves layers.
-    /// Two flasks are *alike* when their modifier sets are equal (`Bottle.storage`): an
-    /// empty flask is then interchangeable with any other empty flask alike. Any other
-    /// state gets every legal move (later mechanics add their own safe pruning here).
+    /// capacity (as `validate()` requires) and carry only *static* modifiers
+    /// (`BottleModifier.isStatic`: seal, essence rune, narrow neck, funnel, tap), whose
+    /// effect depends only on the two bottles of a pour. Two flasks are *alike* when their
+    /// modifier sets are equal (`Bottle.storage`): an empty flask is then interchangeable
+    /// with any other empty flask alike (a bottle permutation, which the key ignores). Any
+    /// other state gets every legal move (later mechanics add their own safe pruning here).
     ///
     /// - Rule 3: pouring into an empty unsealed flask gives the same canonical state as
     ///   pouring into the first empty flask alike, so only that one is tried. An empty
     ///   flask that is *not* alike (an essence rune vs. a plain flask, two different
     ///   runes) is a different target and is tried on its own (DECISIONS 133).
-    /// - Rule 2: if everything in the source moves together, pouring it into an empty
-    ///   flask alike just relocates the flask (a canonical no-op). Into an empty flask
-    ///   that is not alike it is a real move (e.g. a plain flask's finished color into
-    ///   its essence flask) and is kept.
-    /// - Rule 1 (shortcut of rule 2): a full single-color flask holds all `capacity`
-    ///   layers of its color, so its only legal targets are empty flasks; when every
-    ///   empty unsealed flask is alike to it they're all no-ops and the source is skipped.
+    /// - Rule 2: if the pour moves everything in the source (the plan's amount, so a narrow
+    ///   neck moving one of two layers doesn't count), pouring it into an empty flask
+    ///   alike just relocates the flask (a canonical no-op). Into an empty flask that is
+    ///   not alike it is a real move (e.g. a plain flask's finished color into its essence
+    ///   flask, or into a narrow neck) and is kept.
+    /// - Rule 1 (shortcut of rule 2): a full single-color plain flask holds all `capacity`
+    ///   layers of its color, so its only legal targets are empty flasks; when no empty
+    ///   flask that can receive (unsealed, no tap) carries a modifier, they're all plain,
+    ///   all no-ops, and the source is skipped.
     ///
     /// Seals: the key includes each seal and a key layer has its own token, so
     /// "canonically identical" still means "same position for the rules"; only unsealed
@@ -133,13 +136,13 @@ public struct Solver: Sendable {
     /// the rules from before essence flasks existed.
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
-        guard state.isBottlesOnly, bottles.allSatisfy(\.hasOnlyGateModifiers) else {
+        guard state.isBottlesOnly, bottles.allSatisfy(\.hasOnlyStaticModifiers) else {
             return state.legalMoves()
         }
         // The first plain empty flask; flasks with other modifiers are rare and are
         // compared one by one (`isFirstEmptyAlike`).
         let firstPlainEmpty = bottles.firstIndex { $0.isEmpty && $0.isPlain }
-        let hasMarkedEmpty = bottles.contains { $0.isEmpty && !$0.isPlain && !$0.isSealed }
+        let hasMarkedEmpty = bottles.contains { $0.isEmpty && !$0.isPlain && !$0.isSealed && !$0.hasTap }
         func isFirstEmptyAlike(_ index: Int) -> Bool {
             let target = bottles[index]
             return !bottles[..<index].contains { $0.isEmpty && $0.storage == target.storage }
@@ -150,22 +153,24 @@ public struct Solver: Sendable {
             if source.isEmpty { continue }
             // Rule 1.
             if source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
-            // Rule 2.
+            // Rule 2 (a plain source moves its whole top run into an empty plain flask).
             let movesWhole = Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
+                var alikeEmpty = false
                 if target.isEmpty {
                     if target.isPlain {
                         if to != firstPlainEmpty || (movesWhole && source.isPlain) { continue }  // rules 3, 2
                     } else if !target.isSealed {
-                        if !isFirstEmptyAlike(to) || (movesWhole && target.storage == source.storage) { continue }
+                        if !isFirstEmptyAlike(to) { continue }  // rule 3
+                        alikeEmpty = target.storage == source.storage
                     }
                 }
                 // `Rules.actionPlan` without its index checks: in a state of bottles only it
                 // is exactly the two-bottle plan (the one legality check, DECISIONS 125).
-                if Rules.plan(from: source, to: target) != nil {
-                    result.append(Move(from: from, to: to))
-                }
+                guard let plan = Rules.plan(from: source, to: target) else { continue }
+                if alikeEmpty && plan.amount == source.layers.count { continue }  // rule 2
+                result.append(Move(from: from, to: to))
             }
         }
         return result

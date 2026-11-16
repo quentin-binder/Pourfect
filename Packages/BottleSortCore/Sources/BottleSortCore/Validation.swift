@@ -35,6 +35,14 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     /// An essence flask starts full of one other color: it would count as sorted while
     /// holding a color it can never receive (the standard goal only asks "full, one color").
     case essenceFullOfOtherColor(bottle: Int, color: ColorID)
+    /// A tap flask carries a seal: a tap never receives, so its key could never open it.
+    case sealedTap(bottle: Int)
+    /// A flask carries both a funnel and a tap: it could neither pour nor receive.
+    case funnelWithTap(bottle: Int)
+    /// A funnel flask starts with layers it could never be sorted with: nothing ever leaves
+    /// a funnel, so it must start empty or with one color only (its rune's, if it has one),
+    /// and never with a key.
+    case unsortableFunnel(bottle: Int)
 
     public var description: String {
         switch self {
@@ -57,6 +65,9 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .multipleEssences(b): return "bottle \(b) has more than one essence rune"
         case let .essenceColorAbsent(b, c): return "bottle \(b) is an essence flask of color \(c.rawValue), which the level doesn't contain"
         case let .essenceFullOfOtherColor(b, c): return "essence flask \(b) starts full of color \(c.rawValue), not its own"
+        case let .sealedTap(b): return "tap flask \(b) is sealed, but a tap never receives its key"
+        case let .funnelWithTap(b): return "flask \(b) has a funnel and a tap, so it can neither pour nor receive"
+        case let .unsortableFunnel(b): return "funnel flask \(b) starts with layers it can never pour out (more than one color, a key, or not its rune's color)"
         }
     }
 }
@@ -68,7 +79,9 @@ extension GameState {
     /// key id at most once as a layer and once as a lock), and every lock's key can
     /// be reached (not behind its own lock, directly or through a cycle of locks).
     /// Mechanics: at most one seal and one essence rune per flask, an essence rune names
-    /// a color of the level, an essence flask doesn't start full of another color, links connect two different existing bottles, and every
+    /// a color of the level, an essence flask doesn't start full of another color, a tap
+    /// flask carries no seal and no funnel, a funnel flask starts empty or with one color
+    /// (its rune's, if any; no key), links connect two different existing bottles, and every
     /// modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
@@ -120,6 +133,14 @@ extension GameState {
             if let rune = runes.first, bottle.layers.count == bottle.capacity,
                case .color(let c)? = bottle.layers.first, c != rune, bottle.layers.allSatisfy({ $0 == .color(c) }) {
                 errors.append(.essenceFullOfOtherColor(bottle: i, color: c))
+            }
+            if bottle.hasTap && bottle.isSealed { errors.append(.sealedTap(bottle: i)) }
+            if bottle.hasTap && bottle.isFunnel { errors.append(.funnelWithTap(bottle: i)) }
+            if bottle.isFunnel, let first = bottle.layers.first {
+                let oneColor = first.colorID != nil && bottle.layers.allSatisfy { $0 == first }
+                if !oneColor || runes.contains(where: { first != .color($0) }) {
+                    errors.append(.unsortableFunnel(bottle: i))
+                }
             }
         }
         for (color, n) in counts.sorted(by: { $0.key < $1.key }) {

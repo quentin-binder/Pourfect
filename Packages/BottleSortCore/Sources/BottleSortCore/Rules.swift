@@ -7,10 +7,41 @@ public enum Action: Hashable, Sendable {
     case pour(Move)
 }
 
-/// The result of one resolved turn: the new state and whether its goal is met.
+/// The result of one resolved turn: the new state, whether its goal is met, and what
+/// the player's pour did (for the app's animation).
 public struct Turn: Hashable, Sendable {
     public var state: GameState
     public var isWon: Bool
+    /// The pour of step 1 as applied. nil only for actions that aren't pours (none yet).
+    public var pour: PourEvent?
+}
+
+/// What one pour moved, as `Rules.resolve` applied it: the app animates from this instead
+/// of diffing states, because a tap pours from the bottom of its flask (DECISIONS 130 b, 146).
+public struct PourEvent: Hashable, Sendable {
+    public var move: Move
+    /// The layer that moved (all `amount` moved layers are equal: a run, or one key).
+    public var layer: Layer
+    /// How many layers left the source.
+    public var amount: Int
+    /// The layers left from the source's bottom (a tap, C4): the stack above slides down.
+    /// Otherwise they left from the top.
+    public var fromBottom: Bool
+    /// The key opened the target's seal (A1): it was used up and never lands in the target.
+    public var openedSeal: KeyID?
+
+    public init(move: Move, layer: Layer, amount: Int, fromBottom: Bool = false, openedSeal: KeyID? = nil) {
+        self.move = move
+        self.layer = layer
+        self.amount = amount
+        self.fromBottom = fromBottom
+        self.openedSeal = openedSeal
+    }
+
+    /// Indices (0 = bottom) the moved layers occupied in the source before the pour.
+    public func sourceRange(sourceCountBefore count: Int) -> Range<Int> {
+        fromBottom ? 0..<amount : (count - amount)..<count
+    }
 }
 
 /// Which end of a pour a modifier sits on.
@@ -22,8 +53,11 @@ public enum PourSide: Sendable {
 /// One pour being worked out between two bottles. Modifier hooks may veto it or change
 /// it (`Rules.apply(_:as:to:)`) before the base rule moves the layers.
 public struct PourPlan: Hashable, Sendable {
-    /// The layer that leaves the source first (its top layer).
+    /// The layer that leaves the source first: its top layer, or its bottom layer when
+    /// `fromBottom` is set.
     public var layer: Layer
+    /// Set by a source's tap (C4): the source pours its bottom run instead of its top run.
+    public var fromBottom = false
     /// Most layers that may move, as limited by modifiers (e.g. a narrow neck: 1).
     /// The base rule also limits it by the movable run and the target's free space.
     public var limit: Int = .max
@@ -57,16 +91,20 @@ public enum Rules {
     ///   the canonical order) has already accepted. As a source it changes nothing: it
     ///   may start with other colors, which are poured out normally.
     ///
-    /// R5 plan: `.narrowNeck`
-    /// either side → `limit = 1`; `.funnel` source → veto; `.frozen(i, _)` source →
-    /// `limit` = `source.layers.count - 1 - i` layers above it (veto at 0). Mechanics that
-    /// change *what* the base rule does need a plan field it reads, added with the
-    /// mechanic: `.tap` (source → pour from the bottom: `layer` = bottom layer plus a
-    /// `fromBottom` flag that `movableRunCount` / `transfer` honour; target → veto) and
-    /// `.cauldron` (target → accept a recipe partner on top: an `acceptsMismatch` flag;
-    /// mixing itself is an immediate effect). Links (twins, overflow into a full flask,
-    /// gates) act on more than two bottles; they belong in `actionPlan(for:in:)` and
-    /// `Transfer` becomes a list of bottle changes then (DECISIONS 130).
+    /// - `.narrowNeck` (C2): on either side, `limit = 1`: exactly one layer moves, however
+    ///   long the run and however much room the target has.
+    /// - `.funnel` (C4): as a source it vetoes every pour; as a target it changes nothing.
+    /// - `.tap` (C4): as a source the pour starts at the *bottom*: `layer` becomes the
+    ///   bottom layer and `fromBottom` is set, so the base rule moves the bottom run (a key
+    ///   alone) and `transfer` takes it from the bottom. Target hooks run after source
+    ///   hooks, so they judge the bottom layer. As a target it vetoes everything, keys too.
+    ///
+    /// R5 plan: `.frozen(i, _)` source → `limit` = `source.layers.count - 1 - i` layers
+    /// above it (veto at 0; with a tap: decided with D1, DECISIONS 122). `.cauldron`
+    /// (target → accept a recipe partner on top: an `acceptsMismatch` flag; mixing itself
+    /// is an immediate effect). Links (twins, overflow into a full flask, gates) act on
+    /// more than two bottles; they belong in `actionPlan(for:in:)` and `Transfer` becomes a
+    /// list of bottle changes then (DECISIONS 130).
     public static func apply(_ modifier: BottleModifier, as side: PourSide, to plan: inout PourPlan,
                              source: Bottle, target: Bottle) -> Bool {
         switch (modifier, side) {
@@ -82,7 +120,21 @@ public enum Rules {
             // A seal runs first (canonical order): its own key opens it and needs no slot.
             // Otherwise only the essence color goes in (no other color, no key).
             return plan.opensSeal != nil || plan.layer == .color(color)
-        case (.narrowNeck, _), (.funnel, _), (.tap, _), (.frozen, _), (.bubbling, _), (.cauldron, _):
+        case (.narrowNeck, _):
+            plan.limit = 1
+            return true
+        case (.funnel, .source):
+            return false
+        case (.funnel, .target):
+            return true
+        case (.tap, .source):
+            guard let bottom = source.layers.first else { return false }
+            plan.layer = bottom
+            plan.fromBottom = true
+            return true
+        case (.tap, .target):
+            return false
+        case (.frozen, _), (.bubbling, _), (.cauldron, _):
             // Not implemented yet: levels using them fail validation and the solver refuses them.
             return true
         }
@@ -106,8 +158,8 @@ public enum Rules {
 
     /// Step 1 of a turn for a pour from `source` into `target`, or nil if it's illegal.
     ///
-    /// - Color top run: moves onto an empty or same-colored target with free space; as
-    ///   many layers as fit (partial pours allowed).
+    /// - Color top run (bottom run from a tap): moves onto an empty or same-colored target
+    ///   with free space; as many layers as fit (partial pours allowed), at most `limit`.
     /// - Key top layer: moves alone, only into the flask sealed by that key (see `apply`).
     /// - Nothing can be poured onto a key (a key top never matches a color).
     static func transfer(from source: Bottle, to target: Bottle) -> Transfer? {
@@ -119,12 +171,17 @@ public enum Rules {
     @inline(__always)
     static func transfer(_ plan: PourPlan, from source: Bottle, to target: Bottle) -> Transfer {
         var newSource = source
-        newSource.layers.removeLast(plan.amount)
+        if plan.fromBottom {
+            newSource.layers.removeFirst(plan.amount)
+        } else {
+            newSource.layers.removeLast(plan.amount)
+        }
         if let key = plan.opensSeal {
             return Transfer(source: newSource, target: target, openedSeal: key)
         }
         var newTarget = target
-        newTarget.layers.append(contentsOf: source.layers.suffix(plan.amount))
+        // The moved layers are a run of `plan.layer` (or one key), whichever end they left.
+        newTarget.layers.append(contentsOf: repeatElement(plan.layer, count: plan.amount))
         return Transfer(source: newSource, target: newTarget, openedSeal: nil)
     }
 
@@ -144,7 +201,8 @@ public enum Rules {
         guard !plan.layer.isKey else { return nil }
         guard target.freeSpace > 0 else { return nil }
         if let targetTop = target.topLayer, targetTop != plan.layer { return nil }
-        plan.amount = min(min(movableRunCount(source), target.freeSpace), plan.limit)
+        let run = plan.fromBottom ? movableBottomRunCount(source) : movableRunCount(source)
+        plan.amount = min(min(run, target.freeSpace), plan.limit)
         return plan.amount > 0 ? plan : nil
     }
 
@@ -186,13 +244,36 @@ public enum Rules {
         return bottle.topRunCount
     }
 
+    /// The same at the bottom of `bottle` (what a tap pours): a key alone, else the bottom run.
+    public static func movableBottomRunCount(_ bottle: Bottle) -> Int {
+        guard let bottom = bottle.layers.first else { return 0 }
+        if bottom.isKey { return 1 }
+        return bottle.bottomRunCount
+    }
+
+    /// What a pour *out of* `bottle` would take, whatever the target (for the app: which
+    /// layers to lift or highlight, where the stream starts): the layer indices (0 = bottom)
+    /// of the layers that leave if the target has room, and whether they leave from the
+    /// bottom (a tap). nil if the flask can't be poured from at all (empty, sealed, a
+    /// funnel). A narrow neck gives one layer; a target may still take fewer (free space).
+    public static func outlet(of bottle: Bottle) -> (layers: Range<Int>, fromBottom: Bool)? {
+        guard let top = bottle.topLayer else { return nil }
+        var plan = PourPlan(layer: top)
+        guard applyModifiers(as: .source, to: &plan, source: bottle, target: Bottle(capacity: 0)) else { return nil }
+        let run = plan.fromBottom ? movableBottomRunCount(bottle) : movableRunCount(bottle)
+        let amount = min(run, plan.limit)
+        let count = bottle.layers.count
+        return (plan.fromBottom ? 0..<amount : (count - amount)..<count, plan.fromBottom)
+    }
+
     // MARK: - Turn order (MECHANICS.md §4)
 
     /// Applies a player action and then every rule that follows it, in the fixed order
     /// of MECHANICS.md §4. This is the only place that order is defined; the game
     /// (`GameState.pouring`), the solver and the generator all go through it.
     ///
-    /// 1. The action (a pour; R5: twins / overflow extend it here).
+    /// 1. The action (a pour, from the top or, through a tap, from the bottom; R5: twins /
+    ///    overflow extend it here). The turn reports it as a `PourEvent`.
     /// 2. Immediate effects: unseal (A1). R5: mixing (E1), switch gates (A3). Murky
     ///    reveals (B1) are display state in `GameSession`.
     /// 3. `moveCount += 1`, only if the state stores a move counter, and only up to
@@ -208,6 +289,7 @@ public enum Rules {
         var next = state
         // 1. The player's action (`actionPlan` is also what `isLegal` checks).
         var opened: (bottle: Int, key: KeyID)?
+        let event: PourEvent
         switch action {
         case .pour(let move):
             guard let plan = actionPlan(for: move, in: state) else { return nil }
@@ -215,6 +297,8 @@ public enum Rules {
             next.bottles[move.from] = t.source
             next.bottles[move.to] = t.target
             if let key = t.openedSeal { opened = (move.to, key) }
+            event = PourEvent(move: move, layer: plan.layer, amount: plan.amount, fromBottom: plan.fromBottom,
+                              openedSeal: plan.opensSeal)
         }
         // 2. Immediate effects (unseal, then everything that follows from the state).
         applyImmediateEffects(&next, opened: opened)
@@ -223,11 +307,12 @@ public enum Rules {
         // 4. + 5. Timed effects, then immediate effects again.
         if applyTimedEffects(&next) { applyImmediateEffects(&next, opened: nil) }
         // 6. Goal.
-        return Turn(state: next, isWon: isWon(next))
+        return Turn(state: next, isWon: isWon(next), pour: event)
     }
 
     /// The flask modifier that refuses `move`, for the app's feedback (e.g. "this essence
-    /// flask only takes its own color"): the bottle and the first modifier of the pipeline
+    /// flask only takes its own color", "a funnel never pours out", "a tap never fills"):
+    /// the bottle and the first modifier of the pipeline
     /// (source side, then target side) that vetoes the pour, provided the pour would be legal
     /// without that modifier (so the modifier is *the* reason). nil if the move is legal, or
     /// illegal for a base reason too (same flask, empty source, full target, colors differ):

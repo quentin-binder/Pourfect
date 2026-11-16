@@ -23,8 +23,9 @@
 /// layers *under* the top (bubbling rotates the bottom layer up, a tap pours from the
 /// bottom, a cauldron recolors) must keep it valid too: when D1 is implemented together
 /// with them, the rule decides either that a frozen layer blocks them, or that the
-/// timed step re-indexes `.frozen` modifiers (DECISIONS 122, PLAN R5). Nothing does so
-/// yet: the only R5 rule implemented (essence) never moves layers below the top.
+/// timed step re-indexes `.frozen` modifiers (DECISIONS 122, PLAN R5). A tap (C4) is the
+/// first implemented rule that removes layers from the bottom; frozen layers don't exist
+/// yet, so nothing needs re-indexing until D1 (DECISIONS 145).
 public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// A1 sealed flask: can't be poured from or into, except by key `KeyID`,
     /// which opens it (immediate effect "unseal"). Implemented; `Bottle.lockedBy` is
@@ -33,11 +34,13 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// C1 essence flask: only receives layers of this color (pours out normally, may
     /// start with other colors). Implemented (chapter 4, Glyph Library).
     case essence(ColorID)
-    /// C2 narrow neck: one layer per pour, in or out. (R5)
+    /// C2 narrow neck: exactly one layer per pour, in or out. Implemented (chapter 5,
+    /// Glass Works).
     case narrowNeck
-    /// C4 funnel: receives, never pours out. (R5)
+    /// C4 funnel: receives normally, never pours out. Implemented (chapter 5).
     case funnel
-    /// C4 tap: pours from the bottom layer, never receives. (R5)
+    /// C4 tap: pours from its bottom layer (the bottom run), never receives anything, not
+    /// even a key. Implemented (chapter 5).
     case tap
     /// D1 frozen layer: layer `layer` (0 = bottom) and everything below it can't move;
     /// `turns` counts down after every move and the layer thaws at 0. (R5)
@@ -53,8 +56,8 @@ public enum BottleModifier: Hashable, Sendable, CustomStringConvertible {
     /// validation and the solver refuses them (`.unsupportedState`).
     public var isImplemented: Bool {
         switch self {
-        case .sealed, .essence: return true
-        case .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return false
+        case .sealed, .essence, .narrowNeck, .funnel, .tap: return true
+        case .frozen, .bubbling, .cauldron: return false
         }
     }
 

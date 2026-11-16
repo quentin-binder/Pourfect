@@ -136,11 +136,36 @@ public struct Bottle: Hashable, Sendable, CustomStringConvertible {
         return false
     }
 
-    /// Whether every modifier is a *gate* (`BottleModifier.isGate`): the flask follows the
-    /// classic pour rules except for what it accepts. True for a plain flask.
-    var hasOnlyGateModifiers: Bool {
-        if case .list(let list) = storage { return list.allSatisfy(\.isGate) }
+    /// Whether every modifier is *static* (`BottleModifier.isStatic`): no state of its own,
+    /// nothing that changes between moves. True for a plain flask.
+    var hasOnlyStaticModifiers: Bool {
+        if case .list(let list) = storage { return list.allSatisfy(\.isStatic) }
         return true
+    }
+
+    /// Whether the flask carries `modifier` (e.g. `.narrowNeck`).
+    @inline(__always)
+    func has(_ modifier: BottleModifier) -> Bool {
+        if case .list(let list) = storage { return list.contains(modifier) }
+        return false
+    }
+
+    /// C2: the flask has a narrow neck (one layer per pour, in or out). For the app's collar.
+    public var hasNarrowNeck: Bool { has(.narrowNeck) }
+    /// C4: the flask carries a funnel (receives, never pours out). For the app's funnel.
+    public var isFunnel: Bool { has(.funnel) }
+    /// C4: the flask has a tap (pours from the bottom, never receives). For the app's spigot.
+    public var hasTap: Bool { has(.tap) }
+
+    /// Number of contiguous identical layers at the bottom (0 if empty). A tap pours this run.
+    public var bottomRunCount: Int {
+        guard let bottom = layers.first else { return 0 }
+        var n = 0
+        for layer in layers {
+            guard layer == bottom else { break }
+            n += 1
+        }
+        return n
     }
 
     /// The color of this flask's essence rune (C1): it receives only this color. nil for a
@@ -224,12 +249,23 @@ extension BottleModifier {
     }
 
     /// A modifier that only decides what its flask accepts or gives (seal, essence): no
-    /// state of its own, no change to how many layers move or from where. The solver's
-    /// pruning rules hold for flasks that carry only these (`Solver.candidateMoves`).
+    /// state of its own, no change to how many layers move or from where.
     var isGate: Bool {
         switch self {
         case .sealed, .essence: return true
         case .narrowNeck, .funnel, .tap, .frozen, .bubbling, .cauldron: return false
+        }
+    }
+
+    /// A modifier with no state of its own that never changes between moves: the gates plus
+    /// the glass modifiers (narrow neck, funnel, tap), which change how many layers move and
+    /// from which end, but only as a function of the two bottles of the pour. The solver's
+    /// pruning rules hold for flasks that carry only these (`Solver.candidateMoves`,
+    /// DECISIONS 133, 147), using the actual plan amount.
+    var isStatic: Bool {
+        switch self {
+        case .sealed, .essence, .narrowNeck, .funnel, .tap: return true
+        case .frozen, .bubbling, .cauldron: return false
         }
     }
 }

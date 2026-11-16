@@ -106,6 +106,7 @@ public struct StateKey: Hashable, Sendable {
     static func singleWord(for modifier: BottleModifier) -> UInt64? {
         switch modifier {
         case .essence(let c): return modifier.tag << 56 | UInt64(truncatingIfNeeded: c.rawValue) & 0xFF_FFFF
+        case .narrowNeck, .funnel, .tap: return modifier.tag << 56
         case .cauldron: return nil
         default: return words(for: modifier)[0]
         }
