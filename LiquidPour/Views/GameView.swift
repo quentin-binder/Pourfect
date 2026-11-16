@@ -179,8 +179,9 @@ struct GameView: View {
         // more room between flasks.
         let spacing: CGFloat = bottles.contains { $0.hasTap || $0.isCauldron } ? 22 : 14
         // A narrow neck or a funnel stands above its flask (in widths): room for it on every row.
-        // An overflow pipe arches above the rims of its flasks (about half a width).
-        let pipe: CGFloat = model.state.links.contains { if case .overflow = $0 { return true } else { return false } }
+        // An overflow pipe arches above the rims of its flasks (about half a width), and so does
+        // a switch's lever (over a gate's housing).
+        let pipe: CGFloat = model.state.links.contains { if case .twins = $0 { return false } else { return true } }
             ? 0.6 : 0
         let parts = max(bottles.map { GlassParts($0).riseInWidths }.max() ?? 0, pipe)
         // Fit width: perRow bottles + spacing. Fit height: rows × (capacity × 0.78w + 0.45w) + lift room.
@@ -249,7 +250,7 @@ struct GameView: View {
         model.pour?.bottles.contains(index) ?? false
     }
 
-    /// The flask's contents for VoiceOver, plus its link (twin chain or overflow pipe).
+    /// The flask's contents for VoiceOver, plus its link (twin chain, overflow pipe, switch or gate).
     private func spokenValue(_ index: Int) -> String {
         let contents = model.state.bottles[index].spokenContents(hidden: model.hiddenMask(index))
         switch LinkRole(model.state, bottle: index) {
@@ -262,6 +263,20 @@ struct GameView: View {
         case .pipeIn(let from):
             return contents + ", " + String(localized: "the overflow pipe of flask \(from + 1) runs into it",
                                             comment: "VoiceOver: the flask an overflow pipe ends over; the argument is the flask it starts from")
+        case .switchOf(let gate):
+            if Rules.isSwitchOn(model.state.bottles[index]) {
+                return contents + ", " + String(localized: "switch flask, full of one potion: the gate of flask \(gate + 1) is open",
+                                                comment: "VoiceOver: a switch flask that is complete; the argument is its gate's flask number")
+            }
+            return contents + ", " + String(localized: "switch flask, fill it with one potion to open the gate of flask \(gate + 1)",
+                                            comment: "VoiceOver: a switch flask that is not complete; the argument is its gate's flask number")
+        case .gateOf(let s):
+            if model.state.isGateClosed(index) {
+                return contents + ", " + String(localized: "gate shut, nothing pours in or out until flask \(s + 1) is full of one potion",
+                                                comment: "VoiceOver: a closed gate flask; the argument is its switch's flask number")
+            }
+            return contents + ", " + String(localized: "gate open while flask \(s + 1) stays full of one potion",
+                                            comment: "VoiceOver: an open gate flask; the argument is its switch's flask number")
         case nil:
             return contents
         }
@@ -274,7 +289,7 @@ struct GameView: View {
         return model.linkRefusals[i]
     }
 
-    /// The chains and pipes, drawn between the flasks' frames on the board (after the shuffle and
+    /// The chains, pipes and switch levers, drawn between the flasks' frames on the board (after the shuffle and
     /// any resize). A link follows a flask that is picked up, and fades while one of its flasks
     /// is in the air pouring (the pour animation draws that flask).
     @ViewBuilder
@@ -288,17 +303,32 @@ struct GameView: View {
                     if let fa = frames[a], let fb = frames[b] {
                         let ra = proxy[fa], rb = proxy[fb]
                         let lifted = { (bottle: Int, w: CGFloat) -> CGFloat in model.selected == bottle ? w * 0.3 : 0 }
-                        let flying = model.pour?.from == a || model.pour?.from == b
+                        // A switch in the air takes its rod and gem along; the gate keeps its
+                        // housing and portcullis on the board.
+                        let isSwitch: Bool = { if case .switchGate = link { return true } else { return false } }()
+                        let switchAway = isSwitch && model.pour?.from == a
+                        let flying = model.pour?.from == b || (!isSwitch && model.pour?.from == a)
                         let refusals = model.linkRefusals.indices.contains(i) ? model.linkRefusals[i] : 0
+                        // A switch link: the gate shown open or shut (as before the move while a
+                        // pour is in the air), and how far the gate's neck or funnel stands up.
+                        let open: Double = model.gateOpen(link: i) ? 1 : 0
+                        let rise = GlassParts(model.state.bottles[b]).rise(rb.width)
+                        let slides = !reduceMotion
+                        let gateAnimation = GatePose.animation(reduceMotion: reduceMotion)
                         // The ends follow their flasks' shake (same count and timing as `BottleView`).
                         let shake = { (bottle: Int) -> CGFloat in
                             model.shakes.indices.contains(bottle) ? CGFloat(model.shakes[bottle]) : 0
                         }
                         LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
-                                 shakeA: shake(a), shakeB: shake(b))
+                                 shakeA: shake(a), shakeB: shake(b), open: open, gateRise: rise, slides: slides,
+                                 switchAway: switchAway)
                             .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
                                 LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
-                                         shakeA: shake(a), shakeB: shake(b), flare: flare)
+                                         shakeA: shake(a), shakeB: shake(b), flare: flare, open: open, gateRise: rise,
+                                         slides: slides, switchAway: switchAway)
+                                    // The portcullis slides up (or drops) and the gem lights (or
+                                    // dims); set here, inside the animator's content, so it applies.
+                                    .animation(gateAnimation, value: open)
                             } keyframes: { _ in
                                 KeyframeTrack {
                                     LinearKeyframe(1, duration: 0.12, timingCurve: .easeOut)
@@ -326,11 +356,14 @@ struct GameView: View {
                 })
                 // Chains and pipes of the flasks drawn by the pour (not the flying source's: they
                 // fade on the board meanwhile), redrawn above those flasks.
-                let links = model.state.links.compactMap { link -> (link: BottleSortCore.Link, a: CGRect, b: CGRect)? in
+                let links = model.state.links.indices.compactMap { i -> PourLink? in
+                    let link = model.state.links[i]
                     let (a, b) = link.endpoints
                     guard a != pour.from, b != pour.from, pour.bottles.contains(a) || pour.bottles.contains(b),
                           let fa = frames[a], let fb = frames[b] else { return nil }
-                    return (link, proxy[fa], proxy[fb])
+                    let gate = proxy[fb]
+                    return PourLink(link: link, a: proxy[fa], b: gate, open: model.gateOpen(link: i) ? 1 : 0,
+                                    gateRise: GlassParts(model.state.bottles[b]).rise(gate.width))
                 }
                 PourAnimationView(event: pour, sourceFrame: proxy[from], targetFrame: proxy[to],
                                   shareFrames: shareFrames, links: links,

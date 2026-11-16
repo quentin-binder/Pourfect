@@ -97,14 +97,25 @@ struct PourPose {
 /// both fill together. An overflow pipe (F2): the target fills to the rim, then the rest runs
 /// visibly through the pipe and drips into the flask at its far end, which fills after it.
 /// Chains and pipes touching a flask drawn here are drawn here too, above those flasks.
+/// A link drawn by the pour animation, between two flasks' frames.
+struct PourLink {
+    let link: BottleSortCore.Link
+    let a: CGRect
+    let b: CGRect
+    /// A switch link: its gate is shown open (1) or shut (0), as it was before the move.
+    var open: Double = 0
+    var gateRise: CGFloat = 0
+}
+
 struct PourAnimationView: View {
     let event: GameViewModel.PourEvent
     let sourceFrame: CGRect
     let targetFrame: CGRect
     /// Frames of the other flasks the pour fills (`event.shares`), by bottle index.
     var shareFrames: [Int: CGRect] = [:]
-    /// Links whose flasks this view draws (but not the source), with both flasks' frames.
-    var links: [(link: BottleSortCore.Link, a: CGRect, b: CGRect)] = []
+    /// Links whose flasks this view draws (but not the source), with both flasks' frames (a
+    /// switch link with its gate shown open or shut as before the move, and its gate's rise).
+    var links: [PourLink] = []
     let boardSize: CGSize
     let reduceMotion: Bool
     let onFinish: () -> Void
@@ -213,7 +224,8 @@ struct PourAnimationView: View {
             }
         }
         ForEach(links.indices, id: \.self) { i in
-            LinkView(link: links[i].link, a: links[i].a, b: links[i].b)
+            LinkView(link: links[i].link, a: links[i].a, b: links[i].b, open: links[i].open,
+                     gateRise: links[i].gateRise)
         }
     }
 

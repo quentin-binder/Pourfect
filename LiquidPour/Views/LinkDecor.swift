@@ -267,8 +267,13 @@ enum LinkRole: Equatable {
     case pipeOut(to: Int)
     case pipeIn(from: Int)
 
+    case switchOf(gate: Int)
+    case gateOf(switch: Int)
+
     init?(_ state: GameState, bottle: Int) {
         if let other = state.twin(of: bottle) { self = .twin(of: other) }
+        else if let gate = state.gate(of: bottle) { self = .switchOf(gate: gate) }
+        else if let s = state.switchFlask(of: bottle) { self = .gateOf(switch: s) }
         else if let to = state.overflowTarget(of: bottle) { self = .pipeOut(to: to) }
         else if let from = state.overflowSource(of: bottle) { self = .pipeIn(from: from) }
         else { return nil }
@@ -288,14 +293,25 @@ struct LinkView: View, Animatable {
     var shakeA: CGFloat = 0
     var shakeB: CGFloat = 0
     var flare: Double = 0
+    /// A switch link (A3): 0 = its gate is shut … 1 = open (the portcullis slides away and the
+    /// gem lights up as this animates).
+    var open: Double = 0
+    /// A switch link: how far the gate's own parts (neck, funnel) stand above its body.
+    var gateRise: CGFloat = 0
+    /// A switch link: the portcullis slides (false with Reduce Motion: it fades).
+    var slides = true
+    /// A switch link whose switch is in the air pouring: only the gate's housing and portcullis
+    /// stay (the rest hangs on the switch).
+    var switchAway = false
 
-    var animatableData: AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>> {
-        get { AnimatablePair(AnimatablePair(liftA, liftB), AnimatablePair(shakeA, shakeB)) }
+    var animatableData: AnimatablePair<AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>>, Double> {
+        get { AnimatablePair(AnimatablePair(AnimatablePair(liftA, liftB), AnimatablePair(shakeA, shakeB)), open) }
         set {
-            liftA = newValue.first.first
-            liftB = newValue.first.second
-            shakeA = newValue.second.first
-            shakeB = newValue.second.second
+            liftA = newValue.first.first.first
+            liftB = newValue.first.first.second
+            shakeA = newValue.first.second.first
+            shakeB = newValue.first.second.second
+            open = newValue.second
         }
     }
 
@@ -308,39 +324,50 @@ struct LinkView: View, Animatable {
         case .overflow:
             PipeView(geometry: PipeGeometry(from: a, to: b))
         case .switchGate:
-            EmptyView()
+            LeverView(geometry: LeverGeometry(switch: a, gate: b, gateRise: gateRise),
+                      open: open, slides: slides, flare: flare, switchAway: switchAway)
         }
     }
 }
 
 // MARK: Tips
 
-/// Two flasks side by side with their link, for the tips: twins on a chain, or a pipe from the
-/// first to the second (drawn with `BottleView`, like every tip). Both flasks hold 4 layers.
+/// Two flasks side by side with their link, for the tips: twins on a chain, a pipe from the
+/// first to the second, or a switch (first) and its gate (drawn with `BottleView`, like every tip). Both flasks hold 4 layers.
 /// `firstSelected`: the first flask is picked up (it rises, and its chain follows).
 struct LinkedPair: View {
-    enum Kind { case twins, pipe }
+    /// `.switchGate`: the first flask is the switch, the second its gate (open while the switch
+    /// is full of one potion, `Rules.isSwitchOn`).
+    enum Kind { case twins, pipe, switchGate }
     let kind: Kind
     let first: Bottle
     let second: Bottle
     let width: CGFloat
     var firstSelected = false
     var spacing: CGFloat = 18
+    /// A switch pair: the second flask is picked up (it rises, and the lever follows).
+    var secondSelected = false
 
     var body: some View {
         let h = BottleView.height(width: width, capacity: first.capacity)
         let a = CGRect(x: 0, y: 0, width: width, height: h)
         let b = CGRect(x: width + spacing, y: 0, width: width, height: h)
-        let link: BottleSortCore.Link = kind == .twins ? .twins(0, 1) : .overflow(from: 0, to: 1)
+        let link: BottleSortCore.Link = switch kind {
+        case .twins: .twins(0, 1)
+        case .pipe: .overflow(from: 0, to: 1)
+        case .switchGate: .switchGate(switch: 0, gate: 1)
+        }
         HStack(alignment: .bottom, spacing: spacing) {
             BottleView(bottle: first, width: width, isSelected: firstSelected, twin: kind == .twins)
-            BottleView(bottle: second, width: width, twin: kind == .twins)
+            BottleView(bottle: second, width: width, isSelected: secondSelected, twin: kind == .twins)
         }
         .overlay(alignment: .topLeading) {
-            LinkView(link: link, a: a, b: b, liftA: firstSelected ? width * 0.3 : 0)
+            LinkView(link: link, a: a, b: b, liftA: firstSelected ? width * 0.3 : 0,
+                     liftB: secondSelected ? width * 0.3 : 0,
+                     open: Rules.isSwitchOn(first) ? 1 : 0, gateRise: GlassParts(second).rise(width))
                 .frame(width: 2 * width + spacing, height: h, alignment: .topLeading)
         }
-        // Room for the pipe's arch above the rims.
-        .padding(.top, kind == .pipe ? width * 0.5 : 0)
+        // Room for the pipe's or the lever's arch above the rims.
+        .padding(.top, kind == .twins ? 0 : width * (kind == .switchGate ? 0.7 : 0.5))
     }
 }

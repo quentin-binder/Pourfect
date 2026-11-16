@@ -62,6 +62,10 @@ final class GameViewModel {
         /// cauldron as the pour left it and as it ends: the swirl plays when the pour lands
         /// (`MixSwirl`).
         let mix: MixMark?
+        /// Per link (index in `state.links`): whether a switch link's gate was open before the
+        /// move (A3). The board keeps showing that while the pour is in the air; the gate opens
+        /// or shuts when it lands.
+        let gatesOpenBefore: [Bool]
 
         /// A key pour: the key drops into the target's lock instead of liquid flowing.
         var isKey: Bool { layer.isKey }
@@ -93,6 +97,8 @@ final class GameViewModel {
         case refused(bottle: Int, modifier: BottleModifier)
         /// A twin chain refused the pour (`Rules.linkRefusal`): the chain rattles.
         case refusedLink(bottles: [Int])
+        /// A shut gate refused the pour or the pick-up (A3): its portcullis rattles.
+        case refusedGate(bottle: Int)
         /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved;
         /// `fromBottom`: poured through a tap (the valve opens instead of the lip clinking).
         case pour(from: Int, to: Int, amount: Int, isKey: Bool, fromBottom: Bool)
@@ -111,6 +117,10 @@ final class GameViewModel {
         /// The pour into this cauldron mixed (E1); fires when the pour animation lands, as the
         /// ingredients start to swirl.
         case mixed(bottle: Int)
+        /// Gates that opened (`opened`) or shut because their switch flask became complete or
+        /// stopped being so (A3); fires when the pour lands, or when the thaw or swirl that
+        /// completed the switch has played: the portcullis slides with a clank.
+        case gate(opened: Bool, gates: [Int])
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
         case flaskCompleted(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
@@ -188,6 +198,10 @@ final class GameViewModel {
     private(set) var mixes: [MixMark] = []
     private var mixCount = 0
     private var mixClearTask: Task<Void, Never>?
+    /// Per link index: a switch link's gate shown as before a change that waits for the thaw or
+    /// swirl on its switch to play (`startGates`).
+    private var gateHolds: [Int: Bool] = [:]
+    private var gateTasks: [Task<Void, Never>] = []
 
     /// Latest optimal solution, valid for `solutionState`. Lets Hint answer instantly.
     private var solution: (state: GameState, moves: [Move])?
@@ -282,6 +296,17 @@ final class GameViewModel {
         return bottle
     }
 
+    /// Whether the gate of switch link `link` (index in `state.links`) is shown open: as before
+    /// the move while its pour is in the air, and until the thaw or swirl that changed it has
+    /// played; else from the switch (`Rules.isSwitchOn`). false for any other link.
+    func gateOpen(link i: Int) -> Bool {
+        guard state.links.indices.contains(i), case let .switchGate(s, _) = state.links[i],
+              state.bottles.indices.contains(s) else { return false }
+        if let held = gateHolds[i] { return held }
+        if let pour, pour.gatesOpenBefore.indices.contains(i) { return pour.gatesOpenBefore[i] }
+        return Rules.isSwitchOn(state.bottles[s])
+    }
+
     /// The mix swirling in cauldron `index`, if any.
     func mix(_ index: Int) -> MixMark? {
         mixes.last { $0.bottle == index }
@@ -352,6 +377,9 @@ final class GameViewModel {
             let bottle = state.bottles[index]
             if bottle.isEmpty {
                 reject(index)
+            } else if state.isGateClosed(index) {
+                // A shut gate (A3): nothing pours out until its switch is full of one potion.
+                refuseGate(index)
             } else if Rules.outlet(of: bottle) == nil {
                 // Nothing can leave it right now (a seal, a funnel, ice on top or in a tap
                 // flask): it isn't picked up. `Rules.outletBlocker` names the reason.
@@ -392,6 +420,7 @@ final class GameViewModel {
         announceLanding(landed)
         startThaws(landed.events, reduceMotion: reduceMotion)
         startRises(landed.rises, reduceMotion: reduceMotion)
+        startGates(landed, reduceMotion: reduceMotion)
         // A cauldron the mix completes is corked when the swirl has settled (`startMix`).
         let completed = landed.completed.filter { $0 != landed.mix?.bottle }
         if !completed.isEmpty {
@@ -522,7 +551,11 @@ final class GameViewModel {
                          events: session.lastEvents, iceBefore: before.bottles.map(\.frozenLayers),
                          bubblingBefore: before.bottles.map(\.bubbling),
                          rises: pendingRises(session.lastEvents, hiddenBefore: hiddenBefore),
-                         mix: pendingMix(event))
+                         mix: pendingMix(event),
+                         gatesOpenBefore: before.links.map { link in
+                             guard case let .switchGate(s, _) = link, before.bottles.indices.contains(s) else { return false }
+                             return Rules.isSwitchOn(before.bottles[s])
+                         })
         emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
                    fromBottom: event.fromBottom))
         if let pour, pour.isSplit { emit(.split(bottles: [move.to] + shares.map(\.bottle))) }
@@ -546,6 +579,9 @@ final class GameViewModel {
         rises.removeAll()
         mixClearTask?.cancel()
         mixes.removeAll()
+        gateTasks.forEach { $0.cancel() }
+        gateTasks.removeAll()
+        gateHolds.removeAll()
         queuedTaps.removeAll()
         pourTimeout?.cancel()
     }
@@ -601,6 +637,10 @@ final class GameViewModel {
     /// A twin chain said no (`Rules.linkRefusal`): both twins shake, the chain glints and
     /// rattles, and a short line says why.
     private func refuse(_ move: Move, link: BottleSortCore.Link) {
+        if case let .switchGate(_, gate) = link {
+            refuseGate(gate)
+            return
+        }
         let twins: [Int]
         if case let .twins(a, b) = link { twins = [a, b] } else { twins = [move.to] }
         for bottle in twins where shakes.indices.contains(bottle) { shakes[bottle] += 1 }
@@ -619,6 +659,76 @@ final class GameViewModel {
                          comment: "Shown when a pour into a twin flask is refused because its twin is full or has another potion on top"))
         }
         emit(.refusedLink(bottles: twins))
+    }
+
+    /// A shut gate said no (A3: a pour into or out of it while its switch isn't full of one
+    /// potion): the gate shakes, its portcullis rattles and the brass glints, and a short line
+    /// says what opens it.
+    private func refuseGate(_ gate: Int) {
+        if shakes.indices.contains(gate) { shakes[gate] += 1 }
+        if let link = state.link(at: gate), let index = state.links.firstIndex(of: link),
+           linkRefusals.indices.contains(index) {
+            linkRefusals[index] += 1
+        }
+        let s = state.switchFlask(of: gate).map { $0 + 1 } ?? 0
+        flash(String(localized: "The gate is shut. Fill flask \(s) with one potion to open it.",
+                     comment: "Shown when the player pours into or out of a closed gate flask; the argument is the number of its switch flask"))
+        emit(.refusedGate(bottle: gate))
+    }
+
+    /// The gates this landed pour opened or shut (`TurnEvent.gateOpened` / `.gateClosed`): the
+    /// portcullis slides with a clank, and VoiceOver hears which gate. A gate opened by a thaw
+    /// or a mix on its switch waits until that has played (the board keeps showing it as
+    /// before meanwhile, `gateHolds`).
+    private func startGates(_ landed: PourEvent, reduceMotion: Bool) {
+        var changes: [(link: Int, gate: Int, opened: Bool, delay: Double)] = []
+        for event in landed.events {
+            let opened: Bool, s: Int, g: Int
+            switch event {
+            case let .gateOpened(sw, gate): (opened, s, g) = (true, sw, gate)
+            case let .gateClosed(sw, gate): (opened, s, g) = (false, sw, gate)
+            default: continue
+            }
+            guard let i = state.links.firstIndex(of: .switchGate(switch: s, gate: g)) else { continue }
+            var delay = 0.0
+            // (`startThaws` has just added this landing's thaws.)
+            if thaws.contains(where: { $0.bottle == s }) {
+                delay = (reduceMotion ? ThawPose.reducedDuration : ThawPose.duration) * 0.8
+            }
+            if landed.mix?.bottle == s {
+                delay = max(delay, reduceMotion ? MixPose.reducedDuration : MixPose.duration)
+            }
+            if landed.rises.contains(where: { $0.bottle == s }) {
+                delay = max(delay, (reduceMotion ? RisePose.reducedDuration : RisePose.duration) * 0.8)
+            }
+            changes.append((i, g, opened, delay))
+        }
+        for opened in [true, false] {
+            for delay in Set(changes.filter { $0.opened == opened }.map(\.delay)).sorted() {
+                let group = changes.filter { $0.opened == opened && $0.delay == delay }
+                let gates = group.map(\.gate)
+                let announce = { [weak self] in
+                    guard let self else { return }
+                    self.emit(.gate(opened: opened, gates: gates))
+                    let names = gates.map { String($0 + 1) }.formatted(.list(type: .and))
+                    AccessibilityNotification.Announcement(opened
+                        ? String(localized: "The gate of flask \(names) opened",
+                                 comment: "VoiceOver: a switch flask became full of one potion and opened its gate; the argument lists flask numbers")
+                        : String(localized: "The gate of flask \(names) shut",
+                                 comment: "VoiceOver: a switch flask stopped being full of one potion and its gate closed; the argument lists flask numbers")).post()
+                }
+                guard delay > 0 else { announce(); continue }
+                for change in group { gateHolds[change.link] = !opened }
+                gateTasks.append(Task { [weak self] in
+                    try? await Task.sleep(for: .seconds(delay * DebugTiming.slow))
+                    guard !Task.isCancelled, let self else { return }
+                    withAnimation(GatePose.animation(reduceMotion: reduceMotion)) {
+                        for change in group { self.gateHolds[change.link] = nil }
+                    }
+                    announce()
+                })
+            }
+        }
     }
 
     /// VoiceOver: where a pour that used a link landed (split between twins, or run through a
