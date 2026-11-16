@@ -9,6 +9,7 @@ struct TutorialStep: Identifiable {
         case iceHolds, iceSeals, iceThaws
         case bubbleRises, bubbleDial, bubbleUse
         case twinSplit, twinEven, twinOut, pipeOverflow, pipePassOn
+        case cauldronMix, cauldronPairs, cauldronOnly
     }
 
     let id: String
@@ -130,6 +131,18 @@ struct TutorialStep: Identifiable {
                              text: String(localized: "A full flask with the same potion on top lets the whole pour through. The far flask takes it like any pour, or the rest stays where it was."),
                              scene: .pipePassOn),
             ]
+        case .cauldron:
+            return [
+                TutorialStep(id: "cauldron.mix", topic: topic, title: String(localized: "Mixing cauldron"),
+                             text: String(localized: "Pour one ingredient onto the other inside the iron cauldron and they brew a new potion. The card under it shows its recipe."),
+                             scene: .cauldronMix),
+                TutorialStep(id: "cauldron.pairs", topic: topic, title: String(localized: "Pair by pair"),
+                             text: String(localized: "Each poured layer mixes with one layer below it into two layers of the new potion. Poured layers left over stay on top."),
+                             scene: .cauldronPairs),
+                TutorialStep(id: "cauldron.only", topic: topic, title: String(localized: "Only in the cauldron"),
+                             text: String(localized: "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each."),
+                             scene: .cauldronOnly),
+            ]
         }
     }
 }
@@ -228,6 +241,7 @@ extension TutorialTopic {
         case .bubbling: return String(localized: "New: bubbling flasks")
         case .twins: return String(localized: "New: twin flasks")
         case .overflow: return String(localized: "New: overflow pipes")
+        case .cauldron: return String(localized: "New: mixing cauldron")
         }
     }
 }
@@ -424,6 +438,34 @@ private struct TutorialScene: View {
                 LinkedPair(kind: .pipe, first: Bottle([3, 3, 6, 6], capacity: 4), second: Bottle([6], capacity: 4), width: w)
                 equals
                 LinkedPair(kind: .pipe, first: Bottle([3, 3, 6, 6], capacity: 4), second: Bottle([6, 6], capacity: 4), width: w)
+            case .cauldronMix:
+                BottleView(bottle: Bottle([4, 0], capacity: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: cauldron([1]), width: w)
+                equals
+                BottleView(bottle: cauldron([4, 4]), width: w)
+            case .cauldronPairs:
+                BottleView(bottle: Bottle([0, 0], capacity: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: cauldron([1]), width: w)
+                equals
+                BottleView(bottle: cauldron([4, 4, 0]), width: w)
+            case .cauldronOnly:
+                BottleView(bottle: Bottle([1, 0], capacity: 3), width: w, isSelected: true)
+                    .offset(y: -14)
+                    .padding(.bottom, cardRoom)
+                VStack(spacing: 6) {
+                    BottleView(bottle: Bottle([1], capacity: 3), width: w)
+                        .padding(.bottom, cardRoom)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+                VStack(spacing: 6) {
+                    BottleView(bottle: cauldron([1]), width: w)
+                        .padding(.bottom, cardRoom)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
             case .tapNoIn:
                 BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
@@ -435,8 +477,23 @@ private struct TutorialScene: View {
             }
         }
         .padding(.top, 18)
-        // A bubbling flask's dial hangs under its base.
-        .padding(.bottom, hangsDial ? BubbleGauge.room(w) : 0)
+        // A bubbling flask's dial or a cauldron's recipe card hangs under its base.
+        .padding(.bottom, hangsDial ? BubbleGauge.room(w) : hangsCard ? cardRoom : 0)
+    }
+
+    private var hangsCard: Bool {
+        switch scene {
+        case .cauldronMix, .cauldronPairs: return true
+        default: return false
+        }
+    }
+
+    private var cardRoom: CGFloat { RecipeCard.room(w, rows: 1) }
+
+    /// A size-3 cauldron brewing Moonshade from Dragon's Blood and Sapphire Draught, holding `colors`.
+    private func cauldron(_ colors: [Int]) -> Bottle {
+        Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 3,
+               modifiers: [.cauldron([Recipe(ColorID(0), ColorID(1), result: ColorID(4))])])
     }
 
     private var hangsDial: Bool {

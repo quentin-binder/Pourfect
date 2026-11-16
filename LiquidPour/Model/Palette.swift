@@ -137,6 +137,14 @@ extension Bottle {
             text += ", " + String(localized: "tap flask, pours from the bottom, nothing goes in",
                                   comment: "VoiceOver: a tap flask")
         }
+        if isCauldron {
+            let brews = recipes.map { recipe in
+                String(localized: "\(Palette.potionName(recipe.a.rawValue)) with \(Palette.potionName(recipe.b.rawValue)) brews \(Palette.potionName(recipe.result.rawValue))",
+                       comment: "VoiceOver: one recipe of a mixing cauldron; the arguments are the two ingredients and the potion they brew")
+            }
+            text += ", " + String(localized: "mixing cauldron, \(brews.formatted(.list(type: .and)))",
+                                  comment: "VoiceOver: a mixing cauldron; the argument lists its recipes")
+        }
         if let bubbling {
             text += ", " + String(localized: "bubbling flask, its bottom potion rises to the top in \(bubbling.movesUntilRise) moves",
                                   comment: "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises")

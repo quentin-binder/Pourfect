@@ -1084,7 +1084,23 @@
           }
         }
       }
-    }
+    },
+    "Flask %lld brewed %lld %@ from %@ and %@" : {
+      "comment" : "VoiceOver: a pour mixed in a cauldron; the arguments are the flask number, how many layers were brewed, the new potion and the two ingredients"
+    },
+    "%@ with %@ brews %@" : {
+      "comment" : "VoiceOver: one recipe of a mixing cauldron; the arguments are the two ingredients and the potion they brew"
+    },
+    "mixing cauldron, %@" : {
+      "comment" : "VoiceOver: a mixing cauldron; the argument lists its recipes"
+    },
+    "New: mixing cauldron" : {},
+    "Mixing cauldron" : {},
+    "Pour one ingredient onto the other inside the iron cauldron and they brew a new potion. The card under it shows its recipe." : {},
+    "Pair by pair" : {},
+    "Each poured layer mixes with one layer below it into two layers of the new potion. Poured layers left over stay on top." : {},
+    "Only in the cauldron" : {},
+    "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {}
   },
   "version" : "1.0"
 }
