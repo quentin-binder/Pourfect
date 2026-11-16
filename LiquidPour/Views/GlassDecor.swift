@@ -268,6 +268,12 @@ struct GlassParts {
         if neck { return NarrowNeck.height(w) + FlaskRim.size(width: NarrowNeck.width(w)).height * 0.5 }
         return 0
     }
+
+    /// The same rise in flask widths, for the board's layout before the width is known.
+    /// The rim has a minimum height in points, so this is measured at a small flask (40 pt),
+    /// where that minimum weighs the most; never call `rise(1)` for this.
+    var riseInWidths: CGFloat { rise(Self.layoutWidth) / Self.layoutWidth }
+    static let layoutWidth: CGFloat = 40
 }
 
 /// The flask's glass fill (body, plus shoulders and neck for a narrow neck).

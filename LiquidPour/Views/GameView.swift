@@ -161,7 +161,7 @@ struct GameView: View {
         // A tap's spigot sticks out on the right: a little more room between flasks.
         let spacing: CGFloat = bottles.contains(where: \.hasTap) ? 22 : 14
         // A narrow neck or a funnel stands above its flask (in widths): room for it on every row.
-        let parts = bottles.map { GlassParts($0).rise(1) }.max() ?? 0
+        let parts = bottles.map { GlassParts($0).riseInWidths }.max() ?? 0
         // Fit width: perRow bottles + spacing. Fit height: rows × (capacity × 0.78w + 0.45w) + lift room.
         let byWidth = (size.width - spacing * CGFloat(perRow - 1)) / CGFloat(perRow)
         let byHeight = (size.height - 40 * CGFloat(rowCount))

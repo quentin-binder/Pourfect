@@ -266,8 +266,9 @@ private struct TutorialScene: View {
                 BottleView(bottle: Bottle([3, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
                 arrow
+                // Start state, like the essence scene: the empty funnel may take the blue.
                 VStack(spacing: 6) {
-                    BottleView(bottle: glass(.funnel, [1]), width: w)
+                    BottleView(bottle: glass(.funnel, []), width: w)
                     Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
                 }
                 Image(systemName: "nosign").font(.title).foregroundStyle(.secondary).padding(.bottom, w)
