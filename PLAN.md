@@ -162,6 +162,7 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
   - [x] Generator `narrowNecks` / `funnels` / `taps` + `requireGlassMatter` / `glassCost` (`GlassImpact`, strong = 2; narrow neck and tap count either way; a funnel matters by the trap it sets, `MechanicImpact.trapDepth`); levelgen `--narrow`, `--funnel`, `--tap`, `--glass-matter`, `--glass-cost`, report column `glass` (DECISIONS 150, 151)
   - [x] `Levels/chapter_05.json` (preset `chapter5`, seed 10000): 30 recipes, scores 16.8 → 55.5; tests 250 → 283 (DECISIONS 152, 153)
   - [x] App: glass neck with brass collar, brass funnel in the mouth, brass spigot; tap pours fly upright and stream from the nozzle while the bottom drains and the stack slides down; narrow neck pours from its neck lip in a thin stream; pour animation driven by `Turn.pour` and per-layer murky masks; one tip per modifier; no pick-up of funnels/seals; refusal glint + message + `brassKnock`, `valve` sound; VoiceOver (DECISIONS 154–157)
+  - [x] Review fixes: a full tap / any funnel still explains its refusal, narrow-neck board headroom in widths (two-row neck recipes no longer shrink), funnel tip start state; 284 tests (DECISIONS 158)
 - [ ] **Ch. 6 Frost Peak — D1 Frozen layers** (thaw counter ≤ 5, ≤ 2 per level; fire-potion variant later)
 - [ ] **Ch. 7 Bubbling Bog — D2 Bubbling flask** (bottom layer rises every K moves)
 - [ ] **Ch. 8 Twin Towers — F1 Twin flasks + F2 Overflow pipes**

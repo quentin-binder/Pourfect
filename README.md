@@ -218,7 +218,7 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 283 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 284 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -323,7 +323,7 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   case plus its arms in the `Rules` switches; key, JSON and validation already handle every case.
   `Bottle.lockedBy` remains as the seal's accessor, `Bottle.essenceColor` gives a flask's rune color,
   `hasNarrowNeck` / `isFunnel` / `hasTap` the glass, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
-  (a rune, a funnel, a tap). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
+  (a rune, a funnel, a tap; a funnel or tap is named even when the base rule refuses too, e.g. a full tap). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
   whether it left from the bottom); `Rules.outlet(of:)` says which layers a flask would pour. `MechanicImpact` is the
   "must matter" check for any mechanic (`LockImpact`, `EssenceImpact` and `GlassImpact` are its seal, rune and glass
   cases; a funnel matters by the trap it sets).
