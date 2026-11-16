@@ -170,6 +170,18 @@ struct RootView: View {
             let scene = raw == "ending" ? StoryScene.ending : Int(raw).map(StoryScene.chapter)
             if let scene { story.show(scene, line: max(0, defaults.integer(forKey: "LPStoryLine") - 1)) }
         }
+        #if os(macOS)
+        // `-LPWindowSize WxH` sets the main window's frame (points, title bar included) and centers
+        // it, for App Store screenshots of a fixed aspect ratio.
+        if let raw = defaults.string(forKey: "LPWindowSize") {
+            let size = raw.split(separator: "x").compactMap { Double($0) }
+            if size.count == 2, let window = NSApp.windows.first(where: { $0.isVisible && $0.canBecomeMain }) {
+                window.setFrame(CGRect(origin: window.frame.origin, size: CGSize(width: size[0], height: size[1])),
+                                display: true)
+                window.center()
+            }
+        }
+        #endif
         // `-LPOpenLabStyle 1` opens the Lab Style rewards screen.
         if defaults.bool(forKey: "LPOpenLabStyle") { showsLabStyle = true }
         if defaults.bool(forKey: "LPOpenDaily") || defaults.bool(forKey: "LPPlayDaily") {
