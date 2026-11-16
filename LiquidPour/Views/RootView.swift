@@ -66,8 +66,8 @@ struct RootView: View {
     /// - `-LPOpenChapter N` opens chapter N's recipe list, `-LPOpenChallenge NAME` a challenge book
     ///   (`challenger`, `expert`, `master`; file name or display name), `-LPOpenChallenges 1` the Challenges area.
     /// - `-LPOpenLevel N` (1-based) then opens recipe N of that chapter / book directly. Without
-    ///   either, `-LPOpenPack P` picks the pack by position: 1–3 = chapters 1–3, 4–6 = Challenger,
-    ///   Expert, Master (default 1).
+    ///   either, `-LPOpenPack P` picks the pack by position: chapters first, then Challenger,
+    ///   Expert, Master (with 4 chapters: 1–4, then 5–7; default 1).
     /// - `-LPRandomSettings 1` opens the Random Brew screen; `-LPRandomMode classic|locks|hidden`
     ///   (+ optional `-LPRandomSeed S`) generates a random recipe with the saved settings and opens it.
     /// - `-LPOpenDaily 1` opens the Daily Brew screen; `-LPPlayDaily 1` also starts today's puzzle

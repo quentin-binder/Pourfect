@@ -157,8 +157,8 @@ struct PourAnimationView: View {
                         lock: KeyID? = nil, unlock: Double = 0, corkOff: Double? = nil,
                         opaque: Double = 0) -> some View {
         let shape = BottleView.shape(width: frame.width)
-        // Same outline as at rest (`BottleView`): the seal's metal, else the essence color.
-        let plainOutline = essence.map { EssenceMark.outline($0) } ?? BottleView.outlineColor
+        // Same outline as at rest (`BottleView`): the seal's metal, else plain glass.
+        let plainOutline = BottleView.outlineColor
         let sealOutline = lock.map { Palette.keyColor($0.rawValue).opacity(0.8) }
         return ZStack {
             // Same smoky backing as at rest; a lifted flask turns to frosted glass so bottles it

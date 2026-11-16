@@ -1,6 +1,7 @@
 import BottleSortCore
 import Foundation
 import Observation
+import Accessibility
 
 /// Drives one game screen. Wraps `GameSession`; all rule decisions come from BottleSortCore.
 @MainActor
@@ -62,6 +63,9 @@ final class GameViewModel {
     private(set) var levels: [LevelDefinition]
     /// Pack progress; nil for random levels, which never affect saved progress.
     private let progress: ProgressModel?
+    /// Set by the dev aid `-LPDemoMoves` (DEBUG): a demo win records no stars and no daily
+    /// result, so automated runs leave the saved progress alone.
+    @ObservationIgnored private var isDemo = false
     /// Set when playing a random level: the options used to make the next one.
     let randomOptions: RandomLevelOptions?
     /// Generates the next random level ("New Random Brew" on the win card).
@@ -378,8 +382,8 @@ final class GameViewModel {
             let best = minMoves ?? moveCount
             let earned = StarRating.stars(moves: moveCount, minMoves: best)
             status = .won(stars: earned)
-            progress?.record(stars: earned, for: level.id)
-            if let daily, let dailyDate, dailyOutcome == nil {
+            if !isDemo { progress?.record(stars: earned, for: level.id) }
+            if let daily, let dailyDate, dailyOutcome == nil, !isDemo {
                 dailyOutcome = daily.record(date: dailyDate, moves: moveCount, minMoves: best, usedHint: usedHint)
             }
             return
@@ -432,6 +436,8 @@ final class GameViewModel {
     private func flash(_ message: String) {
         hintMessage = message
         scheduleHintClear(after: .seconds(2.5))
+        // VoiceOver hears the line too (e.g. why an essence flask refused a pour).
+        AccessibilityNotification.Announcement(message).post()
     }
 
     private func scheduleHintClear(after delay: Duration = .seconds(1.6)) {
@@ -453,6 +459,7 @@ final class GameViewModel {
     #if DEBUG
     /// Dev aid: plays the first `moves` optimal moves through `tap(bottle:)`, like a player would.
     func debugPlayOptimal(moves: Int) async {
+        isDemo = true
         guard case .solved(let solution, _) = await Self.solve(state) else { return }
         for move in solution.prefix(moves) {
             while pour != nil { try? await Task.sleep(for: .milliseconds(50)) }

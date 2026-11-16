@@ -17,6 +17,12 @@ struct GameView: View {
     var body: some View {
         VStack(spacing: 16) {
             hud
+                // Messages hang just below the HUD (its height differs between Mac and iPhone),
+                // above the board.
+                .overlay(alignment: .bottom) {
+                    message.alignmentGuide(.bottom) { $0[.top] - 8 }
+                }
+                .zIndex(1)
             GeometryReader { geo in
                 board(in: geo.size)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -26,7 +32,6 @@ struct GameView: View {
         }
         .padding()
         .overlay { overlay }
-        .overlay(alignment: .top) { message }
         .overlay {
             if let tip {
                 TutorialOverlay(topics: tip) {
@@ -67,7 +72,8 @@ struct GameView: View {
         .toolbarColorScheme(.dark, for: .navigationBar)
         #endif
         #if DEBUG
-        // Dev aid: `-LPDemoMoves K` plays the first K optimal moves via taps (0 = off).
+        // Dev aid: `-LPDemoMoves K` plays the first K optimal moves via taps (0 = off; a demo win
+        // saves nothing).
         .task {
             let k = UserDefaults.standard.integer(forKey: "LPDemoMoves")
             if k > 0 { await model.debugPlayOptimal(moves: k) }
@@ -369,8 +375,12 @@ struct GameView: View {
             Text(text)
                 .font(.callout.weight(.semibold))
                 .padding(.horizontal, 14).padding(.vertical, 8)
-                .background(.thinMaterial, in: Capsule())
-                .padding(.top, 40)
+                .multilineTextAlignment(.center)
+                .lineLimit(1...2)
+                .minimumScaleFactor(0.85)
+                // A capsule on one line, a rounded card if a long potion name wraps (iPhone).
+                .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 17, style: .continuous))
+                .fixedSize(horizontal: false, vertical: true)
                 .transition(.opacity)
         }
     }

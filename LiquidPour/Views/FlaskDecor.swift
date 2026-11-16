@@ -245,15 +245,17 @@ struct EssenceMark: View {
     /// Whether a flare also swells the mark (off with reduce motion: it only brightens).
     var swells = true
 
-    /// Side of the mark's square and its center below the flask's top edge: in the headroom
-    /// above a full flask's liquid, just under the cork.
+    /// Side of the mark's square and its center below the flask's top edge: centered just
+    /// under the cork (which ends 0.20 w below the mouth). The headroom above a full flask's
+    /// liquid is 0.45 w, too little for a readable mark under the cork, so on a full or nearly
+    /// full flask the lower half of the ring overlaps the top layer; the dark disc keeps the
+    /// rune legible over any liquid (and over a colorblind layer rune just below it).
     static func side(width: CGFloat) -> CGFloat { width * 0.5 }
     static func centerY(width: CGFloat) -> CGFloat { width * 0.44 }
 
-    /// Faint tint of the glass in the essence color (behind the liquid).
+    /// Faint tint of the glass in the essence color (behind the liquid). The outline stays
+    /// plain glass: a colored outline would read like the hint outlines (yellow / orange).
     static func tint(_ color: ColorID) -> Color { Palette.color(color.rawValue).opacity(0.2) }
-    /// Outline of an essence flask at rest.
-    static func outline(_ color: ColorID) -> Color { Palette.color(color.rawValue).opacity(0.75) }
 
     var body: some View {
         let side = Self.side(width: width)

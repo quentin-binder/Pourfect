@@ -186,7 +186,6 @@ struct BottleView: View {
         case nil:
             if isSelected { return .accentColor }
             if let key = bottle.lockedBy { return Palette.keyColor(key.rawValue).opacity(0.8) }
-            if let essence = bottle.essenceColor { return EssenceMark.outline(essence) }
             return Self.outlineColor
         }
     }
