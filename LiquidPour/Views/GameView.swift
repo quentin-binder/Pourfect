@@ -80,6 +80,13 @@ struct GameView: View {
             // `-LPDemoUndo N`: then undoes N moves, one per second (to check corks popping off).
             // `-LPDemoRefuse S`: then, after S seconds, tries a pour an essence flask refuses
             // (rune flare + message).
+            // `-LPDemoIcePour S`: then, after S seconds, pours from above a frozen layer.
+            let iceDelay = UserDefaults.standard.double(forKey: "LPDemoIcePour")
+            if iceDelay > 0 {
+                while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
+                try? await Task.sleep(for: .seconds(iceDelay))
+                withAnimation(.easeInOut(duration: 0.3)) { model.debugIcePour() }
+            }
             let refuseDelay = UserDefaults.standard.double(forKey: "LPDemoRefuse")
             if refuseDelay > 0 {
                 while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
@@ -183,7 +190,9 @@ struct GameView: View {
                                        shakes: model.shakes.indices.contains(index) ? model.shakes[index] : 0,
                                        completions: model.completions.indices.contains(index)
                                            ? model.completions[index] : 0,
-                                       refusals: model.refusals.indices.contains(index) ? model.refusals[index] : 0)
+                                       refusals: model.refusals.indices.contains(index) ? model.refusals[index] : 0,
+                                       ice: model.ice(index),
+                                       thaws: model.thaws(index))
                         }
                         .buttonStyle(.plain)
                         .anchorPreference(key: BottleFramesKey.self, value: .bounds) { [index: $0] }

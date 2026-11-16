@@ -137,6 +137,15 @@ extension Bottle {
             text += ", " + String(localized: "tap flask, pours from the bottom, nothing goes in",
                                   comment: "VoiceOver: a tap flask")
         }
+        let frozen = frozenLayers
+        if isIcedOver, let top = frozen.last {
+            text += ", " + String(localized: "frozen over, nothing goes in or out, thaws in \(top.turns) moves",
+                                  comment: "VoiceOver: the top layer of a flask is frozen; the argument is the moves until it thaws")
+        }
+        for ice in frozen where !(isIcedOver && ice.layer == frozen.last?.layer) {
+            text += ", " + String(localized: "layer \(ice.layer + 1) frozen, thaws in \(ice.turns) moves",
+                                  comment: "VoiceOver: a frozen layer (counted from the bottom, 1 = bottom) holds it and everything below; the second argument is the moves until it thaws")
+        }
         return text
     }
 }

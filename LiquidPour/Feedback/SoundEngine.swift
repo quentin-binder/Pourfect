@@ -30,6 +30,10 @@ final class SoundEngine {
         case valve
         /// A dull knock on brass: a funnel or a tap flask refuses a pour.
         case brassKnock
+        /// A cold, high tink on ice: a frozen layer refuses a pour.
+        case frostTink
+        /// Ice thawing: a soft crackle, then a few gentle drips (a frozen layer melts).
+        case thaw
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -270,6 +274,12 @@ nonisolated enum SoundSynthesis {
                 + 0.3 * sin(2 * .pi * 1480 * t) * exp(-t * 30)
             return attack * tone * exp(-t * 11)
         }
+        out.sounds[.frostTink] = render(0.4, peak: 0.11) { t in
+            // A thin, high glass strike with a shimmering second tone: colder than the clink.
+            let shimmer = 1 + 0.3 * sin(2 * .pi * 23 * t)
+            return Self.clink(t: t, f0: 2650) * 0.8 + sin(2 * .pi * 3720 * t) * exp(-t * 14) * 0.35 * shimmer
+        }
+        out.sounds[.thaw] = renderThaw(rng: &rng)
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in
             let notes = [523.25, 659.25, 783.99, 1046.50]
@@ -336,6 +346,39 @@ nonisolated enum SoundSynthesis {
             }
             return sum
         }
+    }
+
+    /// Ice thawing: a quiet crackle (short bright noise ticks over 0.3 s) and then three soft
+    /// drips, each a short sine gliding down, fading out.
+    private static func renderThaw(rng: inout NoiseGenerator) -> [Float] {
+        let duration = 1.0
+        let count = Int(duration * sampleRate)
+        var samples = [Double](repeating: 0, count: count)
+        let noise = Self.lowpassedNoise(count: count, cutoff: 5200, rng: &rng)
+        // Crackle: 14 ticks, denser at the start, each a few ms of filtered noise.
+        for k in 0..<14 {
+            let start = 0.3 * pow(Double(k) / 14, 1.4) + rng.unit() * 0.02
+            let length = 0.004 + rng.unit() * 0.006
+            let amp = (0.5 + rng.unit() * 0.5) * (1 - Double(k) / 20)
+            let first = Int(start * sampleRate)
+            for j in 0..<Int(length * sampleRate) where first + j < count {
+                let local = Double(j) / sampleRate
+                samples[first + j] += noise[first + j] * amp * exp(-local / (length / 3))
+            }
+        }
+        // Drips: soft "plink" glides (water drops) after the crack.
+        for (k, f) in [1250.0, 980.0, 1120.0].enumerated() {
+            let start = 0.36 + Double(k) * 0.17
+            let first = Int(start * sampleRate)
+            var phase = 0.0
+            for j in 0..<Int(0.16 * sampleRate) where first + j < count {
+                let local = Double(j) / sampleRate
+                phase += 2 * .pi * f * (1 - 0.35 * min(1, local / 0.05)) / sampleRate
+                samples[first + j] += 0.55 * sin(phase) * min(1, local / 0.003) * exp(-local * 28) * (1 - Double(k) * 0.2)
+            }
+        }
+        for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
+        return normalized(samples, peak: 0.12)
     }
 
     /// Bubbles: short decaying sines with a rising pitch (like air entering a bottle), at random

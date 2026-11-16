@@ -43,6 +43,17 @@ enum Haptics {
         #endif
     }
 
+    /// Two soft taps: ice cracked and melted.
+    static func thaw() {
+        #if os(iOS)
+        soft.impactOccurred(intensity: 0.5)
+        Task {
+            try? await Task.sleep(for: .milliseconds(120))
+            soft.impactOccurred(intensity: 0.35)
+        }
+        #endif
+    }
+
     /// Light impact: the tap did nothing.
     static func illegal() {
         #if os(iOS)

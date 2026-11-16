@@ -17,7 +17,11 @@ enum FeedbackPlayer {
             if haptics { Haptics.illegal() }
         case .refused(_, let modifier):
             if sound {
-                if case .essence = modifier { engine.play(.runeHum) } else { engine.play(.brassKnock) }
+                switch modifier {
+                case .essence: engine.play(.runeHum)
+                case .frozen: engine.play(.frostTink)
+                default: engine.play(.brassKnock)
+                }
             }
             if haptics { Haptics.illegal() }
         case .pour(_, _, let amount, let isKey, let fromBottom):
@@ -38,6 +42,10 @@ enum FeedbackPlayer {
                 }
             }
             if haptics { delayed(flowStart) { Haptics.pour() } }
+        case .thawed:
+            // The ice cracks and melts as the pour lands (`ThawingIce`).
+            if sound { engine.play(.thaw) }
+            if haptics { Haptics.thaw() }
         case .flaskCompleted:
             if sound { engine.play(.corkPop) }
             if haptics { Haptics.flaskCompleted() }

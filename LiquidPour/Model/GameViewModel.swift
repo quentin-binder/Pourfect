@@ -36,6 +36,12 @@ final class GameViewModel {
         /// Bottles that became complete (full, one color) through this move. Reported as
         /// `.flaskCompleted` when the animation lands.
         let completed: [Int]
+        /// What happened on its own after the pour (`Turn.events`, e.g. a layer thawing): played
+        /// when the pour lands.
+        let events: [TurnEvent]
+        /// Every bottle's frozen layers before the move: the board keeps showing them while the
+        /// pour is in the air, so the counters tick (and ice thaws) when it lands.
+        let iceBefore: [[FrozenLayer]]
 
         /// A key pour: the key drops into the target's lock instead of liquid flowing.
         var isKey: Bool { layer.isKey }
@@ -53,6 +59,9 @@ final class GameViewModel {
         /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved;
         /// `fromBottom`: poured through a tap (the valve opens instead of the lip clinking).
         case pour(from: Int, to: Int, amount: Int, isKey: Bool, fromBottom: Bool)
+        /// Frozen layers of these bottles thawed (D1); fires when the pour animation lands, as
+        /// the ice cracks and melts.
+        case thawed(bottles: [Int])
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
         case flaskCompleted(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
@@ -111,6 +120,11 @@ final class GameViewModel {
     /// The pour being animated, if any. While set, taps are queued (not applied) so the
     /// board the view shows and the session can't drift apart.
     private(set) var pour: PourEvent?
+    /// Frozen layers that thawed when the last pour landed; each cracks and melts once, then is
+    /// removed (`ThawingIce`).
+    private(set) var thaws: [ThawMark] = []
+    private var thawCount = 0
+    private var thawClearTask: Task<Void, Never>?
 
     /// Latest optimal solution, valid for `solutionState`. Lets Hint answer instantly.
     private var solution: (state: GameState, moves: [Move])?
@@ -188,6 +202,18 @@ final class GameViewModel {
     var canUndo: Bool { session.canUndo }
     var hasNextLevel: Bool { levelIndex + 1 < levels.count }
 
+    /// The frozen layers to draw on bottle `index`. While a pour is in the air, the ones from
+    /// before the move: the counters tick down (and thawed ice melts) when the pour lands.
+    func ice(_ index: Int) -> [FrozenLayer] {
+        if let pour, pour.iceBefore.indices.contains(index) { return pour.iceBefore[index] }
+        return state.bottles.indices.contains(index) ? state.bottles[index].frozenLayers : []
+    }
+
+    /// Layers of bottle `index` that are thawing right now.
+    func thaws(_ index: Int) -> [ThawMark] {
+        thaws.filter { $0.bottle == index }
+    }
+
     /// Per layer (0 = bottom) of bottle `index`: whether it shows as "?". The flags move with
     /// their layers (a tap drains from the bottom, `GameSession.hiddenMasks`). While a pour
     /// animates, the source keeps its pre-move flags so the reveal plays when the board bottle
@@ -211,8 +237,15 @@ final class GameViewModel {
             if bottle.isEmpty {
                 reject(index)
             } else if Rules.outlet(of: bottle) == nil {
-                // Nothing can ever leave it right now (a seal, a funnel): it isn't picked up.
-                if bottle.isFunnel { refuse(index, modifier: .funnel) } else { reject(index) }
+                // Nothing can leave it right now (a seal, a funnel, ice on top or in a tap
+                // flask): it isn't picked up.
+                if bottle.isFunnel {
+                    refuse(index, modifier: .funnel)
+                } else if let ice = Self.blockingIce(of: bottle) {
+                    refuse(index, modifier: ice)
+                } else {
+                    reject(index)
+                }
             } else {
                 selected = index
                 emit(.select(bottle: index))
@@ -239,6 +272,7 @@ final class GameViewModel {
         guard let landed = pour, landed.id == id else { return }
         pour = nil
         pourTimeout?.cancel()
+        startThaws(landed.events)
         if !landed.completed.isEmpty {
             for index in landed.completed where completions.indices.contains(index) { completions[index] += 1 }
             emit(.flaskCompleted(bottles: landed.completed))
@@ -344,12 +378,13 @@ final class GameViewModel {
                          fromBottom: event.fromBottom,
                          sourceBefore: before.bottles[move.from], targetBefore: before.bottles[move.to],
                          sourceHiddenBefore: mask(move.from), targetHiddenBefore: mask(move.to),
-                         completed: Rules.completedBottles(before: before, after: state))
+                         completed: Rules.completedBottles(before: before, after: state),
+                         events: session.lastEvents, iceBefore: before.bottles.map(\.frozenLayers))
         emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
                    fromBottom: event.fromBottom))
         pourTimeout?.cancel()
         pourTimeout = Task {
-            try? await Task.sleep(for: .seconds(3))
+            try? await Task.sleep(for: .seconds(3 * DebugTiming.slow))
             guard !Task.isCancelled else { return }
             self.finishPour(id)
         }
@@ -358,6 +393,8 @@ final class GameViewModel {
     private func cancelPour() {
         if pour != nil { cancelledPours += 1 }
         pour = nil
+        thawClearTask?.cancel()
+        thaws.removeAll()
         queuedTaps.removeAll()
         pourTimeout?.cancel()
     }
@@ -371,7 +408,7 @@ final class GameViewModel {
     /// refusal is the plain shake of the source.
     private static func explains(_ modifier: BottleModifier) -> Bool {
         switch modifier {
-        case .essence, .funnel, .tap: return true
+        case .essence, .funnel, .tap, .frozen: return true
         default: return false
         }
     }
@@ -392,10 +429,55 @@ final class GameViewModel {
         case .tap:
             flash(String(localized: "A tap flask only pours from its tap. Nothing goes in.",
                          comment: "Shown when the player tries to pour into a tap flask"))
+        case .frozen:
+            let flask = state.bottles[bottle]
+            if flask.hasTap, !flask.isIcedOver {
+                // A tap pours from under the ice: it waits until every frozen layer has thawed.
+                let turns = flask.frozenLayers.map(\.turns).max() ?? 1
+                flash(String(localized: "A tap can't pour while its flask holds ice. It thaws in \(turns) moves.",
+                             comment: "Shown when the player picks up a tap flask that holds a frozen layer; the argument is the moves until the last ice thaws"))
+            } else {
+                let turns = flask.frozenLayers.last?.turns ?? 1
+                flash(String(localized: "Ice seals this flask. It thaws in \(turns) moves.",
+                             comment: "Shown when the player pours into or out of a flask whose top layer is frozen; the argument is the moves until it thaws"))
+            }
         default:
             break
         }
         emit(.refused(bottle: bottle, modifier: modifier))
+    }
+
+    /// The frozen layer that keeps anything from leaving `bottle` (its top layer is frozen, or
+    /// it is a tap flask holding ice), for the refusal; nil if ice isn't the reason.
+    private static func blockingIce(of bottle: Bottle) -> BottleModifier? {
+        guard bottle.holdsIce, bottle.isIcedOver || bottle.hasTap else { return nil }
+        let ice = bottle.isIcedOver ? bottle.frozenLayers.last : bottle.frozenLayers.max { $0.turns < $1.turns }
+        return ice.map { .frozen(layer: $0.layer, turns: $0.turns) }
+    }
+
+    /// The pour landed: the layers that thawed after it crack and melt now (`ThawingIce`), with
+    /// a sound and, for VoiceOver, a line naming the flasks.
+    private func startThaws(_ events: [TurnEvent]) {
+        var bottles: [Int] = []
+        for event in events {
+            guard case let .thawed(bottle, layer) = event else { continue }
+            thawCount += 1
+            thaws.append(ThawMark(id: thawCount, bottle: bottle, layer: layer))
+            if !bottles.contains(bottle) { bottles.append(bottle) }
+        }
+        guard !bottles.isEmpty else { return }
+        emit(.thawed(bottles: bottles))
+        let names = bottles.map { String($0 + 1) }.formatted(.list(type: .and))
+        AccessibilityNotification.Announcement(
+            String(localized: "Ice melted in flask \(names)",
+                   comment: "VoiceOver: frozen layers thawed after a move; the argument lists flask numbers")).post()
+        let lastID = thawCount
+        thawClearTask?.cancel()
+        thawClearTask = Task {
+            try? await Task.sleep(for: .seconds((ThawPose.duration + 0.15) * DebugTiming.slow))
+            guard !Task.isCancelled else { return }
+            self.thaws.removeAll { $0.id <= lastID }
+        }
     }
 
     /// Events newer than `id` (all kept events for nil), oldest first.
@@ -506,6 +588,18 @@ final class GameViewModel {
         }
     }
 
+    /// Dev aid: plays one legal pour out of a flask that holds ice (the potion above the ice
+    /// pours; the ice and what's under it stay), to see the pinned layers in flight. Prefers a
+    /// pour onto a matching potion over one into an empty flask.
+    func debugIcePour() {
+        let n = state.bottles.count
+        let moves = (0..<n).flatMap { from in (0..<n).map { Move(from: from, to: $0) } }
+            .filter { $0.from != $0.to && state.bottles[$0.from].holdsIce && Rules.isLegal($0, in: state) }
+        guard let move = moves.first(where: { !state.bottles[$0.to].isEmpty }) ?? moves.first else { return }
+        tap(bottle: move.from)
+        tap(bottle: move.to)
+    }
+
     /// Dev aid: tries one pour a flask modifier refuses (an essence flask, a tap flask; else
     /// picks up a funnel flask), to see the flare and message.
     func debugRefusedPour() {
@@ -515,7 +609,8 @@ final class GameViewModel {
                 guard let refusal = Rules.refusal(of: Move(from: from, to: to), in: state),
                       Self.explains(refusal.modifier), refusal.modifier != .funnel else { continue }
                 tap(bottle: from)
-                tap(bottle: to)
+                // A flask that can't be picked up (ice on top) already refused.
+                if selected == from { tap(bottle: to) }
                 return
             }
         }
