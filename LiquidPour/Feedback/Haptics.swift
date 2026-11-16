@@ -80,13 +80,14 @@ enum Haptics {
         #endif
     }
 
-    /// Two soft, low taps: the overflow ran through the pipe and dropped into the far flask.
-    static func overflow() {
+    /// A firm thump, then a soft tap: the pressure pipe pushed, and the layer entered the far
+    /// flask from below.
+    static func push() {
         #if os(iOS)
-        soft.impactOccurred(intensity: 0.45)
+        medium.impactOccurred(intensity: 0.6)
         Task {
-            try? await Task.sleep(for: .milliseconds(160))
-            soft.impactOccurred(intensity: 0.3)
+            try? await Task.sleep(for: .milliseconds(180))
+            soft.impactOccurred(intensity: 0.35)
         }
         #endif
     }

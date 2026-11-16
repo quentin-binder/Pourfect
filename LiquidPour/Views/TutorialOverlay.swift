@@ -8,7 +8,7 @@ struct TutorialStep: Identifiable {
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
         case iceHolds, iceSeals, iceThaws
         case bubbleRises, bubbleDial, bubbleUse
-        case twinSplit, twinEven, twinOut, pipeOverflow, pipePassOn
+        case twinSplit, twinEven, twinOut, pipePush, pipeRoom
         case cauldronMix, cauldronPairs, cauldronOnly
     }
 
@@ -124,12 +124,12 @@ struct TutorialStep: Identifiable {
             ]
         case .overflow:
             return [
-                TutorialStep(id: "overflow.pipe", topic: topic, title: String(localized: "Overflow pipes"),
-                             text: String(localized: "A glass pipe runs from one flask's rim to another flask. When a pour doesn't fit, the rest runs on through the pipe."),
-                             scene: .pipeOverflow),
-                TutorialStep(id: "overflow.spill", topic: topic, title: String(localized: "Mind the spill"),
-                             text: String(localized: "A full flask with the same potion on top lets the whole pour through. The far flask takes it like any pour, or the rest stays where it was."),
-                             scene: .pipePassOn),
+                TutorialStep(id: "overflow.push", topic: topic, title: String(localized: "Pressure pipes"),
+                             text: String(localized: "Pour into a full flask to push its bottom layer through the pipe into the bottom of the other flask."),
+                             scene: .pipePush),
+                TutorialStep(id: "overflow.room", topic: topic, title: String(localized: "Room to push"),
+                             text: String(localized: "A pour that fits lands as usual. The pipe only pushes when the far flask has room, any color goes through, and it only works in the arrow's direction."),
+                             scene: .pipeRoom),
             ]
         case .cauldron:
             return [
@@ -240,7 +240,7 @@ extension TutorialTopic {
         case .frozen: return String(localized: "New: frozen layers")
         case .bubbling: return String(localized: "New: bubbling flasks")
         case .twins: return String(localized: "New: twin flasks")
-        case .overflow: return String(localized: "New: overflow pipes")
+        case .overflow: return String(localized: "New: pressure pipes")
         case .cauldron: return String(localized: "New: mixing cauldron")
         }
     }
@@ -424,20 +424,26 @@ private struct TutorialScene: View {
                 BottleView(bottle: Bottle([5, 1], capacity: 4), width: w)
                 equals
                 LinkedPair(kind: .twins, first: Bottle([6, 6], capacity: 4), second: Bottle([6, 6, 1], capacity: 4), width: w)
-            case .pipeOverflow:
-                BottleView(bottle: Bottle([2, 2, 2], capacity: 4), width: w, isSelected: true)
+            case .pipePush:
+                // One layer poured onto the full flask pushes its buried bottom layer under the other.
+                BottleView(bottle: Bottle([3, 2], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
                 arrow
-                LinkedPair(kind: .pipe, first: Bottle([5, 5, 2], capacity: 4), second: Bottle([], capacity: 4), width: w)
+                LinkedPair(kind: .pipe, first: Bottle([1, 2, 2, 2], capacity: 4), second: Bottle([1, 1, 1], capacity: 4), width: w)
                 equals
-                LinkedPair(kind: .pipe, first: Bottle([5, 5, 2, 2], capacity: 4), second: Bottle([2, 2], capacity: 4), width: w)
-            case .pipePassOn:
-                BottleView(bottle: Bottle([1, 6], capacity: 4), width: w, isSelected: true)
+                LinkedPair(kind: .pipe, first: Bottle([2, 2, 2, 2], capacity: 4), second: Bottle([1, 1, 1, 1], capacity: 4), width: w)
+            case .pipeRoom:
+                VStack(spacing: 6) {
+                    LinkedPair(kind: .pipe, first: Bottle([1, 4, 4, 4], capacity: 4), second: Bottle([6, 6, 6], capacity: 4), width: w)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
+                BottleView(bottle: Bottle([2, 4], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
-                arrow
-                LinkedPair(kind: .pipe, first: Bottle([3, 3, 6, 6], capacity: 4), second: Bottle([6], capacity: 4), width: w)
-                equals
-                LinkedPair(kind: .pipe, first: Bottle([3, 3, 6, 6], capacity: 4), second: Bottle([6, 6], capacity: 4), width: w)
+                    .padding(.bottom, 22 + PipeGeometry.room(w))
+                VStack(spacing: 6) {
+                    LinkedPair(kind: .pipe, first: Bottle([1, 4, 4, 4], capacity: 4), second: Bottle([6, 6, 6, 6], capacity: 4), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
             case .cauldronMix:
                 BottleView(bottle: Bottle([4, 0], capacity: 3), width: w, isSelected: true)
                     .offset(y: -14)
@@ -478,7 +484,8 @@ private struct TutorialScene: View {
                 }
             }
         }
-        .padding(.top, 18)
+        // The picked-up flask between the two pipe pairs stands higher (their pipes hang lower).
+        .padding(.top, scene == .pipeRoom ? 18 + PipeGeometry.room(w) : 18)
         // A bubbling flask's dial or a cauldron's recipe card hangs under its base.
         .padding(.bottom, hangsDial ? BubbleGauge.room(w) : hangsCard ? cardRoom : 0)
     }

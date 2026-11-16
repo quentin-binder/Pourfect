@@ -8,6 +8,10 @@ enum TutorialTopic: String, CaseIterable, Hashable {
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 
+    /// Key of the seen flag. The pipe's rules changed (rim overflow became the pressure push,
+    /// DECISIONS 300), so its tip has a new key: players who saw the old tip see the new one.
+    var storageKey: String { self == .overflow ? "overflow.pressure" : rawValue }
+
     /// Mechanics a recipe actually uses, in teaching order. A recipe with no special mechanic
     /// teaches the basic pour. `introduces` (the pack's metadata) is added for the recipe that
     /// opens a chapter only when that recipe uses none of them itself: a chapter that brings
@@ -33,9 +37,9 @@ struct UserDefaultsTutorialStore: TutorialStore {
     var defaults: UserDefaults = .standard
     var prefix = "tutorial.seen."
 
-    func hasSeen(_ topic: TutorialTopic) -> Bool { defaults.bool(forKey: prefix + topic.rawValue) }
-    func markSeen(_ topic: TutorialTopic) { defaults.set(true, forKey: prefix + topic.rawValue) }
-    func reset() { TutorialTopic.allCases.forEach { defaults.removeObject(forKey: prefix + $0.rawValue) } }
+    func hasSeen(_ topic: TutorialTopic) -> Bool { defaults.bool(forKey: prefix + topic.storageKey) }
+    func markSeen(_ topic: TutorialTopic) { defaults.set(true, forKey: prefix + topic.storageKey) }
+    func reset() { TutorialTopic.allCases.forEach { defaults.removeObject(forKey: prefix + $0.storageKey) } }
 }
 
 /// Observable seen-state of the tips, injected at the app root.
