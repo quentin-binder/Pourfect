@@ -26,7 +26,7 @@ usage:
            [--narrow N] [--funnel N] [--tap N] [--glass-matter | --glass-cost C]
            [--frozen N:MAXTURNS [--frozen-matter | --frozen-cost C]]
            [--bubbling N:PERIOD [--bubbling-matter | --bubbling-cost C]]
-           [--twins N] [--overflow N] [--link-placement any|filled|empty|mixed] [--links-matter | --link-cost C]
+           [--twins N] [--overflow N] [--link-placement any|filled|empty|mixed] [--links-matter | --link-cost C] [--needs-split]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
   levelgen --preset chapter1|…|chapter8|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
@@ -52,7 +52,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--easiest"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--needs-split", "--easiest"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -273,6 +273,9 @@ struct Tier {
     /// pour, a pour through each pipe; `LinkImpact.solvesUsingEveryLink`), and no first move
     /// is a dead end (`MechanicImpact.everyFirstMoveSolvable`).
     var teachesLinks = false
+    /// Every optimal solution pours into the twins (`GeneratorConfig.requireSplit`): the
+    /// player can't ignore the chain and still get every star.
+    var needsSplit = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
     /// Candidates tried per level before giving up (`GeneratorConfig.maxAttempts`).
@@ -498,15 +501,15 @@ let packPresets: [String: PackPreset] = [
         // Twins only (every chain changes the optimum by 2+ moves): on two filled flasks, or on two of
         // three empty flasks.
         Tier(count: 2, colors: 3, capacity: 4, empty: 2, moves: any, score: 18...24, twins: 1, linkPlacement: .filled,
-             linkCost: LinkImpact.strongCost, section: 1),
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
         Tier(count: 2, colors: 4, capacity: 3, empty: 2, moves: any, score: 23...30, twins: 1, linkPlacement: .filled,
-             linkCost: LinkImpact.strongCost, section: 1),
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
         Tier(count: 3, colors: 4, capacity: 4, empty: 3, moves: any, score: 28...35, twins: 1, linkPlacement: .empty,
-             linkCost: LinkImpact.strongCost, section: 1),
-        Tier(count: 3, colors: 5, capacity: 4, empty: 3, moves: any, score: 35...42, twins: 1, linkPlacement: .empty,
-             linkCost: LinkImpact.strongCost, section: 1),
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 3, moves: any, score: 35...42, twins: 1, linkPlacement: .empty,
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
         Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 37...45, twins: 1, linkPlacement: .filled,
-             linkCost: LinkImpact.strongCost, section: 1),
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 1),
         // Overflow pipes (from a filled flask into an empty one; a pipe matters by the spill trap it
         // sets, DECISIONS 181): 6 colors in size-3 flasks.
         Tier(count: 5, colors: 6, capacity: 3, empty: 2, moves: any, overflow: 1, linkPlacement: .mixed,
@@ -514,19 +517,22 @@ let packPresets: [String: PackPreset] = [
         // With earlier mechanics: murky twins and pipes, twins with a strong seal (one empty flask, or
         // two with 6 colors).
         Tier(count: 3, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 38...46, twins: 1,
-             linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
+             linkPlacement: .filled, linkCost: LinkImpact.strongCost, needsSplit: true, section: 3),
         Tier(count: 2, colors: 6, capacity: 3, empty: 2, hidden: true, moves: any, overflow: 1, linkPlacement: .mixed,
              linkCost: LinkImpact.strongCost, section: 3),
         Tier(count: 3, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 38...48, locksMatter: true,
-             strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
+             strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost,
+             needsSplit: true, section: 3),
         Tier(count: 3, colors: 6, capacity: 4, empty: 2, locks: 1, moves: any, score: 44...56, locksMatter: true,
-             strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
+             strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost,
+             needsSplit: true, section: 3),
         // The hardest: 7 colors, twins on two filled flasks.
         Tier(count: 2, colors: 7, capacity: 4, empty: 2, moves: any, score: 50...57, twins: 1, linkPlacement: .filled,
-             linkCost: LinkImpact.strongCost, section: 3),
-        // Both links in one recipe: a twin chain and a pipe, each mattering on its own (rare: ~1 in 1000).
-        Tier(count: 1, colors: 6, capacity: 3, empty: 2, moves: any, twins: 1, overflow: 1, linkPlacement: .any,
-             linkCost: LinkImpact.strongCost, section: 3, maxAttempts: 8_000),
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 3),
+        // The finale, both links in one recipe: a twin chain and a pipe, each mattering on its own, and
+        // the split needed (rare: ~1 candidate in 1000). Its own last section, so the chapter ends with both.
+        Tier(count: 2, colors: 6, capacity: 3, empty: 2, moves: any, twins: 1, overflow: 1, linkPlacement: .any,
+             linkCost: LinkImpact.strongCost, needsSplit: true, section: 4, maxAttempts: 8_000),
     ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
@@ -577,7 +583,8 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      bubblingCost: tier.bubblingCost ?? BubblingImpact.minimumCost,
                                      twins: tier.twins, overflow: tier.overflow, linkPlacement: tier.linkPlacement,
                                      requireLinksMatter: tier.linkCost != nil,
-                                     linkCost: tier.linkCost ?? LinkImpact.minimumCost, maxAttempts: tier.maxAttempts)
+                                     linkCost: tier.linkCost ?? LinkImpact.minimumCost, requireSplit: tier.needsSplit,
+                                     maxAttempts: tier.maxAttempts)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -731,7 +738,8 @@ if let path = options["--report"] {
                         frozen: frozen.count, frozenTurns: frozen.maxTurns, frozenCost: frozenCost,
                         bubbling: bubbling.count, bubblingPeriod: bubbling.period, bubblingCost: bubblingCost,
                         twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption(),
-                        linkCost: linkCost, keepEasiest: flags.contains("--easiest"))
+                        linkCost: linkCost, keepEasiest: flags.contains("--easiest"),
+                        needsSplit: flags.contains("--needs-split"))
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }
             return k

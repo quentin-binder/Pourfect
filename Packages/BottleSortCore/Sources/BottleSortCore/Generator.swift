@@ -77,6 +77,9 @@ public struct GeneratorConfig: Sendable, Hashable {
     public var requireLinksMatter: Bool
     /// Moves each link must change for `requireLinksMatter` (`LinkImpact.minimumCost` or `.strongCost`).
     public var linkCost: Int
+    /// Reject levels with twins that an optimal solution can solve without a split pour
+    /// (`LinkImpact.solvesWithoutSplitting`: the chain would only restrict).
+    public var requireSplit: Bool
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -93,7 +96,7 @@ public struct GeneratorConfig: Sendable, Hashable {
                 bubblingCost: Int = BubblingImpact.minimumCost,
                 twins: Int = 0, overflow: Int = 0, linkPlacement: LinkPlacement = .any,
                 requireLinksMatter: Bool = false, linkCost: Int = LinkImpact.minimumCost,
-                maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
+                requireSplit: Bool = false, maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
         self.emptyBottles = emptyBottles
@@ -126,6 +129,7 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.linkPlacement = linkPlacement
         self.requireLinksMatter = requireLinksMatter
         self.linkCost = linkCost
+        self.requireSplit = requireSplit
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -446,6 +450,8 @@ public enum Generator {
         if config.requireLinksMatter,
            !LinkImpact.everyLinkMatters(state, minMoves: moves.count, cost: config.linkCost,
                                         limits: config.solverLimits) { return nil }
+        if config.requireSplit, state.links.contains(where: { if case .twins = $0 { true } else { false } }),
+           LinkImpact.solvesWithoutSplitting(state, in: moves.count) != false { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -938,8 +944,10 @@ extension MechanicImpact {
                 guard solvable[node], !solvable[child], moves.count == last - first else { continue }
                 let move = moves[e - first]
                 let without = removing(instance, from: graph.states[node])
-                // A pour the instance doesn't change leaves the same position either way.
-                guard let next = without.pouring(move), next != graph.states[node].pouring(move) else { continue }
+                // A pour the instance doesn't change leaves the same flasks either way (compare
+                // only the flasks: the states differ in their links by construction).
+                guard let next = without.pouring(move),
+                      next.bottles != graph.states[node].pouring(move)?.bottles else { continue }
                 guard checks < maxChecks else { return nil }
                 checks += 1
                 if case .solved = Solver().solve(next, limits: checkLimits) { return depth[node] + 1 }
@@ -977,6 +985,35 @@ public enum LinkImpact {
     public static func everyLinkMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
                                         limits: SolverLimits = .default) -> Bool {
         instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+
+    /// Whether `state` can be solved in `moves` moves or fewer without ever pouring into a
+    /// twin (every pour into a twin is a split): true when the player could ignore the chain
+    /// and still play an optimal solution (the chain then only restricts). Breadth-first over
+    /// canonical states with the solver's candidate moves, at most `maxStates`; nil if the
+    /// budget runs out. Chapter 8 asks every twin recipe after the tutorial to need a split
+    /// (`Tier.needsSplit`, DECISIONS 191).
+    public static func solvesWithoutSplitting(_ state: GameState, in moves: Int,
+                                              maxStates: Int = 2_000_000) -> Bool? {
+        if state.isSolved { return true }
+        var seen: Set<StateKey> = [state.canonicalKey]
+        var frontier = [state]
+        for _ in 0..<moves {
+            var next: [GameState] = []
+            for current in frontier {
+                for move in Solver.candidateMoves(current) {
+                    if case .twins? = current.link(at: move.to) { continue }
+                    guard let turn = Rules.resolve(current, afterAction: .pour(move)) else { continue }
+                    if turn.isWon { return true }
+                    guard seen.insert(turn.state.canonicalKey).inserted else { continue }
+                    if seen.count > maxStates { return nil }
+                    next.append(turn.state)
+                }
+            }
+            if next.isEmpty { return false }
+            frontier = next
+        }
+        return false
     }
 
     /// Whether `state` can be solved in `moves` moves or fewer without a relocation

@@ -310,6 +310,33 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(!LinkImpact.everyLinkMatters(calm, minMoves: calmMoves.count))
     }
 
+    /// `spillDepth` re-solves only the losing pours the pipe changes: a losing pour that
+    /// leaves the same flasks with or without the pipe doesn't use up the check budget. In
+    /// this level many such pours come before the spill trap (with every losing pour
+    /// re-solved, the 40-check budget ran out first and the trap was missed).
+    @Test func spillChecksSkipPoursThePipeDoesNotChange() throws {
+        let s = GameState(bottles: [flask([1, 4, 5], 3), flask([4, 3, 5], 3), flask([1, 5, 3], 3), flask([2, 3, 2], 3),
+                                    flask([1, 0, 0], 3), flask([2, 0, 4], 3), flask([], 3), flask([], 3)],
+                          links: [.overflow(from: 4, to: 7)])
+        let pipe = try #require(s.links.first)
+        #expect(MechanicImpact.spillDepth(of: .link(pipe), in: s) != nil)
+    }
+
+    /// `LinkImpact.solvesWithoutSplitting`: twins the player can ignore, and the generator's
+    /// `requireSplit`, which only keeps levels whose every optimal solution splits a pour.
+    @Test func splitNeeded() throws {
+        // Two plain flasks swap their tops through a third; the twins on two more empty flasks
+        // are never needed.
+        let ignorable = GameState(bottles: [flask([0, 1], 2), flask([1, 0], 2), flask([], 2), flask([], 2), flask([], 2)],
+                                  links: [.twins(3, 4)])
+        #expect(LinkImpact.solvesWithoutSplitting(ignorable, in: 3) == true)
+        #expect(LinkImpact.solvesWithoutSplitting(ignorable, in: 2) == false)
+        let config = GeneratorConfig(colors: 3, capacity: 4, emptyBottles: 2, twins: 1, linkPlacement: .filled,
+                                     requireLinksMatter: true, linkCost: LinkImpact.strongCost, requireSplit: true)
+        let level = try Generator.generate(config)
+        #expect(LinkImpact.solvesWithoutSplitting(level.state, in: level.report.minMoves) == false)
+    }
+
     /// A seed of `aSpillTrap`'s configuration whose pipe sets a spill trap (found by search).
     static let spillSeed: UInt64 = 26
 }
@@ -691,7 +718,14 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         // Twins first, then pipes, then both and earlier mechanics.
         let firstPipe = try #require(pack.levels.firstIndex { $0.mechanics.contains(.overflow) })
         #expect(firstPipe >= 12 && pack.levels[..<firstPipe].allSatisfy { $0.mechanics == [.twins] })
-        #expect(pack.levels.contains { $0.mechanics.contains(.twins) && $0.mechanics.contains(.overflow) })
+        // The chapter ends with both links in one recipe.
+        let last = try #require(pack.levels.last)
+        #expect(last.mechanics.contains(.twins) && last.mechanics.contains(.overflow))
+        // After the tutorial, no twin recipe can be solved optimally while ignoring the chain.
+        for level in pack.levels.dropFirst() where level.mechanics.contains(.twins) {
+            let minMoves = try #require(level.meta?.minMoves)
+            #expect(LinkImpact.solvesWithoutSplitting(level.gameState, in: minMoves) == false, "\(level.id)")
+        }
         #expect(pack.levels.suffix(13).contains { $0.isHidden } && pack.levels.suffix(13).contains { $0.mechanics.contains(.sealed) })
         let scores = pack.levels.compactMap { $0.meta?.score }
         #expect(scores.count == pack.levels.count)
