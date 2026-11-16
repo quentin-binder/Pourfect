@@ -2,6 +2,7 @@ import BottleSortCore
 import Foundation
 import Observation
 import Accessibility
+import SwiftUI
 
 /// Drives one game screen. Wraps `GameSession`; all rule decisions come from BottleSortCore.
 @MainActor
@@ -147,7 +148,8 @@ final class GameViewModel {
     private var hintClearTask: Task<Void, Never>?
     private var pourCount = 0
     private var feedbackCount = 0
-    /// Taps received while a pour animates; replayed in order when it ends.
+    /// Taps received while a pour animates, or a pour that would pick up a flask whose bottom
+    /// layer is still rising (`rises`); replayed in order when that ends.
     private var queuedTaps: [Int] = []
     /// Safety net: ends a pour even if the view never reports back (e.g. it went off screen).
     private var pourTimeout: Task<Void, Never>?
@@ -262,10 +264,30 @@ final class GameViewModel {
 
     func tap(bottle index: Int) {
         guard !isWon else { return }
-        if pour != nil {
+        if pour != nil || !queuedTaps.isEmpty || waitsForRise(index) {
             if queuedTaps.count < 2 { queuedTaps.append(index) }
             return
         }
+        perform(tap: index)
+    }
+
+    /// Whether tapping `index` now would start a pour with a flask whose rise is still playing:
+    /// the pour waits for the rise, so the flask never jumps to its new order (DECISIONS 177).
+    private func waitsForRise(_ index: Int) -> Bool {
+        guard let from = selected, from != index else { return false }
+        return rises.contains { $0.bottle == from || $0.bottle == index }
+    }
+
+    /// Replays queued taps in order, until one starts a pour or has to wait for a rise.
+    private func replayQueuedTaps() {
+        while pour == nil, let next = queuedTaps.first, !waitsForRise(next), !isWon {
+            queuedTaps.removeFirst()
+            perform(tap: next)
+        }
+        if isWon { queuedTaps.removeAll() }
+    }
+
+    private func perform(tap index: Int) {
         clearHint()
         guard let from = selected else {
             let bottle = state.bottles[index]
@@ -313,9 +335,7 @@ final class GameViewModel {
             emit(.flaskCompleted(bottles: landed.completed))
         }
         if case .won(let stars) = status { emit(.levelWon(stars: stars)) }
-        while pour == nil, !queuedTaps.isEmpty {
-            tap(bottle: queuedTaps.removeFirst())
-        }
+        replayQueuedTaps()
     }
 
     func undo() {
@@ -409,7 +429,8 @@ final class GameViewModel {
         pourCount += 1
         let id = pourCount
         let mask = { (i: Int) in hiddenBefore.indices.contains(i) ? hiddenBefore[i] : [] }
-        // A flask in this pour is drawn by the pour animation: an older rise on it stops.
+        // A flask in this pour is drawn by the pour animation: an older rise on it stops. (Taps
+        // wait for a running rise, `waitsForRise`; this only catches the dev aids.)
         rises.removeAll { $0.bottle == move.from || $0.bottle == move.to }
         pour = PourEvent(id: id, from: move.from, to: move.to, layer: event.layer, amount: event.amount,
                          fromBottom: event.fromBottom,
@@ -558,6 +579,8 @@ final class GameViewModel {
             try? await Task.sleep(for: .seconds((duration + 0.1) * DebugTiming.slow))
             guard !Task.isCancelled else { return }
             self.rises.removeAll { $0.id <= lastID }
+            // A pour that waited for this rise starts now.
+            withAnimation(.easeInOut(duration: 0.3)) { self.replayQueuedTaps() }
         }
     }
 
@@ -661,7 +684,7 @@ final class GameViewModel {
         isDemo = true
         guard case .solved(let solution, _) = await Self.solve(state) else { return }
         for move in solution.prefix(moves) {
-            while pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
+            while pour != nil || !queuedTaps.isEmpty { try? await Task.sleep(for: .milliseconds(50)) }
             try? await Task.sleep(for: .milliseconds(450))
             tap(bottle: move.from)
             try? await Task.sleep(for: .milliseconds(250))
