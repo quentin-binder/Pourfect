@@ -91,6 +91,25 @@ enum Haptics {
         #endif
     }
 
+    /// A gate's portcullis (A3): a quick ratchet of light taps and a firm knock as it locks
+    /// open, or one heavy knock as it drops shut.
+    static func gate(opened: Bool) {
+        #if os(iOS)
+        if opened {
+            Task {
+                for _ in 0..<3 {
+                    light.impactOccurred(intensity: 0.35)
+                    try? await Task.sleep(for: .milliseconds(90))
+                }
+                try? await Task.sleep(for: .milliseconds(80))
+                medium.impactOccurred(intensity: 0.7)
+            }
+        } else {
+            medium.impactOccurred(intensity: 0.9)
+        }
+        #endif
+    }
+
     /// Light impact: the tap did nothing.
     static func illegal() {
         #if os(iOS)

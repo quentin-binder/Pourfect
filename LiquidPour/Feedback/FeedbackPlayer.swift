@@ -27,6 +27,17 @@ enum FeedbackPlayer {
         case .refusedLink:
             if sound { engine.play(.chainRattle) }
             if haptics { Haptics.illegal() }
+        case .refusedGate:
+            // The shut portcullis knocks and rattles in its housing.
+            if sound {
+                engine.play(.brassKnock)
+                engine.play(.chainRattle, volume: 0.5)
+            }
+            if haptics { Haptics.illegal() }
+        case .gate(let opened, _):
+            // The portcullis slides up (or drops) as the gate changes (`GatePose`).
+            if sound { engine.play(opened ? .gateOpen : .gateShut) }
+            if haptics { Haptics.gate(opened: opened) }
         case .split:
             // The chain chimes softly as the stream forks between the twins.
             if sound { engine.play(.chainRattle, after: reduceMotion ? 0 : PourPose.flowStart, volume: 0.45) }

@@ -45,6 +45,11 @@ final class SoundEngine {
         /// Brewing in a cauldron: a stirring swish with bubbles, then a soft sparkling chime as
         /// the new potion blooms (two ingredients mixed).
         case brew
+        /// A portcullis winding up: a quick ratchet of metal clicks rising in pitch, then a
+        /// clank as it locks open (a switch opened its gate).
+        case gateOpen
+        /// A portcullis dropping: a short falling rattle and a heavy iron clank (a gate shut).
+        case gateShut
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -296,6 +301,9 @@ nonisolated enum SoundSynthesis {
         out.sounds[.pipeGlug] = renderPipeGlug(rng: &rng)
         out.sounds[.brew] = renderBrew(rng: &rng)
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
+        // After every older sound, so their noise stays the same.
+        out.sounds[.gateOpen] = renderGate(opening: true, rng: &rng)
+        out.sounds[.gateShut] = renderGate(opening: false, rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in
             let notes = [523.25, 659.25, 783.99, 1046.50]
             var sum = 0.0
@@ -449,6 +457,41 @@ nonisolated enum SoundSynthesis {
         }
         for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
         return normalized(samples, peak: 0.11)
+    }
+
+    /// Portcullis (A3), timed on `GatePose`: ratchet clicks (short high inharmonic pings with a
+    /// tick of noise; rising and quickening while it winds up, falling and fast while it drops),
+    /// then the clank of iron on its stop: low inharmonic partials with a bright strike, heavier
+    /// and longer when it shuts.
+    private static func renderGate(opening: Bool, rng: inout NoiseGenerator) -> [Float] {
+        let duration = opening ? 0.8 : 0.7
+        let count = Int(duration * sampleRate)
+        var samples = [Double](repeating: 0, count: count)
+        let clicks = opening ? 8 : 5
+        var time = 0.01
+        for k in 0..<clicks {
+            let f0 = opening ? 1700 + Double(k) * 120 + rng.unit() * 150 : 2100 - Double(k) * 160 + rng.unit() * 150
+            let first = Int(time * sampleRate)
+            for j in 0..<Int(0.05 * sampleRate) where first + j < count {
+                let t = Double(j) / sampleRate
+                let ping = sin(2 * .pi * f0 * t) + 0.5 * sin(2 * .pi * f0 * 1.53 * t) * exp(-t * 60)
+                let tick = t < 0.0015 ? (rng.unit() * 2 - 1) : 0
+                samples[first + j] += 0.5 * (ping * exp(-t * 70) + tick)
+            }
+            time += opening ? 0.05 - Double(k) * 0.003 : 0.028
+        }
+        let clank = time + 0.02
+        let (low, gain, decay) = opening ? (240.0, 1.0, 9.0) : (165.0, 1.25, 6.5)
+        let first = Int(clank * sampleRate)
+        for j in 0..<(count - first) {
+            let t = Double(j) / sampleRate
+            let attack = min(1, t / 0.003)
+            let tone = sin(2 * .pi * low * t) + 0.7 * sin(2 * .pi * low * 2.76 * t) * exp(-t * 14)
+                + 0.45 * sin(2 * .pi * low * 5.4 * t) * exp(-t * 24) + 0.3 * sin(2 * .pi * low * 8.9 * t) * exp(-t * 40)
+            samples[first + j] += gain * attack * tone * exp(-t * decay)
+        }
+        for k in 0..<Int(0.02 * sampleRate) { samples[count - 1 - k] *= Double(k) / (0.02 * sampleRate) }
+        return normalized(samples, peak: 0.15)
     }
 
     /// Overflow pipe (F2), timed on the pour's pipe flow: a soft rush of liquid in a tube (low
