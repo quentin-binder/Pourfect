@@ -305,7 +305,8 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      lockCost: tier.strongLocks ? LockImpact.strongCost : LockImpact.minimumCost,
                                      essence: tier.essence, essenceEmpty: tier.essenceEmpty,
                                      requireEssenceMatter: tier.essenceCost != nil,
-                                     essenceCost: tier.essenceCost ?? EssenceImpact.minimumCost)
+                                     essenceCost: tier.essenceCost ?? EssenceImpact.minimumCost,
+                                     hidden: tier.hidden)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {

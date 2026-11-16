@@ -413,4 +413,13 @@ import Testing
         }
         #expect(checked >= 25)
     }
+
+    /// In the murky recipes the runes don't give hidden layers away: not every rune on a
+    /// filled flask is its (hidden) bottom color, as it would be if placement read it.
+    @Test func murkyRunesDontTellHiddenLayers() throws {
+        let murky = try Self.pack().levels.filter(\.isHidden)
+        #expect(murky.count >= 4)
+        let filled = murky.flatMap { $0.gameState.bottles.filter { $0.essenceColor != nil && !$0.isEmpty } }
+        #expect(filled.contains { $0.layers.first?.colorID != $0.essenceColor })
+    }
 }

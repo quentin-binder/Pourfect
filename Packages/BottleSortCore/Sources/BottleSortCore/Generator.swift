@@ -21,6 +21,10 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// How many of the `essence` flasks are empty ones (the rest are filled flasks marked
     /// with their bottom color). nil = any mix, as the shuffle falls.
     public var essenceEmpty: Int?
+    /// The level will be played murky (only each flask's top run visible). Rune colors then
+    /// never depend on hidden layers: a filled flask gets a random free color instead of
+    /// its bottom one, which the player can't see. Only rune placement reads it.
+    public var hidden: Bool
     /// Reject levels where some essence flask doesn't matter (`MechanicImpact`, cost
     /// `essenceCost`).
     public var requireEssenceMatter: Bool
@@ -34,7 +38,7 @@ public struct GeneratorConfig: Sendable, Hashable {
                 minMoves: ClosedRange<Int>? = nil, score: ClosedRange<Double>? = nil,
                 requireLocksMatter: Bool = false, lockCost: Int = LockImpact.minimumCost,
                 essence: Int = 0, essenceEmpty: Int? = nil, requireEssenceMatter: Bool = false,
-                essenceCost: Int = EssenceImpact.minimumCost,
+                essenceCost: Int = EssenceImpact.minimumCost, hidden: Bool = false,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -49,6 +53,7 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.essenceEmpty = essenceEmpty
         self.requireEssenceMatter = requireEssenceMatter
         self.essenceCost = essenceCost
+        self.hidden = hidden
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -97,6 +102,8 @@ public enum Generator {
     ///    layer (skipped if that is a key or already taken), so it is the color the flask
     ///    naturally ends with once the layers above are poured out. Sealed flasks qualify
     ///    too (seal and rune together). `essenceEmpty` fixes how many are empty flasks.
+    ///    For a murky level (`hidden`) a filled flask gets a random free color too, like an
+    ///    empty one: its bottom layer is hidden, and a rune of that color would reveal it.
     ///    Fewer than `E` flasks are marked only if the level has too few candidates.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         var rng = SplitMix64(seed: seed)
@@ -158,14 +165,21 @@ public enum Generator {
         var emptyLeft = config.essenceEmpty ?? Int.max
         var filledLeft = config.essenceEmpty.map { config.essence - $0 } ?? Int.max
         var marked = 0
+        /// A random color no rune has yet (independent of every layer), nil if none is left.
+        func freeColor() -> ColorID? {
+            let free = (0..<config.colors).map { ColorID($0) }.filter { !used.contains($0) }
+            return free.isEmpty ? nil : free[rng.nextInt(below: free.count)]
+        }
         for i in order where marked < config.essence {
             let color: ColorID
             if bottles[i].isEmpty {
-                guard emptyLeft > 0 else { continue }
-                let free = (0..<config.colors).map { ColorID($0) }.filter { !used.contains($0) }
-                guard !free.isEmpty else { continue }
-                color = free[rng.nextInt(below: free.count)]
+                guard emptyLeft > 0, let free = freeColor() else { continue }
+                color = free
                 emptyLeft -= 1
+            } else if config.hidden {
+                guard filledLeft > 0, let free = freeColor() else { continue }
+                color = free
+                filledLeft -= 1
             } else {
                 guard filledLeft > 0, let bottom = bottles[i].layers.first?.colorID, !used.contains(bottom) else { continue }
                 color = bottom

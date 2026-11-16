@@ -94,7 +94,11 @@ func bottle(_ colors: [Int], capacity: Int, _ modifiers: [BottleModifier] = []) 
         #expect(opened.canPour(Move(from: 0, to: 1)))   // its color goes in now
         #expect(!opened.canPour(Move(from: 2, to: 1)))  // 1s still don't (base rule and rune)
         #expect(Solver().solve(s).moves != nil)
-        #expect(Rules.refusal(of: Move(from: 2, to: 1), in: s)?.modifier == .sealed(1))
+        // 1s: refused by the seal and by the rune, so neither is "the" reason (plain shake).
+        #expect(Rules.refusal(of: Move(from: 2, to: 1), in: s) == nil)
+        // Its own color: only the seal refuses.
+        let own = GameState(bottles: [bottle([1, 1, 0], capacity: 3), s.bottles[1], bottle([0, 0], capacity: 3)])
+        #expect(Rules.refusal(of: Move(from: 0, to: 1), in: own)?.modifier == .sealed(1))
     }
 
     @Test func essenceFlaskWithItsColorFullIsSolved() {
@@ -113,6 +117,21 @@ func bottle(_ colors: [Int], capacity: Int, _ modifiers: [BottleModifier] = []) 
         #expect(Rules.refusal(of: Move(from: 0, to: 1), in: s) == nil)   // base rule (1 onto 0)
         #expect(Rules.refusal(of: Move(from: 2, to: 0), in: s) == nil)   // empty source
         #expect(Rules.refusal(of: Move(from: 0, to: 0), in: s) == nil)
+    }
+
+    /// The rune is named only when it is the reason: a full rune flask refuses every pour
+    /// for being full, and a pour the top layer would refuse anyway gets the plain shake.
+    @Test func refusalOnlyWhenTheRuneIsTheReason() {
+        let full = GameState(bottles: [bottle([1, 1], capacity: 2), bottle([0, 0], capacity: 2, [.essence(1)]),
+                                       bottle([], capacity: 2), bottle([0, 1], capacity: 2)])
+        #expect(Rules.refusal(of: Move(from: 0, to: 1), in: full) == nil)   // wrong color, but full
+        #expect(Rules.refusal(of: Move(from: 3, to: 1), in: full) == nil)   // own color, full
+        let partial = GameState(bottles: [bottle([0, 2], capacity: 3), bottle([1], capacity: 3, [.essence(0)]),
+                                          bottle([2, 1, 0], capacity: 3), bottle([2, 1], capacity: 3)])
+        #expect(Rules.refusal(of: Move(from: 0, to: 1), in: partial) == nil)   // 2 onto 1: base rule too
+        let refusal = Rules.refusal(of: Move(from: 3, to: 1), in: partial)   // 1 onto 1: only the rune says no
+        #expect(refusal?.bottle == 1 && refusal?.modifier == .essence(0))
+        #expect(Rules.refusal(of: Move(from: 2, to: 1), in: partial) == nil)   // 0 onto 1: base rule
     }
 
     @Test func displayHelpers() {
@@ -402,6 +421,16 @@ func bottle(_ colors: [Int], capacity: Int, _ modifiers: [BottleModifier] = []) 
         #expect(s.validate() == [.essenceColorAbsent(bottle: 2, color: 99)])
         #expect(!StateKey.canEncode(s))
         #expect(ValidationError.multipleEssences(bottle: 2).description.contains("essence"))
+        // A rune flask starting full of another color would count as sorted: rejected.
+        let fullOther = GameState(bottles: [bottle([1, 1], capacity: 2, [.essence(0)]), bottle([0, 0], capacity: 2)])
+        #expect(fullOther.validate() == [.essenceFullOfOtherColor(bottle: 0, color: 1)])
+        #expect(Rules.isSolved(fullOther.bottles[0]))   // why validation has to catch it
+        let fullOwn = GameState(bottles: [bottle([0, 0], capacity: 2, [.essence(0)]), bottle([1, 1], capacity: 2)])
+        #expect(fullOwn.validate().isEmpty)
+        let mixed = GameState(bottles: [bottle([1, 0], capacity: 2, [.essence(0)]), bottle([1, 0], capacity: 2)])
+        #expect(mixed.validate().isEmpty)
+        let partly = GameState(bottles: [bottle([1], capacity: 2, [.essence(0)]), bottle([1, 0, 0], capacity: 3)])
+        #expect(!partly.validate().contains { if case .essenceFullOfOtherColor = $0 { true } else { false } })
     }
 
     @Test func undoAndRestartRestoreTheFullState() throws {
@@ -466,6 +495,32 @@ func bottle(_ colors: [Int], capacity: Int, _ modifiers: [BottleModifier] = []) 
             let filledRunes = filled.bottles.filter { $0.essenceColor != nil }
             #expect(filledRunes.allSatisfy { !$0.isEmpty })
         }
+    }
+
+    /// Murky levels: a rune never tells a hidden layer. Placement reads only which flasks
+    /// are empty, so two layouts with the same empty flasks get the same runes from the
+    /// same random stream, whatever their (hidden) layers are.
+    @Test func hiddenPlacementIgnoresLayers() {
+        let config = GeneratorConfig(colors: 4, capacity: 4, emptyBottles: 2, essence: 2, essenceEmpty: 0, hidden: true)
+        var differsFromBottom = 0
+        for seed in UInt64(1)...30 {
+            let a = Generator.candidate(GeneratorConfig(colors: 4, capacity: 4, emptyBottles: 2), seed: seed)
+            var b = a
+            for i in b.bottles.indices where !b.bottles[i].isEmpty {
+                b.bottles[i].layers = b.bottles[i].layers.map { $0.colorID.map { .color(ColorID(($0.rawValue + 1) % 4)) } ?? $0 }
+            }
+            var markedA = a.bottles, markedB = b.bottles
+            var rngA = SplitMix64(seed: seed), rngB = SplitMix64(seed: seed)
+            Generator.markEssence(&markedA, config: config, rng: &rngA)
+            Generator.markEssence(&markedB, config: config, rng: &rngB)
+            #expect(markedA.map(\.modifiers) == markedB.map(\.modifiers))
+            #expect(markedA.filter { $0.essenceColor != nil }.count == 2)
+            differsFromBottom += markedA.filter { $0.essenceColor != nil && $0.layers.first?.colorID != $0.essenceColor }.count
+        }
+        #expect(differsFromBottom > 0)
+        // Not murky: unchanged, a filled flask keeps its bottom color.
+        let visible = Generator.candidate(GeneratorConfig(colors: 4, capacity: 4, emptyBottles: 2, essence: 2, essenceEmpty: 0), seed: 3)
+        #expect(visible.bottles.filter { $0.essenceColor != nil }.allSatisfy { $0.layers.first?.colorID == $0.essenceColor })
     }
 
     @Test func generationIsDeterministicAndRunesMatter() throws {

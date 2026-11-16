@@ -32,6 +32,9 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     /// An essence rune names a color the level doesn't contain, so the flask could
     /// never receive anything (also catches out-of-range color ids).
     case essenceColorAbsent(bottle: Int, color: ColorID)
+    /// An essence flask starts full of one other color: it would count as sorted while
+    /// holding a color it can never receive (the standard goal only asks "full, one color").
+    case essenceFullOfOtherColor(bottle: Int, color: ColorID)
 
     public var description: String {
         switch self {
@@ -53,6 +56,7 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .invalidLink(link): return "link \(link) doesn't connect two different existing bottles"
         case let .multipleEssences(b): return "bottle \(b) has more than one essence rune"
         case let .essenceColorAbsent(b, c): return "bottle \(b) is an essence flask of color \(c.rawValue), which the level doesn't contain"
+        case let .essenceFullOfOtherColor(b, c): return "essence flask \(b) starts full of color \(c.rawValue), not its own"
         }
     }
 }
@@ -64,7 +68,7 @@ extension GameState {
     /// key id at most once as a layer and once as a lock), and every lock's key can
     /// be reached (not behind its own lock, directly or through a cycle of locks).
     /// Mechanics: at most one seal and one essence rune per flask, an essence rune names
-    /// a color of the level, links connect two different existing bottles, and every
+    /// a color of the level, an essence flask doesn't start full of another color, links connect two different existing bottles, and every
     /// modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
@@ -112,6 +116,10 @@ extension GameState {
             if runes.count > 1 { errors.append(.multipleEssences(bottle: i)) }
             for color in runes where counts[color] == nil {
                 errors.append(.essenceColorAbsent(bottle: i, color: color))
+            }
+            if let rune = runes.first, bottle.layers.count == bottle.capacity,
+               case .color(let c)? = bottle.layers.first, c != rune, bottle.layers.allSatisfy({ $0 == .color(c) }) {
+                errors.append(.essenceFullOfOtherColor(bottle: i, color: c))
             }
         }
         for (color, n) in counts.sorted(by: { $0.key < $1.key }) {

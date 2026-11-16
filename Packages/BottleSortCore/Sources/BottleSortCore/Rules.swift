@@ -228,8 +228,10 @@ public enum Rules {
 
     /// The flask modifier that refuses `move`, for the app's feedback (e.g. "this essence
     /// flask only takes its own color"): the bottle and the first modifier of the pipeline
-    /// (source side, then target side) that vetoes the pour. nil if the move is legal, or
-    /// illegal for a base reason (same flask, empty source, full target, colors differ).
+    /// (source side, then target side) that vetoes the pour, provided the pour would be legal
+    /// without that modifier (so the modifier is *the* reason). nil if the move is legal, or
+    /// illegal for a base reason too (same flask, empty source, full target, colors differ):
+    /// a full essence flask refuses every pour for being full, not for its rune.
     public static func refusal(of move: Move, in state: GameState) -> (bottle: Int, modifier: BottleModifier)? {
         guard move.from != move.to, state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
               let top = state.bottles[move.from].topLayer else { return nil }
@@ -238,7 +240,11 @@ public enum Rules {
         for (side, bottle) in [(PourSide.source, move.from), (.target, move.to)] {
             for modifier in state.bottles[bottle].modifiers
             where !apply(modifier, as: side, to: &plan, source: source, target: target) {
-                return (bottle, modifier)
+                var without = state.bottles[bottle]
+                without.modifiers.removeAll { $0 == modifier }
+                let legalWithout = side == .source ? Self.plan(from: without, to: target) != nil
+                                                   : Self.plan(from: source, to: without) != nil
+                return legalWithout ? (bottle, modifier) : nil
             }
         }
         return nil
