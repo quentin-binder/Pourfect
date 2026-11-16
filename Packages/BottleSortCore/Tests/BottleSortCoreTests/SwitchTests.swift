@@ -296,6 +296,22 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         }
     }
 
+    /// Every candidate move is legal: the pruned list never offers a pour out of a closed gate
+    /// (the plan of an unlinked target alone would allow it).
+    @Test func everyCandidateMoveIsLegal() {
+        let closed = SwitchRuleTests.board(switch: [0, 0, 1], gate: [1, 2], [2], [])
+        #expect(!Solver.candidateMoves(closed).contains(Move(from: 1, to: 3)))
+        #expect(!Solver.candidateMoves(closed).contains(Move(from: 1, to: 2)))
+        for var s in Self.levels(seeds: 1...6) {
+            for step in 0..<8 {
+                for move in Solver.candidateMoves(s) { #expect(s.canPour(move), "\(move) in \(s)") }
+                let moves = s.legalMoves()
+                guard !moves.isEmpty else { break }
+                s = s.pouring(moves[(step * 5 + 3) % moves.count])!
+            }
+        }
+    }
+
     @Test func aCompleteSwitchIsStillASource() {
         // A full one-color switch is never skipped (rule 1): emptying it is a real choice.
         let s = GameState(bottles: [flask([0, 0], 2), flask([1, 2], 2), flask([2, 1], 2), flask([], 2)],

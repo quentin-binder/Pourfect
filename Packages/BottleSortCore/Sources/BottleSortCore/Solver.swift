@@ -249,9 +249,9 @@ public struct Solver: Sendable {
                 }
                 // `Rules.actionPlan` without its index checks: in a state of bottles only it
                 // is exactly the two-bottle plan (the one legality check, DECISIONS 125); a pour
-                // into a linked flask goes through the link.
-                let plan = targetLinked ? Rules.actionPlan(for: Move(from: from, to: to), in: state)
-                                        : Rules.plan(from: source, to: target)
+                // into or out of a linked flask goes through the link (a closed gate refuses both).
+                let plan = targetLinked || !sourceFree ? Rules.actionPlan(for: Move(from: from, to: to), in: state)
+                                                       : Rules.plan(from: source, to: target)
                 guard let plan else { continue }
                 if alikeEmpty && plan.amount == source.layers.count {
                     if !timed { continue }  // rule 2
