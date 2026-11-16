@@ -2,21 +2,27 @@ import BottleSortCore
 import SwiftUI
 
 /// One bottle: rounded outline with stacked layers (bottom → top). Draws key layers,
-/// a lock badge on locked bottles, and "?" for layers the session reports as hidden.
+/// a lock badge on locked bottles, "?" for layers the session reports as hidden, and the mark of
+/// each flask modifier (essence rune, narrow neck, funnel, spigot).
 struct BottleView: View {
     let bottle: Bottle
     let width: CGFloat
-    /// Number of bottom layers shown as "?" (from `GameSession.hiddenDepths`).
-    var hiddenLayers = 0
+    /// Per layer (0 = bottom): shown as "?" (from `GameSession.hiddenMasks`; missing = visible).
+    var hidden: [Bool] = []
     var isSelected = false
     var hintRole: HintRole?
     var shakes = 0
     /// Goes up each time this bottle becomes complete (`GameViewModel.completions`): the cork
     /// drops in and sparkles burst out of the mouth.
     var completions = 0
-    /// Goes up each time this essence flask refuses a pour (`GameViewModel.refusals`): its rune
-    /// flares.
+    /// Goes up each time this flask's modifier refuses a pour (`GameViewModel.refusals`): its
+    /// rune, funnel or spigot flares.
     var refusals = 0
+
+    /// A mask with the bottom `count` of `total` layers hidden (tips and previews).
+    static func bottomHidden(_ count: Int, of total: Int) -> [Bool] {
+        (0..<total).map { $0 < count }
+    }
 
     @Environment(\.colorRunesEnabled) private var runesEnabled
     @Environment(\.effectiveReduceMotion) private var reduceMotion
@@ -62,10 +68,13 @@ struct BottleView: View {
     private var height: CGFloat { Self.height(width: width, capacity: bottle.capacity) }
     private var shape: UnevenRoundedRectangle { Self.shape(width: width) }
 
+    private var glass: GlassParts { GlassParts(bottle) }
+
     var body: some View {
+        let necked = glass.neck
         ZStack(alignment: .bottom) {
-            shape.fill(Self.glassBacking)
-            shape.fill(Self.glassColor)
+            FlaskGlass(style: Self.glassBacking, width: width, necked: necked)
+            FlaskGlass(style: Self.glassColor, width: width, necked: necked)
             if let essence = bottle.essenceColor { shape.fill(EssenceMark.tint(essence)) }
             VStack(spacing: 0) {
                 // One view per run of identical visible layers, so a run shares one gradient.
@@ -90,11 +99,16 @@ struct BottleView: View {
                     .frame(maxHeight: .infinity)   // centered on the bottle
                     .transition(.scale(scale: 1.6).combined(with: .opacity))
             }
-            shape.strokeBorder(outline, lineWidth: isSelected || hintRole != nil ? 3 : 2)
+            FlaskOutline(style: outline, width: width, necked: necked,
+                         lineWidth: isSelected || hintRole != nil ? 3 : 2)
         }
         .frame(width: width, height: height)
+        .overlay(alignment: .topLeading) { spigot }
         .overlay(alignment: .top) { essenceMark }
-        .overlay(alignment: .top) { FlaskRim(width: width, color: outline) }
+        .overlay(alignment: .top) {
+            if necked { NeckCollar(width: width, color: outline) } else { FlaskRim(width: width, color: outline) }
+        }
+        .overlay(alignment: .top) { funnel }
         .overlay(alignment: .top) { cork }
         .overlay(alignment: .top) { sparkles }
         .onChange(of: completions) {
@@ -132,6 +146,42 @@ struct BottleView: View {
         }
     }
 
+    // MARK: Glass works
+
+    /// The brass funnel in a funnel flask's mouth. It glints and lifts a little when it refuses
+    /// to pour (brightens only with reduce motion), and gives way to the cork once the flask is
+    /// complete (full of one potion: nothing more can go in or out).
+    @ViewBuilder private var funnel: some View {
+        if glass.funnel, !isCompleted {
+            let swells = !reduceMotion
+            FunnelMark(width: width)
+                .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
+                    FunnelMark(width: width, flare: flare, swells: swells)
+                } keyframes: { _ in Self.flareKeyframes }
+                .transition(reduceMotion ? .opacity : .offset(y: -width * 0.5).combined(with: .opacity))
+        }
+    }
+
+    /// The brass spigot of a tap flask; glints when the flask refuses a pour.
+    @ViewBuilder private var spigot: some View {
+        if glass.tap {
+            let height = self.height
+            SpigotMark(width: width, height: height)
+                .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
+                    SpigotMark(width: width, height: height, flare: flare)
+                } keyframes: { _ in Self.flareKeyframes }
+        }
+    }
+
+    /// The refusal flare of a flask's mark: quick rise, hold, fade.
+    private static var flareKeyframes: some Keyframes<Double> {
+        KeyframeTrack {
+            LinearKeyframe(1, duration: 0.12, timingCurve: .easeOut)
+            LinearKeyframe(1, duration: 0.25)
+            LinearKeyframe(0, duration: 0.45, timingCurve: .easeIn)
+        }
+    }
+
     // MARK: Completed flask
 
     private var isCompleted: Bool { Rules.isCompleted(bottle) }
@@ -140,9 +190,10 @@ struct BottleView: View {
     /// completed it lands (`completions` changes) and pops off when the flask stops being complete.
     @ViewBuilder private var cork: some View {
         if isCompleted {
-            Cork(width: width)
+            let place = Cork.placement(for: bottle, width: width)
+            Cork(width: place.width)
                 .corkDrop(width: width, trigger: corkDrops)
-                .offset(y: Cork.offsetY(width: width))
+                .offset(y: place.offsetY)
                 .transition(reduceMotion ? .opacity : .asymmetric(
                     insertion: .opacity,
                     removal: .offset(y: -width * 0.7).combined(with: .scale(scale: 0.8)).combined(with: .opacity)))
@@ -164,10 +215,10 @@ struct BottleView: View {
     /// key layers are always bands of their own (each shows its own glyph / flips on its own).
     struct Run { let start: Int; var count: Int; let layer: Layer; let hidden: Bool }
 
-    static func runs(_ layers: [Layer], hiddenLayers: Int) -> [Run] {
+    static func runs(_ layers: [Layer], hidden mask: [Bool]) -> [Run] {
         var runs: [Run] = []
         for (index, layer) in layers.enumerated() {
-            let hidden = index < hiddenLayers
+            let hidden = mask.indices.contains(index) && mask[index]
             if !hidden, !layer.isKey, let last = runs.last, !last.hidden, last.layer == layer {
                 runs[runs.count - 1].count += 1
             } else {
@@ -177,7 +228,7 @@ struct BottleView: View {
         return runs
     }
 
-    private var runs: [Run] { Self.runs(bottle.layers, hiddenLayers: hiddenLayers) }
+    private var runs: [Run] { Self.runs(bottle.layers, hidden: hidden) }
 
     private var outline: Color {
         switch hintRole {

@@ -871,7 +871,37 @@
     "Your device's clock is earlier than a brew you already solved, so this one doesn't count." : {
       "comment" : "Daily win card when the device clock was set back"
     },
-    "· Best %lld" : {}
+    "· Best %lld" : {},
+    "A funnel flask only fills. Nothing pours out of it." : {
+      "comment" : "Shown when the player tries to pour from a funnel flask"
+    },
+    "A tap flask only pours from its tap. Nothing goes in." : {
+      "comment" : "Shown when the player tries to pour into a tap flask"
+    },
+    "narrow neck, one layer per pour" : {
+      "comment" : "VoiceOver: a narrow-neck flask moves one layer per pour, in or out"
+    },
+    "funnel flask, fills only, never pours out" : {
+      "comment" : "VoiceOver: a funnel flask"
+    },
+    "tap flask, pours from the bottom, nothing goes in" : {
+      "comment" : "VoiceOver: a tap flask"
+    },
+    "Narrow necks" : {},
+    "A flask with a narrow neck and a brass collar lets one layer through per pour, even when more would fit." : {},
+    "One at a time" : {},
+    "Pouring into a narrow neck works the same way: one layer per pour. Plan for the extra pours." : {},
+    "Funnel flasks" : {},
+    "A flask with a brass funnel takes potions in like any flask, but nothing ever pours out of it." : {},
+    "Fill it with care" : {},
+    "A potion poured into a funnel stays there for good. Only pour in what can fill it with one potion." : {},
+    "Tap flasks" : {},
+    "A flask with a brass tap pours from the bottom: the bottom potion runs out of the tap and the rest slides down." : {},
+    "Nothing goes in" : {},
+    "Nothing can be poured into a tap flask, not even a key. Drain it, or leave it full of one potion." : {},
+    "New: narrow necks" : {},
+    "New: funnel flasks" : {},
+    "New: tap flasks" : {}
   },
   "version" : "1.0"
 }

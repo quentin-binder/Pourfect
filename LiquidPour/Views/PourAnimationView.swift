@@ -70,6 +70,11 @@ struct PourPose {
 /// Animates one `PourEvent`: the source bottle flies over the target, tilts, a stream falls
 /// while both levels change continuously, and the source flies back. Draws on top of the board
 /// (the board hides the two real bottles meanwhile). Purely visual: the move is already applied.
+///
+/// A tap flask (C4, `event.fromBottom`) doesn't tilt: it flies so its spigot hangs over the
+/// target's mouth, the valve turns, a stream runs from the nozzle, and its bottom layers drain
+/// while the stack above slides down. A narrow neck (C2) pours from its neck's lip in a thin
+/// stream; a funnel target catches the stream in its cone.
 struct PourAnimationView: View {
     let event: GameViewModel.PourEvent
     let sourceFrame: CGRect
@@ -86,7 +91,8 @@ struct PourAnimationView: View {
     var body: some View {
         TimelineView(.animation) { timeline in
             let t = min(timeline.date.timeIntervalSince(start), duration)
-            frame(PourPose.at(t, reduceMotion: reduceMotion))
+            let pose = PourPose.at(t, reduceMotion: reduceMotion)
+            if event.fromBottom { tapFrame(pose) } else { frame(pose) }
         }
         .allowsHitTesting(false)
         .task(id: event.id) {
@@ -102,110 +108,152 @@ struct PourAnimationView: View {
     private var height: CGFloat { sourceFrame.height }
     private var layerHeight: CGFloat { BottleView.layerHeight(width: targetFrame.width) }
     private var color: Color { event.layer.liquidColor }
+    private var sourceParts: GlassParts { GlassParts(event.sourceBefore) }
+    private var targetParts: GlassParts { GlassParts(event.targetBefore) }
+
+    /// Width of the falling stream: thin through a narrow neck (one layer trickles), a little
+    /// thinner from a spigot than from a lip.
+    private var streamWidth: CGFloat {
+        if sourceParts.neck || targetParts.neck { return width * 0.07 }
+        return event.fromBottom ? width * 0.11 : width * 0.14
+    }
+
+    private func surfaceY(_ target: CGRect, flow: Double) -> CGFloat {
+        target.maxY - layerHeight * (CGFloat(event.targetBefore.layers.count) + CGFloat(event.amount) * flow)
+    }
 
     private func frame(_ pose: PourPose) -> some View {
         let right = pourToRight
         let sign: Double = right ? 1 : -1
         let angle = sign * pose.tilt * pourAngle(flow: pose.flow)      // degrees
         let lip = lipPosition(pose, right: right)
-        let surfaceY = targetFrame.maxY - layerHeight
-            * (CGFloat(event.targetBefore.layers.count) + CGFloat(event.amount) * pose.flow)
+        // A narrow neck pours from its neck's lip, not the body's corner: the flask is shifted
+        // (more as it tilts) so the neck's lip ends where the corner would have been.
+        let neck = sourceParts.neck ? Self.rotated(NarrowNeck.lipOffset(width, right: right), degrees: angle) : .zero
+        let corner = CGPoint(x: lip.x - neck.x * pose.tilt, y: lip.y - neck.y * pose.tilt)
+        let spout = CGPoint(x: corner.x + neck.x, y: corner.y + neck.y)
 
         return ZStack(alignment: .topLeading) {
-            bottle(segments: targetSegments(pose.flow), frame: targetFrame, gravity: pose.targetSlosh,
-                   essence: event.targetBefore.essenceColor, drawsMark: false,
-                   lock: event.targetBefore.lockedBy, unlock: unlockProgress(pose))
+            bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: targetFrame,
+                   gravity: pose.targetSlosh, drawsMarks: false, unlock: unlockProgress(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
 
             if event.isKey {
-                fallingKey(from: pourPoint(right: right), pose: pose)
+                fallingKey(from: spout, pose: pose)
             }
 
-            bottle(segments: sourceSegments(pose.flow), frame: sourceFrame,
-                   gravity: angle * .pi / 180 + pose.sourceSlosh, essence: event.sourceBefore.essenceColor,
+            bottle(event.sourceBefore, segments: sourceSegments(pose.flow), frame: sourceFrame,
+                   gravity: angle * .pi / 180 + pose.sourceSlosh,
                    corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
                    opaque: min(1, pose.rise * 1.6))   // opaque before it crosses another flask
                 .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)   // lifts it off the board
                 .rotationEffect(.degrees(angle), anchor: right ? .topTrailing : .topLeading)
-                // The rotation anchor is the pouring lip, so place the frame by that corner.
-                .position(x: lip.x + (right ? -width / 2 : width / 2), y: lip.y + height / 2)
+                // The rotation anchor is the pouring corner, so place the frame by that corner.
+                .position(x: corner.x + (right ? -width / 2 : width / 2), y: corner.y + height / 2)
 
             // On top of both bottles: the stream leaves the lip in front of the tilted source and
             // falls through the target's glass onto its rising surface.
             if !event.isKey {
-                stream(from: pourPoint(right: right), toY: surfaceY, right: right, pose: pose)
+                stream(from: spout, toY: surfaceY(targetFrame, flow: pose.flow), right: right, pose: pose)
             }
 
-            // The target's rune is etched on the front of its glass, so the stream falls behind it.
-            if let essence = event.targetBefore.essenceColor {
-                EssenceMark(color: essence, width: targetFrame.width, glow: essenceGlow(pose))
-                    .frame(width: targetFrame.width, height: targetFrame.height, alignment: .top)
-                    .position(x: targetFrame.midX, y: targetFrame.midY)
-            }
+            targetMarks(pose, frame: targetFrame)
         }
         .frame(width: boardSize.width, height: boardSize.height, alignment: .topLeading)
     }
 
-    /// `lock`/`unlock`: a locked target shows its lock (and dimmed contents) until the key
-    /// lands; then the lock pops away (`unlock` 0 → 1).
+    /// The target's marks on the front of its glass, drawn above the stream: the rune (it glows
+    /// while its color flows in) and the funnel (the stream runs into its cone).
+    @ViewBuilder
+    private func targetMarks(_ pose: PourPose, frame: CGRect) -> some View {
+        if let essence = event.targetBefore.essenceColor {
+            EssenceMark(color: essence, width: frame.width, glow: essenceGlow(pose))
+                .frame(width: frame.width, height: frame.height, alignment: .top)
+                .position(x: frame.midX, y: frame.midY)
+        }
+        if targetParts.funnel, !Rules.isCompleted(event.targetBefore) {
+            FunnelMark(width: frame.width)
+                .frame(width: frame.width, height: frame.height, alignment: .top)
+                .position(x: frame.midX, y: frame.midY)
+        }
+    }
+
+    /// One flask as drawn in flight, from its state before the move (`model` gives the glass
+    /// parts, the rune and the seal).
+    /// `unlock`: a sealed flask shows its lock (and dimmed contents) until the key lands; then
+    /// the lock pops away (0 → 1).
     /// `corkOff`: a cork on a completed source, 0 = seated … 1 = popped off and gone.
     /// `opaque`: 0 = see-through glass like at rest … 1 = frosted backing (a lifted source).
-    /// `essence`: the rune of an essence flask (tinted glass, etched mark; `drawsMark` false
-    /// when the caller draws the mark itself, above the stream).
-    private func bottle(segments: [LiquidSegment], frame: CGRect, gravity: Double,
-                        essence: ColorID? = nil, drawsMark: Bool = true,
-                        lock: KeyID? = nil, unlock: Double = 0, corkOff: Double? = nil,
-                        opaque: Double = 0) -> some View {
-        let shape = BottleView.shape(width: frame.width)
+    /// `drawsMarks`: false when the caller draws the rune and funnel itself, above the stream.
+    /// `valve`: a tap's handle, 0 = closed … 1 = open.
+    private func bottle(_ model: Bottle, segments: [LiquidSegment], frame: CGRect, gravity: Double,
+                        drawsMarks: Bool = true, unlock: Double = 0, corkOff: Double? = nil,
+                        opaque: Double = 0, valve: Double = 0) -> some View {
+        let w = frame.width
+        let shape = BottleView.shape(width: w)
+        let parts = GlassParts(model)
+        let essence = model.essenceColor
+        let lock = model.lockedBy
         // Same outline as at rest (`BottleView`): the seal's metal, else plain glass.
         let plainOutline = BottleView.outlineColor
         let sealOutline = lock.map { Palette.keyColor($0.rawValue).opacity(0.8) }
+        let cork = Cork.placement(for: model, width: w)
         return ZStack {
             // Same smoky backing as at rest; a lifted flask turns to frosted glass so bottles it
             // passes in front of don't show through.
-            shape.fill(BottleView.glassBacking)
-            shape.fill(BottleView.flightBacking).opacity(opaque)
-            shape.fill(BottleView.glassColor)
+            FlaskGlass(style: BottleView.glassBacking, width: w, necked: parts.neck)
+            FlaskGlass(style: BottleView.flightBacking, width: w, necked: parts.neck).opacity(opaque)
+            FlaskGlass(style: BottleView.glassColor, width: w, necked: parts.neck)
             if let essence { shape.fill(EssenceMark.tint(essence)) }
-            TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: frame.width),
+            TiltedLiquid(segments: segments, layerHeight: BottleView.layerHeight(width: w),
                          gravity: gravity)
                 .clipShape(shape)
-                .potionGlow(width: frame.width)
-            GlassSheen(width: frame.width)
+                .potionGlow(width: w)
+            GlassSheen(width: w)
             if let lock {
                 shape.fill(BottleView.lockedDim.opacity(1 - unlock))
-                BottleView.lockBadge(lock, width: frame.width)
+                BottleView.lockBadge(lock, width: w)
                     .scaleEffect(1 + 0.6 * unlock)
                     .opacity(1 - unlock)
             }
-            shape.strokeBorder(plainOutline, lineWidth: 2).opacity(sealOutline == nil ? 1 : unlock)
+            FlaskOutline(style: plainOutline, width: w, necked: parts.neck, lineWidth: 2)
+                .opacity(sealOutline == nil ? 1 : unlock)
             if let sealOutline {
                 // The seal's metal outline fades into the flask's own as the lock pops away.
-                shape.strokeBorder(sealOutline, lineWidth: 2).opacity(1 - unlock)
+                FlaskOutline(style: sealOutline, width: w, necked: parts.neck, lineWidth: 2).opacity(1 - unlock)
             }
         }
-        .frame(width: frame.width, height: frame.height)
-        .overlay(alignment: .top) {
-            if let essence, drawsMark { EssenceMark(color: essence, width: frame.width) }
+        .frame(width: w, height: frame.height)
+        .overlay(alignment: .topLeading) {
+            if parts.tap { SpigotMark(width: w, height: frame.height, valve: valve) }
         }
         .overlay(alignment: .top) {
-            FlaskRim(width: frame.width, color: unlock < 0.5 ? sealOutline ?? plainOutline : plainOutline)
+            if let essence, drawsMarks { EssenceMark(color: essence, width: w) }
+        }
+        .overlay(alignment: .top) {
+            let outline = unlock < 0.5 ? sealOutline ?? plainOutline : plainOutline
+            if parts.neck { NeckCollar(width: w, color: outline) } else { FlaskRim(width: w, color: outline) }
+        }
+        .overlay(alignment: .top) {
+            if parts.funnel, drawsMarks, !Rules.isCompleted(model) { FunnelMark(width: w) }
         }
         .overlay(alignment: .top) {
             // Same place as `BottleView`'s cork; pops up and fades like its removal transition.
             if let corkOff, corkOff < 1 {
-                Cork(width: frame.width)
+                Cork(width: cork.width)
                     .scaleEffect(1 - 0.2 * corkOff)
-                    .offset(y: Cork.offsetY(width: frame.width) - frame.width * 0.7 * corkOff)
+                    .offset(y: cork.offsetY - w * 0.7 * corkOff)
                     .opacity(1 - corkOff)
             }
         }
     }
 
-    /// Layer `index` of a bottle whose bottom `hidden` layers show as "?", drawn like `BottleView`
-    /// (grey "?" card, or a key slot with its icon).
-    private func segment(_ layer: Layer, index: Int, hidden: Int, fraction: CGFloat) -> LiquidSegment {
-        if index < hidden { return LiquidSegment(color: Palette.hiddenLayer, fraction: fraction, glyph: .hidden) }
+    /// Layer `index` of a bottle whose layers flagged in `hidden` show as "?", drawn like
+    /// `BottleView` (grey "?" card, or a key slot with its icon).
+    private func segment(_ layer: Layer, index: Int, hidden: [Bool], fraction: CGFloat) -> LiquidSegment {
+        if hidden.indices.contains(index), hidden[index] {
+            return LiquidSegment(color: Palette.hiddenLayer, fraction: fraction, glyph: .hidden)
+        }
         if case .key(let key) = layer {
             return LiquidSegment(color: layer.liquidColor, fraction: fraction, glyph: .key(Palette.keyColor(key.rawValue)))
         }
@@ -218,14 +266,15 @@ struct PourAnimationView: View {
         return Rune(colorIndex: id.rawValue)
     }
 
-    /// Source keeps its layers; the poured top layers shrink as `flow` grows.
+    /// Source keeps its layers; the poured ones (the top run, or a tap's bottom run) shrink as
+    /// `flow` grows, so a tap's stack slides down as its bottom drains.
     /// A key leaves in one piece as soon as it starts to fall.
     private func sourceSegments(_ flow: Double) -> [LiquidSegment] {
         let layers = event.sourceBefore.layers
         let leaving = event.isKey ? (flow > 0.001 ? 0 : 1) : 1 - flow
+        let moved = event.fromBottom ? 0..<event.amount : (layers.count - event.amount)..<layers.count
         return layers.enumerated().map { i, layer in
-            segment(layer, index: i, hidden: event.sourceHiddenBefore,
-                    fraction: i >= layers.count - event.amount ? leaving : 1)
+            segment(layer, index: i, hidden: event.sourceHiddenBefore, fraction: moved.contains(i) ? leaving : 1)
         }
     }
 
@@ -238,6 +287,86 @@ struct PourAnimationView: View {
         if event.isKey { return kept }
         return kept + Array(repeating: LiquidSegment(color: color, fraction: flow, rune: rune(for: event.layer)),
                             count: event.amount)
+    }
+
+    // MARK: Tap pour
+
+    /// A bottom pour: the tap flask flies upright until its nozzle hangs over the target's mouth,
+    /// the valve turns open, the stream runs while the bottom run drains (the stack slides
+    /// down), the valve closes and the flask flies back.
+    private func tapFrame(_ pose: PourPose) -> some View {
+        let place = tapPlacement
+        let home = CGPoint(x: sourceFrame.midX, y: sourceFrame.midY - (pose.returning ? 0 : width * 0.3))
+        let over = place.center
+        let up = over.y <= home.y
+        let center = CGPoint(x: home.x + (over.x - home.x) * (up ? pose.travel : pose.rise),
+                             y: home.y + (over.y - home.y) * (up ? pose.rise : pose.travel))
+        // Without room above the target, it slides down under the tap and back.
+        let target = targetFrame.offsetBy(dx: 0, dy: place.targetDrop * pose.travel)
+        let nozzle = Spigot.nozzle(width: width, height: height)
+        let tip = CGPoint(x: center.x - width / 2 + nozzle.x, y: center.y - height / 2 + nozzle.y)
+        let mouth = CGPoint(x: target.midX, y: target.minY - targetParts.rise(target.width))
+
+        return ZStack(alignment: .topLeading) {
+            bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: target,
+                   gravity: pose.targetSlosh, drawsMarks: false, unlock: unlockProgress(pose))
+                .position(x: target.midX, y: target.midY)
+
+            bottle(event.sourceBefore, segments: sourceSegments(pose.flow), frame: sourceFrame,
+                   gravity: pose.sourceSlosh * 0.5,
+                   corkOff: Rules.isCompleted(event.sourceBefore) ? pose.corkOff : nil,
+                   opaque: min(1, pose.rise * 1.6), valve: pose.tilt)
+                .shadow(color: .black.opacity(0.2 * pose.rise), radius: 6, y: 3)
+                .position(center)
+
+            if event.isKey {
+                fallingKey(from: tip, to: CGPoint(x: target.midX, y: target.midY), pose: pose)
+            } else {
+                tapStream(from: tip, mouth: mouth, toY: surfaceY(target, flow: pose.flow), pose: pose)
+            }
+
+            targetMarks(pose, frame: target)
+        }
+        .frame(width: boardSize.width, height: boardSize.height, alignment: .topLeading)
+    }
+
+    /// Where the tap flask's center hangs while it pours, and how far the target slides down to
+    /// get under it when the board has no room above the target (a top-row target).
+    private var tapPlacement: (center: CGPoint, targetDrop: CGFloat) {
+        let nozzle = Spigot.nozzle(width: width, height: height)
+        let tipY = targetFrame.minY - targetParts.rise(targetFrame.width) - width * 0.22
+        // The nozzle over the target's mouth, unless the flask would leave the board: then the
+        // stream bends a little to reach the mouth.
+        let ideal = targetFrame.midX - nozzle.x + width / 2
+        let minX = width / 2 - 12
+        let maxX = boardSize.width + 12 - (nozzle.x + Spigot.protrusion(width) - width / 2)
+        let x = min(max(ideal, minX), max(minX, maxX))
+        var y = tipY - nozzle.y + height / 2
+        let topLimit: CGFloat = -24   // just into the space under the HUD
+        var drop: CGFloat = 0
+        if y - height / 2 < topLimit {
+            drop = topLimit - (y - height / 2)
+            y += drop
+        }
+        return (CGPoint(x: x, y: y), drop)
+    }
+
+    /// The stream from the spigot's nozzle: straight down into the target's mouth (bending a
+    /// little when the nozzle couldn't hang right above it), then onto the rising surface.
+    @ViewBuilder
+    private func tapStream(from tip: CGPoint, mouth: CGPoint, toY surfaceY: CGFloat, pose: PourPose) -> some View {
+        if pose.streamHead > pose.streamTail + 0.001 {
+            let end = CGPoint(x: mouth.x, y: max(surfaceY, mouth.y + width * 0.2))
+            let path = Path { p in
+                p.move(to: tip)
+                if abs(mouth.x - tip.x) > 1 {
+                    p.addQuadCurve(to: mouth, control: CGPoint(x: tip.x, y: (tip.y + mouth.y) / 2))
+                }
+                p.addLine(to: end)
+            }
+            .trimmedPath(from: pose.streamTail, to: pose.streamHead)
+            path.stroke(color.gradient, style: StrokeStyle(lineWidth: streamWidth, lineCap: .round))
+        }
     }
 
     // MARK: Essence
@@ -257,12 +386,13 @@ struct PourAnimationView: View {
         return x * x
     }
 
-    /// The key falls from the lip into the lock at the target's center, shrinking as it enters.
+    /// The key falls from the lip (or the nozzle) into the lock at the target's center,
+    /// shrinking as it enters.
     @ViewBuilder
-    private func fallingKey(from lip: CGPoint, pose: PourPose) -> some View {
+    private func fallingKey(from lip: CGPoint, to end: CGPoint? = nil, pose: PourPose) -> some View {
         if case .key(let key) = event.layer, pose.flow > 0.001, pose.flow < 0.8 {
             let p = min(pose.flow / 0.75, 1)
-            let end = CGPoint(x: targetFrame.midX, y: targetFrame.midY)
+            let end = end ?? CGPoint(x: targetFrame.midX, y: targetFrame.midY)
             Image(systemName: "key.fill")
                 .font(.system(size: width * 0.42, weight: .bold))
                 .foregroundStyle(Palette.keyColor(key.rawValue))
@@ -274,6 +404,12 @@ struct PourAnimationView: View {
     }
 
     // MARK: Positions
+
+    /// `v` turned by `degrees` clockwise on screen (like `rotationEffect`).
+    private static func rotated(_ v: CGPoint, degrees: Double) -> CGPoint {
+        let a = degrees * .pi / 180
+        return CGPoint(x: v.x * cos(a) - v.y * sin(a), y: v.x * sin(a) + v.y * cos(a))
+    }
 
     /// Mouth corner the liquid leaves from, in board coordinates.
     private func lipPosition(_ pose: PourPose, right: Bool) -> CGPoint {
@@ -309,9 +445,9 @@ struct PourAnimationView: View {
     }
 
     /// Where the lip hovers while pouring: just off-center over the target's mouth, high enough
-    /// that the tilted body clears the bottles below.
+    /// that the tilted body clears the bottles below (and the target's neck or funnel).
     private func pourPoint(right: Bool) -> CGPoint {
-        let gap = height * cos(pourAngle(flow: 0) * .pi / 180) + width * 0.15
+        let gap = height * cos(pourAngle(flow: 0) * .pi / 180) + width * 0.15 + targetParts.rise(targetFrame.width)
         return CGPoint(x: targetFrame.midX + (right ? -1 : 1) * width * 0.12, y: targetFrame.minY - gap)
     }
 
@@ -345,7 +481,7 @@ struct PourAnimationView: View {
                 p.addQuadCurve(to: end, control: CGPoint(x: lip.x + dir * width * 0.16, y: lip.y + width * 0.08))
             }
             .trimmedPath(from: pose.streamTail, to: pose.streamHead)
-            path.stroke(color.gradient, style: StrokeStyle(lineWidth: width * 0.14, lineCap: .round))
+            path.stroke(color.gradient, style: StrokeStyle(lineWidth: streamWidth, lineCap: .round))
         }
     }
 }

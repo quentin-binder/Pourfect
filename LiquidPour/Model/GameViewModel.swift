@@ -24,11 +24,14 @@ final class GameViewModel {
         let layer: Layer
         /// Number of layers that moved.
         let amount: Int
+        /// The layers left from the source's bottom, through its tap (C4): the stack above
+        /// slides down. Otherwise they left from the top.
+        let fromBottom: Bool
         let sourceBefore: Bottle
         let targetBefore: Bottle
-        /// Bottom layers of each bottle shown as "?" before the move (hidden-layers mode).
-        let sourceHiddenBefore: Int
-        let targetHiddenBefore: Int
+        /// Per layer (0 = bottom) of each bottle: shown as "?" before the move (murky potions).
+        let sourceHiddenBefore: [Bool]
+        let targetHiddenBefore: [Bool]
 
         /// Bottles that became complete (full, one color) through this move. Reported as
         /// `.flaskCompleted` when the animation lands.
@@ -44,10 +47,12 @@ final class GameViewModel {
         case select(bottle: Int)
         /// A tap that can't do anything (empty bottle selected, or an illegal pour).
         case illegal(bottle: Int)
-        /// An essence flask refused a pour of another potion (or a key): its rune flares.
-        case refused(bottle: Int)
-        /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved.
-        case pour(from: Int, to: Int, amount: Int, isKey: Bool)
+        /// A flask modifier refused the pour (`Rules.refusal`): an essence flask's rune flares
+        /// (`runeHum`), a funnel or a tap flask knocks its brass (`brassKnock`).
+        case refused(bottle: Int, modifier: BottleModifier)
+        /// A legal pour started animating (same moment as `pour` is set). `amount` = layers moved;
+        /// `fromBottom`: poured through a tap (the valve opens instead of the lip clinking).
+        case pour(from: Int, to: Int, amount: Int, isKey: Bool, fromBottom: Bool)
         /// Bottles that became complete; fires when the pour animation lands (`finishPour`).
         case flaskCompleted(bottles: [Int])
         /// The level was solved; fires when the winning pour lands, right after any `flaskCompleted`.
@@ -183,11 +188,13 @@ final class GameViewModel {
     var canUndo: Bool { session.canUndo }
     var hasNextLevel: Bool { levelIndex + 1 < levels.count }
 
-    /// Bottom layers of bottle `index` to draw as "?". While a pour animates, the source keeps
-    /// its pre-move value so the reveal plays when the board bottle comes back.
-    func hiddenLayerCount(_ index: Int) -> Int {
+    /// Per layer (0 = bottom) of bottle `index`: whether it shows as "?". The flags move with
+    /// their layers (a tap drains from the bottom, `GameSession.hiddenMasks`). While a pour
+    /// animates, the source keeps its pre-move flags so the reveal plays when the board bottle
+    /// comes back.
+    func hiddenMask(_ index: Int) -> [Bool] {
         if let pour, pour.from == index { return pour.sourceHiddenBefore }
-        return session.hiddenDepths.indices.contains(index) ? session.hiddenDepths[index] : 0
+        return session.hiddenMasks.indices.contains(index) ? session.hiddenMasks[index] : []
     }
 
     // MARK: Intents
@@ -200,11 +207,15 @@ final class GameViewModel {
         }
         clearHint()
         guard let from = selected else {
-            if !state.bottles[index].isEmpty {
+            let bottle = state.bottles[index]
+            if bottle.isEmpty {
+                reject(index)
+            } else if Rules.outlet(of: bottle) == nil {
+                // Nothing can ever leave it right now (a seal, a funnel): it isn't picked up.
+                if bottle.isFunnel { refuse(index, modifier: .funnel) } else { reject(index) }
+            } else {
                 selected = index
                 emit(.select(bottle: index))
-            } else {
-                reject(index)
             }
             return
         }
@@ -212,12 +223,12 @@ final class GameViewModel {
         if from == index { return }   // tapping the same bottle deselects
         let move = Move(from: from, to: index)
         let before = state
-        let hiddenBefore = session.hiddenDepths
-        if session.apply(move) {
-            startPour(move, before: before, hiddenBefore: hiddenBefore)
+        let hiddenBefore = session.hiddenMasks
+        if let turn = session.play(move) {
+            if let event = turn.pour { startPour(event, before: before, hiddenBefore: hiddenBefore) }
             afterStateChange()
-        } else if let refusal = Rules.refusal(of: move, in: before), case .essence(let color) = refusal.modifier {
-            refuse(refusal.bottle, color: color)
+        } else if let refusal = Rules.refusal(of: move, in: before), Self.explains(refusal.modifier) {
+            refuse(refusal.bottle, modifier: refusal.modifier)
         } else {
             reject(from)
         }
@@ -321,17 +332,21 @@ final class GameViewModel {
 
     private var isWon: Bool { if case .won = status { return true } else { return false } }
 
-    private func startPour(_ move: Move, before: GameState, hiddenBefore: [Int]) {
-        let source = before.bottles[move.from]
-        let amount = source.layers.count - state.bottles[move.from].layers.count
-        guard amount > 0, let layer = source.topLayer else { return }
+    /// Starts animating the pour the core reported (`Turn.pour`): what moved, how much and
+    /// from which end of the source. Nothing is re-derived from the states.
+    private func startPour(_ event: BottleSortCore.PourEvent, before: GameState, hiddenBefore: [[Bool]]) {
+        let move = event.move
+        guard event.amount > 0 else { return }
         pourCount += 1
         let id = pourCount
-        pour = PourEvent(id: id, from: move.from, to: move.to, layer: layer, amount: amount,
-                         sourceBefore: source, targetBefore: before.bottles[move.to],
-                         sourceHiddenBefore: hiddenBefore[move.from], targetHiddenBefore: hiddenBefore[move.to],
+        let mask = { (i: Int) in hiddenBefore.indices.contains(i) ? hiddenBefore[i] : [] }
+        pour = PourEvent(id: id, from: move.from, to: move.to, layer: event.layer, amount: event.amount,
+                         fromBottom: event.fromBottom,
+                         sourceBefore: before.bottles[move.from], targetBefore: before.bottles[move.to],
+                         sourceHiddenBefore: mask(move.from), targetHiddenBefore: mask(move.to),
                          completed: Rules.completedBottles(before: before, after: state))
-        emit(.pour(from: move.from, to: move.to, amount: amount, isKey: layer.isKey))
+        emit(.pour(from: move.from, to: move.to, amount: event.amount, isKey: event.layer.isKey,
+                   fromBottom: event.fromBottom))
         pourTimeout?.cancel()
         pourTimeout = Task {
             try? await Task.sleep(for: .seconds(3))
@@ -352,14 +367,35 @@ final class GameViewModel {
         emit(.illegal(bottle: bottle))
     }
 
-    /// An essence flask said no: it shakes, its rune flares, and a short line names the one
-    /// potion it takes (the rule comes from `Rules.refusal`, not from the app).
-    private func refuse(_ bottle: Int, color: ColorID) {
+    /// Modifiers whose refusal gets its own feedback (a message naming the rule); any other
+    /// refusal is the plain shake of the source.
+    private static func explains(_ modifier: BottleModifier) -> Bool {
+        switch modifier {
+        case .essence, .funnel, .tap: return true
+        default: return false
+        }
+    }
+
+    /// A flask's modifier said no: that flask shakes, its mark flares (the rune, the funnel or
+    /// the spigot), and a short line says why (the rule comes from `Rules.refusal` /
+    /// `Rules.outlet`, not from the app).
+    private func refuse(_ bottle: Int, modifier: BottleModifier) {
         shakes[bottle] += 1
         refusals[bottle] += 1
-        flash(String(localized: "This essence flask only takes \(Palette.potionName(color.rawValue))",
-                     comment: "Shown when an essence flask refuses a pour; the argument is a potion name"))
-        emit(.refused(bottle: bottle))
+        switch modifier {
+        case .essence(let color):
+            flash(String(localized: "This essence flask only takes \(Palette.potionName(color.rawValue))",
+                         comment: "Shown when an essence flask refuses a pour; the argument is a potion name"))
+        case .funnel:
+            flash(String(localized: "A funnel flask only fills. Nothing pours out of it.",
+                         comment: "Shown when the player tries to pour from a funnel flask"))
+        case .tap:
+            flash(String(localized: "A tap flask only pours from its tap. Nothing goes in.",
+                         comment: "Shown when the player tries to pour into a tap flask"))
+        default:
+            break
+        }
+        emit(.refused(bottle: bottle, modifier: modifier))
     }
 
     /// Events newer than `id` (all kept events for nil), oldest first.
@@ -470,17 +506,21 @@ final class GameViewModel {
         }
     }
 
-    /// Dev aid: tries one pour that an essence flask refuses (to see the rune flare and message).
+    /// Dev aid: tries one pour a flask modifier refuses (an essence flask, a tap flask; else
+    /// picks up a funnel flask), to see the flare and message.
     func debugRefusedPour() {
         let n = state.bottles.count
         for from in 0..<n {
             for to in 0..<n where from != to {
                 guard let refusal = Rules.refusal(of: Move(from: from, to: to), in: state),
-                      case .essence = refusal.modifier else { continue }
+                      Self.explains(refusal.modifier), refusal.modifier != .funnel else { continue }
                 tap(bottle: from)
                 tap(bottle: to)
                 return
             }
+        }
+        if let funnel = state.bottles.indices.first(where: { !state.bottles[$0].isEmpty && state.bottles[$0].isFunnel }) {
+            tap(bottle: funnel)
         }
     }
     #endif

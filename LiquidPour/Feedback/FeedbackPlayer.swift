@@ -15,10 +15,12 @@ enum FeedbackPlayer {
         case .illegal:
             if sound { engine.play(.tap) }
             if haptics { Haptics.illegal() }
-        case .refused:
-            if sound { engine.play(.runeHum) }
+        case .refused(_, let modifier):
+            if sound {
+                if case .essence = modifier { engine.play(.runeHum) } else { engine.play(.brassKnock) }
+            }
             if haptics { Haptics.illegal() }
-        case .pour(_, _, let amount, let isKey):
+        case .pour(_, _, let amount, let isKey, let fromBottom):
             // Liquid starts moving at `flowStart` (immediately with reduce motion).
             let flowStart = reduceMotion ? 0 : PourPose.flowStart
             if sound {
@@ -26,7 +28,12 @@ enum FeedbackPlayer {
                     // The key drops into the lock near the end of the flow.
                     engine.play(.keyClick, after: reduceMotion ? 0.1 : PourPose.flowEnd - 0.12)
                 } else {
-                    if !reduceMotion { engine.play(.clinkLow, after: PourPose.flowStart - 0.1) }
+                    if fromBottom {
+                        // A tap: the brass valve turns just before the potion runs.
+                        engine.play(.valve, after: reduceMotion ? 0 : PourPose.flowStart - 0.1)
+                    } else if !reduceMotion {
+                        engine.play(.clinkLow, after: PourPose.flowStart - 0.1)
+                    }
                     engine.playGurgle(amount: amount, after: flowStart)
                 }
             }

@@ -26,6 +26,10 @@ final class SoundEngine {
         case keyClick
         /// Low glassy hum with a slight wobble: an essence flask's rune refuses a pour.
         case runeHum
+        /// A brass valve turning: a short metallic squeak and a click (a tap flask opens).
+        case valve
+        /// A dull knock on brass: a funnel or a tap flask refuses a pour.
+        case brassKnock
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -252,6 +256,19 @@ nonisolated enum SoundSynthesis {
             let wobble = 1 + 0.5 * sin(2 * .pi * 14 * t)
             let tone = sin(2 * .pi * 392 * t) + 0.8 * sin(2 * .pi * 370 * t) + 0.25 * sin(2 * .pi * 1176 * t)
             return attack * tone * wobble * exp(-t * 9) + Self.clink(t: t, f0: 1100) * 0.18
+        }
+        out.sounds[.valve] = render(0.32, peak: 0.12) { t in
+            // A short squeak gliding up (metal on metal), then the valve seating with a click.
+            let squeak = t < 0.14 ? sin(2 * .pi * (620 * t + 1400 * t * t)) * sin(.pi * t / 0.14) * 0.5 : 0
+            let click = t > 0.15 ? Self.clink(t: t - 0.15, f0: 2900) * exp(-(t - 0.15) * 30) * 0.7 : 0
+            return squeak + click
+        }
+        out.sounds[.brassKnock] = render(0.35, peak: 0.14) { t in
+            // Two low inharmonic metal partials with a fast strike: a muted bell knock.
+            let attack = min(1, t / 0.004)
+            let tone = sin(2 * .pi * 310 * t) + 0.6 * sin(2 * .pi * 755 * t) * exp(-t * 18)
+                + 0.3 * sin(2 * .pi * 1480 * t) * exp(-t * 30)
+            return attack * tone * exp(-t * 11)
         }
         out.sounds[.corkPop] = renderCorkPop(rng: &rng)
         out.sounds[.success] = render(1.7, peak: 0.20) { t in

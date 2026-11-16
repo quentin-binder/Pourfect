@@ -158,14 +158,18 @@ struct GameView: View {
         let rowCount = max(1, Int((Double(bottles.count) / Double(maxPerRow)).rounded(.up)))
         let perRow = Int((Double(bottles.count) / Double(rowCount)).rounded(.up))
         let capacity = CGFloat(bottles.first?.capacity ?? 4)
-        let spacing: CGFloat = 14
+        // A tap's spigot sticks out on the right: a little more room between flasks.
+        let spacing: CGFloat = bottles.contains(where: \.hasTap) ? 22 : 14
+        // A narrow neck or a funnel stands above its flask (in widths): room for it on every row.
+        let parts = bottles.map { GlassParts($0).rise(1) }.max() ?? 0
         // Fit width: perRow bottles + spacing. Fit height: rows × (capacity × 0.78w + 0.45w) + lift room.
         let byWidth = (size.width - spacing * CGFloat(perRow - 1)) / CGFloat(perRow)
-        let byHeight = (size.height - 40 * CGFloat(rowCount)) / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3))
+        let byHeight = (size.height - 40 * CGFloat(rowCount))
+            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts))
         let width = max(24, min(byWidth, byHeight, 72))
         let rows = stride(from: 0, to: bottles.count, by: perRow).map { Array($0..<min($0 + perRow, bottles.count)) }
 
-        return VStack(spacing: 40) {
+        return VStack(spacing: 40 + parts * width) {
             ForEach(rows, id: \.self) { row in
                 HStack(alignment: .bottom, spacing: spacing) {
                     ForEach(row, id: \.self) { index in
@@ -173,7 +177,7 @@ struct GameView: View {
                             withAnimation(.easeInOut(duration: 0.3)) { model.tap(bottle: index) }
                         } label: {
                             BottleView(bottle: bottles[index], width: width,
-                                       hiddenLayers: model.hiddenLayerCount(index),
+                                       hidden: model.hiddenMask(index),
                                        isSelected: model.selected == index,
                                        hintRole: hintRole(for: index),
                                        shakes: model.shakes.indices.contains(index) ? model.shakes[index] : 0,
@@ -186,7 +190,7 @@ struct GameView: View {
                         // The pour animation draws these two bottles itself; swap without fading.
                         .animation(nil) { $0.opacity(isPouring(index) ? 0 : 1) }
                         .accessibilityLabel(Text("Flask \(index + 1)"))
-                        .accessibilityValue(bottles[index].spokenContents(hiddenLayers: model.hiddenLayerCount(index)))
+                        .accessibilityValue(bottles[index].spokenContents(hidden: model.hiddenMask(index)))
                     }
                 }
             }

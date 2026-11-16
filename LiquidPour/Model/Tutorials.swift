@@ -4,16 +4,19 @@ import Observation
 
 /// A mechanic with a first-time tip. Raw values match `Mechanic` names in the level files.
 enum TutorialTopic: String, CaseIterable, Hashable {
-    case basic, sealed, murky, essence
+    case basic, sealed, murky, essence, narrowNeck, funnel, tap
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 
     /// Mechanics a recipe actually uses, in teaching order. A recipe with no special mechanic
     /// teaches the basic pour. `introduces` (the pack's metadata) is added for the recipe that
-    /// opens a chapter.
+    /// opens a chapter only when that recipe uses none of them itself: a chapter that brings
+    /// several mechanics (Glass Works: narrow neck, funnel, tap) teaches each one on the first
+    /// recipe that uses it, not all at once.
     static func topics(in level: LevelDefinition, introduces: [Mechanic] = []) -> [TutorialTopic] {
-        var found = Set(introduces.compactMap { TutorialTopic($0) })
-        found.formUnion(level.mechanics.compactMap { TutorialTopic($0) })
+        var found = Set(level.mechanics.compactMap { TutorialTopic($0) })
+        let introduced = Set(introduces.compactMap { TutorialTopic($0) })
+        if found.isDisjoint(with: introduced) { found.formUnion(introduced) }
         if found.subtracting([.basic]).isEmpty { found.insert(.basic) }
         return allCases.filter(found.contains)
     }

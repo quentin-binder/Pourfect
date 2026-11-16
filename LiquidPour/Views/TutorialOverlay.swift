@@ -3,7 +3,10 @@ import SwiftUI
 
 /// One page of a tip: a small scene drawn with the game's own flasks, a title and a sentence.
 struct TutorialStep: Identifiable {
-    enum Scene { case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut }
+    enum Scene {
+        case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut
+        case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
+    }
 
     let id: String
     let topic: TutorialTopic
@@ -51,6 +54,33 @@ struct TutorialStep: Identifiable {
                 TutorialStep(id: "essence.out", topic: topic, title: String(localized: "Pour out freely"),
                              text: String(localized: "You can always pour out of an essence flask. Clear the other potions out, then fill it with its own."),
                              scene: .essenceOut),
+            ]
+        case .narrowNeck:
+            return [
+                TutorialStep(id: "neck.out", topic: topic, title: String(localized: "Narrow necks"),
+                             text: String(localized: "A flask with a narrow neck and a brass collar lets one layer through per pour, even when more would fit."),
+                             scene: .neckOut),
+                TutorialStep(id: "neck.in", topic: topic, title: String(localized: "One at a time"),
+                             text: String(localized: "Pouring into a narrow neck works the same way: one layer per pour. Plan for the extra pours."),
+                             scene: .neckIn),
+            ]
+        case .funnel:
+            return [
+                TutorialStep(id: "funnel.in", topic: topic, title: String(localized: "Funnel flasks"),
+                             text: String(localized: "A flask with a brass funnel takes potions in like any flask, but nothing ever pours out of it."),
+                             scene: .funnelIn),
+                TutorialStep(id: "funnel.care", topic: topic, title: String(localized: "Fill it with care"),
+                             text: String(localized: "A potion poured into a funnel stays there for good. Only pour in what can fill it with one potion."),
+                             scene: .funnelCare),
+            ]
+        case .tap:
+            return [
+                TutorialStep(id: "tap.bottom", topic: topic, title: String(localized: "Tap flasks"),
+                             text: String(localized: "A flask with a brass tap pours from the bottom: the bottom potion runs out of the tap and the rest slides down."),
+                             scene: .tapBottom),
+                TutorialStep(id: "tap.in", topic: topic, title: String(localized: "Nothing goes in"),
+                             text: String(localized: "Nothing can be poured into a tap flask, not even a key. Drain it, or leave it full of one potion."),
+                             scene: .tapNoIn),
             ]
         }
     }
@@ -143,6 +173,9 @@ extension TutorialTopic {
         case .sealed: return String(localized: "New: sealed flasks")
         case .murky: return String(localized: "New: murky potions")
         case .essence: return String(localized: "New: essence flasks")
+        case .narrowNeck: return String(localized: "New: narrow necks")
+        case .funnel: return String(localized: "New: funnel flasks")
+        case .tap: return String(localized: "New: tap flasks")
         }
     }
 }
@@ -153,7 +186,7 @@ private struct TutorialScene: View {
     private let w: CGFloat = 34
 
     var body: some View {
-        HStack(alignment: .bottom, spacing: 24) {
+        HStack(alignment: .bottom, spacing: 18) {
             switch scene {
             case .pickAndPour:
                 BottleView(bottle: Bottle([0, 1, 1], capacity: 4), width: w, isSelected: true)
@@ -187,8 +220,8 @@ private struct TutorialScene: View {
                 Image(systemName: "equal").font(.title3).foregroundStyle(.secondary)
                 BottleView(bottle: Bottle([4, 4, 1], capacity: 4), width: w)
             case .murky:
-                BottleView(bottle: Bottle([5, 0, 6, 2], capacity: 4), width: w, hiddenLayers: 3)
-                BottleView(bottle: Bottle([3, 7, 7], capacity: 4), width: w, hiddenLayers: 1)
+                BottleView(bottle: Bottle([5, 0, 6, 2], capacity: 4), width: w, hidden: BottleView.bottomHidden(3, of: 4))
+                BottleView(bottle: Bottle([3, 7, 7], capacity: 4), width: w, hidden: BottleView.bottomHidden(1, of: 3))
             case .essence:
                 VStack(spacing: 6) {
                     BottleView(bottle: essence(0, [0, 0]), width: w)
@@ -208,10 +241,65 @@ private struct TutorialScene: View {
                 Image(systemName: "arrow.right").font(.title3).foregroundStyle(.secondary).padding(.bottom, w)
                 BottleView(bottle: essence(0, [0, 0, 0, 0]), width: w)
             case .reveal:
-                BottleView(bottle: Bottle([5, 0, 6, 6], capacity: 4), width: w, hiddenLayers: 2, isSelected: true)
+                BottleView(bottle: Bottle([5, 0, 6, 6], capacity: 4), width: w, hidden: BottleView.bottomHidden(2, of: 4),
+                           isSelected: true)
                     .offset(y: -14)
                 arrow
-                BottleView(bottle: Bottle([5, 0], capacity: 4), width: w, hiddenLayers: 1)
+                BottleView(bottle: Bottle([5, 0], capacity: 4), width: w, hidden: BottleView.bottomHidden(1, of: 2))
+            case .neckOut:
+                BottleView(bottle: glass(.narrowNeck, [0, 1, 1]), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: Bottle([1], capacity: 4), width: w)
+                equals
+                BottleView(bottle: glass(.narrowNeck, [0, 1]), width: w)
+                BottleView(bottle: Bottle([1, 1], capacity: 4), width: w)
+            case .neckIn:
+                BottleView(bottle: Bottle([2, 2, 2], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: glass(.narrowNeck, [2]), width: w)
+                equals
+                BottleView(bottle: Bottle([2, 2], capacity: 4), width: w)
+                BottleView(bottle: glass(.narrowNeck, [2, 2]), width: w)
+            case .funnelIn:
+                BottleView(bottle: Bottle([3, 1], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                VStack(spacing: 6) {
+                    BottleView(bottle: glass(.funnel, [1]), width: w)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
+                Image(systemName: "nosign").font(.title).foregroundStyle(.secondary).padding(.bottom, w)
+                VStack(spacing: 6) {
+                    BottleView(bottle: glass(.funnel, [4, 4]), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+            case .funnelCare:
+                VStack(spacing: 6) {
+                    BottleView(bottle: glass(.funnel, [5, 5, 5]), width: w)
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(.green)
+                }
+                VStack(spacing: 6) {
+                    BottleView(bottle: glass(.funnel, [5, 2]), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
+            case .tapBottom:
+                BottleView(bottle: glass(.tap, [0, 0, 2, 3]), width: w, isSelected: true)
+                    .offset(y: -14)
+                arrow
+                BottleView(bottle: Bottle([0], capacity: 4), width: w)
+                equals
+                BottleView(bottle: glass(.tap, [2, 3]), width: w)
+                BottleView(bottle: Bottle([0, 0, 0], capacity: 4), width: w)
+            case .tapNoIn:
+                BottleView(bottle: Bottle([6, 1], capacity: 4), width: w, isSelected: true)
+                    .offset(y: -14)
+                Image(systemName: "nosign").font(.title).foregroundStyle(.secondary).padding(.bottom, w)
+                VStack(spacing: 6) {
+                    BottleView(bottle: glass(.tap, [1, 6]), width: w)
+                    Image(systemName: "xmark.circle.fill").foregroundStyle(.red)
+                }
             }
         }
         .padding(.top, 18)
@@ -220,6 +308,18 @@ private struct TutorialScene: View {
     /// An essence flask with the rune of `color` holding `colors`.
     private func essence(_ color: Int, _ colors: [Int]) -> Bottle {
         Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4, modifiers: [.essence(ColorID(color))])
+    }
+
+    /// A flask with one glass works modifier holding `colors`.
+    private func glass(_ modifier: BottleModifier, _ colors: [Int]) -> Bottle {
+        Bottle(layers: colors.map { .color(ColorID($0)) }, capacity: 4, modifiers: [modifier])
+    }
+
+    private var equals: some View {
+        Image(systemName: "equal")
+            .font(.title3)
+            .foregroundStyle(.secondary)
+            .padding(.bottom, w)
     }
 
     private var arrow: some View {

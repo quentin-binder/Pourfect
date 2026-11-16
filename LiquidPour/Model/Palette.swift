@@ -97,17 +97,24 @@ extension Layer {
 
 extension Bottle {
     /// VoiceOver description of a flask's contents, bottom to top, with runs of the same potion
-    /// grouped. The bottom `hiddenLayers` are murky and not named.
-    func spokenContents(hiddenLayers: Int) -> String {
+    /// grouped. Layers flagged in `hidden` (0 = bottom) are murky and not named.
+    func spokenContents(hidden: [Bool]) -> String {
         var parts: [String] = []
-        if hiddenLayers > 0 {
-            parts.append(String(localized: "\(hiddenLayers) murky", comment: "Count of hidden layers in a flask"))
+        var murky = 0   // neighbouring murky layers are named as one group ("2 murky")
+        let flushMurky = {
+            if murky > 0 {
+                parts.append(String(localized: "\(murky) murky", comment: "Count of hidden layers in a flask"))
+                murky = 0
+            }
         }
-        for run in BottleView.runs(layers, hiddenLayers: hiddenLayers) where !run.hidden {
+        for run in BottleView.runs(layers, hidden: hidden) {
+            if run.hidden { murky += run.count; continue }
+            flushMurky()
             parts.append(run.count == 1 ? run.layer.spokenName
                                         : String(localized: "\(run.count) \(run.layer.spokenName)",
                                                  comment: "Layer count and potion name, e.g. 2 Moonshade"))
         }
+        flushMurky()
         var text = parts.isEmpty ? String(localized: "Empty") : parts.joined(separator: ", ")
         if Rules.isCompleted(self) { text += ", " + String(localized: "corked") }
         if let key = lockedBy {
@@ -117,6 +124,18 @@ extension Bottle {
         if let essence = essenceColor {
             text += ", " + String(localized: "essence flask, accepts \(Palette.potionName(essence.rawValue)) only",
                                   comment: "An essence flask; the argument is the only potion it takes")
+        }
+        if hasNarrowNeck {
+            text += ", " + String(localized: "narrow neck, one layer per pour",
+                                  comment: "VoiceOver: a narrow-neck flask moves one layer per pour, in or out")
+        }
+        if isFunnel {
+            text += ", " + String(localized: "funnel flask, fills only, never pours out",
+                                  comment: "VoiceOver: a funnel flask")
+        }
+        if hasTap {
+            text += ", " + String(localized: "tap flask, pours from the bottom, nothing goes in",
+                                  comment: "VoiceOver: a tap flask")
         }
         return text
     }
