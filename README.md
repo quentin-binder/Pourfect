@@ -117,7 +117,7 @@ else is a challenge).
   | Fireflies | 400 stars in the chapters |
   | Starburst | 50 gold seals |
 
-  A **New reward!** banner drops in when one unlocks (tap it to open Lab Style). The choice is a setting
+  A **New reward!** banner drops in when one unlocks (tap it to open Lab Style; it waits until a story scene is over). The choice is a setting
   (`settings.theme`, `settings.flaskShape`, `settings.potionEffect`); a choice that isn't unlocked shows the
   default. Announced rewards: `progress.rewardsAnnounced.v1`.
 - **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow

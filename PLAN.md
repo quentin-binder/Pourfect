@@ -225,6 +225,7 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] Short dialogue between chapters (apprentice + old alchemist): a scene on each chapter's first opening and an ending, portraits per mood, Skip, Story replay, VoiceOver, Reduce Motion (DECISIONS 236, 237, 240)
 - [x] Cosmetic rewards: workbench themes, flask shapes, potion effects, unlocked by milestones (`Rewards` in core), Lab Style screen, New reward toast (DECISIONS 238–241)
 - [x] Orders, story and cosmetics together: orders are bonus recipes for chapter milestones, the ending follows chapter 10's last own recipe, story before tips, tickets and card checked with the shapes and themes (DECISIONS 242)
+- [x] R7 review fixes: the pour leaves through a narrow mouth, Potion Bottle / Round-Bottom full width where the potion stands, reward toast waits for a story scene, story scenes take the keyboard, `LevelPack.progress` treats orders as bonus (DECISIONS 243)
 
 ## R8 — Release readiness (Milestone 7, no iCloud / Game Center / notifications)
 - [ ] Final bundle id + target rename to Pourfect; app icon, launch screen, App Store screenshots
