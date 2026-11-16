@@ -21,8 +21,9 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_04` | 4 Glyph Library | `c4_001…` | 30 | 7–26 | 16–55 | Essence flasks (one color only): 1–2 runes, then runes with murky layers or one seal |
 | `chapter_05` | 5 Glass Works | `c5_001…` | 30 | 6–24 | 17–56 | Narrow necks, then funnels, then taps; at the end all three and murky layers, a seal or a rune |
 | `chapter_06` | 6 Frost Peak | `c6_001…` | 30 | 7–27 | 18–50 | Frozen layers: a tutorial (two empty flasks), then one layer (one empty flask), then two; at the end with murky layers, a rune or a seal |
+| `chapter_07` | 7 Bubbling Bog | `c7_001…` | 30 | 4–25 | 15–52 | Bubbling flasks: one, then two (4 colors); at the end with murky layers and seals |
 
-Chapters 7–10 (Bubbling Bog … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
+Chapters 8–10 (Twin Towers … Dragon's Hoard, `ChapterOutline.plan`) show as "coming soon".
 Optional **Challenges** (never gated):
 
 | File | Pack | Ids | Levels | Moves | Score | What makes it hard |
@@ -149,6 +150,12 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   can be poured into the flask either (not even a key), and a tap flask can't pour at all while it holds ice. After
   every move (any pour, anywhere) each counter goes down by one; at 0 the layer thaws and is a normal layer. A
   recipe isn't won while ice remains, so sometimes a move elsewhere is needed just to wait. Undo restores the counters.
+- **Bubbling flasks** (chapter 7; at most 2 per recipe). A bubbling flask pours and receives like any flask, but it
+  has a period K (2–5): after every move (any pour, anywhere) its phase advances, and every K moves its *bottom*
+  layer rises to the *top* of the same flask (after the pour has landed, and after any thaw). An empty, one-layer or
+  one-color flask still counts but nothing visibly moves. A full one-color bubbling flask counts as sorted. It never
+  carries a tap or ice (a seal or a rune is fine). In murky levels the risen layer is on top, so it is revealed.
+  Undo restores the phases.
 
 ### Random Brew (random levels)
 
@@ -227,7 +234,7 @@ cd Packages/BottleSortCore
 swift test
 ```
 
-This runs 284 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 347 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -250,7 +257,12 @@ generator options, and chapter 5 (every glass flask, seal and rune matters). Fro
 rule case (layers above the ice, ice on top, taps, keys, narrow necks, the thaw step and its turn events, no win
 under ice), hand-made puzzles that need waiting moves, the solver against the naive BFS on 250 random ice levels,
 pruning that keeps every child while ice remains, keys with counters, JSON, validation, undo/restart restoring the
-counters, murky masks, the generator options, and chapter 6 (every frozen layer adds 2+ moves).
+counters, murky masks, the generator options, and chapter 6 (every frozen layer adds 2+ moves). Bubbling flasks too:
+every rule case (phase, rise after the pour, after the thaw, keys, no win change, refused moves don't tick), a
+hand-made puzzle that can only be solved with the rise and one the rise makes longer, the solver against the naive
+BFS on 250 random bubbling levels, pruning that keeps every distinct child, keys with period and phase, JSON,
+validation, undo/restart restoring the phases, murky masks that follow a rise, the generator options and tutorial
+checks, and chapter 7 (every bubbling flask changes the optimum by 2+ moves).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -258,10 +270,10 @@ You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift
 ```sh
 cd Packages/BottleSortCore
 
-# Regenerate all eight shipped files (output is deterministic; chapter 2 takes the longest)
+# Regenerate all ten shipped files (output is deterministic; chapter 2 takes the longest)
 swift run -c release levelgen --preset all --out-dir ../../Levels
 
-# One file: chapter1 | chapter2 | chapter3 | chapter4 | chapter5 | challenger | expert | master
+# One file: chapter1 | … | chapter7 | challenger | expert | master
 swift run -c release levelgen --preset chapter2 --out ../../Levels/chapter_02.json
 
 # One configuration; --pool 3 keeps the hardest 20 of 60 passing levels, --hidden makes "?" levels
@@ -290,11 +302,17 @@ swift run -c release levelgen --colors 5 --empty 2 --narrow 1 --tap 1 --glass-co
 # with two empty flasks unless there are two frozen layers: use --empty 1 for a single one
 swift run -c release levelgen --colors 4 --empty 1 --frozen 1:5 --frozen-cost 2 --count 5 --seed 1 --out ice.json
 
+# Bubbling flasks: --bubbling N:PERIOD makes N (≤ 2) flasks with 2+ layers (no tap, funnel, narrow neck or ice)
+# bubble every PERIOD (2…5) moves, each from a random phase; --bubbling-cost C rejects levels where a bubbling
+# flask changes the optimum by fewer than C moves, either way (BubblingImpact; --bubbling-matter = cost 1, the
+# chapter uses 2). Each flask multiplies the search: keep two-flask levels at ~4 colors
+swift run -c release levelgen --colors 4 --empty 2 --bubbling 1:3 --bubbling-cost 2 --count 5 --seed 1 --out bog.json
+
 # Re-solve every level of every file and print difficulty tables, sorted by score, plus the
-# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice) that doesn't matter
+# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice, bubbling) that doesn't matter
 swift run -c release levelgen --report ../../Levels
 
-# Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty, --narrow, --funnel, --tap, --frozen)
+# Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty, --narrow, --funnel, --tap, --frozen, --bubbling)
 swift run -c release levelgen --bench --colors 8 --count 10
 ```
 
@@ -307,7 +325,7 @@ Level files are JSON. Layers are listed bottom → top. A color layer is an inte
 `{"key": n}`. A locked bottle has `"lockedBy": n`, and `"hidden": true` turns on hidden layers for a level.
 Pack fields besides `version` and `levels` are optional: `name`, `subtitle`, `kind` (`"chapter"` or
 `"challenge"`), `chapter` (1-based, required for a chapter), `location` and `introduces` (mechanics a
-first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`, `"essence"`, `"narrowNeck"`, `"funnel"`, `"tap"`, `"frozen"`;
+first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`, `"essence"`, `"narrowNeck"`, `"funnel"`, `"tap"`, `"frozen"`, `"bubbling"`;
 unknown names still load):
 
 ```json
@@ -326,7 +344,8 @@ seal stays `lockedBy`), level `links` (`{"type": "twins", "between": [0, 4]}`, `
 `levelgen` and `LevelLoader.encode` write version 2 only when a level uses one of these, so chapters 1–3 and the
 challenges stay version 1 and `chapter_04` (essence runes), `chapter_05` (`{"type": "narrowNeck"}`,
 `{"type": "funnel"}`, `{"type": "tap"}`) and `chapter_06` (`{"type": "frozen", "layer": 2, "turns": 5}`, layer 0 =
-bottom) are version 2. Essence, glass and frozen layers are playable; the other
+bottom) and `chapter_07` (`{"type": "bubbling", "every": 3, "phase": 1}`, phase 0 when omitted) are version 2.
+Essence, glass, frozen layers and bubbling flasks are playable; the other
 R5/R7 mechanics are defined but not yet: such levels decode, but fail validation.
 
 To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
@@ -338,24 +357,26 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   through one modifier pipeline (`Rules.apply`, a switch where each flask modifier can veto or change it) and then the
   base rule (a color run moves, or a key opens its seal). The game, the solver and the generator all go through it.
 - **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`,
-  `.tap` and `.frozen(layer:turns:)` are implemented; `.bubbling`, `.cauldron` are defined for R5), the level has `links`
+  `.tap`, `.frozen(layer:turns:)` and `.bubbling(every:phase:)` are implemented; `.cauldron` is defined for R5), the level has `links`
   (twins, overflow, switch → gate) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
   case plus its arms in the `Rules` switches; key, JSON and validation already handle every case.
   `Bottle.lockedBy` remains as the seal's accessor, `Bottle.essenceColor` gives a flask's rune color,
   `hasNarrowNeck` / `isFunnel` / `hasTap` the glass, `frozenLayers` / `thawTurns(atLayer:)` / `holdsIce` /
-  `isIcedOver` the ice, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
+  `isIcedOver` the ice, `bubbling` (`Bubbling.every` / `phase` / `movesUntilRise`) / `isBubbling` a bubbling flask, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
   (a rune, a funnel, a tap, ice; a funnel, tap or ice is named even when the base rule refuses too, e.g. a full tap).
-  Automatic effects after the pour are `Turn.events` (`TurnEvent.thawed(bottle:layer:)`; `GameSession.lastEvents`). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
+  Automatic effects after the pour are `Turn.events` (`TurnEvent.thawed(bottle:layer:)`, then
+  `TurnEvent.bubbled(bottle:)`; `GameSession.lastEvents`; `Rules.sunk(_:)` gives a risen flask's layers before the rise). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
   whether it left from the bottom); `Rules.outlet(of:)` says which layers a flask would pour. `MechanicImpact` is the
-  "must matter" check for any mechanic (`LockImpact`, `EssenceImpact`, `GlassImpact` and `FrozenImpact` are its seal,
-  rune, glass and ice cases; a funnel matters by the trap it sets).
+  "must matter" check for any mechanic (`LockImpact`, `EssenceImpact`, `GlassImpact`, `FrozenImpact` and `BubblingImpact` are its
+  seal, rune, glass, ice and bubbling cases; a funnel matters by the trap it sets; necks, taps and bubbling count either way).
 - **Solver**: breadth-first search for the fewest moves. Each state gets a compact key that ignores
   bottle order (`StateKey`: one word per classic or sealed bottle; v2 adds variable-length words for other
   modifiers and a global section where links refer to bottles by canonical rank), and three pruning rules skip
   moves that can't change the outcome (on states whose flasks carry only seals, runes and glass, which have no state of
   their own; whole-content relocations are judged by the amount the pour really moves; an empty flask is only
   interchangeable with an empty flask carrying the same modifiers). While ice remains a relocation is a real
-  "wait" move (the counters tick), so only the empty-flask rule stays.
+  "wait" move (the counters tick), so only the empty-flask rule stays; while a flask bubbles, likewise, but all
+  relocations of a state are the same wait, so only the first one is tried.
   An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.
@@ -414,6 +435,6 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
 ## Next steps
 
 1. Playtest the pack and tune the score weights and tier ranges with real solve times.
-2. More chapters as their mechanics land (R5: chapters 6–10).
+2. More chapters as their mechanics land (R5: chapters 8–10).
 3. A full accessibility pass (VoiceOver already reads flask contents).
 4. Optional iCloud progress sync.
