@@ -12,6 +12,9 @@ struct GameView: View {
     @Environment(TutorialModel.self) private var tutorials
     @Environment(DailyModel.self) private var daily
     @Environment(\.dismiss) private var dismiss
+    @Environment(LevelCatalog.self) private var catalog
+    @Environment(ProgressModel.self) private var progress
+    @Environment(StoryPresenter.self) private var story
     /// The tip on screen, if any (first time a mechanic appears, or the "?" button).
     @State private var tip: [TutorialTopic]?
 
@@ -67,6 +70,17 @@ struct GameView: View {
             }
         }
         .onChange(of: model.cancelledPours) { FeedbackPlayer.cancelPending() }
+        // The ending (R7) plays once after the last recipe of the final chapter is solved,
+        // a moment after the win card appears.
+        .task(id: showsResult && isWon) {
+            guard showsResult, isWon, !model.isDemo, !model.isRush, !model.isDaily, !model.isRandom,
+                  let scene = Story.sceneAfterWin(recipeID: model.level.id,
+                                                  finalRecipeID: catalog.chapter(Story.finalChapter)?.levels.last?.id,
+                                                  seen: progress.storySeen) else { return }
+            try? await Task.sleep(for: .seconds(1.6))
+            guard !Task.isCancelled else { return }
+            story.show(scene)
+        }
         .onChange(of: tip == nil) { _, closed in rush?.isShowingTip = !closed }
         .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }
         .navigationTitle(model.title)

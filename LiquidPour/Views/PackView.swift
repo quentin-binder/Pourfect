@@ -9,6 +9,7 @@ struct PackView: View {
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
+    @Environment(StoryPresenter.self) private var story
 
     private let columns = [GridItem(.adaptive(minimum: 72, maximum: 96), spacing: 14)]
 
@@ -41,7 +42,38 @@ struct PackView: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
         .toolbar {
+            if let number = pack.chapter, !Story.replayable(chapter: number, seen: progress.storySeen).isEmpty {
+                ToolbarItem(placement: .primaryAction) { storyButton(number) }
+            }
             ToolbarItem(placement: .primaryAction) { SettingsButton() }
+        }
+        // The chapter's story scene plays the first time its recipe list opens (R7).
+        .task(id: pack.id) {
+            guard StoryPresenter.autoPlays, let number = pack.chapter,
+                  let scene = Story.sceneOnOpening(chapter: number, seen: progress.storySeen) else { return }
+            try? await Task.sleep(for: .milliseconds(350))
+            story.show(scene)
+        }
+    }
+
+    /// Replays the chapter's story scene; the last chapter also offers the ending once seen.
+    @ViewBuilder private func storyButton(_ number: Int) -> some View {
+        let scenes = Story.replayable(chapter: number, seen: progress.storySeen)
+        if scenes.count > 1 {
+            Menu {
+                ForEach(scenes, id: \.self) { scene in
+                    Button(scene == .ending ? String(localized: "Ending", comment: "Story menu: the ending scene")
+                                            : String(localized: "Chapter Story", comment: "Story menu: the chapter's scene")) {
+                        story.show(scene)
+                    }
+                }
+            } label: {
+                Label("Story", systemImage: "text.bubble")
+            }
+            .help(Text("Replay this chapter's story", comment: "Tooltip of the Story button"))
+        } else if let scene = scenes.first {
+            Button { story.show(scene) } label: { Label("Story", systemImage: "text.bubble") }
+                .help(Text("Replay this chapter's story", comment: "Tooltip of the Story button"))
         }
     }
 

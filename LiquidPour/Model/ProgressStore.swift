@@ -9,6 +9,12 @@ protocol ProgressStore {
     /// Recipe ids with a gold seal (R6). Saves from before R6 have none.
     func loadGoldSeals() -> Set<String>
     func saveGoldSeals(_ ids: Set<String>)
+    /// Story scenes already played (`StoryScene.id`, R7). Saves from before R7 have none.
+    func loadStorySeen() -> Set<String>
+    func saveStorySeen(_ ids: Set<String>)
+    /// Rewards whose "New reward!" toast was shown (`Reward.id`, R7).
+    func loadAnnouncedRewards() -> Set<String>
+    func saveAnnouncedRewards(_ ids: Set<String>)
 }
 
 struct UserDefaultsProgressStore: ProgressStore {
@@ -16,6 +22,8 @@ struct UserDefaultsProgressStore: ProgressStore {
     var key = "progress.bestStars.v1"
     /// Its own key: the stars dictionary keeps its v1 shape, so older builds still read it.
     var goldSealKey = "progress.goldSeals.v1"
+    var storyKey = "progress.storySeen.v1"
+    var rewardsKey = "progress.rewardsAnnounced.v1"
 
     func loadStars() -> [String: Int] {
         defaults.dictionary(forKey: key) as? [String: Int] ?? [:]
@@ -32,6 +40,22 @@ struct UserDefaultsProgressStore: ProgressStore {
     func saveGoldSeals(_ ids: Set<String>) {
         defaults.set(ids.sorted(), forKey: goldSealKey)
     }
+
+    func loadStorySeen() -> Set<String> {
+        Set(defaults.stringArray(forKey: storyKey) ?? [])
+    }
+
+    func saveStorySeen(_ ids: Set<String>) {
+        defaults.set(ids.sorted(), forKey: storyKey)
+    }
+
+    func loadAnnouncedRewards() -> Set<String> {
+        Set(defaults.stringArray(forKey: rewardsKey) ?? [])
+    }
+
+    func saveAnnouncedRewards(_ ids: Set<String>) {
+        defaults.set(ids.sorted(), forKey: rewardsKey)
+    }
 }
 
 /// Observable progress: best stars per level id; a level unlocks when the previous one is cleared.
@@ -42,11 +66,33 @@ final class ProgressModel {
     /// Recipes solved in their minimum without a hint (R6 "perfect brewer"). Separate from the
     /// stars: never read by any gate.
     private(set) var goldSeals: Set<String>
+    /// Story scenes already played (R7).
+    private(set) var storySeen: Set<String>
+    /// Rewards already announced with a "New reward!" toast (R7).
+    private(set) var announcedRewards: Set<String>
 
     init(store: ProgressStore) {
+        #if DEBUG
+        // Dev aid: `-LPResetStory 1` forgets which story scenes were played (at launch).
+        if UserDefaults.standard.bool(forKey: "LPResetStory") { store.saveStorySeen([]) }
+        #endif
         self.store = store
         self.bestStars = store.loadStars()
         self.goldSeals = store.loadGoldSeals()
+        self.storySeen = store.loadStorySeen()
+        self.announcedRewards = store.loadAnnouncedRewards()
+    }
+
+    func markStorySeen(_ scene: StoryScene) {
+        guard storySeen.insert(scene.id).inserted else { return }
+        store.saveStorySeen(storySeen)
+    }
+
+    func markAnnounced(_ ids: Set<String>) {
+        let all = announcedRewards.union(ids)
+        guard all != announcedRewards else { return }
+        announcedRewards = all
+        store.saveAnnouncedRewards(all)
     }
 
     func stars(for id: String) -> Int { ChapterGate.clampedStars(bestStars[id]) }

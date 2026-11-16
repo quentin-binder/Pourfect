@@ -145,7 +145,7 @@ final class GameViewModel {
     private let progress: ProgressModel?
     /// Set by the dev aid `-LPDemoMoves` (DEBUG): a demo win records no stars and no daily
     /// result, so automated runs leave the saved progress alone.
-    @ObservationIgnored private var isDemo = false
+    @ObservationIgnored private(set) var isDemo = false
     /// Set when playing a random level: the options used to make the next one.
     let randomOptions: RandomLevelOptions?
     /// Generates the next random level ("New Random Brew" on the win card).

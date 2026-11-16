@@ -9,6 +9,7 @@ struct LiquidPourApp: App {
     @State private var tutorials = TutorialModel(store: UserDefaultsTutorialStore())
     @State private var daily = DailyModel.makeDefault()
     @State private var rushRecords = RushRecordModel()
+    @State private var story = StoryPresenter()
 
     var body: some Scene {
         WindowGroup("Pourfect") {
@@ -18,6 +19,7 @@ struct LiquidPourApp: App {
                 .environment(tutorials)
                 .environment(daily)
                 .environment(rushRecords)
+                .environment(story)
                 .settingsEnvironment(settings)
         }
         #if os(macOS)

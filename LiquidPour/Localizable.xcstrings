@@ -1322,7 +1322,258 @@
     "Pair by pair" : {},
     "Each poured layer mixes with one layer below it into two layers of the new potion. Poured layers left over stay on top." : {},
     "Only in the cauldron" : {},
-    "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {}
+    "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {},
+    "New reward: %@" : {
+      "comment" : "VoiceOver announcement when rewards unlock"
+    },
+    "Apprentice" : {
+      "comment" : "Story speaker name"
+    },
+    "Alchemist" : {
+      "comment" : "Story speaker name"
+    },
+    "Welcome to my cellar, young one. Every great alchemist starts down here, among the dusty flasks." : {
+      "comment" : "Story, chapter 1 (Apprentice Cellar)"
+    },
+    "It's all mixed up! Is that three different potions in one flask?" : {
+      "comment" : "Story, chapter 1 (Apprentice Cellar)"
+    },
+    "Pour onto a matching potion or into an empty flask. One potion per flask, and we'll have order by supper." : {
+      "comment" : "Story, chapter 1 (Apprentice Cellar)"
+    },
+    "Sorting potions. I can do that!" : {
+      "comment" : "Story, chapter 1 (Apprentice Cellar)"
+    },
+    "This vault hasn't been opened in a hundred years. And these flasks are sealed shut!" : {
+      "comment" : "Story, chapter 2 (Rune Vault)"
+    },
+    "Rune seals. Somewhere in the other flasks lies a rune-stone key of the same metal. Pour it onto its seal and the lock gives way." : {
+      "comment" : "Story, chapter 2 (Rune Vault)"
+    },
+    "A treasure hunt inside a puzzle. Best day ever." : {
+      "comment" : "Story, chapter 2 (Rune Vault)"
+    },
+    "Mind your step. The marsh mist creeps into the flasks and clouds whatever lies beneath." : {
+      "comment" : "Story, chapter 3 (Misty Marsh)"
+    },
+    "So I can't see what's at the bottom?" : {
+      "comment" : "Story, chapter 3 (Misty Marsh)"
+    },
+    "Not until you pour off what's on top. A good alchemist is patient, and a little curious." : {
+      "comment" : "Story, chapter 3 (Misty Marsh)"
+    },
+    "So many books! Wait, that flask has a glowing rune on it." : {
+      "comment" : "Story, chapter 4 (Glyph Library)"
+    },
+    "An essence flask. It takes only the potion its rune names, and politely refuses everything else." : {
+      "comment" : "Story, chapter 4 (Glyph Library)"
+    },
+    "Politely?" : {
+      "comment" : "Story, chapter 4 (Glyph Library)"
+    },
+    "It glares a little. Plan ahead and it will be your best helper." : {
+      "comment" : "Story, chapter 4 (Glyph Library)"
+    },
+    "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
+      "comment" : "Story, chapter 5 (Glass Works)"
+    },
+    "Some of them look funny. That one has a skinny neck, and that one has a tap on its side!" : {
+      "comment" : "Story, chapter 5 (Glass Works)"
+    },
+    "A narrow neck lets one layer through at a time, a funnel only takes potions in, and a tap pours from the bottom. Each one changes how the potions flow." : {
+      "comment" : "Story, chapter 5 (Glass Works)"
+    },
+    "Brr! My potions froze solid on the way up the mountain." : {
+      "comment" : "Story, chapter 6 (Frost Peak)"
+    },
+    "Frozen layers can't be poured. But watch the little numbers on the ice: every pour you make brings the thaw closer." : {
+      "comment" : "Story, chapter 6 (Frost Peak)"
+    },
+    "So I keep brewing and they melt on their own. Cold hands, warm heart!" : {
+      "comment" : "Story, chapter 6 (Frost Peak)"
+    },
+    "Careful now. The bog air makes some of the flasks bubble." : {
+      "comment" : "Story, chapter 7 (Bubbling Bog)"
+    },
+    "What happens when they bubble?" : {
+      "comment" : "Story, chapter 7 (Bubbling Bog)"
+    },
+    "Every few pours the bottom potion rises to the top. The little dial counts down to it." : {
+      "comment" : "Story, chapter 7 (Bubbling Bog)"
+    },
+    "A flask that stirs itself? I like this bog." : {
+      "comment" : "Story, chapter 7 (Bubbling Bog)"
+    },
+    "Why are these two flasks chained together?" : {
+      "comment" : "Story, chapter 8 (Twin Towers)"
+    },
+    "Twins. Pour into one and the potion is shared evenly between both. And pour into a full flask with a brass pipe, and it pushes its bottom layer across." : {
+      "comment" : "Story, chapter 8 (Twin Towers)"
+    },
+    "Chains, pipes… everything in these towers is connected!" : {
+      "comment" : "Story, chapter 8 (Twin Towers)"
+    },
+    "Then think in pairs, and the towers will dance for you." : {
+      "comment" : "Story, chapter 8 (Twin Towers)"
+    },
+    "My old hall, and my favorite cauldron. Here we don't just sort potions, we brew them." : {
+      "comment" : "Story, chapter 9 (Alchemist's Hall)"
+    },
+    "The card under the cauldron shows two potions… and a new one?" : {
+      "comment" : "Story, chapter 9 (Alchemist's Hall)"
+    },
+    "Pour one ingredient onto the other inside the cauldron and they become the potion on the card." : {
+      "comment" : "Story, chapter 9 (Alchemist's Hall)"
+    },
+    "Real brewing at last!" : {
+      "comment" : "Story, chapter 9 (Alchemist's Hall)"
+    },
+    "Is that… a dragon? Asleep on a mountain of gold?" : {
+      "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "Shh. Its hoard is kept behind gates. Fill a switch flask to the top with one potion and its gate lifts." : {
+      "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "And the dragon?" : {
+      "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "Dragons love a tidy shelf. Let's not keep it waiting." : {
+      "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "Every flask sorted, every gate open… and listen, the dragon is purring!" : {
+      "comment" : "Story, ending"
+    },
+    "From a dusty cellar to a dragon's hoard. You're no apprentice any more, my friend." : {
+      "comment" : "Story, ending"
+    },
+    "But… what happens now?" : {
+      "comment" : "Story, ending"
+    },
+    "Now we put the kettle on. And tomorrow, there's always a new brew." : {
+      "comment" : "Story, ending"
+    },
+    "Chapter %lld · %@" : {
+      "comment" : "Story scene heading"
+    },
+    "Epilogue" : {
+      "comment" : "Story scene heading for the ending"
+    },
+    "Replay this chapter's story" : {
+      "comment" : "Tooltip of the Story button"
+    },
+    "Ending" : {
+      "comment" : "Story menu: the ending scene"
+    },
+    "Chapter Story" : {
+      "comment" : "Story menu: the chapter's scene"
+    },
+    "Story" : {},
+    "Workbench themes, flask shapes and potion effects" : {
+      "comment" : "Tooltip of the Lab Style button"
+    },
+    "Lab Style" : {
+      "comment" : "Title of the cosmetic rewards screen"
+    },
+    "Earn new looks for your lab by playing: finish chapters, collect stars and gold seals, keep a Daily Brew streak or set a Rush record." : {},
+    "In use" : {
+      "comment" : "Lab Style: the chosen reward"
+    },
+    "Ready to use" : {
+      "comment" : "Lab Style: an unlocked reward"
+    },
+    "%@, in use" : {
+      "comment" : "VoiceOver: the chosen Lab Style reward"
+    },
+    "%@, unlocked" : {
+      "comment" : "VoiceOver: an unlocked Lab Style reward"
+    },
+    "%@, locked. %@. %lld of %lld." : {
+      "comment" : "VoiceOver: a locked Lab Style reward, how to earn it and the progress"
+    },
+    "%@, locked. %@." : {
+      "comment" : "VoiceOver: a locked Lab Style reward and how to earn it"
+    },
+    "Opens Lab Style" : {},
+    "New reward!" : {
+      "comment" : "Toast title when a cosmetic reward unlocks"
+    },
+    "%@ and %@" : {
+      "comment" : "Toast: two new rewards"
+    },
+    "%@ and %lld more" : {
+      "comment" : "Toast: several new rewards"
+    },
+    "%@: %@" : {
+      "comment" : "VoiceOver: a story line, speaker then line"
+    },
+    "Ends the story scene" : {},
+    "Skip" : {
+      "comment" : "Skips the rest of a story scene"
+    },
+    "Line %lld of %lld" : {},
+    "Alchemist's Workbench" : {
+      "comment" : "Workbench theme name"
+    },
+    "Forest Hut" : {
+      "comment" : "Workbench theme name"
+    },
+    "Frost Lab" : {
+      "comment" : "Workbench theme name"
+    },
+    "Dragon's Lair" : {
+      "comment" : "Workbench theme name"
+    },
+    "Classic Flask" : {
+      "comment" : "Flask shape name"
+    },
+    "Potion Bottle" : {
+      "comment" : "Flask shape name"
+    },
+    "Round-Bottom Flask" : {
+      "comment" : "Flask shape name"
+    },
+    "Conical Flask" : {
+      "comment" : "Flask shape name"
+    },
+    "Sparkles" : {
+      "comment" : "Completion effect name"
+    },
+    "Bubble Pop" : {
+      "comment" : "Completion effect name"
+    },
+    "Fireflies" : {
+      "comment" : "Completion effect name"
+    },
+    "Starburst" : {
+      "comment" : "Completion effect name"
+    },
+    "Flasks" : {
+      "comment" : "Lab Style section: flask shapes"
+    },
+    "Potion Effects" : {
+      "comment" : "Lab Style section: completion effects"
+    },
+    "The painting behind your flasks." : {},
+    "The shape of every flask on the board. Flasks hold just as much in any shape." : {},
+    "What bursts out of a flask when you cork it. Reduce Motion shows none." : {},
+    "Yours from the start" : {
+      "comment" : "Lab Style: a reward everyone owns"
+    },
+    "Solve every recipe in %@" : {
+      "comment" : "Lab Style milestone; the argument is a chapter name"
+    },
+    "Earn %lld stars in the chapters" : {
+      "comment" : "Lab Style milestone"
+    },
+    "Earn %lld gold seals" : {
+      "comment" : "Lab Style milestone"
+    },
+    "Brew %lld recipes in one Rush" : {
+      "comment" : "Lab Style milestone"
+    },
+    "Solve the Daily Brew %lld days in a row" : {
+      "comment" : "Lab Style milestone"
+    }
   },
   "version" : "1.0"
 }

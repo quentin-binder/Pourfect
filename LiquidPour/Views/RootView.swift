@@ -20,17 +20,28 @@ struct RootView: View {
     @Environment(ProgressModel.self) private var progress
     @Environment(DailyModel.self) private var daily
     @Environment(RushRecordModel.self) private var rushRecords
+    @Environment(StoryPresenter.self) private var story
+    @Environment(AppSettings.self) private var settings
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.effectiveReduceMotion) private var reduceMotion
     @State private var path: [Route] = []
+    /// Rewards just unlocked, shown in the "New reward!" toast (R7).
+    @State private var toast: [Reward]?
+    @State private var showsLabStyle = false
     #if DEBUG && os(macOS)
     @Environment(\.openSettings) private var openSettings
     #endif
 
     var body: some View {
+        let stats = progress.playerStats(catalog: catalog, bestDailyStreak: daily.stats.bestStreak,
+                                         rushBest: rushRecords.best)
+        let unlocked = progress.unlockedRewards(stats)
+        let cosmetics = settings.value.cosmetics.resolved(unlocked: unlocked)
         NavigationStack(path: $path) {
             ChapterMapView(onOpenChapter: { path.append(.pack($0)) },
                            onChallenges: { path.append(.challenges) },
-                           onDaily: { path.append(.daily) })
+                           onDaily: { path.append(.daily) },
+                           onLabStyle: { showsLabStyle = true })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
                     case .pack(let packID):
@@ -59,12 +70,54 @@ struct RootView: View {
                     }
                 }
         }
+        .cosmetics(cosmetics)
+        .overlay(alignment: .top) {
+            if let toast {
+                RewardToast(rewards: toast) {
+                    self.toast = nil
+                    showsLabStyle = true
+                }
+                .padding(.top, 8)
+                .padding(.horizontal, 16)
+                .transition(reduceMotion ? .opacity : .move(edge: .top).combined(with: .opacity))
+                .task(id: toast.map(\.id)) {
+                    try? await Task.sleep(for: .seconds(5))
+                    withAnimation { self.toast = nil }
+                }
+            }
+        }
+        .overlay {
+            if let scene = story.scene {
+                StoryOverlay(scene: scene, startLine: story.startLine) {
+                    progress.markStorySeen(scene)
+                    withAnimation(reduceMotion ? nil : .easeInOut(duration: 0.3)) { story.finish() }
+                }
+                .id(scene)
+                .transition(.opacity)
+            }
+        }
+        .sheet(isPresented: $showsLabStyle) {
+            NavigationStack { LabStyleView() }
+                .cosmetics(cosmetics)
+        }
+        // New rewards: announce each once (never the starters; nothing with `-LPUnlockAll`).
+        .onChange(of: unlocked, initial: true) { _, now in announce(now) }
         // A new UTC day may have started while the app was in the background.
         .onChange(of: scenePhase) { _, phase in if phase == .active { daily.refresh() } }
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
         .task { await openFromLaunchArguments() }
         #endif
+    }
+
+    private func announce(_ unlocked: Set<String>) {
+        guard !ProgressModel.unlockAll else { return }
+        let fresh = Rewards.newlyUnlocked(unlocked, announced: progress.announcedRewards)
+        guard !fresh.isEmpty else { return }
+        progress.markAnnounced(Set(fresh.map(\.id)))
+        withAnimation(reduceMotion ? nil : .spring(duration: 0.4)) { toast = fresh }
+        let text = String(localized: "New reward: \(RewardToast.summary(fresh))", comment: "VoiceOver announcement when rewards unlock")
+        AccessibilityNotification.Announcement(text).post()
     }
 
     /// A new Rush run with a fresh seed, using the mechanics the player has met on the main path.
@@ -102,6 +155,14 @@ struct RootView: View {
     private func openFromLaunchArguments() async {
         guard path.isEmpty else { return }
         let defaults = UserDefaults.standard
+        // `-LPShowStory N` plays chapter N's story scene (`-LPShowStory ending`: the ending) over
+        // whatever else opens; `-LPStoryLine K` opens it on line K (1-based).
+        if let raw = defaults.string(forKey: "LPShowStory") {
+            let scene = raw == "ending" ? StoryScene.ending : Int(raw).map(StoryScene.chapter)
+            if let scene { story.show(scene, line: max(0, defaults.integer(forKey: "LPStoryLine") - 1)) }
+        }
+        // `-LPOpenLabStyle 1` opens the Lab Style rewards screen.
+        if defaults.bool(forKey: "LPOpenLabStyle") { showsLabStyle = true }
         if defaults.bool(forKey: "LPOpenDaily") || defaults.bool(forKey: "LPPlayDaily") {
             path = [.daily]
             guard defaults.bool(forKey: "LPPlayDaily") else { return }
