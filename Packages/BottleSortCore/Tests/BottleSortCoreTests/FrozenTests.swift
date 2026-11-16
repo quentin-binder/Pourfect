@@ -68,6 +68,22 @@ private func ice(_ layer: Int, _ turns: Int) -> BottleModifier { .frozen(layer: 
         #expect(Rules.resolve(plain, afterAction: .pour(Move(from: 0, to: 1)))?.events == [])
     }
 
+    @Test func outletBlockerNamesWhatKeepsAFlaskShut() {
+        // Ice on top: the ice. Ice lower down: nothing (the layers above it pour).
+        #expect(Rules.outletBlocker(of: bottle([0, 1, 1], capacity: 4, [ice(2, 2)])) == ice(2, 2))
+        #expect(Rules.outletBlocker(of: bottle([0, 1, 1], capacity: 4, [ice(0, 2)])) == nil)
+        // A tap flask holding ice: the ice (the bottom is pinned), wherever it is.
+        #expect(Rules.outletBlocker(of: bottle([0, 1, 2], capacity: 3, [.tap, ice(1, 3)])) == ice(1, 3))
+        // A sealed flask with a frozen top: the seal, which stays after the thaw.
+        let sealed = bottle([0, 1, 1], capacity: 4, [.sealed(KeyID(1)), ice(2, 2)])
+        #expect(Rules.outlet(of: sealed) == nil)
+        #expect(Rules.outletBlocker(of: sealed) == .sealed(KeyID(1)))
+        // A funnel never pours, ice or not; an empty or open flask has no blocker.
+        #expect(Rules.outletBlocker(of: bottle([0, 1], capacity: 4, [.funnel, ice(1, 2)])) == .funnel)
+        #expect(Rules.outletBlocker(of: bottle([], capacity: 4, [.funnel])) == nil)
+        #expect(Rules.outletBlocker(of: bottle([0, 1], capacity: 4)) == nil)
+    }
+
     @Test func aTapCantPourWhileItsFlaskHoldsIce() throws {
         let s = GameState(bottles: [bottle([0, 1, 2], capacity: 3, [.tap, ice(2, 1)]), bottle([0, 0], capacity: 3),
                                     bottle([2, 2], capacity: 3), bottle([1, 1], capacity: 3)])
@@ -486,6 +502,33 @@ private func ice(_ layer: Int, _ turns: Int) -> BottleModifier { .frozen(layer: 
         #expect(Generator.isPresolved(bottle([1, 1, 1, 1], capacity: 4, [ice(3, 4)])))
     }
 
+    @Test func relocationIsAWait() {
+        // A finished flask poured into the empty one is a relocation; a partial pour isn't.
+        let s = GameState(bottles: [bottle([1, 1], capacity: 2), bottle([0, 1], capacity: 2), bottle([], capacity: 2),
+                                    bottle([0], capacity: 2)])
+        #expect(FrozenImpact.isRelocation(Move(from: 0, to: 2), in: s))
+        #expect(!FrozenImpact.isRelocation(Move(from: 1, to: 2), in: s))
+        #expect(!FrozenImpact.isRelocation(Move(from: 1, to: 3), in: s))
+        // Ice on top for 2 moves, one move to make once it thaws: the only 3-move solutions
+        // spend a move parking the finished flask; without that, 3 moves aren't enough.
+        let wait = GameState(bottles: [bottle([0, 1], capacity: 2, [ice(1, 2)]), bottle([1], capacity: 2),
+                                       bottle([0], capacity: 2), bottle([2, 2], capacity: 2), bottle([], capacity: 2)])
+        let report = Solver().solve(wait)
+        guard case .solved(let moves, _) = report else { Issue.record("unsolved"); return }
+        #expect(!FrozenImpact.solvesWithoutRelocation(wait, in: moves.count))
+        #expect(!FrozenImpact.everyIceHasALayerAbove(wait))
+        // Pouring from above the ice: here the 0 above the ice goes onto the other 0.
+        let above = GameState(bottles: [bottle([1, 0], capacity: 2, [ice(0, 1)]), bottle([0], capacity: 2),
+                                        bottle([1], capacity: 2)])
+        #expect(FrozenImpact.solvesWithoutRelocation(above, in: 2, pouringAboveIce: true))
+        // Here only the flask without ice ever pours.
+        let below = GameState(bottles: [bottle([1, 1], capacity: 2, [ice(0, 1)]), bottle([0], capacity: 2),
+                                        bottle([0], capacity: 2)])
+        #expect(FrozenImpact.solvesWithoutRelocation(below, in: 2))
+        #expect(!FrozenImpact.solvesWithoutRelocation(below, in: 2, pouringAboveIce: true))
+        #expect(FrozenImpact.everyIceHasALayerAbove(GameState(bottles: [bottle([0, 1], capacity: 2, [ice(0, 2)])])))
+    }
+
     @Test func generationIsDeterministicAndIceMatters() throws {
         let config = GeneratorConfig(colors: 3, capacity: 3, emptyBottles: 2, seed: 1, frozen: 2, frozenMaxTurns: 3,
                                      requireFrozenMatter: true, frozenCost: FrozenImpact.strongCost)
@@ -519,6 +562,17 @@ private func ice(_ layer: Int, _ turns: Int) -> BottleModifier { .frozen(layer: 
         let tutorial = try #require(pack.levels.first)
         #expect(tutorial.capacity == 3 && tutorial.mechanics == [.frozen] && (tutorial.meta?.minMoves ?? 99) <= 8)
         #expect(tutorial.gameState.bottles.flatMap(\.frozenLayers).count == 1)
+        // It teaches both halves of the rule (a layer above the ice pours) and every star
+        // is reachable without parking a finished flask in the empty one to wait.
+        #expect(FrozenImpact.everyIceHasALayerAbove(tutorial.gameState))
+        #expect(FrozenImpact.solvesWithoutRelocation(tutorial.gameState, in: tutorial.meta?.minMoves ?? 0,
+                                                     pouringAboveIce: true))
+        // No first move is a dead end.
+        let start = tutorial.gameState
+        for move in start.legalMoves() {
+            let next = try #require(start.pouring(move))
+            if case .solved = Solver().solve(next) {} else { Issue.record("\(move) is a dead end") }
+        }
         // Earlier mechanics join only at the end.
         #expect(!pack.levels.prefix(15).contains { $0.mechanics != [.frozen] })
         #expect(pack.levels.suffix(15).contains { $0.isHidden })
@@ -526,7 +580,7 @@ private func ice(_ layer: Int, _ turns: Int) -> BottleModifier { .frozen(layer: 
         #expect(pack.levels.suffix(15).contains { $0.mechanics.contains(.essence) })
         let scores = pack.levels.compactMap { $0.meta?.score }
         #expect(scores.count == pack.levels.count)
-        #expect(scores.first! < 20 && scores.max()! >= 50 && scores.max()! <= 60)
+        #expect(scores.first! < 20 && scores.first! < scores[1] && scores.max()! >= 50 && scores.max()! <= 60)
     }
 
     /// Every frozen layer adds 2+ moves (the tutorial's too), and seals and runes matter as

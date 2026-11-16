@@ -8,20 +8,23 @@
     {
       "bottles" : [
         {
-          "layers" : [2, 1, 1],
+          "layers" : [2, 2, 1]
+        },
+        {
+          "layers" : [1, 2, 0],
           "modifiers" : [
             {
-              "layer" : 2,
+              "layer" : 1,
               "turns" : 5,
               "type" : "frozen"
             }
           ]
         },
         {
-          "layers" : [1, 2, 0]
+          "layers" : [1, 0, 0]
         },
         {
-          "layers" : [0, 0, 2]
+          "layers" : []
         },
         {
           "layers" : []
@@ -30,12 +33,12 @@
       "capacity" : 3,
       "id" : "c6_001",
       "meta" : {
-        "branchingFactor" : 1.71,
-        "deadEndRatio" : 0.133,
+        "branchingFactor" : 4.14,
+        "deadEndRatio" : 0,
         "minMoves" : 7,
-        "score" : 18.9,
-        "seed" : 11181,
-        "statesExplored" : 14
+        "score" : 17.9,
+        "seed" : 11014,
+        "statesExplored" : 58
       }
     },
     {

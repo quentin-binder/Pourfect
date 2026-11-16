@@ -207,6 +207,10 @@ struct Tier {
     var frozenCost: Int? = nil
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
+    /// Frozen tutorial: every frozen layer has a layer above it (`FrozenImpact.everyIceHasALayerAbove`),
+    /// and an optimal solution needs no relocation and pours from above the ice
+    /// (`FrozenImpact.solvesWithoutRelocation(_:in:pouringAboveIce:)`).
+    var teachesIce = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
 }
@@ -348,9 +352,10 @@ let packPresets: [String: PackPreset] = [
     "chapter6": PackPreset(file: "chapter_06", idPrefix: "c6", name: "Frost Peak",
                            subtitle: "Frozen layers wait for the thaw", kind: .chapter, chapter: 6,
                            location: "Frost Peak", introduces: [.frozen], seed: 11_000, tiers: [
-        // Tutorial: 3 colors in size-3 flasks, one empty flask, one frozen layer that costs 2+ moves.
-        Tier(count: 1, colors: 3, capacity: 3, empty: 1, moves: any, pool: 4, frozen: 1, frozenTurns: 5,
-             frozenCost: FrozenImpact.strongCost, keepEasiest: true, section: 0),
+        // Tutorial: 3 colors in size-3 flasks, two empty flasks, one frozen layer that costs 2+ moves,
+        // with a layer above it that pours on the way, and every star reachable without parking a flask.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 2, moves: any, pool: 16, frozen: 1, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, keepEasiest: true, teachesIce: true, section: 0),
         // Ice only, sorted together by score: one frozen layer (with two empty flasks a single
         // layer almost never costs 2 moves, so one empty flask), then two (two empty flasks).
         Tier(count: 2, colors: 3, capacity: 4, empty: 1, moves: any, frozen: 1, frozenTurns: 4,
@@ -433,6 +438,13 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                 log("  seed \(level.seed): minMoves \(level.report.minMoves), score \(level.report.score)")
             }
         } catch { fail("tier \(t + 1) (\(tier.colors) colors): \(error)") }
+        if tier.teachesIce {
+            generated = generated.filter {
+                FrozenImpact.everyIceHasALayerAbove($0.state)
+                    && FrozenImpact.solvesWithoutRelocation($0.state, in: $0.report.minMoves, pouringAboveIce: true)
+            }
+            if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the ice; raise the pool") }
+        }
         // Keep the hardest (or, for a tutorial, the easiest) `count` of the pool.
         let hardestFirst = generated.sorted { ($0.report.score, $1.seed) > ($1.report.score, $0.seed) }
         let kept = tier.keepEasiest ? hardestFirst.reversed().prefix(tier.count) : hardestFirst.prefix(tier.count)

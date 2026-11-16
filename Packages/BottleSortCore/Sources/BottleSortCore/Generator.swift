@@ -591,6 +591,55 @@ public enum FrozenImpact {
                                           limits: SolverLimits = .default) -> Bool {
         instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
     }
+
+    /// Whether `move` only relocates a flask: all of it goes into an empty flask, so the
+    /// position is the same with two flasks swapped and the move just spends a turn (a
+    /// "wait" while the ice thaws).
+    public static func isRelocation(_ move: Move, in state: GameState) -> Bool {
+        guard state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
+              state.bottles[move.to].isEmpty, let next = state.pouring(move) else { return false }
+        return next.bottles[move.from].isEmpty
+    }
+
+    /// Whether `state` can be solved in `moves` moves or fewer without a relocation
+    /// (`isRelocation`), so the optimal play never needs a pure wait (for a tutorial: a
+    /// player who never "parks" a flask still gets every star). With `pouringAboveIce`, the
+    /// solution must also pour out of a flask while it holds ice (the potion above the ice
+    /// is part of the play, not only a trap). Breadth-first, at most `maxStates` states;
+    /// false if the budget runs out.
+    public static func solvesWithoutRelocation(_ state: GameState, in moves: Int, pouringAboveIce: Bool = false,
+                                               maxStates: Int = 200_000) -> Bool {
+        struct Node: Hashable { let key: StateKey; let poured: Bool }
+        if state.isSolved { return !pouringAboveIce }
+        var seen: Set<Node> = [Node(key: state.canonicalKey, poured: !pouringAboveIce)]
+        var frontier = [(state, !pouringAboveIce)]
+        for _ in 0..<moves {
+            var next: [(GameState, Bool)] = []
+            for (current, poured) in frontier {
+                for move in current.legalMoves() where !isRelocation(move, in: current) {
+                    guard let child = current.pouring(move) else { continue }
+                    let childPoured = poured || current.bottles[move.from].holdsIce
+                    if child.isSolved {
+                        if childPoured { return true }
+                        continue
+                    }
+                    guard seen.insert(Node(key: child.canonicalKey, poured: childPoured)).inserted else { continue }
+                    if seen.count > maxStates { return false }
+                    next.append((child, childPoured))
+                }
+            }
+            if next.isEmpty { return false }
+            frontier = next
+        }
+        return false
+    }
+
+    /// Whether every frozen layer has a layer above it, so the potion above the ice can be
+    /// poured (the tutorial shows both halves of the rule: what the ice holds and what
+    /// still moves).
+    public static func everyIceHasALayerAbove(_ state: GameState) -> Bool {
+        state.bottles.allSatisfy { bottle in bottle.frozenLayers.allSatisfy { $0.layer < bottle.layers.count - 1 } }
+    }
 }
 
 extension MechanicImpact {

@@ -293,6 +293,21 @@ public enum Rules {
         return (plan.fromBottom ? 0..<amount : (count - amount)..<count, plan.fromBottom)
     }
 
+    /// Why nothing can be poured out of `bottle`, whatever the target (for the app's
+    /// refusal when a flask can't be picked up): the first source-side modifier of the
+    /// pipeline that vetoes, in the order `outlet` runs them. A seal comes before ice, so a
+    /// sealed flask with a frozen top is refused by its seal (it stays shut after the thaw).
+    /// nil if the flask is empty or something can leave it (`outlet` is non-nil).
+    public static func outletBlocker(of bottle: Bottle) -> BottleModifier? {
+        guard let top = bottle.topLayer else { return nil }
+        var plan = PourPlan(layer: top)
+        let target = Bottle(capacity: 0)
+        for modifier in bottle.modifiers where !apply(modifier, as: .source, to: &plan, source: bottle, target: target) {
+            return modifier
+        }
+        return nil
+    }
+
     // MARK: - Turn order (MECHANICS.md §4)
 
     /// Applies a player action and then every rule that follows it, in the fixed order
