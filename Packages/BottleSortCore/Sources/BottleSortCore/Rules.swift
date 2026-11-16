@@ -889,8 +889,8 @@ public enum Rules {
     }
 
     /// The link that refuses `move`, for the app's feedback: a switch link when either end of
-    /// the pour is its closed gate (A3) and the pour would be legal between the two bottles
-    /// alone ("the gate is shut"); a twin link when the pour into one twin is illegal although
+    /// the pour is its closed gate (A3) and the pour would be legal with every gate open
+    /// ("the gate is shut"); a twin link when the pour into one twin is illegal although
     /// it would be legal between the two bottles alone (from one twin into the other, a single
     /// layer that can't be split, a twin that is full or has another color on top) ("twins
     /// share every pour"); a pressure pipe when its flask is full with the poured color on top
@@ -901,9 +901,15 @@ public enum Rules {
         guard move.from != move.to, state.bottles.indices.contains(move.from), state.bottles.indices.contains(move.to),
               state.hasLinks, !isLegal(move, in: state) else { return nil }
         let source = state.bottles[move.from], target = state.bottles[move.to]
-        if plan(from: source, to: target) != nil {
-            for bottle in [move.from, move.to] where isGateClosed(bottle, in: state) {
-                return state.link(at: bottle)
+        if touchesClosedGate(move, in: state) {
+            // The gate is the reason when the pour would be legal with every gate open (so a
+            // pour into a full pipe flask that could push is the gate's fault, not the pipe's).
+            var open = state
+            open.links.removeAll { if case .switchGate = $0 { true } else { false } }
+            if isLegal(move, in: open) {
+                for bottle in [move.from, move.to] where isGateClosed(bottle, in: state) {
+                    return state.link(at: bottle)
+                }
             }
         }
         guard let link = state.link(at: move.to) else { return nil }

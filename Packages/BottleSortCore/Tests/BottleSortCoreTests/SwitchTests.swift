@@ -403,6 +403,36 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         #expect(!good.validate().contains { if case .unsupportedMechanic = $0 { true } else { false } })
     }
 
+    /// Switches and pressure pipes together: a gate or switch can't be a pipe end (one link per
+    /// flask), so a push never reaches a gate; a closed gate refuses a pour into the pipe's flask
+    /// before the pipe is looked at, and a push between other flasks works beside a closed gate.
+    @Test func switchesAndPressurePipes() throws {
+        let good = SwitchSolverTests.needsTheSwitch
+        for pipe in [Link.overflow(from: 3, to: 0), .overflow(from: 0, to: 3), .overflow(from: 2, to: 3), .overflow(from: 3, to: 2)] {
+            var both = good
+            both.links = [.switchGate(switch: 2, gate: 0), pipe]
+            #expect(both.validate().contains { if case .flaskInSeveralLinks = $0 { true } else { false } }, "\(pipe)")
+        }
+        // Switch 0 → gate 1 (shut: the switch isn't complete); pipe 2 → 3. Flask 2 is full with
+        // red on top, flask 3 has room: two reds poured into 2 push its two bottom layers into 3.
+        let s = GameState(bottles: [flask([2, 1], 3), flask([2], 3), flask([1, 2, 0], 3), flask([1], 3),
+                                    flask([0, 0], 3)],
+                          links: [.switchGate(switch: 0, gate: 1), .overflow(from: 2, to: 3)])
+        #expect(s.validate().isEmpty && s.isGateClosed(1))
+        let push = try #require(s.pouring(Move(from: 4, to: 2)))
+        #expect(push.bottles[2].layers == layers([0, 0, 0]) && push.bottles[3].layers.count == 3)
+        // The closed gate refuses a pour into the full pipe flask that would push, and it is
+        // named as the reason (not the pipe).
+        var gated = s
+        gated.bottles[1] = flask([0], 3)
+        #expect(!gated.canPour(Move(from: 1, to: 2)))
+        #expect(Rules.linkRefusal(of: Move(from: 1, to: 2), in: gated) == .switchGate(switch: 0, gate: 1))
+        // With the gate's switch complete the same pour pushes.
+        var opened = gated
+        opened.bottles[0] = flask([1, 1, 1], 3)
+        #expect(opened.canPour(Move(from: 1, to: 2)) && Rules.linkRefusal(of: Move(from: 1, to: 2), in: opened) == nil)
+    }
+
     @Test func undoAndRestartRestoreEverything() throws {
         let start = SwitchRuleTests.board(switch: [0, 0], gate: [1, 2], [2, 0], [1, 1, 2])
         var session = GameSession(start)
