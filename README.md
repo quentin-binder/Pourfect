@@ -60,7 +60,8 @@ else is a challenge).
 - **Chapter screen:** vignette header with name, subtitle, stars and what they open ("Earn 12 more stars to open
   Misty Marsh"), then the recipe grid (recipes open in order).
 - **Challenges:** Random Brew plus the Challenger, Expert and Master books, all open (recipes inside still open in order).
-- **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks) the game shows a
+- **Tips:** the first time a recipe uses a mechanic (basic pouring, rune seals, murky potions, essence flasks, narrow
+  necks, funnels, taps, frozen layers) the game shows a
   short illustrated tip drawn with the real flasks (2–3 steps, **Got it**). The **?** in the game's top bar (⌘/)
   shows the tips for the current recipe again. Seen tips are stored per mechanic (`TutorialStore`, UserDefaults).
 
@@ -72,7 +73,7 @@ LiquidPour/                  SwiftUI app
   Model/                     GameViewModel, LevelCatalog, ProgressStore, Tutorials, AppSettings, Palette, RandomLevelMaker
   Views/                     RootView, ChapterMapView (home), PackView (chapter / challenge recipes), ChallengesView,
                              GameView, TutorialOverlay, BottleView, RandomLevelView, PourAnimationView,
-                             TiltedLiquid, FlaskDecor, GlassDecor, WorkbenchBackground, SettingsView
+                             TiltedLiquid, FlaskDecor, GlassDecor, FrostDecor, WorkbenchBackground, SettingsView
   Assets.xcassets            Optimized painted art (workbench backgrounds, chapter map, chapter vignettes)
   Localizable.xcstrings      English String catalog for all UI text; InfoPlist.xcstrings names the app
   Feedback/                  SoundEngine (synthesized sounds), Haptics, FeedbackPlayer
@@ -199,7 +200,9 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPMapAnchor Y` | Opens the chapter map scrolled to height Y (0 = top / dragon, 1 = bottom / cellar). |
 | `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). A demo win saves no stars and no daily result. |
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
-| `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence or tap flask (flare, message, sound), else picks up a filled funnel flask. |
+| `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour a flask refuses: an essence, tap or frozen-over flask (flare, message, sound), else picks up a filled funnel flask. |
+| `-LPDemoIcePour S` | After `-LPDemoMoves` (or at once), waits S seconds and plays a legal pour out of a flask that holds ice (the potion above the ice pours, the ice stays pinned). |
+| `-LPSlowMotion F` | Plays the pour and thaw animations F times slower (F ≥ 1), to look at single frames. Sounds keep their normal timing. |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
 | `-LPRandomGenerate 1` | With `-LPRandomSettings 1`: presses *Generate* once. |
 | `-LPRandomMode classic\|locks\|hidden` | Generates a random level with the saved settings and opens it. |
@@ -375,12 +378,17 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   `FeedbackPlayer` turns them into sound and haptics, timed to the pour animation. "Flask completed" is
   `Rules.completedBottles(before:after:)` in the core and fires when the pour lands.
 - **Sound**: `SoundEngine` synthesizes every sound at launch, off the main thread (glass clinks, bubbly gurgles,
-  cork pop + chime, success arpeggio, muted tap, key click), and plays the PCM buffers with `AVAudioEngine`; no
+  cork pop + chime, success arpeggio, muted tap, key click, rune hum, valve, brass knock, a cold tink when ice refuses
+  a pour, and a soft crackle with drips when ice thaws), and plays the PCM buffers with `AVAudioEngine`; no
   audio files. Sounds and haptics scheduled for later in a pour are dropped when that pour is cancelled (Undo,
   Restart, new level), when you leave the game, or when Sound is turned off.
 - **Flask look**: a completed flask gets a cork that drops in with a bounce and a sparkle burst in the potion's
   color; glass sheen and a soft potion glow on every flask. With *Color Runes* on, every layer shows one of 12
-  runes (one per color) so colors can be told apart without hue.
+  runes (one per color) so colors can be told apart without hue. A frozen layer is covered by a frosted ice slab
+  with a hexagonal crystal showing its thaw counter (moved aside when runes are on or the layer is murky); a flask
+  holding ice gets a frost crust with icicles on its lip, frost along the glass and a pale blue outline. The
+  counters tick when a pour lands; a thawing layer cracks, its crystal pops and the slab melts into the potion
+  with a few drips and a breath of mist (Reduce Motion: it fades).
 - **Settings** (gear in the toolbar of the map, chapter and Challenges screens, or ⌘, on the Mac): sound, haptics (iOS), color runes, reduce motion
   (system / on / off). Stored behind `SettingsStore` (`UserDefaults` keys `settings.*`).
 
