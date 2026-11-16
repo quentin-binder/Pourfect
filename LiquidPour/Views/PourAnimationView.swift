@@ -22,7 +22,7 @@ struct PourPose {
     var sourceSlosh: Double = 0   // surface rock, radians
     var targetSlosh: Double = 0
     var corkOff: Double = 0       // a completed source's cork pops off before it tilts
-    var time: Double = 0          // seconds since the pour started (timing of an overflow)
+    var time: Double = 0          // seconds since the pour started (timing of a push)
 
     static let duration = 1.1
     static let reducedDuration = 0.4
@@ -94,9 +94,10 @@ struct PourPose {
 /// on the other ingredient.
 ///
 /// Twins (F1): the source hovers between the two twins and its stream forks, half into each;
-/// both fill together. An overflow pipe (F2): the target fills to the rim, then the rest runs
-/// visibly through the pipe and drips into the flask at its far end, which fills after it.
-/// Chains and pipes touching a flask drawn here are drawn here too, above those flasks.
+/// both fill together. A pressure pipe (F2): the target fills to the rim; while the rest of the
+/// pour goes in, its stack slides down as its bottom layers leave through the spout under its
+/// base, run one by one along the pipe, and enter the far flask from below, whose stack lifts.
+/// Chains and pipes touching a flask drawn here are drawn here too.
 struct PourAnimationView: View {
     let event: GameViewModel.PourEvent
     let sourceFrame: CGRect
@@ -144,11 +145,12 @@ struct PourAnimationView: View {
         return event.fromBottom ? width * 0.11 : width * 0.14
     }
 
-    private func surfaceY(_ target: CGRect, flow: Double) -> CGFloat {
-        target.maxY - layerHeight * (CGFloat(event.targetBefore.layers.count) + CGFloat(event.targetAmount) * targetFill(flow))
+    private func surfaceY(_ target: CGRect, pose: PourPose) -> CGFloat {
+        target.maxY - layerHeight * (CGFloat(event.targetBefore.layers.count) + CGFloat(event.targetAmount) * pose.flow
+                                     - CGFloat(pushed(at: pose.time)))
     }
 
-    // MARK: Twins and overflow
+    // MARK: Twins and pressure pipes
 
     /// The twin that shares a split pour, with its frame.
     private var twinShare: (landing: GameViewModel.Landing, frame: CGRect)? {
@@ -156,9 +158,9 @@ struct PourAnimationView: View {
         return (share, frame)
     }
 
-    /// The far end of the target's overflow pipe, when part of the pour runs on into it.
-    private var overflowShare: (landing: GameViewModel.Landing, frame: CGRect)? {
-        guard let share = event.overflow, let frame = shareFrames[share.bottle] else { return nil }
+    /// The far end of the target's pressure pipe, when the pour pushes into it.
+    private var pushShare: (landing: GameViewModel.Landing, frame: CGRect)? {
+        guard let share = event.push, let frame = shareFrames[share.bottle] else { return nil }
         return (share, frame)
     }
 
@@ -169,29 +171,48 @@ struct PourAnimationView: View {
                       width: targetFrame.width, height: targetFrame.height)
     }
 
-    /// How far the target has filled (0…1 of `targetAmount`): with an overflow it fills first,
-    /// up to the rim, and the rest of the flow runs on through the pipe.
-    private func targetFill(_ flow: Double) -> Double {
-        guard event.overflow != nil else { return flow }
-        let share = Double(event.targetAmount) / Double(max(1, event.amount))
-        return share > 0 ? min(1, flow / share) : 1
+    /// Share of the poured layers moved at `t` seconds (`PourPose.flow`).
+    private func flow(at t: Double) -> Double {
+        reduceMotion ? PourPose.ease(t, 0, PourPose.reducedDuration) : PourPose.ease(t, PourPose.flowStart, PourPose.flowEnd)
     }
 
-    /// 0…1 while the overflow runs through the pipe and into the far flask: it starts when the
-    /// target is full and ends a little after the stream (the pipe still drains).
-    private func overflowProgress(_ pose: PourPose) -> Double {
-        if reduceMotion { return pose.flow }
-        let share = Double(event.targetAmount) / Double(max(1, event.amount))
-        let start = PourPose.flowStart + share * (PourPose.flowEnd - PourPose.flowStart)
-        return PourPose.ease(pose.time, start, PourPose.flowEnd + 0.22)
+    /// How many of the target's bottom layers have left through its pipe at `t` seconds (0…the
+    /// pushed amount, continuous): none while the pour fills the free space, then one layer out
+    /// of the base for each layer poured in, so the surface stays at the rim.
+    private func pushed(at t: Double) -> Double {
+        guard let push = event.push, push.amount > 0 else { return 0 }
+        let free = Double(event.amount - push.amount)
+        return min(Double(push.amount), max(0, flow(at: t) * Double(event.amount) - free))
     }
 
-    /// A flask the pour fills besides the target, filling with `fill` (0…1 of its share).
-    private func shareSegments(_ share: GameViewModel.Landing, fill: Double) -> [LiquidSegment] {
+    /// How many pushed layers have entered the far flask at `t` (they run along the pipe first).
+    private func entered(at t: Double) -> Double {
+        pushed(at: reduceMotion ? t : t - Self.pipeTransit)
+    }
+
+    /// Seconds a pushed layer takes along the pipe.
+    private static let pipeTransit = 0.14
+
+    /// 0…1 of the `k`-th pushed layer (k = 0 is the target's bottom layer, which leaves first).
+    private static func part(_ value: Double, _ k: Int) -> CGFloat {
+        CGFloat(min(1, max(0, value - Double(k))))
+    }
+
+    /// A flask the pour fills besides the target: the twin, filling with `fill` (0…1 of its
+    /// share); or the far end of a pipe, whose stack lifts as the pushed layers enter its
+    /// bottom one by one (the target's bottom layer first, so it ends highest of them).
+    private func shareSegments(_ share: GameViewModel.Landing, pose: PourPose) -> [LiquidSegment] {
         let kept = share.before.layers.enumerated().map { i, layer in
             segment(layer, index: i, hidden: share.hiddenBefore, fraction: 1)
         }
-        return kept + Array(repeating: LiquidSegment(color: color, fraction: fill, rune: rune(for: event.layer)),
+        if share.route == .push {
+            let layers = event.targetBefore.layers, entered = entered(at: pose.time)
+            let pushed = (0..<min(share.amount, layers.count)).reversed().map { k in
+                segment(layers[k], index: k, hidden: event.targetHiddenBefore, fraction: Self.part(entered, k))
+            }
+            return pushed + kept
+        }
+        return kept + Array(repeating: LiquidSegment(color: color, fraction: pose.flow, rune: rune(for: event.layer)),
                             count: share.amount)
     }
 
@@ -200,53 +221,54 @@ struct PourAnimationView: View {
     }
 
     /// The flasks the pour fills besides the target (the twin, the pipe's far end), and the
-    /// links between the flasks drawn here, above them.
+    /// links between the flasks drawn here: pipes under the flasks, chains above them.
     @ViewBuilder
     private func receivers(_ pose: PourPose) -> some View {
+        ForEach(links.indices.filter { links[$0].link.isPipe }, id: \.self) { i in
+            LinkView(link: links[i].link, a: links[i].a, b: links[i].b)
+        }
+        pipeFlow(pose)
         ForEach(event.shares, id: \.bottle) { share in
             if let frame = shareFrames[share.bottle] {
-                let fill = share.route == .twin ? pose.flow : PourPose.ease(overflowProgress(pose), 0.3, 0.95)
-                bottle(share.before, segments: shareSegments(share, fill: fill), frame: frame,
+                bottle(share.before, segments: shareSegments(share, pose: pose), frame: frame,
                        gravity: share.route == .twin ? pose.targetSlosh : 0, hidden: share.hiddenBefore,
                        twin: share.route == .twin)
                     .position(x: frame.midX, y: frame.midY)
             }
         }
-        ForEach(links.indices, id: \.self) { i in
+        ForEach(links.indices.filter { !links[$0].link.isPipe }, id: \.self) { i in
             LinkView(link: links[i].link, a: links[i].a, b: links[i].b)
         }
     }
 
-    /// The overflow running through the pipe: a band of potion travels along the tube from the
-    /// target's rim, then drips from the nozzle onto the far flask's rising surface. With Reduce
-    /// Motion the filled tube fades in and out instead.
+    /// The push running through the pipe: each pushed layer, in its own color (grey if it is
+    /// murky), leaves the spout under the target's base as the target's stack slides down, runs
+    /// along the pipe, and enters the far flask's spout as its stack lifts. With Reduce Motion
+    /// the tube glows with the pushed potion instead.
     @ViewBuilder
     private func pipeFlow(_ pose: PourPose) -> some View {
-        if let overflow = overflowShare {
-            let pipe = PipeGeometry(from: targetFrame, to: overflow.frame)
-            let q = overflowProgress(pose)
-            let fill = PourPose.ease(q, 0.3, 0.95)
-            let liquid = StrokeStyle(lineWidth: pipe.tube * 0.55, lineCap: .round)
-            let drip = Path { p in
-                p.move(to: pipe.end)
-                p.addLine(to: CGPoint(x: pipe.end.x, y: max(pipe.end.y + 2,
-                                                            shareSurfaceY(overflow.landing, frame: overflow.frame, fill: fill))))
-            }
-            if reduceMotion {
-                let glow = sin(.pi * q)
-                pipe.path.stroke(color, style: liquid).opacity(glow)
-                drip.stroke(color, style: StrokeStyle(lineWidth: pipe.tube * 0.4, lineCap: .round)).opacity(glow)
-            } else {
-                let head = PourPose.ease(q, 0, 0.38), tail = PourPose.ease(q, 0.62, 1)
-                if head > tail + 0.001 {
-                    pipe.path.trimmedPath(from: tail, to: head).stroke(color.gradient, style: liquid)
-                }
-                let dripHead = PourPose.ease(q, 0.3, 0.42), dripTail = PourPose.ease(q, 0.88, 1)
-                if dripHead > dripTail + 0.001 {
-                    drip.trimmedPath(from: dripTail, to: dripHead)
-                        .stroke(color.gradient, style: StrokeStyle(lineWidth: pipe.tube * 0.4, lineCap: .round))
+        if let push = pushShare {
+            let pipe = PipeGeometry(from: targetFrame, to: push.frame)
+            let liquid = StrokeStyle(lineWidth: pipe.tube * 0.55, lineCap: .round, lineJoin: .round)
+            let layers = event.targetBefore.layers
+            let out = pushed(at: pose.time), entered = entered(at: pose.time)
+            let count = min(push.landing.amount, layers.count)
+            ForEach(0..<count, id: \.self) { k in
+                let tint = segment(layers[k], index: k, hidden: event.targetHiddenBefore, fraction: 1).color
+                if reduceMotion {
+                    pipe.path.stroke(tint, style: liquid).opacity(Double(sin(.pi * Self.part(out, k))))
+                } else {
+                    let head = Self.part(out, k), tail = Self.part(entered, k)
+                    if head > tail + 0.001 {
+                        pipe.path.trimmedPath(from: tail, to: head).stroke(tint.gradient, style: liquid)
+                    }
                 }
             }
+            // The brass arrow stays on top of the potion running under it.
+            let (mid, angle) = pipe.arrow
+            PipeArrow(size: pipe.tube * 2.2)
+                .rotationEffect(.radians(Double(angle)))
+                .position(mid)
         }
     }
 
@@ -259,7 +281,7 @@ struct PourAnimationView: View {
             let start = CGPoint(x: lip.x + dir * width * 0.04, y: lip.y)
             let fork = CGPoint(x: lip.x + dir * width * 0.14, y: max(lip.y + width * 0.3, aimFrame.minY - width * 0.4))
             let ends = [
-                CGPoint(x: targetFrame.midX, y: surfaceY(targetFrame, flow: pose.flow)),
+                CGPoint(x: targetFrame.midX, y: surfaceY(targetFrame, pose: pose)),
                 CGPoint(x: twin.frame.midX, y: shareSurfaceY(twin.landing, frame: twin.frame, fill: pose.flow)),
             ]
             ForEach(ends.indices, id: \.self) { i in
@@ -288,13 +310,12 @@ struct PourAnimationView: View {
         let spout = CGPoint(x: corner.x + neck.x, y: corner.y + neck.y)
 
         return ZStack(alignment: .topLeading) {
-            bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: targetFrame,
+            bottle(event.targetBefore, segments: targetSegments(pose), frame: targetFrame,
                    gravity: pose.targetSlosh, hidden: event.targetHiddenBefore, drawsMarks: false, unlock: unlockProgress(pose),
                    twin: event.twins.contains(event.to), card: mixGlow(pose))
                 .position(x: targetFrame.midX, y: targetFrame.midY)
             sourceCard
             receivers(pose)
-            pipeFlow(pose)
 
             if event.isKey {
                 fallingKey(from: spout, pose: pose)
@@ -316,7 +337,7 @@ struct PourAnimationView: View {
             } else if twinShare != nil {
                 splitStream(from: spout, right: right, pose: pose)
             } else {
-                stream(from: spout, toY: surfaceY(targetFrame, flow: pose.flow), right: right, pose: pose)
+                stream(from: spout, toY: surfaceY(targetFrame, pose: pose), right: right, pose: pose)
             }
 
             targetMarks(pose, frame: targetFrame)
@@ -470,14 +491,16 @@ struct PourAnimationView: View {
         }
     }
 
-    /// Target keeps its layers and gains `amount` layers that grow with `flow`
-    /// (none for a key: it is consumed by the lock).
-    private func targetSegments(_ flow: Double) -> [LiquidSegment] {
+    /// Target keeps its layers and gains `targetAmount` layers that grow with the flow (none
+    /// for a key: it is consumed by the lock). A push drains its bottom layers one by one
+    /// (the bottom first), so its stack slides down while the pour goes in on top.
+    private func targetSegments(_ pose: PourPose) -> [LiquidSegment] {
+        let out = pushed(at: pose.time)
         let kept = event.targetBefore.layers.enumerated().map { i, layer in
-            segment(layer, index: i, hidden: event.targetHiddenBefore, fraction: 1)
+            segment(layer, index: i, hidden: event.targetHiddenBefore, fraction: 1 - Self.part(out, i))
         }
         if event.isKey { return kept }
-        return kept + Array(repeating: LiquidSegment(color: color, fraction: targetFill(flow), rune: rune(for: event.layer)),
+        return kept + Array(repeating: LiquidSegment(color: color, fraction: pose.flow, rune: rune(for: event.layer)),
                             count: event.targetAmount)
     }
 
@@ -500,13 +523,12 @@ struct PourAnimationView: View {
         let mouth = CGPoint(x: target.midX, y: target.minY - targetParts.rise(target.width))
 
         return ZStack(alignment: .topLeading) {
-            bottle(event.targetBefore, segments: targetSegments(pose.flow), frame: target,
+            bottle(event.targetBefore, segments: targetSegments(pose), frame: target,
                    gravity: pose.targetSlosh, hidden: event.targetHiddenBefore, drawsMarks: false, unlock: unlockProgress(pose),
                    twin: event.twins.contains(event.to), card: mixGlow(pose))
                 .position(x: target.midX, y: target.midY)
             sourceCard
             receivers(pose)
-            pipeFlow(pose)
 
             bottle(event.sourceBefore, segments: sourceSegments(pose.flow), frame: sourceFrame,
                    gravity: pose.sourceSlosh * 0.5, hidden: event.sourceHiddenBefore,
@@ -518,7 +540,7 @@ struct PourAnimationView: View {
             if event.isKey {
                 fallingKey(from: tip, to: CGPoint(x: target.midX, y: target.midY), pose: pose)
             } else {
-                tapStream(from: tip, mouth: mouth, toY: surfaceY(target, flow: pose.flow), pose: pose)
+                tapStream(from: tip, mouth: mouth, toY: surfaceY(target, pose: pose), pose: pose)
             }
 
             targetMarks(pose, frame: target)

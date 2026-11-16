@@ -120,9 +120,6 @@ public struct PourShare: Hashable, Sendable {
     public enum Route: Hashable, Sendable {
         /// The twin of the target (F1): the pour was split evenly between the two.
         case twin
-        /// No longer produced: rim overflow (DECISIONS 180) became the pressure pipe's push
-        /// (DECISIONS 300, `PourEvent.push`). Kept until the app stops matching on it.
-        case overflow
         /// F2: `amount` bottom layers of the target were pushed through its pressure pipe into
         /// the bottom of `bottle` (not a landing of the poured layers; `PourEvent.push`).
         case push
