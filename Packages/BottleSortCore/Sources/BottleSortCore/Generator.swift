@@ -80,6 +80,22 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Reject levels with twins that an optimal solution can solve without a split pour
     /// (`LinkImpact.solvesWithoutSplitting`: the chain would only restrict).
     public var requireSplit: Bool
+    /// Mixing cauldrons (E1): 0 = none, 1 = one cauldron flask. A level with a cauldron is
+    /// built *backwards* from a solved board (`Generator.cauldronCandidate`), not shuffled.
+    public var cauldron: Int
+    /// Recipes on the cauldron (1...`Rules.maxRecipes`), drawn from `Generator.naturalRecipes`.
+    public var recipes: Int
+    /// Where the ingredients of each recipe come from (`CauldronIngredients`).
+    public var ingredients: CauldronIngredients
+    /// Pairs to un-mix per recipe on the way back: each turns two layers of the result into
+    /// one layer of each ingredient, so the player has to brew them again.
+    public var mixPairs: Int
+    /// Reverse moves of the backwards walk (more = more scrambled; the walk goes on, up to
+    /// six times as long, until every recipe has its `mixPairs`).
+    public var scramble: Int
+    /// Reject levels that can be won without mixing, or whose cauldron doesn't matter
+    /// (`CauldronImpact.everyCauldronMatters`).
+    public var requireMixing: Bool
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -96,7 +112,10 @@ public struct GeneratorConfig: Sendable, Hashable {
                 bubblingCost: Int = BubblingImpact.minimumCost,
                 twins: Int = 0, overflow: Int = 0, linkPlacement: LinkPlacement = .any,
                 requireLinksMatter: Bool = false, linkCost: Int = LinkImpact.minimumCost,
-                requireSplit: Bool = false, maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
+                requireSplit: Bool = false,
+                cauldron: Int = 0, recipes: Int = 1, ingredients: CauldronIngredients = .fresh, mixPairs: Int = 1,
+                scramble: Int = 40, requireMixing: Bool = false,
+                maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
         self.emptyBottles = emptyBottles
@@ -130,6 +149,12 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.requireLinksMatter = requireLinksMatter
         self.linkCost = linkCost
         self.requireSplit = requireSplit
+        self.cauldron = cauldron
+        self.recipes = recipes
+        self.ingredients = ingredients
+        self.mixPairs = mixPairs
+        self.scramble = scramble
+        self.requireMixing = requireMixing
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
@@ -232,6 +257,7 @@ public enum Generator {
     ///    only which flasks are empty, never colors (murky-safe). Fewer links are placed only
     ///    if the level has too few such flasks.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
+        if config.cauldron > 0 { return cauldronCandidate(config, seed: seed) }
         var rng = SplitMix64(seed: seed)
         let capacity = config.capacity
         var layers: [Layer] = []
@@ -428,6 +454,12 @@ public enum Generator {
     public static func evaluate(_ state: GameState, config: GeneratorConfig, seed: UInt64) -> DifficultyReport? {
         // Reject: any bottle already solved (full with one color), locked or not.
         if state.bottles.contains(where: isPresolved) { return nil }
+        // A backwards-built cauldron level can miss its recipe's ingredients (no un-mix
+        // happened) or a key slot; shuffled levels are valid by construction.
+        if config.cauldron > 0 && !state.validate().isEmpty { return nil }
+        // …or stop before every recipe has its `mixPairs` un-mixed pairs: the colors must then
+        // balance with exactly that many pairs per recipe.
+        if config.cauldron > 0 && !hasItsMixPairs(state, config: config) { return nil }
         // Reject: unsolvable or unknown.
         guard case .solved(let moves, let explored) = Solver().solve(state, limits: config.solverLimits) else { return nil }
         // Cheap filter before the (more expensive) full report.
@@ -452,6 +484,9 @@ public enum Generator {
                                         limits: config.solverLimits) { return nil }
         if config.requireSplit, state.links.contains(where: { if case .twins = $0 { true } else { false } }),
            LinkImpact.solvesWithoutSplitting(state, in: moves.count) != false { return nil }
+        if config.requireMixing,
+           !CauldronImpact.everyCauldronMatters(state, minMoves: moves.count, limits: config.solverLimits)
+            || CauldronImpact.mixedPairs(in: state, solution: moves) == 0 { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -520,7 +555,9 @@ public enum MechanicInstance: Hashable, Sendable, CustomStringConvertible {
 /// (`trapDepth(of:in:)`): a position one pour from a solvable one that is lost only because
 /// the flask is a funnel. The default cost is `minimumCost(of:)`: the
 /// instance's inherent cost (what it costs even when it changes nothing: a seal always
-/// costs the key pour, 1 move; everything else 0) plus one. A caller may ask for more
+/// costs the key pour, 1 move; everything else 0) plus one. A cauldron (E1) whose removal
+/// leaves color counts that can't end in full flasks matters without a search
+/// (`CauldronImpact.unwinnableByCount`). A caller may ask for more
 /// (stronger locks: `LockImpact.strongCost`, DECISIONS 104). An undecided solve (limits
 /// hit) counts as "doesn't matter".
 public enum MechanicImpact {
@@ -574,7 +611,11 @@ public enum MechanicImpact {
     public static func matters(_ instance: MechanicInstance, in state: GameState, minMoves: Int,
                                cost: Int? = nil, limits: SolverLimits = .default) -> Bool {
         let cost = cost ?? minimumCost(of: instance)
-        switch Solver().solve(removing(instance, from: state), limits: limits) {
+        let without = removing(instance, from: state)
+        // Without its last cauldron a level whose colors can't end in full flasks is unsolvable,
+        // which a search could only show by exploring all of it (DECISIONS 195).
+        if case .modifier(_, .cauldron) = instance, CauldronImpact.unwinnableByCount(without) { return true }
+        switch Solver().solve(without, limits: limits) {
         case .unsolvable: return true
         case .solved(let moves, _):
             let saved = minMoves - moves.count

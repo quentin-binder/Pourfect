@@ -11,6 +11,7 @@ import Foundation
 //   levelgen --colors 5 --empty 2 --frozen 1:4 --frozen-cost 2 --count 5 --out ice.json
 //   levelgen --colors 5 --empty 2 --bubbling 1:3 --bubbling-cost 2 --count 5 --out bog.json
 //   levelgen --colors 4 --empty 2 --twins 1 --link-placement filled --link-cost 2 --count 5 --out twins.json
+//   levelgen --colors 4 --empty 1 --cauldron 1 --ingredients fresh --mix-pairs 2 --scramble 60 --mixing-matter --count 5 --out brew.json
 //   levelgen --preset chapter2 --out Levels/chapter_02.json
 //   levelgen --preset all --out-dir Levels
 //   levelgen --report Levels            (every *.json in the folder)
@@ -27,6 +28,7 @@ usage:
            [--frozen N:MAXTURNS [--frozen-matter | --frozen-cost C]]
            [--bubbling N:PERIOD [--bubbling-matter | --bubbling-cost C]]
            [--twins N] [--overflow N] [--link-placement any|filled|empty|mixed] [--links-matter | --link-cost C] [--needs-split]
+           [--cauldron RECIPES [--ingredients fresh|sorted] [--mix-pairs N] [--scramble STEPS] [--mixing-matter] [--teaches-mixing]]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
   levelgen --preset chapter1|…|chapter8|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
@@ -34,7 +36,8 @@ usage:
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
            [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS] [--bubbling N:PERIOD]
-           [--twins 0] [--overflow 0] [--link-placement any] [--count 10] [--seed 1]
+           [--twins 0] [--overflow 0] [--link-placement any]
+           [--cauldron 0 [--ingredients fresh] [--mix-pairs 1] [--scramble 40]] [--count 10] [--seed 1]
 """
 
 func fail(_ message: String) -> Never {
@@ -52,7 +55,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--needs-split", "--easiest"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--needs-split", "--easiest", "--mixing-matter", "--teaches-mixing"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -123,6 +126,20 @@ func linkOptions() -> (twins: Int, overflow: Int) {
     return (twins, overflow)
 }
 
+/// `--cauldron RECIPES` (one cauldron with that many recipes; 0 = none), `--ingredients`,
+/// `--mix-pairs` and `--scramble` (`GeneratorConfig.cauldron`, …).
+func cauldronOptions() -> (recipes: Int, ingredients: CauldronIngredients, pairs: Int, scramble: Int) {
+    let recipes = int("--cauldron", default: 0)!
+    guard (0...Rules.maxRecipes).contains(recipes) else { fail("--cauldron expects a recipe count in 0...\(Rules.maxRecipes)") }
+    let raw = options["--ingredients"] ?? "fresh"
+    guard let ingredients = CauldronIngredients(rawValue: raw) else {
+        fail("--ingredients expects " + CauldronIngredients.allCases.map(\.rawValue).joined(separator: ", "))
+    }
+    let pairs = int("--mix-pairs", default: 1)!, scramble = int("--scramble", default: 40)!
+    guard pairs >= 1, scramble >= 1 else { fail("--mix-pairs and --scramble must be at least 1") }
+    return (recipes, ingredients, pairs, scramble)
+}
+
 func pad(_ s: String, _ width: Int, right: Bool = false) -> String {
     let fill = String(repeating: " ", count: max(0, width - s.count))
     return right ? fill + s : s + fill
@@ -141,7 +158,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let links: String; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let links: String; let mix: Int; let r: DifficultyReport }
     var rows: [Row] = []
     var problems = 0
     for (i, level) in pack.levels.enumerated() {
@@ -163,13 +180,14 @@ func report(path: String) -> Int {
                         locks: state.bottles.filter { $0.lockedBy != nil }.count,
                         runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state),
                         ice: state.bottles.reduce(0) { $0 + $1.frozenLayers.count },
-                        bub: state.bottles.filter(\.isBubbling).count, links: linkSummary(state), r: r))
+                        bub: state.bottles.filter(\.isBubbling).count, links: linkSummary(state),
+                        mix: state.bottles.reduce(0) { $0 + $1.recipes.count }, r: r))
     }
     var title = pack.name ?? path
     if let kind = pack.kind { title += " (\(kind.rawValue)\(pack.chapter.map { " \($0)" } ?? ""))" }
     if let mechanics = pack.introduces { title += ", introduces " + mechanics.map(\.rawValue).joined(separator: ", ") }
     print("== \(title) — \(path)")
-    let header = "  #  id         colors empty locks runes glass ice bub links minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks runes glass ice bub links mix minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -181,7 +199,7 @@ func report(path: String) -> Int {
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
               + String(format: " %6d %5d %5d %5d ", row.colors, row.empty, row.locks, row.runes) + pad(row.glass, 5, right: true)
               + String(format: " %3d %3d ", row.ice, row.bub) + pad(row.links, 5, right: true)
-              + String(format: " %8d %7d ", row.r.minMoves, row.r.statesExplored)
+              + String(format: " %3d %8d %7d ", row.mix, row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -276,6 +294,19 @@ struct Tier {
     /// Every optimal solution pours into the twins (`GeneratorConfig.requireSplit`): the
     /// player can't ignore the chain and still get every star.
     var needsSplit = false
+    /// A mixing cauldron with this many recipes (E1; 0 = none), where its ingredients come
+    /// from, the pairs un-mixed per recipe and the length of the backwards walk.
+    var cauldron = 0
+    var ingredients: CauldronIngredients = .fresh
+    var mixPairs = 1
+    var scramble = 40
+    /// Reject levels that can be won without mixing or whose cauldron doesn't matter
+    /// (`GeneratorConfig.requireMixing`).
+    var mixingMatter = false
+    /// Cauldron tutorial: the cauldron starts empty, an optimal solution needs no relocation
+    /// (`FrozenImpact.solvesWithoutRelocation`) and no first move is a dead end
+    /// (`MechanicImpact.everyFirstMoveSolvable`).
+    var teachesMixing = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
     /// Candidates tried per level before giving up (`GeneratorConfig.maxAttempts`).
@@ -584,7 +615,9 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      twins: tier.twins, overflow: tier.overflow, linkPlacement: tier.linkPlacement,
                                      requireLinksMatter: tier.linkCost != nil,
                                      linkCost: tier.linkCost ?? LinkImpact.minimumCost, requireSplit: tier.needsSplit,
-                                     maxAttempts: tier.maxAttempts)
+                                     cauldron: tier.cauldron > 0 ? 1 : 0, recipes: max(1, tier.cauldron),
+                                     ingredients: tier.ingredients, mixPairs: tier.mixPairs, scramble: tier.scramble,
+                                     requireMixing: tier.mixingMatter, maxAttempts: tier.maxAttempts)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -613,12 +646,20 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
             }
             if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the links; raise the pool") }
         }
+        if tier.teachesMixing {
+            generated = generated.filter {
+                $0.state.bottles.allSatisfy { !$0.isCauldron || $0.isEmpty }
+                    && FrozenImpact.solvesWithoutRelocation($0.state, in: $0.report.minMoves)
+                    && MechanicImpact.everyFirstMoveSolvable($0.state)
+            }
+            if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the cauldron; raise the pool") }
+        }
         // Keep the hardest (or, for a tutorial, the easiest) `count` of the pool.
         let hardestFirst = generated.sorted { ($0.report.score, $1.seed) > ($1.report.score, $0.seed) }
         let kept = tier.keepEasiest ? hardestFirst.reversed().prefix(tier.count) : hardestFirst.prefix(tier.count)
         all += kept.map { ($0, tier.hidden, tier.section) }
         let pooled = tier.pool > 1 ? " (\(tier.keepEasiest ? "easiest" : "best") of \(tier.count * tier.pool))" : ""
-        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.bubbling > 0 ? ", \(tier.bubbling) bubbling /\(tier.bubblingPeriod)" : "")\(tier.twins > 0 ? ", \(tier.twins) twins" : "")\(tier.overflow > 0 ? ", \(tier.overflow) overflow" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
+        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.bubbling > 0 ? ", \(tier.bubbling) bubbling /\(tier.bubblingPeriod)" : "")\(tier.twins > 0 ? ", \(tier.twins) twins" : "")\(tier.overflow > 0 ? ", \(tier.overflow) overflow" : "")\(tier.cauldron > 0 ? ", cauldron ×\(tier.cauldron) \(tier.ingredients.rawValue) \(tier.mixPairs)p/\(tier.scramble)" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
     }
     // Sort by score within each section, so difficulty rises through the whole pack.
     return all.sorted { ($0.section, $0.level.report.score, $0.level.seed) < ($1.section, $1.level.report.score, $1.level.seed) }
@@ -652,12 +693,15 @@ func bench() {
     let frozen = frozenOption()
     let bubbling = bubblingOption()
     let links = linkOptions()
+    let mix = cauldronOptions()
     let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks,
                                  essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"),
                                  narrowNecks: int("--narrow", default: 0)!, funnels: int("--funnel", default: 0)!,
                                  taps: int("--tap", default: 0)!, frozen: frozen.count, frozenMaxTurns: frozen.maxTurns,
                                  bubbling: bubbling.count, bubblingPeriod: bubbling.period,
-                                 twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption())
+                                 twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption(),
+                                 cauldron: mix.recipes > 0 ? 1 : 0, recipes: max(1, mix.recipes), ingredients: mix.ingredients,
+                                 mixPairs: mix.pairs, scramble: mix.scramble)
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
@@ -729,6 +773,7 @@ if let path = options["--report"] {
         let bubbling = bubblingOption()
         let bubblingCost = int("--bubbling-cost") ?? (flags.contains("--bubbling-matter") ? BubblingImpact.minimumCost : nil)
         let links = linkOptions()
+        let mix = cauldronOptions()
         let linkCost = int("--link-cost") ?? (flags.contains("--links-matter") ? LinkImpact.minimumCost : nil)
         let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
                         empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
@@ -739,7 +784,9 @@ if let path = options["--report"] {
                         bubbling: bubbling.count, bubblingPeriod: bubbling.period, bubblingCost: bubblingCost,
                         twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption(),
                         linkCost: linkCost, keepEasiest: flags.contains("--easiest"),
-                        needsSplit: flags.contains("--needs-split"))
+                        needsSplit: flags.contains("--needs-split"), cauldron: mix.recipes, ingredients: mix.ingredients,
+                        mixPairs: mix.pairs, scramble: mix.scramble, mixingMatter: flags.contains("--mixing-matter"),
+                        teachesMixing: flags.contains("--teaches-mixing"))
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }
             return k
