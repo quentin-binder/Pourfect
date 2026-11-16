@@ -171,12 +171,15 @@ struct GameView: View {
         let parts = bottles.map { GlassParts($0).riseInWidths }.max() ?? 0
         // Fit width: perRow bottles + spacing. Fit height: rows × (capacity × 0.78w + 0.45w) + lift room.
         let byWidth = (size.width - spacing * CGFloat(perRow - 1)) / CGFloat(perRow)
+        // A bubbling flask's dial hangs under its base (about 0.52w): room for it under every row.
+        let dial: CGFloat = bottles.contains { $0.bubbling != nil } ? 0.52 : 0
         let byHeight = (size.height - 40 * CGFloat(rowCount))
-            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts))
+            / (CGFloat(rowCount) * (capacity * 0.78 + 0.45 + 0.3 + parts + dial))
         let width = max(24, min(byWidth, byHeight, 72))
+        let dialRoom = dial > 0 ? BubbleGauge.room(width) : 0
         let rows = stride(from: 0, to: bottles.count, by: perRow).map { Array($0..<min($0 + perRow, bottles.count)) }
 
-        return VStack(spacing: 40 + parts * width) {
+        return VStack(spacing: 40 + parts * width + dialRoom) {
             ForEach(rows, id: \.self) { row in
                 HStack(alignment: .bottom, spacing: spacing) {
                     ForEach(row, id: \.self) { index in
@@ -206,6 +209,7 @@ struct GameView: View {
                 }
             }
         }
+        .padding(.bottom, dialRoom)
     }
 
     private func isPouring(_ index: Int) -> Bool {

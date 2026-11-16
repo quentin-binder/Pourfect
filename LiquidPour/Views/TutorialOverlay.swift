@@ -371,6 +371,15 @@ private struct TutorialScene: View {
             }
         }
         .padding(.top, 18)
+        // A bubbling flask's dial hangs under its base.
+        .padding(.bottom, hangsDial ? BubbleGauge.room(w) : 0)
+    }
+
+    private var hangsDial: Bool {
+        switch scene {
+        case .bubbleRises, .bubbleDial, .bubbleUse: return true
+        default: return false
+        }
     }
 
     /// An essence flask with the rune of `color` holding `colors`.

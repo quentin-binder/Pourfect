@@ -32,9 +32,14 @@ struct BubbleGauge: View {
     let filled: Int
     var rising = false
 
-    /// Diameter of the dial, and how far it hangs below the flask's base.
+    /// Diameter of the dial, and how far it hangs below the flask's base: all of it, with a
+    /// small gap, so it never covers the bottom layer (`bubbleGauge` aligns its bottom edge
+    /// on the base, so the drop is a whole diameter plus the gap).
     static func diameter(_ w: CGFloat) -> CGFloat { max(18, w * 0.48) }
-    static func drop(_ w: CGFloat) -> CGFloat { diameter(w) * 0.45 }
+    static func drop(_ w: CGFloat) -> CGFloat { diameter(w) + gap(w) }
+    static func gap(_ w: CGFloat) -> CGFloat { max(2, w * 0.04) }
+    /// Room the dial takes under a flask of width `w` (the board leaves it under every row).
+    static func room(_ w: CGFloat) -> CGFloat { drop(w) }
 
     private var movesLeft: Int { max(1, every - filled) }
 
@@ -219,7 +224,9 @@ struct BubbleRise: View {
         if reduceMotion {
             let p = RisePose.ease(t, 0, RisePose.reducedDuration)
             ZStack(alignment: .bottom) {
-                stack(mark.layers, hidden: mark.hidden).opacity(1 - p)
+                // The old order stays solid under the new one fading in, so the potion never
+                // looks thin halfway.
+                stack(mark.layers, hidden: mark.hidden)
                 stack(after, hidden: hiddenAfter).opacity(p)
             }
         } else {
