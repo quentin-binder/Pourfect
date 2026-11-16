@@ -44,6 +44,7 @@ Puzzle depth: how much new thinking it adds for the player.
 - **Theme:** two flasks are linked by a brass pipe. Filling the switch flask *completely* opens the gate on another flask (or closes it).
 - **Rules:** while switch flask S is full with one color, gate G is open. If S stops being complete, G closes again (layers inside stay but can't be used).
 - **Depth:** high, because you have to decide whether to "spend" a completed flask on keeping a gate open.
+- **As implemented (chapter 10, DECISIONS 202–207):** a `Link.switchGate(switch:gate:)`; "complete" means counted as sorted (full, one color, no seal, no ice), so unsealing a full switch or thawing its last ice opens the gate too. A closed gate refuses every pour in or out; the gate state is derived, never stored. Each flask is an end of at most one link.
 
 ### B. Information mechanics: hide or reveal things
 

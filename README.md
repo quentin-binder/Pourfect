@@ -24,8 +24,9 @@ Main path (chapters, star-gated: a chapter opens when the previous one has at le
 | `chapter_07` | 7 Bubbling Bog | `c7_001…` | 30 | 4–25 | 15–52 | Bubbling flasks: one, then two (4 colors); at the end with murky layers and seals |
 | `chapter_08` | 8 Twin Towers | `c8_001…` | 32 | 8–25 | 20–56 | Twin flasks (every one needs a split), then overflow pipes (6 colors, size 3), then murky layers, seals and 7 colors; the last two recipes have both links |
 | `chapter_09` | 9 Alchemist's Hall | `c9_001…` | 30 | 4–19 | 15–52 | Mixing cauldron: one recipe with ingredients that must all be brewed, then ingredients that are potions of their own (one pair to brew for the shortest win), then two recipes; at the end murky layers, a seal and 8 colors. Built backwards from a solved board |
+| `chapter_10` | 10 Dragon's Hoard | `c10_001…` | 30 | 6–32 | 14–63 | Switch flasks and gates: one switch (gate full of potion, empty gate, empty switch), then two; then one earlier mechanic each (murky, seal, rune, narrow neck, ice, bubbling, twins); the finale (8–9 colors, 58–63) is the hardest of the main path |
 
-Chapter 10 (Dragon's Hoard, `ChapterOutline.plan`) shows as "coming soon".
+All ten chapters of `ChapterOutline.plan` ship.
 Optional **Challenges** (never gated):
 
 | File | Pack | Ids | Levels | Moves | Score | What makes it hard |
@@ -188,6 +189,17 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   pour lands, the two ingredients swirl into each other, the new potion blooms from the middle, bubbles rise, a puff
   of its color leaves the mouth and the recipe glows on the card, with a stirring, bubbling sound and a soft chime
   (Reduce Motion: a cross-fade). A cauldron the mix fills is corked, and the win card shown, once the swirl settles.
+- **Switch flasks and gates** (chapter 10). A brass lever joins a *switch* flask to a *gate* flask. While the switch
+  is complete (full with a single color, and counted as sorted: no seal and no ice on it) the gate is open and works
+  like any flask; otherwise the gate is closed and nothing can be poured into or out of it (its layers stay where they
+  are, a key can't reach its seal either). The gate's state is never stored: it is read from the switch every time,
+  so it opens the moment a pour completes the switch (or a key unseals a full switch, or the switch's last ice thaws)
+  and closes the moment a pour takes potion out of the switch. The switch itself is an ordinary flask, and it may
+  even pour into its own open gate (which then closes behind that potion). The win is standard: every flask, the
+  gate included, must end sorted, so a gate holding potion has to be opened at some point. Each flask is an end of
+  at most one link (a switch drives one gate, a flask is never both, and no switch carries a tap). Turn events:
+  `TurnEvent.gateOpened(switch:gate:)` / `.gateClosed(switch:gate:)`, after the pour's `.mixed` (step 2) or after
+  the thaw / bubbling that caused them (step 5). Undo restores everything (nothing new is stored).
 
 ### Random Brew (random levels)
 
@@ -272,7 +284,7 @@ LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 d
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-This runs 422 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 454 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -312,7 +324,14 @@ narrow necks, seals, the mix before thaw and bubbling, win), the pure helpers ag
 that needs the cauldron, the solver against the naive BFS on random cauldron levels (and positions after a move),
 backwards-built levels solvable, pruning that keeps every distinct child (rule 1 off), keys with recipes, JSON,
 validation, undo/restart, murky masks, the generator options, and chapter 9 (every recipe has to mix, and an optimal
-solution brews exactly the pairs the counts call for).
+solution brews exactly the pairs the counts call for). Switches (`SwitchTests.swift`): every rule case (closed gate
+both ways, opening and closing with events, the switch pouring into its open gate, a sealed or iced switch opening
+on unseal or thaw, a key kept out of a closed gate, modifiers on both ends, the standard win, refusals, helpers), a
+hand-made puzzle that needs the switch and one a gate makes unsolvable, the solver against the naive BFS on random
+switch levels (and positions a few moves on, with seals, runes, necks, ice, bubbling and twins), pruning that keeps
+every distinct child, permutation-invariant keys that tell the lever's direction, JSON, validation, undo/restart,
+murky masks, the generator options and placements, and chapter 10 (every switch adds 2+ moves, an optimal solution
+opens a gate, the finale is the hardest of the main path).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -320,10 +339,10 @@ You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift
 ```sh
 cd Packages/BottleSortCore
 
-# Regenerate all twelve shipped files (output is deterministic; chapter 2 takes the longest)
+# Regenerate all thirteen shipped files (output is deterministic; chapter 2 takes the longest)
 swift run -c release levelgen --preset all --out-dir ../../Levels
 
-# One file: chapter1 | … | chapter9 | challenger | expert | master
+# One file: chapter1 | … | chapter10 | challenger | expert | master
 swift run -c release levelgen --preset chapter2 --out ../../Levels/chapter_02.json
 
 # One configuration; --pool 3 keeps the hardest 20 of 60 passing levels, --hidden makes "?" levels
@@ -375,12 +394,20 @@ swift run -c release levelgen --colors 4 --empty 2 --twins 1 --link-placement fi
 swift run -c release levelgen --colors 4 --empty 1 --cauldron 1 --mix-pairs 2 --scramble 80 --mixing-matter --count 5 --seed 1 --out brew.json
 swift run -c release levelgen --colors 6 --capacity 3 --empty 2 --overflow 1 --link-placement mixed --link-cost 2 --count 2 --seed 1 --out pipes.json
 
+# Switches: --switch N joins N pairs of plain, unlinked flasks with a lever (switch → gate);
+# --switch-placement closed|empty|emptySwitch|any picks them (closed: both start with potion, the gate's is locked
+# away; empty: the gate is an empty flask; emptySwitch: the switch is an empty flask to fill with one color).
+# --switch-cost C rejects levels where a switch adds fewer than C moves to the optimal solution (SwitchImpact;
+# --switch-matter = cost 1, the chapter uses 2); --teaches-switch keeps tutorial-friendly ones (every gate starts
+# closed with potion, every star without a pure wait, no dead-end first move)
+swift run -c release levelgen --colors 5 --empty 2 --switch 1 --switch-placement closed --switch-cost 2 --count 5 --seed 1 --out hoard.json
+
 # Re-solve every level of every file and print difficulty tables, sorted by score, plus the
-# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice, bubbling, twins, pipe, cauldron) that doesn't matter
+# score curve in file order; exits with status 2 on a minMoves mismatch or a chapter mechanic (seal, rune, glass, ice, bubbling, twins, pipe, cauldron, switch) that doesn't matter
 swift run -c release levelgen --report ../../Levels
 
 # Time the solver on random 8-color puzzles (also takes --locks, --essence, --essence-empty, --narrow, --funnel, --tap, --frozen, --bubbling,
-# --twins, --overflow, --link-placement, --cauldron, --ingredients, --mix-pairs, --scramble)
+# --twins, --overflow, --link-placement, --cauldron, --ingredients, --mix-pairs, --scramble, --switch, --switch-placement)
 swift run -c release levelgen --bench --colors 8 --count 10
 ```
 
@@ -394,7 +421,7 @@ Level files are JSON. Layers are listed bottom → top. A color layer is an inte
 Pack fields besides `version` and `levels` are optional: `name`, `subtitle`, `kind` (`"chapter"` or
 `"challenge"`), `chapter` (1-based, required for a chapter), `location` and `introduces` (mechanics a
 first-time tutorial explains: `"basic"`, `"sealed"`, `"murky"`, `"essence"`, `"narrowNeck"`, `"funnel"`, `"tap"`, `"frozen"`, `"bubbling"`,
-`"twins"`, `"overflow"`, `"cauldron"`;
+`"twins"`, `"overflow"`, `"cauldron"`, `"switch"`;
 unknown names still load):
 
 ```json
@@ -414,9 +441,9 @@ seal stays `lockedBy`), level `links` (`{"type": "twins", "between": [0, 4]}`, `
 challenges stay version 1 and `chapter_04` (essence runes), `chapter_05` (`{"type": "narrowNeck"}`,
 `{"type": "funnel"}`, `{"type": "tap"}`) and `chapter_06` (`{"type": "frozen", "layer": 2, "turns": 5}`, layer 0 =
 bottom), `chapter_07` (`{"type": "bubbling", "every": 3, "phase": 1}`, phase 0 when omitted) and `chapter_08`
-(`links`: twins and overflow pipes) and `chapter_09` (`{"type": "cauldron", "recipes": [{"a": 0, "b": 1, "result": 4}]}`,
-recipes stored sorted) are version 2.
-Essence, glass, frozen layers, bubbling flasks, twins, overflow pipes and cauldrons are playable; the other
+(`links`: twins and overflow pipes), `chapter_09` (`{"type": "cauldron", "recipes": [{"a": 0, "b": 1, "result": 4}]}`,
+recipes stored sorted) and `chapter_10` (`links`: `{"type": "switchGate", "switch": 1, "gate": 0}`) are version 2.
+Essence, glass, frozen layers, bubbling flasks, twins, overflow pipes, cauldrons and switches are playable; the other
 R5/R7 mechanics are defined but not yet: such levels decode, but fail validation.
 
 To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no project edit is needed).
@@ -429,21 +456,24 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   base rule (a color run moves, or a key opens its seal). The game, the solver and the generator all go through it.
 - **Mechanics** (`Mechanics.swift`): a flask carries `modifiers` (`.sealed`, `.essence`, `.narrowNeck`, `.funnel`,
   `.tap`, `.frozen(layer:turns:)`, `.bubbling(every:phase:)` and `.cauldron([Recipe])` are implemented), the level has `links`
-  (twins and overflow pipes implemented, switch → gate for R5) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
+  (twins, overflow pipes and switch → gate implemented) and a `goal` (`.standard`; order, pattern, rescue for R7). A new mechanic is one
   case plus its arms in the `Rules` switches; key, JSON and validation already handle every case.
   `Bottle.lockedBy` remains as the seal's accessor, `Bottle.essenceColor` gives a flask's rune color,
   `hasNarrowNeck` / `isFunnel` / `hasTap` the glass, `frozenLayers` / `thawTurns(atLayer:)` / `holdsIce` /
   `isIcedOver` the ice, `bubbling` (`Bubbling.every` / `phase` / `movesUntilRise`) / `isBubbling` a bubbling flask,
   `isCauldron` / `recipes` a cauldron (`Rules.recipe(mixing:into:)` previews a mix, `Rules.mixed(_:pouring:amount:recipe:)`
   and `Rules.beforeMixing(_:poured:amount:recipe:pairs:)` give a cauldron's layers after and before a mix), `GameState.twin(of:)` / `overflowTarget(of:)` / `overflowSource(of:)` / `link(at:)`
-  the links, `Rules.linkRefusal(of:in:)` names a twin chain that refuses a pour, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
+  the links, `GameState.gate(of:)` / `switchFlask(of:)` / `isGateClosed(_:)`, `Rules.isSwitchOn(_:)` and
+  `Rules.isGateClosed(_:in:)` the switches (the gate's state is derived, never stored), `Rules.linkRefusal(of:in:)` names a twin chain or a closed gate that refuses a pour, and `Rules.refusal(of:in:)` names the modifier that refuses a pour
   (a rune, a funnel, a tap, ice; a funnel, tap or ice is named even when the base rule refuses too, e.g. a full tap).
   Automatic effects after the pour are `Turn.events` (`TurnEvent.mixed(bottle:recipe:pairs:)` first, then
-  `TurnEvent.thawed(bottle:layer:)`, then `TurnEvent.bubbled(bottle:)`; `GameSession.lastEvents`; `Rules.sunk(_:)` gives a risen flask's layers before the rise). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
+  `TurnEvent.thawed(bottle:layer:)`, then `TurnEvent.bubbled(bottle:)`, with `TurnEvent.gateOpened(switch:gate:)` /
+  `.gateClosed(switch:gate:)` after the step that caused them; `GameSession.lastEvents`; `Rules.sunk(_:)` gives a risen flask's layers before the rise). Every turn reports what it poured (`Turn.pour`, a `PourEvent` with amount, layer and
   whether it left from the bottom, plus `shares` / `landings` when part of it landed in a twin or ran through a
   pipe); `Rules.outlet(of:)` says which layers a flask would pour. `MechanicImpact` is the
   "must matter" check for any mechanic (`LockImpact`, `EssenceImpact`, `GlassImpact`, `FrozenImpact` and `BubblingImpact` are its
-  seal, rune, glass, ice and bubbling cases, `LinkImpact` the twins and pipes, `CauldronImpact` the cauldron; a
+  seal, rune, glass, ice and bubbling cases, `LinkImpact` the twins and pipes, `CauldronImpact` the cauldron,
+  `SwitchImpact` the switches (one-sided: a gate only refuses pours, so the check is how many moves it adds); a
   funnel matters by the trap it sets, a pipe by the spill it can force, a cauldron by counting: without mixing the
   colors can't end in full flasks, so every solution mixes; necks, taps, bubbling and links count either way).
 - **Solver**: breadth-first search for the fewest moves. Each state gets a compact key that ignores
@@ -456,7 +486,8 @@ To ship a new file, put the JSON file in `Levels/` (a synchronized folder, so no
   relocations of a state are the same wait, so only the first one is tried. A linked flask (twin, pipe end) is never
   interchangeable with another flask, and a pour into either twin of a pair is the same move, so only one is tried.
   With a cauldron the "skip a finished flask" rule is off (mixing changes color counts, and a cauldron can take a
-  mixing pour). An 8-color level solves in about 10–40 ms in a release build.
+  mixing pour). A switch and its gate are linked flasks like twins and pipe ends, so the same rules keep them safe:
+  a complete switch is never skipped as a source (emptying it closes its gate, a real choice). An 8-color level solves in about 10–40 ms in a release build.
 - **Difficulty score** = `minMoves + 1.5·log2(statesExplored) + 40·deadEndRatio + 0.5·branchingFactor`.
 - **Generator**: shuffles random layers with a seed, then rejects levels that are already sorted, unsolvable, or outside the target difficulty.
   Cauldron levels are the exception: they are built backwards from a solved board by a seeded walk of reverse pours
