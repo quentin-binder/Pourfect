@@ -1,0 +1,1391 @@
+{
+  "chapter" : 8,
+  "introduces" : [
+    "twins",
+    "overflow"
+  ],
+  "kind" : "chapter",
+  "levels" : [
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 0, 0]
+        },
+        {
+          "layers" : [1, 2, 0]
+        },
+        {
+          "layers" : [1, 2, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_001",
+      "links" : [
+        {
+          "between" : [5, 4],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.75,
+        "deadEndRatio" : 0,
+        "minMoves" : 8,
+        "score" : 20.1,
+        "seed" : 13093,
+        "statesExplored" : 72
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 2, 0, 0]
+        },
+        {
+          "layers" : [1, 0, 2, 0]
+        },
+        {
+          "layers" : [1, 2, 1, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_002",
+      "links" : [
+        {
+          "between" : [1, 0],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3,
+        "deadEndRatio" : 0,
+        "minMoves" : 9,
+        "score" : 19.6,
+        "seed" : 1013010,
+        "statesExplored" : 67
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 0, 2]
+        },
+        {
+          "layers" : [1, 1, 2, 1]
+        },
+        {
+          "layers" : [1, 0, 2, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_003",
+      "links" : [
+        {
+          "between" : [2, 1],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.3,
+        "deadEndRatio" : 0.011,
+        "minMoves" : 10,
+        "score" : 21.3,
+        "seed" : 1013013,
+        "statesExplored" : 72
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 3, 1]
+        },
+        {
+          "layers" : [1, 3, 2]
+        },
+        {
+          "layers" : [0, 2, 0]
+        },
+        {
+          "layers" : [0, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_004",
+      "links" : [
+        {
+          "between" : [1, 0],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 2.83,
+        "deadEndRatio" : 0.069,
+        "minMoves" : 12,
+        "score" : 26.1,
+        "seed" : 2013011,
+        "statesExplored" : 98
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 0, 2, 2]
+        },
+        {
+          "layers" : [0, 2, 1, 0]
+        },
+        {
+          "layers" : [3, 2, 1, 1]
+        },
+        {
+          "layers" : [3, 3, 3, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_005",
+      "links" : [
+        {
+          "between" : [6, 5],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 6.27,
+        "deadEndRatio" : 0.002,
+        "minMoves" : 11,
+        "score" : 29.1,
+        "seed" : 3013009,
+        "statesExplored" : 999
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 2, 3]
+        },
+        {
+          "layers" : [2, 0, 3]
+        },
+        {
+          "layers" : [1, 3, 0]
+        },
+        {
+          "layers" : [2, 1, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_006",
+      "links" : [
+        {
+          "between" : [1, 3],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.25,
+        "deadEndRatio" : 0.143,
+        "minMoves" : 12,
+        "score" : 29.2,
+        "seed" : 2013019,
+        "statesExplored" : 95
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 1, 0, 2]
+        },
+        {
+          "layers" : [1, 3, 1, 0]
+        },
+        {
+          "layers" : [2, 0, 0, 2]
+        },
+        {
+          "layers" : [3, 3, 3, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_007",
+      "links" : [
+        {
+          "between" : [5, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.58,
+        "deadEndRatio" : 0.003,
+        "minMoves" : 12,
+        "score" : 29.7,
+        "seed" : 3013005,
+        "statesExplored" : 947
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 2, 3]
+        },
+        {
+          "layers" : [2, 0, 1, 3]
+        },
+        {
+          "layers" : [1, 0, 3, 1]
+        },
+        {
+          "layers" : [2, 0, 1, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_008",
+      "links" : [
+        {
+          "between" : [6, 5],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5,
+        "deadEndRatio" : 0.003,
+        "minMoves" : 16,
+        "score" : 34.6,
+        "seed" : 3013010,
+        "statesExplored" : 1612
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 4, 3, 2]
+        },
+        {
+          "layers" : [0, 0, 2, 1]
+        },
+        {
+          "layers" : [4, 3, 2, 1]
+        },
+        {
+          "layers" : [4, 3, 0, 0]
+        },
+        {
+          "layers" : [4, 1, 1, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_009",
+      "links" : [
+        {
+          "between" : [5, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.13,
+        "deadEndRatio" : 0.005,
+        "minMoves" : 16,
+        "score" : 36.2,
+        "seed" : 4013002,
+        "statesExplored" : 3982
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 3, 2, 4]
+        },
+        {
+          "layers" : [1, 3, 1, 0]
+        },
+        {
+          "layers" : [2, 3, 1, 2]
+        },
+        {
+          "layers" : [1, 0, 3, 0]
+        },
+        {
+          "layers" : [2, 4, 4, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_010",
+      "links" : [
+        {
+          "between" : [0, 4],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.12,
+        "deadEndRatio" : 0.159,
+        "minMoves" : 17,
+        "score" : 37.6,
+        "seed" : 5013009,
+        "statesExplored" : 353
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 2, 1, 2]
+        },
+        {
+          "layers" : [4, 0, 0, 1]
+        },
+        {
+          "layers" : [1, 2, 3, 1]
+        },
+        {
+          "layers" : [3, 4, 3, 3]
+        },
+        {
+          "layers" : [0, 4, 0, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_011",
+      "links" : [
+        {
+          "between" : [7, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.71,
+        "deadEndRatio" : 0.006,
+        "minMoves" : 17,
+        "score" : 38.4,
+        "seed" : 4013000,
+        "statesExplored" : 5964
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 1, 3, 3]
+        },
+        {
+          "layers" : [1, 3, 2, 0]
+        },
+        {
+          "layers" : [1, 2, 0, 2]
+        },
+        {
+          "layers" : [0, 4, 4, 0]
+        },
+        {
+          "layers" : [1, 3, 4, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_012",
+      "links" : [
+        {
+          "between" : [5, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.71,
+        "deadEndRatio" : 0.007,
+        "minMoves" : 17,
+        "score" : 38.4,
+        "seed" : 4013003,
+        "statesExplored" : 5825
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 3, 0, 3]
+        },
+        {
+          "layers" : [2, 2, 3, 4]
+        },
+        {
+          "layers" : [4, 2, 3, 0]
+        },
+        {
+          "layers" : [1, 0, 0, 1]
+        },
+        {
+          "layers" : [1, 2, 4, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_013",
+      "links" : [
+        {
+          "between" : [3, 0],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.39,
+        "deadEndRatio" : 0.282,
+        "minMoves" : 18,
+        "score" : 42.3,
+        "seed" : 5013002,
+        "statesExplored" : 188
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 5, 5]
+        },
+        {
+          "layers" : [0, 3, 1]
+        },
+        {
+          "layers" : [2, 3, 3]
+        },
+        {
+          "layers" : [1, 2, 5]
+        },
+        {
+          "layers" : [1, 4, 4]
+        },
+        {
+          "layers" : [2, 4, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_014",
+      "links" : [
+        {
+          "from" : 2,
+          "to" : 7,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 6.42,
+        "deadEndRatio" : 0.042,
+        "minMoves" : 12,
+        "score" : 34.1,
+        "seed" : 6014649,
+        "statesExplored" : 2899
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 4, 3]
+        },
+        {
+          "layers" : [2, 5, 5]
+        },
+        {
+          "layers" : [0, 0, 3]
+        },
+        {
+          "layers" : [2, 4, 3]
+        },
+        {
+          "layers" : [2, 1, 4]
+        },
+        {
+          "layers" : [0, 5, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_015",
+      "links" : [
+        {
+          "from" : 1,
+          "to" : 6,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 6.15,
+        "deadEndRatio" : 0.023,
+        "minMoves" : 13,
+        "score" : 35.2,
+        "seed" : 6014475,
+        "statesExplored" : 4466
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 3, 1]
+        },
+        {
+          "layers" : [2, 3, 3]
+        },
+        {
+          "layers" : [4, 1, 0]
+        },
+        {
+          "layers" : [5, 0, 4]
+        },
+        {
+          "layers" : [2, 5, 4]
+        },
+        {
+          "layers" : [2, 0, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_016",
+      "links" : [
+        {
+          "from" : 1,
+          "to" : 7,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.64,
+        "deadEndRatio" : 0.02,
+        "minMoves" : 14,
+        "score" : 35.6,
+        "seed" : 6015985,
+        "statesExplored" : 5193
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 5, 4]
+        },
+        {
+          "layers" : [1, 2, 3]
+        },
+        {
+          "layers" : [2, 3, 0]
+        },
+        {
+          "layers" : [0, 0, 5]
+        },
+        {
+          "layers" : [1, 4, 5]
+        },
+        {
+          "layers" : [2, 4, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_017",
+      "links" : [
+        {
+          "from" : 5,
+          "to" : 6,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.21,
+        "deadEndRatio" : 0.005,
+        "minMoves" : 14,
+        "score" : 35.8,
+        "seed" : 6013862,
+        "statesExplored" : 6324
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 5, 5]
+        },
+        {
+          "layers" : [2, 3, 1]
+        },
+        {
+          "layers" : [2, 5, 0]
+        },
+        {
+          "layers" : [1, 3, 1]
+        },
+        {
+          "layers" : [0, 4, 4]
+        },
+        {
+          "layers" : [2, 4, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_018",
+      "links" : [
+        {
+          "from" : 0,
+          "to" : 6,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.23,
+        "deadEndRatio" : 0.066,
+        "minMoves" : 13,
+        "score" : 36.6,
+        "seed" : 6014788,
+        "statesExplored" : 4763
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 3, 4]
+        },
+        {
+          "layers" : [2, 0, 0]
+        },
+        {
+          "layers" : [5, 1, 1]
+        },
+        {
+          "layers" : [4, 3, 5]
+        },
+        {
+          "layers" : [3, 0, 1]
+        },
+        {
+          "layers" : [2, 2, 4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "id" : "c8_019",
+      "links" : [
+        {
+          "between" : [1, 3],
+          "type" : "twins"
+        },
+        {
+          "from" : 4,
+          "to" : 7,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.07,
+        "deadEndRatio" : 0.172,
+        "minMoves" : 14,
+        "score" : 36,
+        "seed" : 12013331,
+        "statesExplored" : 424
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [5, 0, 1]
+        },
+        {
+          "layers" : [3, 2, 0]
+        },
+        {
+          "layers" : [4, 2, 5]
+        },
+        {
+          "layers" : [2, 1, 0]
+        },
+        {
+          "layers" : [4, 1, 3]
+        },
+        {
+          "layers" : [3, 4, 5]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "hidden" : true,
+      "id" : "c8_020",
+      "links" : [
+        {
+          "from" : 3,
+          "to" : 6,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.5,
+        "deadEndRatio" : 0.012,
+        "minMoves" : 14,
+        "score" : 36.3,
+        "seed" : 8013026,
+        "statesExplored" : 6579
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 2, 5]
+        },
+        {
+          "layers" : [4, 0, 1]
+        },
+        {
+          "layers" : [0, 5, 2]
+        },
+        {
+          "layers" : [4, 5, 1]
+        },
+        {
+          "layers" : [3, 1, 3]
+        },
+        {
+          "layers" : [0, 3, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 3,
+      "hidden" : true,
+      "id" : "c8_021",
+      "links" : [
+        {
+          "from" : 2,
+          "to" : 7,
+          "type" : "overflow"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.07,
+        "deadEndRatio" : 0.009,
+        "minMoves" : 15,
+        "score" : 37.3,
+        "seed" : 8013633,
+        "statesExplored" : 7951
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 4, 0, 1]
+        },
+        {
+          "layers" : [1, 2, 0, 3]
+        },
+        {
+          "layers" : [3, 1, 2, 2]
+        },
+        {
+          "layers" : [4, 3, 0, 4]
+        },
+        {
+          "layers" : [3, 2, 0, 1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c8_022",
+      "links" : [
+        {
+          "between" : [2, 1],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 2.83,
+        "deadEndRatio" : 0.215,
+        "minMoves" : 18,
+        "score" : 39.4,
+        "seed" : 7013006,
+        "statesExplored" : 194
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 3, 0, 1],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, 2, 1, 1]
+        },
+        {
+          "layers" : [{"key": 1}, 4, 1, 2]
+        },
+        {
+          "layers" : [0, 3, 4, 3]
+        },
+        {
+          "layers" : [4, 0, 2, 3]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_023",
+      "links" : [
+        {
+          "between" : [4, 2],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.4,
+        "deadEndRatio" : 0.229,
+        "minMoves" : 20,
+        "score" : 41.4,
+        "seed" : 9013070,
+        "statesExplored" : 129
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 3, 2, 4],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, 4, 2, 0]
+        },
+        {
+          "layers" : [4, 3, 4, 1]
+        },
+        {
+          "layers" : [2, 1, 3, 3]
+        },
+        {
+          "layers" : [0, {"key": 1}, 1, 0]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_024",
+      "links" : [
+        {
+          "between" : [3, 4],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 2.52,
+        "deadEndRatio" : 0.239,
+        "minMoves" : 21,
+        "score" : 41.9,
+        "seed" : 9013065,
+        "statesExplored" : 104
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 1, 3, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [1, 3, 0, 2]
+        },
+        {
+          "layers" : [4, 1, 4, 3]
+        },
+        {
+          "layers" : [3, 0, 4, 1]
+        },
+        {
+          "layers" : [4, 2, {"key": 1}, 2]
+        },
+        {
+          "layers" : [0]
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_025",
+      "links" : [
+        {
+          "between" : [1, 2],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 2.79,
+        "deadEndRatio" : 0.274,
+        "minMoves" : 19,
+        "score" : 42,
+        "seed" : 9013113,
+        "statesExplored" : 136
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [1, 3, 0, 4]
+        },
+        {
+          "layers" : [0, 3, 4, 1]
+        },
+        {
+          "layers" : [2, 2, 2, 0]
+        },
+        {
+          "layers" : [3, 0, 4, 3]
+        },
+        {
+          "layers" : [1, 1, 4, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c8_026",
+      "links" : [
+        {
+          "between" : [1, 2],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.24,
+        "deadEndRatio" : 0.328,
+        "minMoves" : 17,
+        "score" : 43.8,
+        "seed" : 7013003,
+        "statesExplored" : 256
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 1, 0, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [0, 1, 4, 4]
+        },
+        {
+          "layers" : [1, 5, 4, 3]
+        },
+        {
+          "layers" : [5, 2, 3, 0]
+        },
+        {
+          "layers" : [{"key": 1}, 0, 2, 2]
+        },
+        {
+          "layers" : [5, 3, 5, 3]
+        },
+        {
+          "layers" : [1]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_027",
+      "links" : [
+        {
+          "between" : [4, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 4.68,
+        "deadEndRatio" : 0.021,
+        "minMoves" : 22,
+        "score" : 44.7,
+        "seed" : 10013226,
+        "statesExplored" : 8358
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 0, 4, 2],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [2, 1, 3, 1]
+        },
+        {
+          "layers" : [0, 3, 3, 5]
+        },
+        {
+          "layers" : [2, 5, 4, 5]
+        },
+        {
+          "layers" : [{"key": 1}, 0, 4, 1]
+        },
+        {
+          "layers" : [1, 2, 5, 0]
+        },
+        {
+          "layers" : [3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_028",
+      "links" : [
+        {
+          "between" : [3, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.7,
+        "deadEndRatio" : 0.025,
+        "minMoves" : 23,
+        "score" : 44.8,
+        "seed" : 10013145,
+        "statesExplored" : 3931
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [2, 0, 3, 4]
+        },
+        {
+          "layers" : [2, 0, 4, 1]
+        },
+        {
+          "layers" : [0, 4, 3, 2]
+        },
+        {
+          "layers" : [3, 1, 4, 1]
+        },
+        {
+          "layers" : [1, 3, 2, 0]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "hidden" : true,
+      "id" : "c8_029",
+      "links" : [
+        {
+          "between" : [2, 4],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.58,
+        "deadEndRatio" : 0.305,
+        "minMoves" : 19,
+        "score" : 45.6,
+        "seed" : 7013012,
+        "statesExplored" : 346
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [0, 1, 2, 0],
+          "lockedBy" : 1
+        },
+        {
+          "layers" : [{"key": 1}, 5, 0, 2]
+        },
+        {
+          "layers" : [3, 5, 2, 2]
+        },
+        {
+          "layers" : [1, 3, 5, 4]
+        },
+        {
+          "layers" : [4, 3, 0, 4]
+        },
+        {
+          "layers" : [1, 1, 5, 3]
+        },
+        {
+          "layers" : [4]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_030",
+      "links" : [
+        {
+          "between" : [2, 6],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 5.61,
+        "deadEndRatio" : 0.032,
+        "minMoves" : 23,
+        "score" : 45.6,
+        "seed" : 10013028,
+        "statesExplored" : 5348
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [4, 5, 4, 1]
+        },
+        {
+          "layers" : [1, 0, 6, 1]
+        },
+        {
+          "layers" : [1, 0, 0, 3]
+        },
+        {
+          "layers" : [3, 6, 3, 2]
+        },
+        {
+          "layers" : [0, 3, 5, 6]
+        },
+        {
+          "layers" : [6, 5, 4, 5]
+        },
+        {
+          "layers" : [2, 4, 2, 2]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_031",
+      "links" : [
+        {
+          "between" : [2, 5],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.71,
+        "deadEndRatio" : 0.286,
+        "minMoves" : 24,
+        "score" : 52,
+        "seed" : 11013007,
+        "statesExplored" : 891
+      }
+    },
+    {
+      "bottles" : [
+        {
+          "layers" : [3, 3, 5, 1]
+        },
+        {
+          "layers" : [2, 2, 0, 0]
+        },
+        {
+          "layers" : [0, 1, 1, 2]
+        },
+        {
+          "layers" : [0, 6, 6, 5]
+        },
+        {
+          "layers" : [5, 5, 2, 6]
+        },
+        {
+          "layers" : [4, 4, 6, 4]
+        },
+        {
+          "layers" : [1, 3, 4, 3]
+        },
+        {
+          "layers" : []
+        },
+        {
+          "layers" : []
+        }
+      ],
+      "capacity" : 4,
+      "id" : "c8_032",
+      "links" : [
+        {
+          "between" : [2, 5],
+          "type" : "twins"
+        }
+      ],
+      "meta" : {
+        "branchingFactor" : 3.56,
+        "deadEndRatio" : 0.595,
+        "minMoves" : 18,
+        "score" : 56.3,
+        "seed" : 11013000,
+        "statesExplored" : 356
+      }
+    }
+  ],
+  "location" : "Twin Towers",
+  "name" : "Twin Towers",
+  "subtitle" : "Chained twins share every pour; overflow pipes catch what doesn't fit",
+  "version" : 2
+}

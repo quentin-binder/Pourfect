@@ -275,6 +275,8 @@ struct Tier {
     var teachesLinks = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
+    /// Candidates tried per level before giving up (`GeneratorConfig.maxAttempts`).
+    var maxAttempts = 2_000
 }
 
 struct PackPreset {
@@ -484,6 +486,48 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 2, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...56, locksMatter: true,
              strongLocks: true, bubbling: 1, bubblingPeriod: 3, bubblingCost: BubblingImpact.strongCost, section: 2),
     ]),
+    "chapter8": PackPreset(file: "chapter_08", idPrefix: "c8", name: "Twin Towers",
+                           subtitle: "Chained twins share every pour; overflow pipes catch what doesn't fit",
+                           kind: .chapter, chapter: 8, location: "Twin Towers", introduces: [.twins, .overflow],
+                           seed: 13_000, tiers: [
+        // Tutorial: 3 colors in size-3 flasks; two of the three empty flasks are chained twins; the chain
+        // costs 2+ moves, an optimal solution splits a pour into the twins without parking a flask, and
+        // no first move is a dead end.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 3, moves: any, pool: 16, twins: 1, linkPlacement: .empty,
+             linkCost: LinkImpact.strongCost, keepEasiest: true, teachesLinks: true, section: 0),
+        // Twins only (every chain changes the optimum by 2+ moves): on two filled flasks, or on two of
+        // three empty flasks.
+        Tier(count: 2, colors: 3, capacity: 4, empty: 2, moves: any, score: 18...24, twins: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 4, capacity: 3, empty: 2, moves: any, score: 23...30, twins: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 4, capacity: 4, empty: 3, moves: any, score: 28...35, twins: 1, linkPlacement: .empty,
+             linkCost: LinkImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 3, moves: any, score: 35...42, twins: 1, linkPlacement: .empty,
+             linkCost: LinkImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 37...45, twins: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, section: 1),
+        // Overflow pipes (from a filled flask into an empty one; a pipe matters by the spill trap it
+        // sets, DECISIONS 181): 6 colors in size-3 flasks.
+        Tier(count: 5, colors: 6, capacity: 3, empty: 2, moves: any, overflow: 1, linkPlacement: .mixed,
+             linkCost: LinkImpact.strongCost, section: 2),
+        // With earlier mechanics: murky twins and pipes, twins with a strong seal (one empty flask, or
+        // two with 6 colors).
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 38...46, twins: 1,
+             linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
+        Tier(count: 2, colors: 6, capacity: 3, empty: 2, hidden: true, moves: any, overflow: 1, linkPlacement: .mixed,
+             linkCost: LinkImpact.strongCost, section: 3),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 38...48, locksMatter: true,
+             strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
+        Tier(count: 3, colors: 6, capacity: 4, empty: 2, locks: 1, moves: any, score: 44...56, locksMatter: true,
+             strongLocks: true, twins: 1, linkPlacement: .filled, linkCost: LinkImpact.strongCost, section: 3),
+        // The hardest: 7 colors, twins on two filled flasks.
+        Tier(count: 2, colors: 7, capacity: 4, empty: 2, moves: any, score: 50...57, twins: 1, linkPlacement: .filled,
+             linkCost: LinkImpact.strongCost, section: 3),
+        // Both links in one recipe: a twin chain and a pipe, each mattering on its own (rare: ~1 in 1000).
+        Tier(count: 1, colors: 6, capacity: 3, empty: 2, moves: any, twins: 1, overflow: 1, linkPlacement: .any,
+             linkCost: LinkImpact.strongCost, section: 3, maxAttempts: 8_000),
+    ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
         Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
@@ -533,7 +577,7 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      bubblingCost: tier.bubblingCost ?? BubblingImpact.minimumCost,
                                      twins: tier.twins, overflow: tier.overflow, linkPlacement: tier.linkPlacement,
                                      requireLinksMatter: tier.linkCost != nil,
-                                     linkCost: tier.linkCost ?? LinkImpact.minimumCost)
+                                     linkCost: tier.linkCost ?? LinkImpact.minimumCost, maxAttempts: tier.maxAttempts)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {

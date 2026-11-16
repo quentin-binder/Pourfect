@@ -662,3 +662,53 @@ private func flask(_ values: [Int], _ capacity: Int, _ modifiers: [BottleModifie
         return s
     }
 }
+
+/// Twin Towers (chapter 8).
+@Suite struct TwinTowersTests {
+    static func pack() throws -> LevelPack { try LevelFileTests.load("chapter_08") }
+
+    @Test func shape() throws {
+        let pack = try Self.pack()
+        #expect(pack.version == 2 && pack.chapter == 8 && pack.location == "Twin Towers")
+        #expect(pack.introduces == [.twins, .overflow])
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c8_%03d", $0 + 1) })
+        for level in pack.levels {
+            let s = level.gameState
+            #expect((1...2).contains(s.links.count), "\(level.id)")
+            #expect(level.mechanics.contains(.twins) || level.mechanics.contains(.overflow), "\(level.id)")
+            #expect(s.links.allSatisfy { link in s.bottles[link.endpoints.0].isPlain && s.bottles[link.endpoints.1].isPlain })
+            #expect(!level.mechanics.contains(.tap) && !level.mechanics.contains(.frozen) && !level.mechanics.contains(.bubbling))
+        }
+        // Tutorial: tiny, twins only (the two empty flasks), the split part of an optimal solution
+        // without parking a flask, no dead-end first move.
+        let tutorial = try #require(pack.levels.first)
+        let start = tutorial.gameState
+        #expect(tutorial.capacity == 3 && tutorial.mechanics == [.twins] && (tutorial.meta?.minMoves ?? 99) <= 10)
+        #expect(start.links.count == 1 && start.links.allSatisfy { start.bottles[$0.endpoints.0].isEmpty && start.bottles[$0.endpoints.1].isEmpty })
+        #expect(LinkImpact.solvesUsingEveryLink(start, in: tutorial.meta?.minMoves ?? 0))
+        #expect(MechanicImpact.everyFirstMoveSolvable(start))
+        // Twins first, then pipes, then both and earlier mechanics.
+        let firstPipe = try #require(pack.levels.firstIndex { $0.mechanics.contains(.overflow) })
+        #expect(firstPipe >= 12 && pack.levels[..<firstPipe].allSatisfy { $0.mechanics == [.twins] })
+        #expect(pack.levels.contains { $0.mechanics.contains(.twins) && $0.mechanics.contains(.overflow) })
+        #expect(pack.levels.suffix(13).contains { $0.isHidden } && pack.levels.suffix(13).contains { $0.mechanics.contains(.sealed) })
+        let scores = pack.levels.compactMap { $0.meta?.score }
+        #expect(scores.count == pack.levels.count)
+        #expect(scores.first! < 22 && scores.max()! >= 48 && scores.max()! <= 62)
+    }
+
+    /// Every link matters (a twin chain by 2+ moves either way, a pipe by 2+ moves or by the
+    /// spill trap it sets), seals as in chapter 2. Small searches only.
+    @Test func everyMechanicMatters() throws {
+        var checked = 0
+        for level in try Self.pack().levels {
+            guard let meta = level.meta, let minMoves = meta.minMoves, (meta.statesExplored ?? 0) <= 6_000 else { continue }
+            let s = level.gameState
+            #expect(LinkImpact.everyLinkMatters(s, minMoves: minMoves, cost: LinkImpact.strongCost), "\(level.id)")
+            #expect(LockImpact.everyLockMatters(s, minMoves: minMoves, cost: LockImpact.strongCost), "\(level.id)")
+            checked += 1
+        }
+        #expect(checked >= 10)
+    }
+}
