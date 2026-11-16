@@ -281,6 +281,18 @@ final class GameViewModel {
         TutorialTopic.topics(in: level, introduces: levelIndex == 0 ? introduces : [])
     }
     var state: GameState { session.state }
+
+    /// Pressure-pipe push preview (F2): while a flask is held and nothing is pouring, what a pour
+    /// from it into the flask of each pressure pipe would push (`Rules.push(of:in:)`, so the core
+    /// decides), keyed by that pipe flask. Empty when no pour from the held flask would push.
+    var pushPreviews: [Int: PipePush] {
+        guard let from = selected, pour == nil else { return [:] }
+        var result: [Int: PipePush] = [:]
+        for case let .overflow(a, _) in state.links {
+            if let push = Rules.push(of: Move(from: from, to: a), in: state) { result[a] = push }
+        }
+        return result
+    }
     var moveCount: Int { session.moveCount }
     var canUndo: Bool { session.canUndo }
     var hasNextLevel: Bool { levelIndex + 1 < levels.count }

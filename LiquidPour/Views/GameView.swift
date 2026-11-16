@@ -29,6 +29,7 @@ struct GameView: View {
                     // chains hang in front of them.
                     .backgroundPreferenceValue(BottleFramesKey.self) { linkLayer($0, pipes: true) }
                     .overlayPreferenceValue(BottleFramesKey.self) { linkLayer($0, pipes: false) }
+                    .overlayPreferenceValue(BottleFramesKey.self) { pushPreviewLayer($0) }
                     .overlayPreferenceValue(BottleFramesKey.self) { pourLayer($0) }
             }
             controls
@@ -108,6 +109,22 @@ struct GameView: View {
                 while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
                 try? await Task.sleep(for: .seconds(1))
                 withAnimation(.easeInOut(duration: 0.3)) { model.undo() }
+            }
+            // `-LPDemoSelect N`: then picks up flask N (1-based, the shuffled level's numbering);
+            // `-LPDemoSelect push` picks up the first flask whose pour into a pressure-pipe flask
+            // would push (to see the push preview).
+            var select = UserDefaults.standard.integer(forKey: "LPDemoSelect")
+            if UserDefaults.standard.string(forKey: "LPDemoSelect") == "push" {
+                let s = model.state
+                let pipes = s.links.compactMap { if case let .overflow(a, _) = $0 { a } else { nil } }
+                select = 1 + (s.bottles.indices.first { from in
+                    pipes.contains { Rules.push(of: Move(from: from, to: $0), in: s) != nil }
+                } ?? -1)
+            }
+            if select > 0, select <= model.state.bottles.count {
+                while model.pour != nil { try? await Task.sleep(for: .milliseconds(50)) }
+                try? await Task.sleep(for: .milliseconds(600))
+                withAnimation(.easeInOut(duration: 0.3)) { model.tap(bottle: select - 1) }
             }
         }
         #endif
@@ -266,8 +283,15 @@ struct GameView: View {
             return contents + ", " + String(localized: "twin of flask \(other + 1), every pour into either is split evenly between both",
                                             comment: "VoiceOver: a twin flask; the argument is the other twin's number")
         case .pipeOut(let to):
-            return contents + ", " + String(localized: "pressure pipe, pushes its bottom layer into the bottom of flask \(to + 1)",
-                                            comment: "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into")
+            let pipe = contents + ", " + String(localized: "pressure pipe, pushes its bottom layer into the bottom of flask \(to + 1)",
+                                                comment: "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into")
+            // The held flask would push through this pipe if poured here (the push preview).
+            guard let push = model.pushPreviews[index] else { return pipe }
+            return pipe + ", " + (push.amount == 1
+                ? String(localized: "pouring here pushes 1 layer into flask \(push.bottle + 1)",
+                         comment: "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push one layer through the pipe; the argument is the flask at the pipe's far end")
+                : String(localized: "pouring here pushes \(push.amount) layers into flask \(push.bottle + 1)",
+                         comment: "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push several layers through the pipe; the arguments are the number of layers (2 or more) and the flask at the pipe's far end"))
         case .pipeIn(let from):
             return contents + ", " + String(localized: "the pressure pipe of flask \(from + 1) pushes layers into its bottom",
                                             comment: "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from")
@@ -305,6 +329,7 @@ struct GameView: View {
     @ViewBuilder
     private func linkLayer(_ frames: [Int: Anchor<CGRect>], pipes: Bool) -> some View {
         let links = model.state.links.filter { $0.isPipe == pipes }
+        let previews = pipes ? model.pushPreviews : [:]
         GeometryReader { proxy in
             ZStack(alignment: .topLeading) {
                 ForEach(links.indices, id: \.self) { i in
@@ -333,13 +358,18 @@ struct GameView: View {
                         let shake = { (bottle: Int) -> CGFloat in
                             model.shakes.indices.contains(bottle) ? CGFloat(model.shakes[bottle]) : 0
                         }
+                        // A pipe whose flask would push on a pour from the held flask glows.
+                        let preview = link.isPipe && previews[a] != nil
+                        let flows = !reduceMotion
                         LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
                                  shakeA: shake(a), shakeB: shake(b), open: open, gateRise: rise, slides: slides,
-                                 switchAway: switchAway, gateAway: gateAway)
+                                 switchAway: switchAway, gateAway: gateAway, pushPreview: preview,
+                                 previewFlows: flows)
                             .keyframeAnimator(initialValue: 0.0, trigger: refusals) { _, flare in
                                 LinkView(link: link, a: ra, b: rb, liftA: lifted(a, ra.width), liftB: lifted(b, rb.width),
                                          shakeA: shake(a), shakeB: shake(b), flare: flare, open: open, gateRise: rise,
-                                         slides: slides, switchAway: switchAway, gateAway: gateAway)
+                                         slides: slides, switchAway: switchAway, gateAway: gateAway,
+                                         pushPreview: preview, previewFlows: flows)
                                     // The portcullis slides up (or drops) and the gem lights (or
                                     // dims); set here, inside the animator's content, so it applies.
                                     .animation(gateAnimation, value: open)
@@ -353,6 +383,27 @@ struct GameView: View {
                             .animation(.easeInOut(duration: 0.35), value: model.shakes)
                             .opacity(flying ? 0 : 1)
                             .animation(.easeInOut(duration: 0.25), value: flying)
+                    }
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+        }
+        .allowsHitTesting(false)
+    }
+
+    /// The push preview's tags (F2): while a flask is held, "+N" under the far flask of every
+    /// pressure pipe whose flask would push on a pour from it (`GameViewModel.pushPreviews`).
+    private func pushPreviewLayer(_ frames: [Int: Anchor<CGRect>]) -> some View {
+        let previews = model.pushPreviews.sorted { $0.key < $1.key }
+        return GeometryReader { proxy in
+            ZStack(alignment: .topLeading) {
+                ForEach(previews, id: \.key) { entry in
+                    let push = entry.value
+                    if let fb = frames[push.bottle] {
+                        let rb = proxy[fb]
+                        PushBadge(amount: push.amount, width: rb.width)
+                            .position(PushBadge.center(under: rb))
+                            .transition(.opacity.combined(with: .scale(scale: 0.6)))
                     }
                 }
             }

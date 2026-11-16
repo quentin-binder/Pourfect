@@ -230,15 +230,33 @@ struct PipeGeometry {
 /// The pressure pipe at rest: a brass tube with a spout under each flask's base (a brass
 /// collar under the first, a flared inlet under the second) and a brass arrow on its floor run
 /// pointing the way the bottom layers are pushed. `flare` 0…1 brightens it (it refused a pour).
+/// `preview`: the held flask would push through this pipe if poured into its flask (the push
+/// preview): the pipe glows, and unless `flows` is off (Reduce Motion) light runs along it and
+/// the arrow nudges forward.
 struct PipeView: View {
     let geometry: PipeGeometry
     var flare: Double = 0
+    var preview = false
+    var flows = true
 
     var body: some View {
+        TimelineView(.animation(paused: !(preview && flows))) { context in
+            pipe(time: preview && flows ? context.date.timeIntervalSinceReferenceDate : 0)
+        }
+        .shadow(color: Brass.light.opacity(preview ? 0.9 : 0), radius: preview ? 7 : 0)
+        .animation(.easeInOut(duration: 0.25), value: preview)
+    }
+
+    private func pipe(time: TimeInterval) -> some View {
         let g = geometry
         let path = g.path
         let (mid, angle) = g.arrow
-        ZStack {
+        // The preview's run of light: short bright dashes marching from A's spout to B's.
+        let dash = g.tube * 1.1, gap = g.tube * 1.6
+        let phase = -CGFloat(time.truncatingRemainder(dividingBy: 1)) * (dash + gap) * 1.6
+        // The arrow nudges forward and back along its run.
+        let nudge = CGFloat(sin(time * 2 * .pi * 1.6)) * g.tube * 0.35
+        return ZStack {
             // Brass: a dark rim, the metal, a light streak along the top.
             path.stroke(Brass.dark, style: StrokeStyle(lineWidth: g.tube + 2, lineCap: .butt, lineJoin: .round))
             path.stroke(Brass.mid, style: StrokeStyle(lineWidth: g.tube, lineCap: .butt, lineJoin: .round))
@@ -247,11 +265,21 @@ struct PipeView: View {
             path.stroke(Brass.light.opacity(0.75 + 0.25 * flare),
                         style: StrokeStyle(lineWidth: max(1, g.tube * 0.16), lineCap: .round, lineJoin: .round))
                 .offset(x: -g.tube * 0.12, y: -g.tube * 0.22)
+            if preview {
+                path.stroke(Brass.light.opacity(0.55),
+                            style: StrokeStyle(lineWidth: g.tube * 0.5, lineCap: .butt, lineJoin: .round))
+                if flows {
+                    path.stroke(Color.white.opacity(0.9),
+                                style: StrokeStyle(lineWidth: g.tube * 0.32, lineCap: .round, lineJoin: .round,
+                                                   dash: [dash, gap], dashPhase: phase))
+                }
+            }
             spout(at: g.start, width: g.tube * 1.9, height: g.tube * 0.85)
             spout(at: g.end, width: g.tube * 2.2, height: g.tube * 0.85)
-            PipeArrow(size: g.tube * 2.2)
+            PipeArrow(size: g.tube * 2.2 * (preview ? 1.15 : 1))
                 .rotationEffect(.radians(Double(angle)))
-                .position(mid)
+                .position(x: mid.x + nudge * cos(angle), y: mid.y)
+                .shadow(color: .white.opacity(preview ? 0.8 : 0), radius: preview ? 4 : 0)
         }
         .shadow(color: .black.opacity(0.4), radius: 1.5, y: 1)
         .shadow(color: Brass.light.opacity(0.8 * flare), radius: 6 * flare)
@@ -289,6 +317,40 @@ struct PipeArrow: View {
         }
         .frame(width: size, height: size)
         .shadow(color: .black.opacity(0.4), radius: 1, y: 0.5)
+    }
+}
+
+/// The push preview's mark under the far flask of a pressure pipe: a small brass tag with an
+/// up chevron and "+N", the layers a pour into the pipe's flask would push into this flask's
+/// bottom. Place its center under the far flask's base (`center(under:)`).
+struct PushBadge: View {
+    let amount: Int
+    let width: CGFloat
+
+    /// Where the tag sits: centered under `flask`'s base, over the pipe's inlet.
+    static func center(under flask: CGRect) -> CGPoint {
+        CGPoint(x: flask.midX, y: flask.maxY + PipeGeometry.drop(flask.width) * 0.6)
+    }
+
+    var body: some View {
+        let font = max(9, width * 0.2)
+        HStack(spacing: font * 0.12) {
+            Image(systemName: "chevron.up")
+                .font(.system(size: font * 0.8, weight: .heavy))
+            Text("+\(amount)", comment: "Push preview under a flask: how many layers a pour would push into its bottom through a pressure pipe")
+                .font(.system(size: font, weight: .bold, design: .rounded))
+                .monospacedDigit()
+        }
+        .foregroundStyle(Color(white: 0.12))
+        .padding(.horizontal, font * 0.45)
+        .padding(.vertical, font * 0.15)
+        .background(Capsule().fill(LinearGradient(colors: [Brass.light, Brass.mid],
+                                                  startPoint: .top, endPoint: .bottom)))
+        .overlay(Capsule().stroke(Brass.dark, lineWidth: 1))
+        .shadow(color: Brass.light.opacity(0.8), radius: 4)
+        .fixedSize()
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -339,6 +401,10 @@ struct LinkView: View, Animatable {
     /// A switch link whose gate is in the air pouring: only the gem, rod and lever stay (the
     /// housing and the portcullis sit on the gate).
     var gateAway = false
+    /// A pressure pipe: the held flask would push through it (`PipeView.preview`), and whether the
+    /// preview's light runs (off with Reduce Motion: a static glow).
+    var pushPreview = false
+    var previewFlows = true
 
     var animatableData: AnimatablePair<AnimatablePair<AnimatablePair<CGFloat, CGFloat>, AnimatablePair<CGFloat, CGFloat>>, Double> {
         get { AnimatablePair(AnimatablePair(AnimatablePair(liftA, liftB), AnimatablePair(shakeA, shakeB)), open) }
@@ -362,7 +428,7 @@ struct LinkView: View, Animatable {
             PipeView(geometry: PipeGeometry(from: self.a.offsetBy(dx: ShakeEffect.offset(shakeA), dy: 0),
                                             to: self.b.offsetBy(dx: ShakeEffect.offset(shakeB), dy: 0),
                                             liftA: liftA, liftB: liftB),
-                     flare: flare)
+                     flare: flare, preview: pushPreview, flows: previewFlows)
         case .switchGate:
             LeverView(geometry: LeverGeometry(switch: a, gate: b, gateRise: gateRise),
                       open: open, slides: slides, flare: flare, switchAway: switchAway,

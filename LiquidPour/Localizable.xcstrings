@@ -347,6 +347,9 @@
         }
       }
     },
+    "+%lld" : {
+      "comment" : "Push preview under a flask: how many layers a pour would push into its bottom through a pressure pipe"
+    },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {},
     "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {},
     "A hint was used, so this brew can't be perfect" : {},
@@ -754,6 +757,12 @@
     "Pourfect" : {},
     "Pourfect Daily %@ · %@ · 🔥 %lld" : {
       "comment" : "Shared daily result: date, moves, streak"
+    },
+    "pouring here pushes %lld layers into flask %lld" : {
+      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push several layers through the pipe; the arguments are the number of layers (2 or more) and the flask at the pipe's far end"
+    },
+    "pouring here pushes 1 layer into flask %lld" : {
+      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push one layer through the pipe; the argument is the flask at the pipe's far end"
     },
     "Pouring out of a twin works as usual: only the flask you pick up pours. One twin can't pour into the other." : {},
     "pressure pipe, pushes its bottom layer into the bottom of flask %lld" : {
