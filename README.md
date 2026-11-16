@@ -128,10 +128,11 @@ xcodebuild -project LiquidPour.xcodeproj -scheme LiquidPour -destination 'platfo
   color and no key (unless it is also sealed and the key is its own: the seal is handled first and opening it leaves
   the rune). It can always be poured from, and may start with other colors, which have to be poured out first. It
   counts as sorted like any flask (empty, or full with one color), so in practice it ends empty or full of its own
-  color. An empty essence flask is not a free empty flask. In the app the flask's glass is faintly tinted and
-  outlined in its color, and the color's rune is etched near the neck in a glowing ring (at rest, in flight, and
+  color. An empty essence flask is not a free empty flask. In the app the flask's glass is faintly tinted in
+  its color, and the color's rune is etched near the neck in a glowing ring (at rest, in flight, and
   in front of the stream that fills it, which makes it glow brighter). A refused pour shakes the essence flask,
-  flares its rune, plays a low glassy hum and says "This essence flask only takes ⟨potion⟩". VoiceOver adds
+  flares its rune, plays a low glassy hum and says "This essence flask only takes ⟨potion⟩" (also announced to VoiceOver; a full
+  essence flask just refuses like any full flask). VoiceOver adds
   "essence flask, accepts ⟨potion⟩ only".
 
 ### Random Brew (random levels)
@@ -176,13 +177,13 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPOpenChallenge NAME` | Opens a challenge book: `challenger`, `expert` or `master` (file or display name). |
 | `-LPOpenChallenges 1` | Opens the Challenges area. |
 | `-LPOpenLevel N` | Opens recipe N (1-based) directly, ignoring locks: of `-LPOpenChapter` / `-LPOpenChallenge` if given, else of pack `-LPOpenPack`. |
-| `-LPOpenPack P` | With `-LPOpenLevel` alone: pack by position, chapters first, then challenges: 1–3 = chapters 1–3, 4 = Challenger, 5 = Expert, 6 = Master (default 1). |
+| `-LPOpenPack P` | With `-LPOpenLevel` alone: pack by position, chapters first, then challenges: 1…C = chapters 1…C, then Challenger, Expert, Master (with 4 chapters: 5, 6, 7; default 1). |
 | `-LPUnlockAll 1` | Opens every chapter on the map and every recipe in the grids (saved stars are untouched). |
 | `-LPResetTutorials 1` | Forgets which tips were seen (at launch), so they show again. |
 | `-LPSkipTutorials 1` | Never shows a tip on its own this run (nothing saved); for screenshots. |
 | `-LPTutorialPage N` | Opens tips on step N (1-based). |
 | `-LPMapAnchor Y` | Opens the chapter map scrolled to height Y (0 = top / dragon, 1 = bottom / cellar). |
-| `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). |
+| `-LPDemoMoves K` | Auto-plays the first K optimal moves through the normal tap path (with the pour animation). A demo win saves no stars and no daily result. |
 | `-LPDemoUndo N` | After `-LPDemoMoves`: undoes N moves, one per second. |
 | `-LPDemoRefuse S` | After `-LPDemoMoves` (or at once), waits S seconds and tries a pour an essence flask refuses (rune flare, message, hum). |
 | `-LPRandomSettings 1` | Opens the Random Brew screen (inside Challenges). |
@@ -223,7 +224,8 @@ round trips, `MechanicImpact`, and golden fingerprints that pin generator, rando
 output to what they were before the refactor (every shipped file also re-encodes byte for byte). Essence flasks
 have their own suite: every rule case (with seals), a hand-made puzzle the rune makes longer, the solver against the
 naive BFS on 175 random essence levels (with seals too), pruning that keeps every distinct child, permutation-invariant
-keys, the JSON round trip, validation, undo/restart, the generator options, and chapter 4 (every rune and seal matters).
+keys, the JSON round trip, validation, undo/restart, the generator options (murky placement reads no hidden layer),
+and chapter 4 (every rune and seal matters).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
 ## Generate levels
@@ -245,7 +247,8 @@ swift run -c release levelgen --colors 9 --capacity 4 --empty 2 --count 20 --poo
 # --locks-matter rejects levels where a lock only adds the key pour (LockImpact)
 swift run -c release levelgen --colors 5 --empty 2 --locks 1 --locks-matter --count 5 --seed 1 --out locks.json
 
-# Essence flasks: N runes of different colors, on empty flasks or on filled flasks (their bottom color);
+# Essence flasks: N runes of different colors, on empty flasks or on filled flasks (their bottom color;
+# with --hidden a random color, so a rune never reveals a murky layer);
 # --essence-empty K puts K of them on empty flasks; --essence-cost C rejects levels where a rune adds fewer
 # than C moves (EssenceImpact; --essence-matter = cost 1, the chapter uses 2 after its tutorial)
 swift run -c release levelgen --colors 5 --empty 2 --essence 1 --essence-cost 2 --count 5 --seed 1 --out runes.json
