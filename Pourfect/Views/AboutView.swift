@@ -65,7 +65,7 @@ struct AboutView: View {
             }
         }
         #if os(macOS)
-        .frame(width: 460, height: 520)
+        .frame(width: 460, height: 600)
         #endif
     }
 }

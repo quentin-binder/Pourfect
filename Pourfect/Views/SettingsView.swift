@@ -63,6 +63,9 @@ struct SettingsView: View {
                 .sheet(isPresented: $showsAbout) {
                     AboutView(showsDone: true)
                 }
+                #if DEBUG
+                .onAppear { if UserDefaults.standard.bool(forKey: "LPOpenAbout") { showsAbout = true } }  // dev aid for screenshots
+                #endif
                 #endif
             } footer: {
                 Text("Version \(AboutView.versionText)", comment: "App version and build number, e.g. Version 1.0 (3)")

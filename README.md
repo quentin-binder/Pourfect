@@ -367,6 +367,7 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPDailyDate YYYY-MM-DD` | Pretends today is that UTC date (the clock is shifted by whole days, so the countdown and "solved today" still work). Results stay in memory only. |
 | `-LPDailySeedResults N` | Adds fake results for the N days before today (a few gaps, mostly perfect, a 5-day run ending yesterday), for calendar screenshots. Results stay in memory only: nothing is saved and the real history is untouched. |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
+| `-LPOpenAbout 1` | macOS, with `-LPOpenSettings 1`: also opens the About sheet. |
 | `-LPExportSounds DIR` | Writes every synthesized sound to `DIR` as WAV files (to listen to or inspect them). |
 | `-settings.colorRunes 1`, `-settings.sound 0`, `-settings.reduceMotion always\|never\|system` | Override a setting for this run (not saved unless changed in Settings). |
 | `-random.colors N`, `-random.capacity N`, `-random.empty N`, `-random.locks N`, `-random.mode M` | Override the saved Random Brew settings for this run (`M` = `classic`, `locksAndKeys`, `hidden`). |
