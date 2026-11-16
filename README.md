@@ -295,7 +295,7 @@ LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 d
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-This runs 454 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+This runs 462 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -343,7 +343,8 @@ on unseal or thaw, a key kept out of a closed gate, modifiers on both ends, the 
 hand-made puzzle that needs the switch and one a gate makes unsolvable, the solver against the naive BFS on random
 switch levels (and positions a few moves on, with seals, runes, necks, ice, bubbling and twins), pruning that keeps
 every distinct child, permutation-invariant keys that tell the lever's direction, JSON, validation, undo/restart,
-murky masks, the generator options and placements, and chapter 10 (every switch adds 2+ moves, an optimal solution
+murky masks, the generator options and placements, switches beside pressure pipes (no flask in both, the shut gate named
+as the reason), and chapter 10 (every switch adds 2+ moves, an optimal solution
 opens a gate, the finale is the hardest of the main path).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
 
