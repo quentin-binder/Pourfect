@@ -35,6 +35,8 @@ usage:
   levelgen --preset chapter1|…|chapter10|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
            (writes chapter_01…10.json and challenge_challenger|expert|master.json)
+  levelgen --rush SEED [--count 20] [--mechanics all|sealed,murky,essence,narrowNeck,frozen]
+           (times the recipes of one Rush run)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
            [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS] [--bubbling N:PERIOD]
@@ -876,6 +878,34 @@ func bench() {
     print("worst \(formatTime(worst)), mean \(formatTime(total / count))")
 }
 
+// MARK: Rush
+
+/// Times the first `count` recipes of the Rush run `seed` (R6): spec, phase, minMoves, time.
+func rush(seed: UInt64, count: Int, mechanics raw: String?) {
+    let mechanics: [RushMechanic] = raw.map { list in
+        list == "all" ? RushMechanic.allCases
+            : list.split(separator: ",").map { name in
+                guard let m = RushMechanic(rawValue: String(name)) else {
+                    fail("--mechanics expects all or a list of " + RushMechanic.allCases.map(\.rawValue).joined(separator: ","))
+                }
+                return m
+            }
+    } ?? RushMechanic.allCases
+    var worst: Duration = .zero, total: Duration = .zero
+    let clock = ContinuousClock()
+    for index in 0..<count {
+        var result: RushLevel?
+        let time = clock.measure { result = try? RushPlan.level(index: index, seed: seed, mechanics: mechanics) }
+        guard let result else { fail("cancelled") }
+        worst = max(worst, time)
+        total += time
+        let s = result.spec
+        print("\(index + 1): \(s.colors)c \(s.mechanic?.rawValue ?? "classic") window \(s.minMoves) -> "
+              + "\(result.level.meta?.minMoves ?? 0) moves, phase \(result.phase), \(result.attempts) tries, \(formatTime(time))")
+    }
+    print("worst \(formatTime(worst)), mean \(formatTime(total / count))")
+}
+
 // MARK: Main
 
 if flags.contains("--help") { print(usage); exit(0) }
@@ -893,6 +923,8 @@ if let path = options["--report"] {
     if problems > 0 { exit(2) }
 } else if flags.contains("--bench") {
     bench()
+} else if let raw = options["--rush"] {
+    rush(seed: UInt64(raw) ?? 1, count: int("--count", default: 20)!, mechanics: options["--mechanics"])
 } else {
     let scores = range(double("--min-score"), double("--max-score"), name: "score")
     if let name = options["--preset"] {

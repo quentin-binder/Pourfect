@@ -55,6 +55,15 @@ public enum ChapterGate {
         return result
     }
 
+    /// Open flags for the main-path chapters given their recipe ids (in chapter order) and the
+    /// saved stars. Only the chapters' own recipe ids are read: stars of challenge books, gold
+    /// seals and Rush results (stored elsewhere) can never open a chapter (R6, DECISIONS 226).
+    public static func unlockedChapters(recipeIDs chapters: [[String]], stars: (String) -> Int) -> [Bool] {
+        unlockedChapters(chapters.map { ids in
+            ChapterProgress(stars: ids.reduce(0) { $0 + clampedStars(stars($1)) }, recipeCount: ids.count)
+        })
+    }
+
     /// Whether the recipe at `index` (0-based) inside a chapter is open: the first always is,
     /// later ones once the previous recipe is cleared.
     public static func isRecipeUnlocked(at index: Int, previousCleared: Bool) -> Bool {
