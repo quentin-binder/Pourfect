@@ -59,12 +59,12 @@ struct IceSlab: View {
     static func badgeSize(width w: CGFloat, layerHeight h: CGFloat) -> CGFloat { min(h * 0.74, w * 0.52) }
 
     var body: some View {
-        let badge = Self.badgeSize(width: width, layerHeight: layerHeight) * (badgeAside ? 0.8 : 1)
+        let badge = Self.badgeSize(width: width, layerHeight: layerHeight) * (badgeAside ? 0.66 : 1)
         ZStack {
             Canvas { context, size in draw(in: &context, size: size) }
             IceCrystal(size: badge, turns: turns, flare: flare)
                 .scaleEffect(swells ? 1 + 0.22 * flare : 1)
-                .offset(x: badgeAside ? width * 0.28 : 0)
+                .offset(x: badgeAside ? width * 0.31 : 0)
                 .opacity(badgeOpacity)
                 .scaleEffect(1 + 0.5 * badgePop)
         }
