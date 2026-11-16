@@ -498,3 +498,49 @@ private func ice(_ layer: Int, _ turns: Int) -> BottleModifier { .frozen(layer: 
         }
     }
 }
+
+/// Frost Peak (chapter 6).
+@Suite struct FrostPeakTests {
+    static func pack() throws -> LevelPack { try LevelFileTests.load("chapter_06") }
+
+    @Test func shape() throws {
+        let pack = try Self.pack()
+        #expect(pack.version == 2 && pack.chapter == 6 && pack.location == "Frost Peak")
+        #expect(pack.introduces == [.frozen])
+        #expect((28...32).contains(pack.levels.count))
+        #expect(pack.levels.map(\.id) == pack.levels.indices.map { String(format: "c6_%03d", $0 + 1) })
+        #expect(pack.levels.allSatisfy { $0.mechanics.contains(.frozen) })
+        for level in pack.levels {
+            let ice = level.gameState.bottles.flatMap(\.frozenLayers)
+            #expect((1...Rules.maxFrozenLayers).contains(ice.count), "\(level.id)")
+            #expect(ice.allSatisfy { (1...Rules.maxThawTurns).contains($0.turns) }, "\(level.id)")
+        }
+        // Tutorial: a tiny level with one frozen layer only.
+        let tutorial = try #require(pack.levels.first)
+        #expect(tutorial.capacity == 3 && tutorial.mechanics == [.frozen] && (tutorial.meta?.minMoves ?? 99) <= 8)
+        #expect(tutorial.gameState.bottles.flatMap(\.frozenLayers).count == 1)
+        // Earlier mechanics join only at the end.
+        #expect(!pack.levels.prefix(15).contains { $0.mechanics != [.frozen] })
+        #expect(pack.levels.suffix(15).contains { $0.isHidden })
+        #expect(pack.levels.suffix(15).contains { $0.mechanics.contains(.sealed) })
+        #expect(pack.levels.suffix(15).contains { $0.mechanics.contains(.essence) })
+        let scores = pack.levels.compactMap { $0.meta?.score }
+        #expect(scores.count == pack.levels.count)
+        #expect(scores.first! < 20 && scores.max()! >= 50 && scores.max()! <= 60)
+    }
+
+    /// Every frozen layer adds 2+ moves (the tutorial's too), and seals and runes matter as
+    /// in chapters 2–4. Small searches only, like the other shipped-pack tests.
+    @Test func everyMechanicMatters() throws {
+        var checked = 0
+        for level in try Self.pack().levels {
+            guard let meta = level.meta, let minMoves = meta.minMoves, (meta.statesExplored ?? 0) <= 8_000 else { continue }
+            let s = level.gameState
+            #expect(FrozenImpact.everyFrozenMatters(s, minMoves: minMoves, cost: FrozenImpact.strongCost), "\(level.id)")
+            #expect(EssenceImpact.everyEssenceMatters(s, minMoves: minMoves), "\(level.id)")
+            #expect(LockImpact.everyLockMatters(s, minMoves: minMoves, cost: LockImpact.strongCost), "\(level.id)")
+            checked += 1
+        }
+        #expect(checked >= 25)
+    }
+}

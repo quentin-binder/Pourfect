@@ -8,6 +8,7 @@ import Foundation
 //   levelgen --colors 5 --empty 2 --locks 1 --locks-matter --count 5 --out locks.json
 //   levelgen --colors 5 --empty 2 --essence 1 --essence-cost 2 --count 5 --out runes.json
 //   levelgen --colors 5 --empty 2 --narrow 1 --tap 1 --glass-cost 2 --count 5 --out glass.json
+//   levelgen --colors 5 --empty 2 --frozen 1:4 --frozen-cost 2 --count 5 --out ice.json
 //   levelgen --preset chapter2 --out Levels/chapter_02.json
 //   levelgen --preset all --out-dir Levels
 //   levelgen --report Levels            (every *.json in the folder)
@@ -21,13 +22,14 @@ usage:
            [--hidden] [--locks-matter] [--pool K] [--easiest]
            [--essence N [--essence-empty K] [--essence-matter | --essence-cost C]]
            [--narrow N] [--funnel N] [--tap N] [--glass-matter | --glass-cost C]
+           [--frozen N:MAXTURNS [--frozen-matter | --frozen-cost C]]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
-  levelgen --preset chapter1|chapter2|chapter3|chapter4|chapter5|challenger|expert|master [--seed S] --out FILE
+  levelgen --preset chapter1|…|chapter6|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
-           (writes chapter_01…05.json and challenge_challenger|expert|master.json)
+           (writes chapter_01…06.json and challenge_challenger|expert|master.json)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
-           [--narrow 0] [--funnel 0] [--tap 0]
+           [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS]
            [--count 10] [--seed 1]
 """
 
@@ -46,7 +48,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--easiest"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--easiest"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -77,6 +79,18 @@ func range<T: Comparable>(_ lo: T?, _ hi: T?, name: String) -> ClosedRange<T>? {
     }
 }
 
+/// `--frozen N:MAXTURNS` (frozen layers and their largest thaw counter; `N` alone means
+/// counters up to 3). (0, 3) when absent.
+func frozenOption() -> (count: Int, maxTurns: Int) {
+    guard let raw = options["--frozen"] else { return (0, 3) }
+    let parts = raw.split(separator: ":").map { Int($0) }
+    guard (1...2).contains(parts.count), let count = parts[0], let turns = parts.count == 2 ? parts[1] : 3,
+          (0...Rules.maxFrozenLayers).contains(count), (1...Rules.maxThawTurns).contains(turns) else {
+        fail("--frozen expects N:MAXTURNS with N in 0...\(Rules.maxFrozenLayers) and MAXTURNS in 1...\(Rules.maxThawTurns)")
+    }
+    return (count, turns)
+}
+
 func pad(_ s: String, _ width: Int, right: Bool = false) -> String {
     let fill = String(repeating: " ", count: max(0, width - s.count))
     return right ? fill + s : s + fill
@@ -95,7 +109,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let r: DifficultyReport }
     var rows: [Row] = []
     var problems = 0
     for (i, level) in pack.levels.enumerated() {
@@ -115,13 +129,14 @@ func report(path: String) -> Int {
         let colors = Set(state.bottles.flatMap(\.layers).compactMap(\.colorID)).count
         rows.append(Row(index: i + 1, id: level.id, colors: colors, empty: state.bottles.filter(\.isEmpty).count,
                         locks: state.bottles.filter { $0.lockedBy != nil }.count,
-                        runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state), r: r))
+                        runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state),
+                        ice: state.bottles.reduce(0) { $0 + $1.frozenLayers.count }, r: r))
     }
     var title = pack.name ?? path
     if let kind = pack.kind { title += " (\(kind.rawValue)\(pack.chapter.map { " \($0)" } ?? ""))" }
     if let mechanics = pack.introduces { title += ", introduces " + mechanics.map(\.rawValue).joined(separator: ", ") }
     print("== \(title) — \(path)")
-    let header = "  #  id         colors empty locks runes glass minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks runes glass ice minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -132,7 +147,7 @@ func report(path: String) -> Int {
         }
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
               + String(format: " %6d %5d %5d %5d ", row.colors, row.empty, row.locks, row.runes) + pad(row.glass, 5, right: true)
-              + String(format: " %8d %7d ", row.r.minMoves, row.r.statesExplored)
+              + String(format: " %3d %8d %7d ", row.ice, row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -185,6 +200,11 @@ struct Tier {
     var tap = 0
     /// Moves each narrow neck, funnel and tap must change (`GlassImpact`); nil = no must-matter check.
     var glassCost: Int? = nil
+    /// Frozen layers per level (D1) and their largest thaw counter.
+    var frozen = 0
+    var frozenTurns = 3
+    /// Moves each frozen layer must add (`FrozenImpact`); nil = no must-matter check.
+    var frozenCost: Int? = nil
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
@@ -325,6 +345,43 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 1, colors: 7, capacity: 4, empty: 2, moves: any, score: 51...58, narrow: 1, funnel: 1, tap: 1,
              glassCost: GlassImpact.strongCost, section: 4),
     ]),
+    "chapter6": PackPreset(file: "chapter_06", idPrefix: "c6", name: "Frost Peak",
+                           subtitle: "Frozen layers wait for the thaw", kind: .chapter, chapter: 6,
+                           location: "Frost Peak", introduces: [.frozen], seed: 11_000, tiers: [
+        // Tutorial: 3 colors in size-3 flasks, one empty flask, one frozen layer that costs 2+ moves.
+        Tier(count: 1, colors: 3, capacity: 3, empty: 1, moves: any, pool: 4, frozen: 1, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, keepEasiest: true, section: 0),
+        // Ice only, sorted together by score: one frozen layer (with two empty flasks a single
+        // layer almost never costs 2 moves, so one empty flask), then two (two empty flasks).
+        Tier(count: 2, colors: 3, capacity: 4, empty: 1, moves: any, frozen: 1, frozenTurns: 4,
+             frozenCost: FrozenImpact.strongCost, section: 1),
+        Tier(count: 4, colors: 4, capacity: 4, empty: 1, moves: any, frozen: 1, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, section: 1),
+        Tier(count: 2, colors: 4, capacity: 3, empty: 2, moves: any, frozen: 2, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 4, capacity: 4, empty: 2, moves: any, frozen: 2, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, section: 1),
+        Tier(count: 3, colors: 5, capacity: 4, empty: 2, moves: any, pool: 2, frozen: 2, frozenTurns: 5,
+             frozenCost: FrozenImpact.strongCost, section: 1),
+        // With earlier mechanics: murky layers, a rune, then strong seals (the seal layout's
+        // partly filled flask leaves room for one empty flask).
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, hidden: true, moves: any, score: 35...41, frozen: 2,
+             frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 2, moves: any, score: 35...42, essence: 1,
+             essenceCost: EssenceImpact.minimumCost, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost,
+             section: 2),
+        Tier(count: 2, colors: 4, capacity: 4, empty: 1, locks: 1, moves: any, score: 35...41, locksMatter: true,
+             strongLocks: true, frozen: 1, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 5, capacity: 4, empty: 1, locks: 1, moves: any, score: 36...44, locksMatter: true,
+             strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 1, locks: 1, moves: any, score: 40...48, locksMatter: true,
+             strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
+        Tier(count: 2, colors: 6, capacity: 4, empty: 1, locks: 1, hidden: true, moves: any, score: 42...50,
+             locksMatter: true, strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost,
+             section: 2),
+        Tier(count: 3, colors: 7, capacity: 4, empty: 1, locks: 1, moves: any, score: 49...58, locksMatter: true,
+             strongLocks: true, frozen: 2, frozenTurns: 5, frozenCost: FrozenImpact.strongCost, section: 2),
+    ]),
     "challenger": PackPreset(file: "challenge_challenger", idPrefix: "p2", name: "Challenger",
                              subtitle: "8–10 colors, tight spaces", kind: .challenge, seed: 2_000, tiers: [
         Tier(count: 6, colors: 5, capacity: 4, empty: 1, moves: any, pool: 4),     // one empty bottle
@@ -350,7 +407,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
     ]),
 ]
-let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "challenger", "expert", "master"]
+let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "challenger", "expert", "master"]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
@@ -365,7 +422,10 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      essenceCost: tier.essenceCost ?? EssenceImpact.minimumCost,
                                      hidden: tier.hidden, narrowNecks: tier.narrow, funnels: tier.funnel, taps: tier.tap,
                                      requireGlassMatter: tier.glassCost != nil,
-                                     glassCost: tier.glassCost ?? GlassImpact.minimumCost)
+                                     glassCost: tier.glassCost ?? GlassImpact.minimumCost,
+                                     frozen: tier.frozen, frozenMaxTurns: tier.frozenTurns,
+                                     requireFrozenMatter: tier.frozenCost != nil,
+                                     frozenCost: tier.frozenCost ?? FrozenImpact.minimumCost)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -378,7 +438,7 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
         let kept = tier.keepEasiest ? hardestFirst.reversed().prefix(tier.count) : hardestFirst.prefix(tier.count)
         all += kept.map { ($0, tier.hidden, tier.section) }
         let pooled = tier.pool > 1 ? " (\(tier.keepEasiest ? "easiest" : "best") of \(tier.count * tier.pool))" : ""
-        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
+        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
     }
     // Sort by score within each section, so difficulty rises through the whole pack.
     return all.sorted { ($0.section, $0.level.report.score, $0.level.seed) < ($1.section, $1.level.report.score, $1.level.seed) }
@@ -409,10 +469,11 @@ func bench() {
     let count = int("--count", default: 10)!
     let seed = UInt64(int("--seed", default: 1)!)
     let locks = int("--locks", default: 0)!
+    let frozen = frozenOption()
     let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks,
                                  essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"),
                                  narrowNecks: int("--narrow", default: 0)!, funnels: int("--funnel", default: 0)!,
-                                 taps: int("--tap", default: 0)!)
+                                 taps: int("--tap", default: 0)!, frozen: frozen.count, frozenMaxTurns: frozen.maxTurns)
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
@@ -479,11 +540,14 @@ if let path = options["--report"] {
         let glassCost = int("--glass-cost") ?? (flags.contains("--glass-matter") ? GlassImpact.minimumCost : nil)
         let narrow = int("--narrow", default: 0)!, funnel = int("--funnel", default: 0)!, tap = int("--tap", default: 0)!
         guard narrow >= 0, funnel >= 0, tap >= 0 else { fail("--narrow, --funnel and --tap must not be negative") }
+        let frozen = frozenOption()
+        let frozenCost = int("--frozen-cost") ?? (flags.contains("--frozen-matter") ? FrozenImpact.minimumCost : nil)
         let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
                         empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
                         pool: int("--pool", default: 1)!, locksMatter: flags.contains("--locks-matter"),
                         essence: essence, essenceEmpty: int("--essence-empty"), essenceCost: essenceCost,
                         narrow: narrow, funnel: funnel, tap: tap, glassCost: glassCost,
+                        frozen: frozen.count, frozenTurns: frozen.maxTurns, frozenCost: frozenCost,
                         keepEasiest: flags.contains("--easiest"))
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }

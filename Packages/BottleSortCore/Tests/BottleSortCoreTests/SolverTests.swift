@@ -267,7 +267,7 @@ import Testing
     }
 
     static let levelsDir = packURL.deletingLastPathComponent()
-    static let shippedChapters = ["chapter_01", "chapter_02", "chapter_03", "chapter_04", "chapter_05"]
+    static let shippedChapters = ["chapter_01", "chapter_02", "chapter_03", "chapter_04", "chapter_05", "chapter_06"]
     static let shippedChallenges = ["challenge_challenger", "challenge_expert", "challenge_master"]
     static let shippedPacks = shippedChapters + shippedChallenges
 
