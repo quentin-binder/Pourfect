@@ -64,6 +64,11 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
     case bubblingWithIce(bottle: Int)
     /// More than `Rules.maxBubblingFlasks` bubbling flasks in the level.
     case tooManyBubblingFlasks(count: Int)
+    /// A flask is an end of more than one link (twins, overflow pipes): each flask has at
+    /// most one, so a pour never follows a chain of links.
+    case flaskInSeveralLinks(bottle: Int)
+    /// A twin flask (F1) is sealed: a key never splits, so the seal could never open.
+    case sealedTwin(bottle: Int)
 
     public var description: String {
         switch self {
@@ -99,6 +104,8 @@ public enum ValidationError: Error, Hashable, Sendable, CustomStringConvertible 
         case let .bubblingWithTap(b): return "bubbling flask \(b) has a tap"
         case let .bubblingWithIce(b): return "bubbling flask \(b) holds a frozen layer"
         case let .tooManyBubblingFlasks(n): return "\(n) bubbling flasks (at most \(Rules.maxBubblingFlasks) per level)"
+        case let .flaskInSeveralLinks(b): return "flask \(b) is an end of more than one link"
+        case let .sealedTwin(b): return "twin flask \(b) is sealed, but a key never splits into it"
         }
     }
 }
@@ -116,7 +123,8 @@ extension GameState {
     /// each, with a thaw counter in 1...`Rules.maxThawTurns`, and at most
     /// `Rules.maxFrozenLayers` per level, bubbling flasks (D2) have one period in
     /// `Rules.bubblingPeriods` with a phase below it, no tap and no ice, at most
-    /// `Rules.maxBubblingFlasks` per level, links connect two different existing bottles, and every
+    /// `Rules.maxBubblingFlasks` per level, links connect two different existing bottles, a
+    /// flask is an end of at most one link, a twin (F1) is never sealed, and every
     /// modifier, link and goal is implemented by `Rules`.
     public func validate() -> [ValidationError] {
         guard let capacity = bottles.first?.capacity else { return [.noBottles] }
@@ -126,10 +134,20 @@ extension GameState {
             if bottle.modifiers.filter(\.isSeal).count > 1 { errors.append(.multipleSeals(bottle: i)) }
             unsupported += bottle.modifiers.filter { !$0.isImplemented }.map(\.name)
         }
+        var linkEnds: [Int: Int] = [:]
         for link in links {
             let (a, b) = link.endpoints
             if a == b || !bottles.indices.contains(a) || !bottles.indices.contains(b) { errors.append(.invalidLink(link)) }
             if !link.isImplemented { unsupported.append(link.name) }
+            for end in Set([a, b]) { linkEnds[end, default: 0] += 1 }
+            if case .twins = link {
+                for end in [a, b] where bottles.indices.contains(end) && bottles[end].isSealed {
+                    errors.append(.sealedTwin(bottle: end))
+                }
+            }
+        }
+        for (bottle, n) in linkEnds.sorted(by: { $0.key < $1.key }) where n > 1 {
+            errors.append(.flaskInSeveralLinks(bottle: bottle))
         }
         if !goal.isImplemented { unsupported.append(goal.name) }
         var reported = Set<String>()

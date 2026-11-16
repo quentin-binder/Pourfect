@@ -51,10 +51,10 @@ import Testing
         let data = try LevelLoader.encode(LevelPack(levels: [Self.everything()]))
         #expect(throws: LevelLoadError.self) { try LevelLoader.load(data) }
         let errors = Self.everything().gameState.validate()
-        for name in ["essence", "narrowNeck", "tap", "funnel", "frozen", "bubbling"] {
+        for name in ["essence", "narrowNeck", "tap", "funnel", "frozen", "bubbling", "twins", "overflow"] {
             #expect(!errors.contains(.unsupportedMechanic(name)), "\(name)")
         }
-        for name in ["cauldron", "twins", "overflow", "switchGate", "order"] {
+        for name in ["cauldron", "switchGate", "order"] {
             #expect(errors.contains(.unsupportedMechanic(name)), "\(name)")
         }
         #expect(Solver().solve(Self.everything().gameState) == .unknown(reason: .unsupportedState))

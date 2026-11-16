@@ -161,15 +161,24 @@ public struct Recipe: Hashable, Codable, Sendable, CustomStringConvertible {
 /// rank of its bottle in the canonical order (see `StateKey`), so the key stays
 /// independent of bottle order.
 public enum Link: Hashable, Sendable, CustomStringConvertible {
-    /// F1 twin flasks: a pour into one also pours the same layers into the other. (R5)
+    /// F1 twin flasks, joined by a silver chain: a pour into either one is split evenly
+    /// between the two (layers are conserved: `2k` leave the source, `k` land in each);
+    /// pours out of a twin are normal, and one twin can't pour into the other. Symmetric.
+    /// Implemented (chapter 8, Twin Towers; `Rules.linkedPlan`).
     case twins(Int, Int)
-    /// F2 overflow pipe: what doesn't fit into `from` flows on into `to`. (R5)
+    /// F2 overflow pipe from `from`'s rim to `to`: what doesn't fit into a full `from` flows
+    /// on into `to` (if `to` can take it; one hop only). Implemented (chapter 8).
     case overflow(from: Int, to: Int)
     /// A3 switch → gate: while `switch` is complete, `gate` is open. The gate's state is
     /// derived from the switch's content, so it needs no stored state. (R5)
     case switchGate(switch: Int, gate: Int)
 
-    public var isImplemented: Bool { false }
+    public var isImplemented: Bool {
+        switch self {
+        case .twins, .overflow: return true
+        case .switchGate: return false
+        }
+    }
 
     /// The two bottles it connects, in declaration order.
     public var endpoints: (Int, Int) {

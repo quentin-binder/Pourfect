@@ -16,7 +16,8 @@
 /// masks are stored with the undo history, so undo and restart restore them exactly,
 /// together with the full `GameState` (modifiers, seals and any counter, e.g. the thaw
 /// counters of frozen layers, D1: they live in the state's modifiers, so undo restores them
-/// and a thawed layer freezes again; likewise the phases of bubbling flasks, D2).
+/// and a thawed layer freezes again; likewise the phases of bubbling flasks, D2). Links
+/// (twins, overflow pipes) are static and travel with the state.
 public struct GameSession: Sendable {
     public let initialState: GameState
     public private(set) var state: GameState
@@ -106,8 +107,9 @@ public struct GameSession: Sendable {
     }
 
     /// The hidden flags after `turn`: the poured layers leave the source at the end the
-    /// event names, land visible on the target (unless a key opened its seal and was used
-    /// up), each bubbled flask's bottom flag moves to its top (`Rules.bubbledUp`), then every
+    /// event names, land visible on the target and on every bottle they were shared with (a
+    /// twin, the far end of an overflow pipe; `PourEvent.landings`; nothing lands when a key
+    /// opened a seal and was used up), each bubbled flask's bottom flag moves to its top (`Rules.bubbledUp`), then every
     /// layer in view is revealed. A bottle whose layer count no longer
     /// matches (a later mechanic changing layers some other way) keeps its flags from the
     /// bottom and shows any new layer.
@@ -120,8 +122,8 @@ public struct GameSession: Sendable {
             } else {
                 masks[pour.move.from].removeLast(amount)
             }
-            if pour.openedSeal == nil {
-                masks[pour.move.to] += Array(repeating: false, count: pour.amount)
+            for landing in pour.landings where masks.indices.contains(landing.bottle) {
+                masks[landing.bottle] += Array(repeating: false, count: landing.amount)
             }
         }
         for event in turn.events {

@@ -58,8 +58,131 @@ public struct StateKey: Hashable, Sendable {
             codes.sort()
             self.codes = codes
         } else {
-            self.codes = StateKey.extendedCodes(state)
+            self.codes = StateKey.linkedCodes(state) ?? StateKey.extendedCodes(state)
         }
+    }
+
+    /// One bottle as a (v1 word, modifier word or 0) pair: the `pairCodes` form of its group.
+    struct Pair: Hashable, Comparable {
+        let first: UInt64
+        let extra: UInt64
+        static func < (a: Pair, b: Pair) -> Bool { (a.first, a.extra) < (b.first, b.extra) }
+    }
+
+    /// The pair of `bottle` (see `pairCodes`), or nil if its group needs more than one
+    /// modifier word.
+    @inline(__always)
+    static func pair(for bottle: Bottle) -> Pair? {
+        if let code = classicCode(for: bottle) { return Pair(first: code, extra: 0) }
+        var extra: UInt64 = 0
+        var sealed = false
+        for modifier in bottle.modifiers {
+            if modifier.isSeal && !sealed {
+                sealed = true   // the first seal is in the v1 word
+                continue
+            }
+            guard extra == 0, let word = singleWord(for: modifier) else { return nil }
+            extra = word
+        }
+        return Pair(first: code(for: bottle) | extensionFlag, extra: extra)
+    }
+
+    /// One bottle of a linked state for `linkedCodes`: its pair and its *role* in the links
+    /// (a bit per end kind: twin, overflow start, overflow end, switch, gate; 0 = unlinked).
+    struct LinkedGroup: Hashable, Comparable {
+        let pair: Pair
+        let role: UInt64
+        static func < (a: LinkedGroup, b: LinkedGroup) -> Bool { (a.pair, a.role) < (b.pair, b.role) }
+    }
+
+    /// The key of a state with links (F1, F2) but no goal and no move counter, whose bottles
+    /// each fit a pair (`pair(for:)`); nil if the state doesn't fit (then `extendedCodes`).
+    ///
+    /// Like `extendedCodes` (bottle groups, then a global section with the link words, the
+    /// endpoints as ranks), except that bottles are sorted by (pair, role): a linked bottle
+    /// then never ties with an unlinked one, so the usual case (an empty linked flask next to
+    /// empty plain ones) needs no search over tied bottles. Ties of the same role (two pairs of
+    /// empty twins) still take the minimum over permutations (`globalWords`). The codes are
+    /// self-delimiting (groups, then the counted global section), the role of each bottle
+    /// follows from the link words, and the order depends only on the bottles' contents and
+    /// roles, so the key is a true canonical form here too. Whether a state takes this path
+    /// doesn't depend on bottle order, so both forms never meet for one position.
+    static func linkedCodes(_ state: GameState) -> [UInt64]? {
+        guard state.moveCount == nil, state.hasStandardGoal else { return nil }
+        let links = state.links
+        var groups: [LinkedGroup] = []
+        groups.reserveCapacity(state.bottles.count)
+        var roles = [UInt64](repeating: 0, count: state.bottles.count)
+        for link in links {
+            let (a, b) = link.endpoints
+            guard roles.indices.contains(a), roles.indices.contains(b) else { return nil }
+            switch link {
+            case .twins:
+                roles[a] |= 1
+                roles[b] |= 1
+            case .overflow:
+                roles[a] |= 2
+                roles[b] |= 4
+            case .switchGate:
+                roles[a] |= 8
+                roles[b] |= 16
+            }
+        }
+        for (i, bottle) in state.bottles.enumerated() {
+            guard let pair = pair(for: bottle) else { return nil }
+            groups.append(LinkedGroup(pair: pair, role: roles[i]))
+        }
+        let order = groups.indices.sorted { a, b in groups[a] == groups[b] ? a < b : groups[a] < groups[b] }
+        var codes: [UInt64] = []
+        codes.reserveCapacity(state.bottles.count + 8)
+        for i in order {
+            let pair = groups[i].pair
+            codes.append(pair.first)
+            if pair.extra != 0 {
+                codes.append(1)
+                codes.append(pair.extra)
+            }
+        }
+        let global = untiedLinkWords(links, groups: groups, order: order)
+            ?? globalWords(state, groups: groups, order: order)
+        if !global.isEmpty {
+            codes.append(globalMarker | UInt64(global.count))
+            codes += global
+        }
+        return codes
+    }
+
+    /// `globalWords` for links only (standard goal, no counter) when no linked bottle is
+    /// tied with another bottle (equal groups): the ranks are then unique and no permutation
+    /// needs to be tried. nil if some linked bottle is tied (the general search decides).
+    @inline(__always)
+    static func untiedLinkWords(_ links: [Link], groups: [LinkedGroup], order: [Int]) -> [UInt64]? {
+        var rankOf = [Int](repeating: 0, count: order.count)
+        for (rank, bottle) in order.enumerated() { rankOf[bottle] = rank }
+        func isTied(_ bottle: Int) -> Bool {
+            let rank = rankOf[bottle]
+            return (rank > 0 && groups[order[rank - 1]] == groups[bottle])
+                || (rank + 1 < order.count && groups[order[rank + 1]] == groups[bottle])
+        }
+        var words: [UInt64] = [0xD0 << 56 | UInt64(links.count)]
+        words.reserveCapacity(links.count + 1)
+        for link in links {
+            let (a, b) = link.endpoints
+            // Twins tied only with each other: either order gives the same (sorted) word.
+            if case .twins = link, groups[a] == groups[b] {
+                let ranks = [rankOf[a], rankOf[b]].sorted()
+                let others = order.indices.filter { groups[order[$0]] == groups[a] }
+                guard others.count == 2 else { return nil }
+                words.append(link.tag << 56 | UInt64(ranks[0]) << 40 | UInt64(ranks[1]) << 24)
+                continue
+            }
+            guard !isTied(a), !isTied(b) else { return nil }
+            var (ra, rb) = (rankOf[a], rankOf[b])
+            if link.isSymmetric && rb < ra { swap(&ra, &rb) }
+            words.append(link.tag << 56 | UInt64(ra) << 40 | UInt64(rb) << 24)
+        }
+        words[1...].sort()
+        return words
     }
 
     /// Fast path of `extendedCodes` for a state of bottles only in which each bottle has
@@ -72,21 +195,8 @@ public struct StateKey: Hashable, Sendable {
         var pairs: [(UInt64, UInt64)] = []
         pairs.reserveCapacity(state.bottles.count)
         for bottle in state.bottles {
-            if let code = classicCode(for: bottle) {
-                pairs.append((code, 0))
-                continue
-            }
-            var extra: UInt64 = 0
-            var sealed = false
-            for modifier in bottle.modifiers {
-                if modifier.isSeal && !sealed {
-                    sealed = true   // the first seal is in the v1 word
-                    continue
-                }
-                guard extra == 0, let word = singleWord(for: modifier) else { return nil }
-                extra = word
-            }
-            pairs.append((code(for: bottle) | extensionFlag, extra))
+            guard let pair = pair(for: bottle) else { return nil }
+            pairs.append((pair.first, pair.extra))
         }
         pairs.sort { $0 < $1 }
         var codes: [UInt64] = []
@@ -235,7 +345,7 @@ public struct StateKey: Hashable, Sendable {
     }
 
     /// Links, goal and counters, with bottle references written as canonical ranks.
-    static func globalWords(_ state: GameState, groups: [[UInt64]], order: [Int]) -> [UInt64] {
+    static func globalWords<Group: Equatable>(_ state: GameState, groups: [Group], order: [Int]) -> [UInt64] {
         let links = state.links
         let goal = state.goal
         var fixed: [UInt64] = []

@@ -457,6 +457,36 @@ public struct GameState: Hashable, Sendable, CustomStringConvertible {
     /// Whether the goal is `.standard` (without building the `Goal` value).
     var hasStandardGoal: Bool { structure.map { $0.goal == .standard } ?? true }
 
+    /// Whether the state has any link (without copying the array).
+    @inline(__always)
+    var hasLinks: Bool { structure.map { !$0.links.isEmpty } ?? false }
+
+    /// The link that `bottle` is an end of, or nil (`validate()` allows at most one per
+    /// flask; with more, the first in `links`).
+    public func link(at bottle: Int) -> Link? {
+        guard let links = structure?.links else { return nil }
+        for link in links where link.endpoints.0 == bottle || link.endpoints.1 == bottle { return link }
+        return nil
+    }
+
+    /// F1: the twin of `bottle` (the other flask of its silver chain), or nil.
+    public func twin(of bottle: Int) -> Int? {
+        guard case let .twins(a, b)? = link(at: bottle) else { return nil }
+        return a == bottle ? b : a
+    }
+
+    /// F2: the flask that `bottle`'s overflow pipe runs into (from `bottle`'s rim), or nil.
+    public func overflowTarget(of bottle: Int) -> Int? {
+        guard case let .overflow(from, to)? = link(at: bottle), from == bottle else { return nil }
+        return to
+    }
+
+    /// F2: the flask whose overflow pipe runs into `bottle` (its mouth), or nil.
+    public func overflowSource(of bottle: Int) -> Int? {
+        guard case let .overflow(from, to)? = link(at: bottle), to == bottle else { return nil }
+        return from
+    }
+
     public var description: String {
         var text = bottles.map(\.description).joined(separator: " ")
         if !links.isEmpty { text += " links[" + links.map(\.description).joined(separator: " ") + "]" }

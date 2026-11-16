@@ -67,6 +67,16 @@ public struct GeneratorConfig: Sendable, Hashable {
     /// Moves each bubbling flask must change for `requireBubblingMatter`
     /// (`BubblingImpact.minimumCost` or `.strongCost`).
     public var bubblingCost: Int
+    /// Twin pairs (F1). 0 = none. See `Generator.candidate` (step 9) for the placement.
+    public var twins: Int
+    /// Overflow pipes (F2). 0 = none. Placed after the twins (step 9).
+    public var overflow: Int
+    /// Where links go: `.any` plain flask, only `.filled` ones, or only `.empty` ones.
+    public var linkPlacement: LinkPlacement
+    /// Reject levels where some link doesn't matter (`LinkImpact`, cost `linkCost`, either way).
+    public var requireLinksMatter: Bool
+    /// Moves each link must change for `requireLinksMatter` (`LinkImpact.minimumCost` or `.strongCost`).
+    public var linkCost: Int
     public var maxAttempts: Int
     public var solverLimits: SolverLimits
 
@@ -81,6 +91,8 @@ public struct GeneratorConfig: Sendable, Hashable {
                 frozenCost: Int = FrozenImpact.minimumCost,
                 bubbling: Int = 0, bubblingPeriod: Int = 3, requireBubblingMatter: Bool = false,
                 bubblingCost: Int = BubblingImpact.minimumCost,
+                twins: Int = 0, overflow: Int = 0, linkPlacement: LinkPlacement = .any,
+                requireLinksMatter: Bool = false, linkCost: Int = LinkImpact.minimumCost,
                 maxAttempts: Int = 2_000, solverLimits: SolverLimits = .default) {
         self.colors = colors
         self.capacity = capacity
@@ -109,9 +121,26 @@ public struct GeneratorConfig: Sendable, Hashable {
         self.bubblingPeriod = bubblingPeriod
         self.requireBubblingMatter = requireBubblingMatter
         self.bubblingCost = bubblingCost
+        self.twins = twins
+        self.overflow = overflow
+        self.linkPlacement = linkPlacement
+        self.requireLinksMatter = requireLinksMatter
+        self.linkCost = linkCost
         self.maxAttempts = maxAttempts
         self.solverLimits = solverLimits
     }
+}
+
+/// Which flasks the generator links (twins, overflow pipes; `GeneratorConfig.linkPlacement`).
+public enum LinkPlacement: String, Sendable, Hashable, CaseIterable {
+    /// Any plain flask, filled or empty.
+    case any
+    /// Only flasks that start with layers.
+    case filled
+    /// Only empty flasks.
+    case empty
+    /// Twins on empty flasks; an overflow pipe from a filled flask into an empty one.
+    case mixed
 }
 
 public struct GeneratedLevel: Sendable, Hashable {
@@ -188,6 +217,16 @@ public enum Generator {
     ///    flask bubbles every `bubblingPeriod` moves, starting at a random phase
     ///    (`0..<bubblingPeriod`). Placement reads only layer counts and modifiers, never
     ///    colors (murky-safe). Fewer are placed only if the level has too few such flasks.
+    ///
+    /// Links (`twins = T`, `overflow = O`, F1 / F2), drawn after step 8 from the same stream
+    /// (nothing is drawn when both are 0, so every older level is unchanged):
+    /// 9. The bottle indices are shuffled again. Walking that order over plain flasks (no
+    ///    modifier at all: links stay on flasks that read at a glance) that aren't linked
+    ///    yet and fit `linkPlacement`, the first two make a twin pair, T times, then the next
+    ///    two an overflow pipe (from the first to the second), O times. `.mixed` puts twins on
+    ///    empty flasks and runs each pipe from a filled flask into an empty one. Placement reads
+    ///    only which flasks are empty, never colors (murky-safe). Fewer links are placed only
+    ///    if the level has too few such flasks.
     public static func candidate(_ config: GeneratorConfig, seed: UInt64) -> GameState {
         var rng = SplitMix64(seed: seed)
         let capacity = config.capacity
@@ -243,7 +282,44 @@ public enum Generator {
         if config.frozen > 0 { markFrozen(&bottles, config: config, rng: &rng) }
         // 8. Bubbling flasks.
         if config.bubbling > 0 { markBubbling(&bottles, config: config, rng: &rng) }
-        return GameState(bottles: bottles)
+        // 9. Links.
+        var links: [Link] = []
+        if config.twins > 0 || config.overflow > 0 { links = makeLinks(bottles, config: config, rng: &rng) }
+        return GameState(bottles: bottles, links: links)
+    }
+
+    /// Step 9 of `candidate`.
+    static func makeLinks(_ bottles: [Bottle], config: GeneratorConfig, rng: inout SplitMix64) -> [Link] {
+        var order = Array(bottles.indices)
+        rng.shuffle(&order)
+        var used = Set<Int>()
+        func take(empty: Bool?) -> Int? {
+            guard let i = order.first(where: { i in
+                !used.contains(i) && bottles[i].isPlain && (empty.map { bottles[i].isEmpty == $0 } ?? true)
+            }) else { return nil }
+            used.insert(i)
+            return i
+        }
+        let wanted: Bool? = {
+            switch config.linkPlacement {
+            case .any: return nil
+            case .filled: return false
+            case .empty, .mixed: return true
+            }
+        }()
+        var links: [Link] = []
+        for _ in 0..<max(0, config.twins) {
+            guard let a = take(empty: wanted) else { break }
+            guard let b = take(empty: wanted) else { used.remove(a); break }
+            links.append(.twins(a, b))
+        }
+        for _ in 0..<max(0, config.overflow) {
+            let fromKind: Bool? = config.linkPlacement == .mixed ? false : wanted
+            guard let a = take(empty: fromKind) else { break }
+            guard let b = take(empty: wanted) else { used.remove(a); break }
+            links.append(.overflow(from: a, to: b))
+        }
+        return links
     }
 
     /// Step 8 of `candidate`.
@@ -367,6 +443,9 @@ public enum Generator {
         if config.requireBubblingMatter,
            !BubblingImpact.everyBubblingMatters(state, minMoves: moves.count, cost: config.bubblingCost,
                                                 limits: config.solverLimits) { return nil }
+        if config.requireLinksMatter,
+           !LinkImpact.everyLinkMatters(state, minMoves: moves.count, cost: config.linkCost,
+                                        limits: config.solverLimits) { return nil }
         let report = Difficulty.analyze(state, solution: moves, statesExplored: explored, sampleSeed: seed)
         if let range = config.score, !range.contains(report.score) { return nil }
         return report
@@ -496,17 +575,22 @@ public enum MechanicImpact {
             if (isTwoSided(instance) ? abs(saved) : saved) >= cost { return true }
             // A funnel never changes the optimal length; it matters by the trap it sets.
             if case .modifier(_, .funnel) = instance { return trapDepth(of: instance, in: state) != nil }
+            // Nor does an overflow pipe in practice; it matters by the spill it can force.
+            if case .link(.overflow) = instance { return spillDepth(of: instance, in: state) != nil }
             return false
         case .unknown: return false
         }
     }
 
     /// Whether the instance can make a level shorter as well as longer (`matters` then
-    /// counts the change either way): a narrow neck, a tap, or a bubbling flask (a rise can
-    /// bring the needed color up as well as bury it).
+    /// counts the change either way): a narrow neck, a tap, a bubbling flask (a rise can
+    /// bring the needed color up as well as bury it), twins (a split adds a pour no plain
+    /// flask makes, and closes the twins to every other pour) or an overflow pipe (it saves a
+    /// pour, or spills what the player wanted to keep in the source).
     public static func isTwoSided(_ instance: MechanicInstance) -> Bool {
         switch instance {
-        case .modifier(_, .narrowNeck), .modifier(_, .tap), .modifier(_, .bubbling): return true
+        case .modifier(_, .narrowNeck), .modifier(_, .tap), .modifier(_, .bubbling),
+             .link(.twins), .link(.overflow): return true
         default: return false
         }
     }
@@ -814,5 +898,125 @@ extension MechanicImpact {
             if case .solved = Solver().solve(without, limits: checkLimits) { return depth[node] }
         }
         return nil
+    }
+
+    /// The shallowest *spill* `instance` sets in `state`: a pour from a still-solvable
+    /// position that loses the level, while the same pour from the same position without the
+    /// instance doesn't (its result is still solvable). Returns the depth of the position
+    /// after the pour (moves from the start), or nil if none was found within the budget
+    /// (the reachable graph must have at most `maxStates` states; at most `maxChecks` losing
+    /// pours, shallowest first, are re-played and re-solved without the instance, each within
+    /// `checkLimits`).
+    ///
+    /// This is how an overflow pipe matters (DECISIONS 181): it never makes a level shorter
+    /// in practice (a pour split between a flask and its pipe is never part of an optimal
+    /// solution, see there), but a pour into its flask can spill the rest of a run where the
+    /// player can't afford it. Unlike `trapDepth` it compares the *pour* with and without the
+    /// instance, because the pipe changes what the pour does, not the position it leaves.
+    public static func spillDepth(of instance: MechanicInstance, in state: GameState, maxStates: Int = 300_000,
+                                  maxChecks: Int = 40,
+                                  checkLimits: SolverLimits = SolverLimits(maxStates: 200_000)) -> Int? {
+        guard let graph = StateGraph.explore(from: state, maxStates: maxStates, keepStates: true) else { return nil }
+        let solvable = graph.solvableFlags()
+        guard solvable.first == true else { return nil }
+        var depth = [Int](repeating: -1, count: graph.nodeCount)
+        depth[0] = 0
+        var queue = [0], head = 0
+        var checks = 0
+        while head < queue.count {
+            let node = queue[head]
+            head += 1
+            let first = Int(graph.edgeStart[node]), last = Int(graph.edgeStart[node + 1])
+            // Edges were added in `Solver.candidateMoves` order (every candidate is legal).
+            let moves = solvable[node] && first < last ? Solver.candidateMoves(graph.states[node]) : []
+            for e in first..<last {
+                let child = Int(graph.edges[e])
+                if depth[child] < 0 {
+                    depth[child] = depth[node] + 1
+                    queue.append(child)
+                }
+                guard solvable[node], !solvable[child], moves.count == last - first else { continue }
+                let move = moves[e - first]
+                let without = removing(instance, from: graph.states[node])
+                // A pour the instance doesn't change leaves the same position either way.
+                guard let next = without.pouring(move), next != graph.states[node].pouring(move) else { continue }
+                guard checks < maxChecks else { return nil }
+                checks += 1
+                if case .solved = Solver().solve(next, limits: checkLimits) { return depth[node] + 1 }
+            }
+        }
+        return nil
+    }
+}
+
+/// Whether a twin chain or an overflow pipe changes a level (the "must matter" check for F1
+/// and F2): the `.link(.twins / .overflow)` cases of `MechanicImpact`. Removing the instance
+/// means the same flasks without the link.
+///
+/// Both are two-sided (`MechanicImpact.isTwoSided`): twins add a pour no plain flask can make
+/// (a run split in two) and refuse every pour that can't be split; a pipe saves the second
+/// pour of a full flask's leftovers but also spills what the player would keep in the source.
+public enum LinkImpact {
+    /// Smallest change that counts as "matters": one move (`MechanicImpact.minimumCost`).
+    public static let minimumCost = 1
+    /// Change required in the chapter 8 recipes: the link changes the optimal solution by at
+    /// least two moves (or the level can't be solved without it).
+    public static let strongCost = 2
+
+    /// The twin and overflow instances of `state` (one per link).
+    public static func instances(in state: GameState) -> [MechanicInstance] {
+        MechanicImpact.instances(in: state).filter {
+            switch $0 {
+            case .link(.twins), .link(.overflow): return true
+            default: return false
+            }
+        }
+    }
+
+    /// Whether every twin chain and overflow pipe matters (true for a level without one).
+    public static func everyLinkMatters(_ state: GameState, minMoves: Int, cost: Int = minimumCost,
+                                        limits: SolverLimits = .default) -> Bool {
+        instances(in: state).allSatisfy { MechanicImpact.matters($0, in: state, minMoves: minMoves, cost: cost, limits: limits) }
+    }
+
+    /// Whether `state` can be solved in `moves` moves or fewer without a relocation
+    /// (`FrozenImpact.isRelocation`: a pure wait or park), with every link of the level used
+    /// on the way: a pour split between twins, and a pour that ran through each overflow pipe
+    /// (for a tutorial: an optimal solution shows the mechanic, and a player who never parks a
+    /// flask still gets every star). Breadth-first over exact states (which links were used is
+    /// part of the node), at most `maxStates`; false if the budget runs out.
+    public static func solvesUsingEveryLink(_ state: GameState, in moves: Int, maxStates: Int = 200_000) -> Bool {
+        struct Node: Hashable { let state: GameState; let used: UInt64 }
+        let links = state.links
+        guard links.count <= 64 else { return false }
+        let all: UInt64 = links.isEmpty ? 0 : (links.count == 64 ? ~0 : (1 << UInt64(links.count)) - 1)
+        if state.isSolved { return all == 0 }
+        let start = Node(state: state, used: 0)
+        var seen: Set<Node> = [start]
+        var frontier = [start]
+        for _ in 0..<moves {
+            var next: [Node] = []
+            for node in frontier {
+                let current = node.state
+                for move in current.legalMoves() where !FrozenImpact.isRelocation(move, in: current) {
+                    guard let turn = Rules.resolve(current, afterAction: .pour(move)), let pour = turn.pour else { continue }
+                    var used = node.used
+                    if !pour.shares.isEmpty, let link = current.link(at: move.to), let i = links.firstIndex(of: link) {
+                        used |= 1 << UInt64(i)
+                    }
+                    if turn.isWon {
+                        if used == all { return true }
+                        continue
+                    }
+                    let child = Node(state: turn.state, used: used)
+                    guard seen.insert(child).inserted else { continue }
+                    if seen.count > maxStates { return false }
+                    next.append(child)
+                }
+            }
+            if next.isEmpty { return false }
+            frontier = next
+        }
+        return false
     }
 }

@@ -107,7 +107,7 @@ public struct Solver: Sendable {
     /// Every pruned move leads to a state that is canonically identical to the
     /// current one (a no-op) or to a sibling that is already generated.
     ///
-    /// The rules hold for states without links, goal or counter whose flasks share one
+    /// The rules hold for states without goal or counter whose flasks share one
     /// capacity (as `validate()` requires) and carry only *static* modifiers
     /// (`BottleModifier.isStatic`: seal, essence rune, narrow neck, funnel, tap), whose
     /// effect depends only on the two bottles of a pour. Two flasks are *alike* when their
@@ -151,9 +151,36 @@ public struct Solver: Sendable {
     /// per state). Rule 3 stays: two empty flasks alike (equal storage, so the same period
     /// and phase if they bubble) give permuted states before and after the timed step
     /// (DECISIONS 172).
+    ///
+    /// Links (twins F1, overflow pipes F2; static, no counter): a pour into a linked flask
+    /// goes through the link (`Rules.actionPlan`), and a linked flask is never *alike* any
+    /// other: an empty linked flask is a target of its own (rule 3 never skips it, and its
+    /// presence turns rule 1 off), and a linked source is never relocated (rules 1 and 2:
+    /// moving all of a linked flask into another flask isn't a bottle permutation, the link
+    /// stays where it was). One rule is added: pouring into either twin of a pair gives the
+    /// same state (both get `k`, the source loses `2k`; legality is symmetric, and pouring
+    /// from one twin into the other is illegal both ways), so only the twin with the lower
+    /// index is tried. With a timed modifier and a link together every legal move is tried
+    /// (no level combines them yet; DECISIONS 179).
     static func candidateMoves(_ state: GameState) -> [Move] {
         let bottles = state.bottles
-        guard state.isBottlesOnly else { return state.legalMoves() }
+        // Links (F1, F2): bit i set = bottle i is an end of a link; `secondTwin` marks the
+        // twin of each pair that is never tried as a target (its pour equals the other's).
+        var linked: UInt64 = 0, secondTwin: UInt64 = 0
+        if !state.isBottlesOnly {
+            guard state.moveCount == nil, state.hasStandardGoal, bottles.count <= 64 else { return state.legalMoves() }
+            for link in state.links {
+                let (a, b) = link.endpoints
+                guard bottles.indices.contains(a), bottles.indices.contains(b), a != b else { return state.legalMoves() }
+                switch link {
+                case .twins: secondTwin |= 1 << UInt64(max(a, b))
+                case .overflow: break
+                case .switchGate: return state.legalMoves()
+                }
+                linked |= 1 << UInt64(a) | 1 << UInt64(b)
+            }
+        }
+        @inline(__always) func isLinked(_ i: Int) -> Bool { linked != 0 && linked & (1 << UInt64(i)) != 0 }
         var icy = false, bubbling = false
         for bottle in bottles {
             let kind = bottle.pruningKind
@@ -162,38 +189,48 @@ public struct Solver: Sendable {
             if kind.bubbling { bubbling = true }
         }
         let timed = icy || bubbling
+        if timed && linked != 0 { return state.legalMoves() }
         var waitKept = false
         // The first plain empty flask; flasks with other modifiers are rare and are
-        // compared one by one (`isFirstEmptyAlike`).
-        let firstPlainEmpty = bottles.firstIndex { $0.isEmpty && $0.isPlain }
-        let hasMarkedEmpty = bottles.contains { $0.isEmpty && !$0.isPlain && !$0.isSealed && !$0.hasTap }
+        // compared one by one (`isFirstEmptyAlike`). A linked flask is never alike any other.
+        let firstPlainEmpty = bottles.indices.first { bottles[$0].isEmpty && bottles[$0].isPlain && !isLinked($0) }
+        let hasMarkedEmpty = bottles.indices.contains { i in
+            let b = bottles[i]
+            return b.isEmpty && (!b.isPlain || isLinked(i)) && !b.isSealed && !b.hasTap
+        }
         func isFirstEmptyAlike(_ index: Int) -> Bool {
             let target = bottles[index]
-            return !bottles[..<index].contains { $0.isEmpty && $0.storage == target.storage }
+            return !(0..<index).contains { bottles[$0].isEmpty && bottles[$0].storage == target.storage && !isLinked($0) }
         }
         var result: [Move] = []
         for from in bottles.indices {
             let source = bottles[from]
             if source.isEmpty { continue }
+            let sourceFree = !isLinked(from)
             // Rule 1.
-            if !timed && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
+            if !timed && sourceFree && source.isPlain && !hasMarkedEmpty && source.isFull && Rules.isSolved(source) { continue }
             // Rule 2 (a plain source moves its whole top run into an empty plain flask).
-            let movesWhole = !timed && Rules.movableRunCount(source) == source.layers.count
+            let movesWhole = !timed && sourceFree && Rules.movableRunCount(source) == source.layers.count
             for to in bottles.indices where to != from {
                 let target = bottles[to]
+                let targetLinked = isLinked(to)
+                if targetLinked && secondTwin & (1 << UInt64(to)) != 0 { continue }  // twin rule
                 var alikeEmpty = false
-                if target.isEmpty {
+                if target.isEmpty && !targetLinked {
                     if target.isPlain {
                         if to != firstPlainEmpty || (movesWhole && source.isPlain) { continue }  // rules 3, 2
                         alikeEmpty = bubbling && source.isPlain
                     } else if !target.isSealed {
                         if !isFirstEmptyAlike(to) { continue }  // rule 3
-                        alikeEmpty = (!icy || bubbling) && target.storage == source.storage
+                        alikeEmpty = (!icy || bubbling) && sourceFree && target.storage == source.storage
                     }
                 }
                 // `Rules.actionPlan` without its index checks: in a state of bottles only it
-                // is exactly the two-bottle plan (the one legality check, DECISIONS 125).
-                guard let plan = Rules.plan(from: source, to: target) else { continue }
+                // is exactly the two-bottle plan (the one legality check, DECISIONS 125); a pour
+                // into a linked flask goes through the link.
+                let plan = targetLinked ? Rules.actionPlan(for: Move(from: from, to: to), in: state)
+                                        : Rules.plan(from: source, to: target)
+                guard let plan else { continue }
                 if alikeEmpty && plan.amount == source.layers.count {
                     if !timed { continue }  // rule 2
                     if waitKept { continue }  // bubbling: one wait per state

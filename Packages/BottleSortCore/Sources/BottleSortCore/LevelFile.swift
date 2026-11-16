@@ -106,6 +106,12 @@ public struct Mechanic: RawRepresentable, Codable, Sendable, Hashable, Expressib
     /// Bubbling flasks: every few moves the bottom layer rises to the top
     /// (`BottleModifier.bubbling`; chapter 7).
     public static let bubbling: Mechanic = "bubbling"
+    /// Twin flasks: two flasks on a silver chain share every pour into either one, split
+    /// evenly (`Link.twins`; chapter 8).
+    public static let twins: Mechanic = "twins"
+    /// Overflow pipes: what doesn't fit into a full flask runs on through its pipe into
+    /// another flask (`Link.overflow`; chapter 8).
+    public static let overflow: Mechanic = "overflow"
 
     public var description: String { rawValue }
 }
@@ -147,7 +153,7 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
     public var isHidden: Bool { hidden ?? false }
 
     /// The mechanics this level actually uses, in chapter order (sealed, murky, essence,
-    /// narrow neck, funnel, tap, frozen, bubbling),
+    /// narrow neck, funnel, tap, frozen, bubbling, twins, overflow),
     /// e.g. to pick the tips a recipe shows. Empty for a plain sorting level.
     public var mechanics: [Mechanic] {
         let all = bottles.flatMap(\.allModifiers)
@@ -160,6 +166,9 @@ public struct LevelDefinition: Codable, Sendable, Hashable, Identifiable {
         if all.contains(.tap) { result.append(.tap) }
         if all.contains(where: { if case .frozen = $0 { return true } else { return false } }) { result.append(.frozen) }
         if all.contains(where: { if case .bubbling = $0 { return true } else { return false } }) { result.append(.bubbling) }
+        let links = links ?? []
+        if links.contains(where: { if case .twins = $0 { return true } else { return false } }) { result.append(.twins) }
+        if links.contains(where: { if case .overflow = $0 { return true } else { return false } }) { result.append(.overflow) }
         return result
     }
 

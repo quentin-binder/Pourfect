@@ -10,6 +10,7 @@ import Foundation
 //   levelgen --colors 5 --empty 2 --narrow 1 --tap 1 --glass-cost 2 --count 5 --out glass.json
 //   levelgen --colors 5 --empty 2 --frozen 1:4 --frozen-cost 2 --count 5 --out ice.json
 //   levelgen --colors 5 --empty 2 --bubbling 1:3 --bubbling-cost 2 --count 5 --out bog.json
+//   levelgen --colors 4 --empty 2 --twins 1 --link-placement filled --link-cost 2 --count 5 --out twins.json
 //   levelgen --preset chapter2 --out Levels/chapter_02.json
 //   levelgen --preset all --out-dir Levels
 //   levelgen --report Levels            (every *.json in the folder)
@@ -25,14 +26,15 @@ usage:
            [--narrow N] [--funnel N] [--tap N] [--glass-matter | --glass-cost C]
            [--frozen N:MAXTURNS [--frozen-matter | --frozen-cost C]]
            [--bubbling N:PERIOD [--bubbling-matter | --bubbling-cost C]]
+           [--twins N] [--overflow N] [--link-placement any|filled|empty|mixed] [--links-matter | --link-cost C]
            [--name NAME --subtitle TEXT] [--kind chapter|challenge --chapter N --location NAME]
-  levelgen --preset chapter1|…|chapter7|challenger|expert|master [--seed S] --out FILE
+  levelgen --preset chapter1|…|chapter8|challenger|expert|master [--seed S] --out FILE
   levelgen --preset all --out-dir DIR
-           (writes chapter_01…07.json and challenge_challenger|expert|master.json)
+           (writes chapter_01…08.json and challenge_challenger|expert|master.json)
   levelgen --report FILE|DIR       (exit status 2 if a level doesn't match its minMoves)
   levelgen --bench [--colors 8] [--capacity 4] [--empty 2] [--locks 0] [--essence 0 [--essence-empty K]]
            [--narrow 0] [--funnel 0] [--tap 0] [--frozen N:MAXTURNS] [--bubbling N:PERIOD]
-           [--count 10] [--seed 1]
+           [--twins 0] [--overflow 0] [--link-placement any] [--count 10] [--seed 1]
 """
 
 func fail(_ message: String) -> Never {
@@ -50,7 +52,7 @@ var options: [String: String] = [:]
 var flags: Set<String> = []
 do {
     var args = CommandLine.arguments.dropFirst()
-    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--easiest"]
+    let flagNames: Set<String> = ["--bench", "--help", "--hidden", "--locks-matter", "--essence-matter", "--glass-matter", "--frozen-matter", "--bubbling-matter", "--links-matter", "--easiest"]
     while let arg = args.popFirst() {
         guard arg.hasPrefix("--") else { fail("unexpected argument \(arg)\n\(usage)") }
         if flagNames.contains(arg) { flags.insert(arg); continue }
@@ -105,6 +107,22 @@ func bubblingOption() -> (count: Int, period: Int) {
     return (count, period)
 }
 
+/// `--link-placement any|filled|empty|mixed` (`LinkPlacement`; `any` when absent).
+func linkPlacementOption() -> LinkPlacement {
+    guard let raw = options["--link-placement"] else { return .any }
+    guard let placement = LinkPlacement(rawValue: raw) else {
+        fail("--link-placement expects " + LinkPlacement.allCases.map(\.rawValue).joined(separator: ", "))
+    }
+    return placement
+}
+
+/// `--twins N` and `--overflow N` (twin pairs and overflow pipes), both ≥ 0.
+func linkOptions() -> (twins: Int, overflow: Int) {
+    let twins = int("--twins", default: 0)!, overflow = int("--overflow", default: 0)!
+    guard twins >= 0, overflow >= 0 else { fail("--twins and --overflow must not be negative") }
+    return (twins, overflow)
+}
+
 func pad(_ s: String, _ width: Int, right: Bool = false) -> String {
     let fill = String(repeating: " ", count: max(0, width - s.count))
     return right ? fill + s : s + fill
@@ -123,7 +141,7 @@ func formatTime(_ d: Duration) -> String {
 func report(path: String) -> Int {
     let pack: LevelPack
     do { pack = try LevelLoader.load(contentsOf: URL(fileURLWithPath: path)) } catch { fail("\(path): \(error)") }
-    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let r: DifficultyReport }
+    struct Row { let index: Int; let id: String; let colors: Int; let empty: Int; let locks: Int; let runes: Int; let glass: String; let ice: Int; let bub: Int; let links: String; let r: DifficultyReport }
     var rows: [Row] = []
     var problems = 0
     for (i, level) in pack.levels.enumerated() {
@@ -145,13 +163,13 @@ func report(path: String) -> Int {
                         locks: state.bottles.filter { $0.lockedBy != nil }.count,
                         runes: state.bottles.filter { $0.essenceColor != nil }.count, glass: glassSummary(state),
                         ice: state.bottles.reduce(0) { $0 + $1.frozenLayers.count },
-                        bub: state.bottles.filter(\.isBubbling).count, r: r))
+                        bub: state.bottles.filter(\.isBubbling).count, links: linkSummary(state), r: r))
     }
     var title = pack.name ?? path
     if let kind = pack.kind { title += " (\(kind.rawValue)\(pack.chapter.map { " \($0)" } ?? ""))" }
     if let mechanics = pack.introduces { title += ", introduces " + mechanics.map(\.rawValue).joined(separator: ", ") }
     print("== \(title) — \(path)")
-    let header = "  #  id         colors empty locks runes glass ice bub minMoves  states  deadEnd  branch  score"
+    let header = "  #  id         colors empty locks runes glass ice bub links minMoves  states  deadEnd  branch  score"
     print(header)
     print(String(repeating: "-", count: header.count))
     for row in rows.sorted(by: { ($0.r.score, $0.index) < ($1.r.score, $1.index) }) {
@@ -162,7 +180,8 @@ func report(path: String) -> Int {
         }
         print(String(format: "%3d  ", row.index) + pad(row.id, 10)
               + String(format: " %6d %5d %5d %5d ", row.colors, row.empty, row.locks, row.runes) + pad(row.glass, 5, right: true)
-              + String(format: " %3d %3d %8d %7d ", row.ice, row.bub, row.r.minMoves, row.r.statesExplored)
+              + String(format: " %3d %3d ", row.ice, row.bub) + pad(row.links, 5, right: true)
+              + String(format: " %8d %7d ", row.r.minMoves, row.r.statesExplored)
               + pad(dead, 8, right: true)
               + String(format: " %7.2f %6.1f", row.r.branchingFactor, row.r.score))
     }
@@ -182,6 +201,14 @@ func glassSummary(_ state: GameState) -> String {
     let f = state.bottles.filter(\.isFunnel).count
     let t = state.bottles.filter(\.hasTap).count
     let parts = [(n, "n"), (f, "f"), (t, "t")].filter { $0.0 > 0 }.map { "\($0.1)\($0.0)" }
+    return parts.isEmpty ? "-" : parts.joined()
+}
+
+/// Twin pairs and overflow pipes of a level as "tT oO" letters (e.g. "t1o1"; "-" for none).
+func linkSummary(_ state: GameState) -> String {
+    let t = state.links.filter { if case .twins = $0 { return true } else { return false } }.count
+    let o = state.links.filter { if case .overflow = $0 { return true } else { return false } }.count
+    let parts = [(t, "t"), (o, "o")].filter { $0.0 > 0 }.map { "\($0.1)\($0.0)" }
     return parts.isEmpty ? "-" : parts.joined()
 }
 
@@ -225,6 +252,13 @@ struct Tier {
     var bubblingPeriod = 3
     /// Moves each bubbling flask must change (`BubblingImpact`); nil = no must-matter check.
     var bubblingCost: Int? = nil
+    /// Twin pairs (F1) and overflow pipes (F2) per level, and which flasks they go on.
+    var twins = 0
+    var overflow = 0
+    var linkPlacement: LinkPlacement = .any
+    /// Moves each link must change (`LinkImpact`; an overflow pipe may instead set a spill
+    /// trap); nil = no must-matter check.
+    var linkCost: Int? = nil
     /// Keep the easiest `count` of the pool instead of the hardest (tutorial recipes).
     var keepEasiest = false
     /// Frozen tutorial: every frozen layer has a layer above it (`FrozenImpact.everyIceHasALayerAbove`),
@@ -235,6 +269,10 @@ struct Tier {
     /// after it rose (`BubblingImpact.solvesWithoutRelocation(_:in:pouringARisenLayer:)`), and
     /// no first move is a dead end (`MechanicImpact.everyFirstMoveSolvable`).
     var teachesBubbling = false
+    /// Link tutorial: an optimal solution needs no relocation and uses every link (a split
+    /// pour, a pour through each pipe; `LinkImpact.solvesUsingEveryLink`), and no first move
+    /// is a dead end (`MechanicImpact.everyFirstMoveSolvable`).
+    var teachesLinks = false
     /// The pack is sorted by score within a section; sections follow each other in increasing order.
     var section = 0
 }
@@ -471,7 +509,7 @@ let packPresets: [String: PackPreset] = [
         Tier(count: 4, colors: 10, capacity: 4, empty: 2, hidden: true, moves: 31...99, pool: 2),
     ]),
 ]
-let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "challenger", "expert", "master"]
+let presetOrder = ["chapter1", "chapter2", "chapter3", "chapter4", "chapter5", "chapter6", "chapter7", "chapter8", "challenger", "expert", "master"]
 
 func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedRange<Double>?) -> [LevelDefinition] {
     var all: [(level: GeneratedLevel, hidden: Bool, section: Int)] = []
@@ -492,7 +530,10 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
                                      frozenCost: tier.frozenCost ?? FrozenImpact.minimumCost,
                                      bubbling: tier.bubbling, bubblingPeriod: tier.bubblingPeriod,
                                      requireBubblingMatter: tier.bubblingCost != nil,
-                                     bubblingCost: tier.bubblingCost ?? BubblingImpact.minimumCost)
+                                     bubblingCost: tier.bubblingCost ?? BubblingImpact.minimumCost,
+                                     twins: tier.twins, overflow: tier.overflow, linkPlacement: tier.linkPlacement,
+                                     requireLinksMatter: tier.linkCost != nil,
+                                     linkCost: tier.linkCost ?? LinkImpact.minimumCost)
         let start = ContinuousClock.now
         var generated: [GeneratedLevel] = []
         do {
@@ -514,12 +555,19 @@ func generate(tiers: [Tier], seed: UInt64, idPrefix: String, scoreRange: ClosedR
             }
             if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the bubbling; raise the pool") }
         }
+        if tier.teachesLinks {
+            generated = generated.filter {
+                LinkImpact.solvesUsingEveryLink($0.state, in: $0.report.minMoves)
+                    && MechanicImpact.everyFirstMoveSolvable($0.state)
+            }
+            if generated.count < tier.count { fail("tier \(t + 1): too few levels teach the links; raise the pool") }
+        }
         // Keep the hardest (or, for a tutorial, the easiest) `count` of the pool.
         let hardestFirst = generated.sorted { ($0.report.score, $1.seed) > ($1.report.score, $0.seed) }
         let kept = tier.keepEasiest ? hardestFirst.reversed().prefix(tier.count) : hardestFirst.prefix(tier.count)
         all += kept.map { ($0, tier.hidden, tier.section) }
         let pooled = tier.pool > 1 ? " (\(tier.keepEasiest ? "easiest" : "best") of \(tier.count * tier.pool))" : ""
-        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.bubbling > 0 ? ", \(tier.bubbling) bubbling /\(tier.bubblingPeriod)" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
+        log("tier \(t + 1): \(tier.count)\(pooled) × \(tier.colors) colors, cap \(tier.capacity), \(tier.empty) empty, \(tier.locks) locks\(tier.essence > 0 ? ", \(tier.essence) essence" : "")\(tier.narrow > 0 ? ", \(tier.narrow) narrow" : "")\(tier.funnel > 0 ? ", \(tier.funnel) funnel" : "")\(tier.tap > 0 ? ", \(tier.tap) tap" : "")\(tier.frozen > 0 ? ", \(tier.frozen) frozen ≤\(tier.frozenTurns)" : "")\(tier.bubbling > 0 ? ", \(tier.bubbling) bubbling /\(tier.bubblingPeriod)" : "")\(tier.twins > 0 ? ", \(tier.twins) twins" : "")\(tier.overflow > 0 ? ", \(tier.overflow) overflow" : "")\(tier.hidden ? ", hidden" : "") — \(formatTime(ContinuousClock.now - start))")
     }
     // Sort by score within each section, so difficulty rises through the whole pack.
     return all.sorted { ($0.section, $0.level.report.score, $0.level.seed) < ($1.section, $1.level.report.score, $1.level.seed) }
@@ -552,11 +600,13 @@ func bench() {
     let locks = int("--locks", default: 0)!
     let frozen = frozenOption()
     let bubbling = bubblingOption()
+    let links = linkOptions()
     let config = GeneratorConfig(colors: colors, capacity: capacity, emptyBottles: empty, locks: locks,
                                  essence: int("--essence", default: 0)!, essenceEmpty: int("--essence-empty"),
                                  narrowNecks: int("--narrow", default: 0)!, funnels: int("--funnel", default: 0)!,
                                  taps: int("--tap", default: 0)!, frozen: frozen.count, frozenMaxTurns: frozen.maxTurns,
-                                 bubbling: bubbling.count, bubblingPeriod: bubbling.period)
+                                 bubbling: bubbling.count, bubblingPeriod: bubbling.period,
+                                 twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption())
     var worst = Duration.zero
     var total = Duration.zero
     print("seed      result     moves   states    time")
@@ -627,6 +677,8 @@ if let path = options["--report"] {
         let frozenCost = int("--frozen-cost") ?? (flags.contains("--frozen-matter") ? FrozenImpact.minimumCost : nil)
         let bubbling = bubblingOption()
         let bubblingCost = int("--bubbling-cost") ?? (flags.contains("--bubbling-matter") ? BubblingImpact.minimumCost : nil)
+        let links = linkOptions()
+        let linkCost = int("--link-cost") ?? (flags.contains("--links-matter") ? LinkImpact.minimumCost : nil)
         let tier = Tier(count: int("--count", default: 20)!, colors: colors, capacity: int("--capacity", default: 4)!,
                         empty: int("--empty", default: 2)!, locks: locks, hidden: flags.contains("--hidden"), moves: moves,
                         pool: int("--pool", default: 1)!, locksMatter: flags.contains("--locks-matter"),
@@ -634,7 +686,8 @@ if let path = options["--report"] {
                         narrow: narrow, funnel: funnel, tap: tap, glassCost: glassCost,
                         frozen: frozen.count, frozenTurns: frozen.maxTurns, frozenCost: frozenCost,
                         bubbling: bubbling.count, bubblingPeriod: bubbling.period, bubblingCost: bubblingCost,
-                        keepEasiest: flags.contains("--easiest"))
+                        twins: links.twins, overflow: links.overflow, linkPlacement: linkPlacementOption(),
+                        linkCost: linkCost, keepEasiest: flags.contains("--easiest"))
         let kind = options["--kind"].map { raw -> PackKind in
             guard let k = PackKind(rawValue: raw) else { fail("--kind expects chapter or challenge") }
             return k
