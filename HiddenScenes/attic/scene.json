@@ -840,7 +840,8 @@
    "sizeClass": [
     "small"
    ],
-   "surface": "barrel"
+   "surface": "barrel",
+   "unusable": true
   },
   {
    "id": "b10",

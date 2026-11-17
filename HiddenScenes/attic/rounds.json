@@ -1,0 +1,2286 @@
+{
+  "format" : "pourfect-hidden-rounds-v1",
+  "rounds" : [
+    {
+      "notes" : [
+        "watch: long 63->54 (real size next to the painted objects)",
+        "padlock: long 61->52 (real size next to the painted objects)",
+        "padlock: b09 (barrel)->b05 (chest), L49 (spot marked unusable)",
+        "horseshoe: b16 (rug)->b12 (bowl), L56 (upright disc stood in the open)",
+        "flask: long 98->88 (real size next to the painted objects)",
+        "mirror: turned +80 deg to lie on the table (looked propped up)",
+        "magnifier: rot=40: stood on its rim on the basket lid; laid flat"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "magnifier",
+          "longSide" : 85,
+          "role" : "target",
+          "rotation" : 40,
+          "spot" : "c14",
+          "tint" : 0.1821
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 102,
+          "role" : "target",
+          "spot" : "c07",
+          "tint" : 0.2072
+        },
+        {
+          "flip" : true,
+          "id" : "teacup",
+          "longSide" : 58,
+          "role" : "target",
+          "spot" : "a17",
+          "tint" : 0.2583
+        },
+        {
+          "flip" : false,
+          "id" : "watch",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "b01",
+          "tint" : 0.2227
+        },
+        {
+          "flip" : false,
+          "id" : "padlock",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "b05",
+          "tint" : 0.2089
+        },
+        {
+          "flip" : true,
+          "id" : "crystal",
+          "longSide" : 62,
+          "role" : "target",
+          "spot" : "b02",
+          "tint" : 0.2164
+        },
+        {
+          "flip" : false,
+          "id" : "hourglass",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "a04",
+          "tint" : 0.1982
+        },
+        {
+          "flip" : true,
+          "id" : "horseshoe",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "b12",
+          "tint" : 0.1908
+        },
+        {
+          "flip" : false,
+          "id" : "mortar",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "a10",
+          "tint" : 0.236
+        },
+        {
+          "flip" : true,
+          "id" : "broom",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.2597
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "c17",
+          "tint" : 0.2123
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "a02",
+          "tint" : 0.2556
+        },
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "b06",
+          "tint" : 0.1997
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "c20",
+          "tint" : 0.2445
+        },
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "c04",
+          "tint" : 0.2324
+        },
+        {
+          "flip" : false,
+          "id" : "telescope",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "b14",
+          "tint" : 0.2355
+        }
+      ],
+      "round" : 1
+    },
+    {
+      "notes" : [
+        "die: long 60->37 (real size next to the painted objects)",
+        "inkwell: long 55->47 (real size next to the painted objects)",
+        "butterfly: long 57->46 (real size next to the painted objects)",
+        "flask: long 104->94 (real size next to the painted objects)",
+        "broom: turned +50 deg to lie on the floor (looked propped up)",
+        "mirror: turned +80 deg to lie on the rug (looked propped up)",
+        "magnifier: rot=40: stood on its rim on the basket lid; laid flat"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 90,
+          "role" : "target",
+          "spot" : "b20",
+          "tint" : 0.2105
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 92,
+          "role" : "target",
+          "spot" : "c04",
+          "tint" : 0.2074
+        },
+        {
+          "flip" : false,
+          "id" : "candle",
+          "longSide" : 118,
+          "role" : "target",
+          "spot" : "c17",
+          "tint" : 0.2026
+        },
+        {
+          "flip" : true,
+          "id" : "wand",
+          "longSide" : 84,
+          "role" : "target",
+          "spot" : "c13",
+          "tint" : 0.2118
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 37,
+          "role" : "target",
+          "spot" : "a15",
+          "tint" : 0.2172
+        },
+        {
+          "flip" : false,
+          "id" : "inkwell",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "b04",
+          "tint" : 0.2141
+        },
+        {
+          "flip" : false,
+          "id" : "crystal",
+          "longSide" : 59,
+          "role" : "target",
+          "spot" : "a22",
+          "tint" : 0.2026
+        },
+        {
+          "flip" : false,
+          "id" : "butterfly",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "a08",
+          "tint" : 0.2374
+        },
+        {
+          "flip" : false,
+          "id" : "hourglass",
+          "longSide" : 63,
+          "role" : "target",
+          "spot" : "a25",
+          "tint" : 0.2069
+        },
+        {
+          "flip" : true,
+          "id" : "scroll",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "b15",
+          "tint" : 0.222
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "c06",
+          "tint" : 0.2502
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "b17",
+          "tint" : 0.2017
+        },
+        {
+          "flip" : true,
+          "id" : "firefly_jar",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "a10",
+          "tint" : 0.2144
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 98,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "c16",
+          "tint" : 0.246
+        },
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 96,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "c05",
+          "tint" : 0.227
+        },
+        {
+          "flip" : true,
+          "id" : "magnifier",
+          "longSide" : 90,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "c14",
+          "tint" : 0.2559
+        },
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 102,
+          "role" : "decoy",
+          "spot" : "c07",
+          "tint" : 0.1987
+        },
+        {
+          "flip" : false,
+          "id" : "lamp",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "c20",
+          "tint" : 0.2299
+        },
+        {
+          "flip" : false,
+          "id" : "telescope",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "b06",
+          "tint" : 0.2251
+        }
+      ],
+      "round" : 2
+    },
+    {
+      "notes" : [
+        "mirror: turned +80 deg to lie on the rug (looked propped up)",
+        "watch: long 52->44 (real size next to the painted objects)",
+        "padlock: long 60->51 (real size next to the painted objects)",
+        "ring: long 59->32 (real size next to the painted objects)",
+        "butterfly: long 59->47 (real size next to the painted objects)",
+        "butterfly: b09 (barrel)->b05 (chest), L44 (spot marked unusable)",
+        "die: long 49->30 (real size next to the painted objects)",
+        "inkwell: long 66->56 (real size next to the painted objects)",
+        "quill: turned +45 deg to lie on the rug (looked propped up)",
+        "flask: long 98->88 (real size next to the painted objects)"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 99,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "c07",
+          "tint" : 0.2361
+        },
+        {
+          "flip" : false,
+          "id" : "book",
+          "longSide" : 83,
+          "role" : "target",
+          "spot" : "a02",
+          "tint" : 0.2519
+        },
+        {
+          "flip" : false,
+          "id" : "watch",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "a08",
+          "tint" : 0.2045
+        },
+        {
+          "flip" : true,
+          "id" : "padlock",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "b15",
+          "tint" : 0.2253
+        },
+        {
+          "flip" : false,
+          "id" : "ring",
+          "longSide" : 32,
+          "role" : "target",
+          "spot" : "b20",
+          "tint" : 0.2144
+        },
+        {
+          "flip" : false,
+          "id" : "butterfly",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "b05",
+          "tint" : 0.1911
+        },
+        {
+          "flip" : false,
+          "id" : "shell",
+          "longSide" : 65,
+          "role" : "target",
+          "spot" : "b21",
+          "tint" : 0.2528
+        },
+        {
+          "flip" : false,
+          "id" : "mushroom",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "a13",
+          "tint" : 0.1963
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "a12",
+          "tint" : 0.2458
+        },
+        {
+          "flip" : true,
+          "id" : "inkwell",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "c20",
+          "tint" : 0.1827
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "c05",
+          "tint" : 0.2046
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "c16",
+          "tint" : 0.2246
+        },
+        {
+          "flip" : false,
+          "id" : "magnifier",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.2378
+        },
+        {
+          "flip" : false,
+          "id" : "firefly_jar",
+          "longSide" : 98,
+          "role" : "decoy",
+          "spot" : "c17",
+          "tint" : 0.2338
+        },
+        {
+          "flip" : false,
+          "id" : "mortar",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "b02",
+          "tint" : 0.2349
+        },
+        {
+          "flip" : true,
+          "id" : "lamp",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "a10",
+          "tint" : 0.1847
+        },
+        {
+          "flip" : false,
+          "id" : "scroll",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "b14",
+          "tint" : 0.19
+        },
+        {
+          "flip" : true,
+          "id" : "broom",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "c14",
+          "tint" : 0.2539
+        },
+        {
+          "flip" : false,
+          "id" : "quill",
+          "longSide" : 94,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "c06",
+          "tint" : 0.2011
+        },
+        {
+          "flip" : false,
+          "id" : "candle",
+          "longSide" : 110,
+          "role" : "decoy",
+          "spot" : "c04",
+          "tint" : 0.23
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "b17",
+          "tint" : 0.2281
+        }
+      ],
+      "round" : 3
+    },
+    {
+      "notes" : [
+        "mirror: turned +80 deg to lie on the rug (looked propped up)",
+        "ring: long 54->30 (real size next to the painted objects)",
+        "spectacles: long 63->57 (real size next to the painted objects)",
+        "frog: long 59->53 (real size next to the painted objects)",
+        "wand: turned +40 deg to lie on the table (looked propped up)",
+        "magnifier: turned +40 deg to lie on the floor (looked propped up)",
+        "flask: long 88->79 (real size next to the painted objects)",
+        "key: rot=80: stood on the tip of its blade on the shelf; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : true,
+          "id" : "quill",
+          "longSide" : 77,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.2204
+        },
+        {
+          "flip" : false,
+          "id" : "scroll",
+          "longSide" : 96,
+          "role" : "target",
+          "spot" : "c20",
+          "tint" : 0.1924
+        },
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 96,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "c07",
+          "tint" : 0.2478
+        },
+        {
+          "flip" : false,
+          "id" : "horseshoe",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "c18",
+          "tint" : 0.2501
+        },
+        {
+          "flip" : false,
+          "id" : "ring",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "a08",
+          "tint" : 0.1977
+        },
+        {
+          "flip" : true,
+          "id" : "spectacles",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "c11",
+          "tint" : 0.1999
+        },
+        {
+          "flip" : true,
+          "id" : "key",
+          "longSide" : 63,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "b05",
+          "tint" : 0.2408
+        },
+        {
+          "flip" : false,
+          "id" : "teacup",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "a25",
+          "tint" : 0.2433
+        },
+        {
+          "flip" : false,
+          "id" : "mushroom",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "a17",
+          "tint" : 0.2479
+        },
+        {
+          "flip" : false,
+          "id" : "frog",
+          "longSide" : 53,
+          "role" : "target",
+          "spot" : "b15",
+          "tint" : 0.2165
+        },
+        {
+          "flip" : false,
+          "id" : "wand",
+          "longSide" : 82,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "b06",
+          "tint" : 0.1921
+        },
+        {
+          "flip" : true,
+          "id" : "candle",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "b17",
+          "tint" : 0.1875
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.2304
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "b16",
+          "tint" : 0.2235
+        },
+        {
+          "flip" : false,
+          "id" : "magnifier",
+          "longSide" : 97,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "c17",
+          "tint" : 0.2123
+        },
+        {
+          "flip" : false,
+          "id" : "mortar",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "c16",
+          "tint" : 0.2391
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 79,
+          "role" : "decoy",
+          "spot" : "b02",
+          "tint" : 0.1815
+        },
+        {
+          "flip" : true,
+          "id" : "book",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.2437
+        },
+        {
+          "flip" : true,
+          "id" : "lamp",
+          "longSide" : 97,
+          "role" : "decoy",
+          "spot" : "c04",
+          "tint" : 0.2442
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "a02",
+          "tint" : 0.213
+        },
+        {
+          "flip" : true,
+          "id" : "flask",
+          "longSide" : 79,
+          "role" : "decoy",
+          "spot" : "c14",
+          "tint" : 0.2193
+        },
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 97,
+          "role" : "decoy",
+          "spot" : "c05",
+          "tint" : 0.1818
+        }
+      ],
+      "round" : 4
+    },
+    {
+      "notes" : [
+        "magnifier: turned +40 deg to lie on the table (looked propped up)",
+        "padlock: long 52->44 (real size next to the painted objects)",
+        "butterfly: long 56->45 (real size next to the painted objects)",
+        "die: long 53->33 (real size next to the painted objects)",
+        "flask: long 85->76 (real size next to the painted objects)",
+        "quill: turned +45 deg to lie on the rug (looked propped up), L74",
+        "mirror: turned +80 deg to lie on the rug (looked propped up)",
+        "dropped book (decoy @c17): a red book standing alone on the open rug looked propped up"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "wand",
+          "longSide" : 85,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.2592
+        },
+        {
+          "flip" : true,
+          "id" : "magnifier",
+          "longSide" : 84,
+          "role" : "target",
+          "rotation" : 40,
+          "spot" : "b06",
+          "tint" : 0.188
+        },
+        {
+          "flip" : false,
+          "id" : "scroll",
+          "longSide" : 81,
+          "role" : "target",
+          "spot" : "a02",
+          "tint" : 0.2371
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 88,
+          "role" : "target",
+          "spot" : "c14",
+          "tint" : 0.2432
+        },
+        {
+          "flip" : true,
+          "id" : "crystal",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "c03",
+          "tint" : 0.1912
+        },
+        {
+          "flip" : false,
+          "id" : "teacup",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "a11",
+          "tint" : 0.192
+        },
+        {
+          "flip" : false,
+          "id" : "padlock",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "a19",
+          "tint" : 0.2034
+        },
+        {
+          "flip" : true,
+          "id" : "butterfly",
+          "longSide" : 45,
+          "role" : "target",
+          "spot" : "b18",
+          "tint" : 0.2107
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 33,
+          "role" : "target",
+          "spot" : "b04",
+          "tint" : 0.1893
+        },
+        {
+          "flip" : false,
+          "id" : "potion",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "a17",
+          "tint" : 0.256
+        },
+        {
+          "flip" : false,
+          "id" : "hourglass",
+          "longSide" : 61,
+          "role" : "target",
+          "spot" : "b05",
+          "tint" : 0.2135
+        },
+        {
+          "flip" : true,
+          "id" : "globe",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.1996
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 76,
+          "role" : "decoy",
+          "spot" : "b02",
+          "tint" : 0.2347
+        },
+        {
+          "flip" : false,
+          "id" : "quill",
+          "longSide" : 74,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "c04",
+          "tint" : 0.2538
+        },
+        {
+          "flip" : true,
+          "id" : "mortar",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "c06",
+          "tint" : 0.203
+        },
+        {
+          "flip" : true,
+          "id" : "lamp",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "b14",
+          "tint" : 0.1895
+        },
+        {
+          "flip" : false,
+          "id" : "telescope",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "c07",
+          "tint" : 0.2337
+        },
+        {
+          "flip" : false,
+          "id" : "candle",
+          "longSide" : 110,
+          "role" : "decoy",
+          "spot" : "c05",
+          "tint" : 0.1842
+        },
+        {
+          "flip" : false,
+          "id" : "paintbrush",
+          "longSide" : 78,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.2379
+        },
+        {
+          "flip" : true,
+          "id" : "owl",
+          "longSide" : 96,
+          "role" : "decoy",
+          "spot" : "b16",
+          "tint" : 0.21
+        },
+        {
+          "flip" : true,
+          "id" : "pumpkin",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "b15",
+          "tint" : 0.2075
+        },
+        {
+          "flip" : false,
+          "id" : "firefly_jar",
+          "longSide" : 96,
+          "role" : "decoy",
+          "spot" : "c20",
+          "tint" : 0.2155
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "c16",
+          "tint" : 0.2115
+        },
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 92,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "b17",
+          "tint" : 0.2109
+        }
+      ],
+      "round" : 5
+    },
+    {
+      "notes" : [
+        "watch: long 52->44 (real size next to the painted objects)",
+        "egg: long 54->46 (real size next to the painted objects)",
+        "spectacles: long 68->61 (real size next to the painted objects)",
+        "magnifier: turned +40 deg to lie on the rug (looked propped up)",
+        "quill: turned +45 deg to lie on the rug (looked propped up)",
+        "flask: long 89->80 (real size next to the painted objects)",
+        "broom: turned +50 deg to lie on the rug (looked propped up)",
+        "mirror: turned +80 deg to lie on the floor (looked propped up)",
+        "paintbrush: turned -50 deg to lie on the table (looked propped up)",
+        "pinecone: long 50->45 (real size next to the painted objects)",
+        "key: rot=80: stood on the tip of its blade on the book pile; laid down",
+        "scissors: rot=-80: stood upright on their points; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : true,
+          "id" : "book",
+          "longSide" : 80,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.1884
+        },
+        {
+          "flip" : false,
+          "id" : "lamp",
+          "longSide" : 94,
+          "role" : "target",
+          "spot" : "c20",
+          "tint" : 0.1805
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 84,
+          "role" : "target",
+          "spot" : "b17",
+          "tint" : 0.1803
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 83,
+          "role" : "target",
+          "spot" : "c04",
+          "tint" : 0.1835
+        },
+        {
+          "flip" : true,
+          "id" : "key",
+          "longSide" : 62,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "a06",
+          "tint" : 0.1894
+        },
+        {
+          "flip" : false,
+          "id" : "watch",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "c08",
+          "tint" : 0.1982
+        },
+        {
+          "flip" : false,
+          "id" : "teacup",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "c11",
+          "tint" : 0.2412
+        },
+        {
+          "flip" : false,
+          "id" : "egg",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "a18",
+          "tint" : 0.239
+        },
+        {
+          "flip" : false,
+          "id" : "shell",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "a12",
+          "tint" : 0.1834
+        },
+        {
+          "flip" : true,
+          "id" : "crystal",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "a21",
+          "tint" : 0.2389
+        },
+        {
+          "flip" : false,
+          "id" : "scissors",
+          "longSide" : 54,
+          "role" : "target",
+          "rotation" : -80,
+          "spot" : "a23",
+          "tint" : 0.2561
+        },
+        {
+          "flip" : false,
+          "id" : "spectacles",
+          "longSide" : 61,
+          "role" : "target",
+          "spot" : "b13",
+          "tint" : 0.2597
+        },
+        {
+          "flip" : false,
+          "id" : "magnifier",
+          "longSide" : 91,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "c06",
+          "tint" : 0.2505
+        },
+        {
+          "flip" : true,
+          "id" : "telescope",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "c16",
+          "tint" : 0.2085
+        },
+        {
+          "flip" : false,
+          "id" : "quill",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "c07",
+          "tint" : 0.2335
+        },
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "c17",
+          "tint" : 0.2235
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "a02",
+          "tint" : 0.2059
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "c05",
+          "tint" : 0.2461
+        },
+        {
+          "flip" : false,
+          "id" : "firefly_jar",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.181
+        },
+        {
+          "flip" : true,
+          "id" : "candle",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.1923
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 74,
+          "role" : "decoy",
+          "spot" : "b02",
+          "tint" : 0.2253
+        },
+        {
+          "flip" : true,
+          "id" : "mirror",
+          "longSide" : 97,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "b14",
+          "tint" : 0.2323
+        },
+        {
+          "flip" : true,
+          "id" : "mortar",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "b15",
+          "tint" : 0.1992
+        },
+        {
+          "flip" : false,
+          "id" : "scroll",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "b16",
+          "tint" : 0.2458
+        },
+        {
+          "flip" : false,
+          "id" : "paintbrush",
+          "longSide" : 89,
+          "role" : "decoy",
+          "rotation" : -50,
+          "spot" : "b06",
+          "tint" : 0.2317
+        },
+        {
+          "flip" : false,
+          "id" : "wand",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "c14",
+          "tint" : 0.1817
+        },
+        {
+          "flip" : false,
+          "id" : "pinecone",
+          "longSide" : 45,
+          "role" : "decoy",
+          "spot" : "a07",
+          "tint" : 0.2211
+        }
+      ],
+      "round" : 6
+    },
+    {
+      "notes" : [
+        "frog: long 47->42 (real size next to the painted objects)",
+        "inkwell: long 58->49 (real size next to the painted objects)",
+        "egg: long 52->44 (real size next to the painted objects)",
+        "watch: long 57->48 (real size next to the painted objects)",
+        "die: long 55->34 (real size next to the painted objects)",
+        "key: turned +80 deg to lie on the rug (looked propped up)",
+        "spectacles: long 60->54 (real size next to the painted objects)",
+        "mirror: turned +80 deg to lie on the rug (looked propped up)",
+        "magnifier: turned +40 deg to lie on the counter (looked propped up)",
+        "flask: long 97->87 (real size next to the painted objects)",
+        "wand: turned +40 deg to lie on the floor (looked propped up)",
+        "paintbrush: turned -50 deg to lie on the floor (looked propped up)",
+        "quill: turned +45 deg to lie on the rug (looked propped up), L78",
+        "pinecone: long 53->48 (real size next to the painted objects)",
+        "acorn: long 49->37 (real size next to the painted objects)",
+        "scissors: turned -80 deg to lie on the table (looked propped up)"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "telescope",
+          "longSide" : 77,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.2226
+        },
+        {
+          "flip" : false,
+          "id" : "frog",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "a07",
+          "tint" : 0.217
+        },
+        {
+          "flip" : true,
+          "id" : "mushroom",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "b16",
+          "tint" : 0.2501
+        },
+        {
+          "flip" : false,
+          "id" : "chess_knight",
+          "longSide" : 64,
+          "role" : "target",
+          "spot" : "b06",
+          "tint" : 0.2076
+        },
+        {
+          "flip" : false,
+          "id" : "horseshoe",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "c19",
+          "tint" : 0.2486
+        },
+        {
+          "flip" : false,
+          "id" : "inkwell",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "b11",
+          "tint" : 0.2585
+        },
+        {
+          "flip" : false,
+          "id" : "teacup",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "a22",
+          "tint" : 0.2127
+        },
+        {
+          "flip" : true,
+          "id" : "egg",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "c18",
+          "tint" : 0.2037
+        },
+        {
+          "flip" : false,
+          "id" : "watch",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "a02",
+          "tint" : 0.2149
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 34,
+          "role" : "target",
+          "spot" : "c03",
+          "tint" : 0.1841
+        },
+        {
+          "flip" : false,
+          "id" : "key",
+          "longSide" : 67,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "b17",
+          "tint" : 0.2281
+        },
+        {
+          "flip" : false,
+          "id" : "spectacles",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "b08",
+          "tint" : 0.1832
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "c06",
+          "tint" : 0.2095
+        },
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 83,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "c05",
+          "tint" : 0.2541
+        },
+        {
+          "flip" : false,
+          "id" : "candle",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.2551
+        },
+        {
+          "flip" : false,
+          "id" : "magnifier",
+          "longSide" : 80,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "b02",
+          "tint" : 0.2508
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "c07",
+          "tint" : 0.2124
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "b14",
+          "tint" : 0.2288
+        },
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.1899
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "c14",
+          "tint" : 0.2553
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "b15",
+          "tint" : 0.231
+        },
+        {
+          "flip" : true,
+          "id" : "wand",
+          "longSide" : 92,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "c17",
+          "tint" : 0.2532
+        },
+        {
+          "flip" : false,
+          "id" : "paintbrush",
+          "longSide" : 87,
+          "role" : "decoy",
+          "rotation" : -50,
+          "spot" : "c16",
+          "tint" : 0.2002
+        },
+        {
+          "flip" : false,
+          "id" : "lamp",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "c20",
+          "tint" : 0.2386
+        },
+        {
+          "flip" : false,
+          "id" : "quill",
+          "longSide" : 78,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "c04",
+          "tint" : 0.2426
+        },
+        {
+          "flip" : false,
+          "id" : "pinecone",
+          "longSide" : 48,
+          "role" : "decoy",
+          "spot" : "b03",
+          "tint" : 0.2443
+        },
+        {
+          "flip" : true,
+          "id" : "acorn",
+          "longSide" : 37,
+          "role" : "decoy",
+          "spot" : "a12",
+          "tint" : 0.2445
+        },
+        {
+          "flip" : false,
+          "id" : "scissors",
+          "longSide" : 54,
+          "role" : "decoy",
+          "rotation" : -80,
+          "spot" : "c01",
+          "tint" : 0.2128
+        }
+      ],
+      "round" : 7
+    },
+    {
+      "notes" : [
+        "flask: long 91->82 (real size next to the painted objects)",
+        "ring: long 48->26 (real size next to the painted objects)",
+        "butterfly: long 50->40 (real size next to the painted objects)",
+        "pinecone: long 60->54 (real size next to the painted objects)",
+        "egg: long 56->48 (real size next to the painted objects)",
+        "die: long 54->33 (real size next to the painted objects)",
+        "inkwell: long 52->44 (real size next to the painted objects)",
+        "watch: long 55->47 (real size next to the painted objects)",
+        "paintbrush: turned -50 deg to lie on the books (looked propped up)",
+        "magnifier: turned +40 deg to lie on the floor (looked propped up)",
+        "quill: turned +45 deg to lie on the floor (looked propped up)",
+        "broom: turned +50 deg to lie on the floor (looked propped up)",
+        "wand: turned +40 deg to lie on the floor (looked propped up)",
+        "starfish: long 49->44 (real size next to the painted objects)",
+        "spectacles: long 60->54 (real size next to the painted objects)",
+        "padlock: long 55->47 (real size next to the painted objects)",
+        "mirror: rot=80: stood on the end of its handle on the books; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : true,
+          "id" : "telescope",
+          "longSide" : 79,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.1971
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 82,
+          "role" : "target",
+          "spot" : "c05",
+          "tint" : 0.2567
+        },
+        {
+          "flip" : false,
+          "id" : "firefly_jar",
+          "longSide" : 84,
+          "role" : "target",
+          "spot" : "b15",
+          "tint" : 0.2238
+        },
+        {
+          "flip" : true,
+          "id" : "potion",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "b12",
+          "tint" : 0.23
+        },
+        {
+          "flip" : true,
+          "id" : "ring",
+          "longSide" : 26,
+          "role" : "target",
+          "spot" : "c08",
+          "tint" : 0.2024
+        },
+        {
+          "flip" : false,
+          "id" : "butterfly",
+          "longSide" : 40,
+          "role" : "target",
+          "spot" : "c19",
+          "tint" : 0.2575
+        },
+        {
+          "flip" : true,
+          "id" : "crystal",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "b05",
+          "tint" : 0.2342
+        },
+        {
+          "flip" : false,
+          "id" : "pinecone",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "c02",
+          "tint" : 0.2574
+        },
+        {
+          "flip" : false,
+          "id" : "egg",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "b17",
+          "tint" : 0.1918
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 33,
+          "role" : "target",
+          "spot" : "c07",
+          "tint" : 0.2535
+        },
+        {
+          "flip" : false,
+          "id" : "inkwell",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "a23",
+          "tint" : 0.1918
+        },
+        {
+          "flip" : true,
+          "id" : "watch",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "c06",
+          "tint" : 0.2471
+        },
+        {
+          "flip" : false,
+          "id" : "mushroom",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "c09",
+          "tint" : 0.2016
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "c04",
+          "tint" : 0.1846
+        },
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 74,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.1826
+        },
+        {
+          "flip" : true,
+          "id" : "mirror",
+          "longSide" : 85,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "c13",
+          "tint" : 0.2351
+        },
+        {
+          "flip" : false,
+          "id" : "paintbrush",
+          "longSide" : 78,
+          "role" : "decoy",
+          "rotation" : -50,
+          "spot" : "a02",
+          "tint" : 0.2459
+        },
+        {
+          "flip" : true,
+          "id" : "magnifier",
+          "longSide" : 93,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "c17",
+          "tint" : 0.1809
+        },
+        {
+          "flip" : false,
+          "id" : "lamp",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "b16",
+          "tint" : 0.2529
+        },
+        {
+          "flip" : true,
+          "id" : "quill",
+          "longSide" : 90,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "c16",
+          "tint" : 0.2119
+        },
+        {
+          "flip" : false,
+          "id" : "mortar",
+          "longSide" : 78,
+          "role" : "decoy",
+          "spot" : "c14",
+          "tint" : 0.239
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 80,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "c20",
+          "tint" : 0.1995
+        },
+        {
+          "flip" : true,
+          "id" : "wand",
+          "longSide" : 87,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "b14",
+          "tint" : 0.2255
+        },
+        {
+          "flip" : true,
+          "id" : "candle",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "b02",
+          "tint" : 0.1921
+        },
+        {
+          "flip" : false,
+          "id" : "book",
+          "longSide" : 77,
+          "role" : "decoy",
+          "spot" : "b06",
+          "tint" : 0.1959
+        },
+        {
+          "flip" : false,
+          "id" : "hourglass",
+          "longSide" : 58,
+          "role" : "decoy",
+          "spot" : "a16",
+          "tint" : 0.2345
+        },
+        {
+          "flip" : false,
+          "id" : "starfish",
+          "longSide" : 44,
+          "role" : "decoy",
+          "spot" : "a11",
+          "tint" : 0.198
+        },
+        {
+          "flip" : false,
+          "id" : "teacup",
+          "longSide" : 50,
+          "role" : "decoy",
+          "spot" : "a03",
+          "tint" : 0.1938
+        },
+        {
+          "flip" : false,
+          "id" : "spectacles",
+          "longSide" : 54,
+          "role" : "decoy",
+          "spot" : "c18",
+          "tint" : 0.2068
+        },
+        {
+          "flip" : false,
+          "id" : "padlock",
+          "longSide" : 47,
+          "role" : "decoy",
+          "spot" : "b11",
+          "tint" : 0.2322
+        },
+        {
+          "flip" : true,
+          "id" : "chess_knight",
+          "longSide" : 51,
+          "role" : "decoy",
+          "spot" : "c10",
+          "tint" : 0.255
+        }
+      ],
+      "round" : 8
+    },
+    {
+      "notes" : [
+        "butterfly: long 54->43 (real size next to the painted objects)",
+        "pinecone: long 52->47 (real size next to the painted objects)",
+        "frog: long 48->43 (real size next to the painted objects)",
+        "starfish: long 47->42 (real size next to the painted objects)",
+        "watch: long 50->42 (real size next to the painted objects)",
+        "inkwell: long 55->47 (real size next to the painted objects)",
+        "acorn: long 61->46 (real size next to the painted objects)",
+        "die: long 48->30 (real size next to the painted objects)",
+        "magnifier: turned +40 deg to lie on the rug (looked propped up)",
+        "flask: long 89->80 (real size next to the painted objects)",
+        "paintbrush: turned -50 deg to lie on the floor (looked propped up)",
+        "wand: turned +40 deg to lie on the table (looked propped up)",
+        "quill: turned +45 deg to lie on the floor (looked propped up)",
+        "broom: turned +50 deg to lie on the floor (looked propped up)",
+        "mirror: turned +80 deg to lie on the rug (looked propped up)",
+        "ring: long 54->30 (real size next to the painted objects)",
+        "acorn: long=32: as big as the rolled scroll it sits on"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "owl",
+          "longSide" : 72,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.2041
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 83,
+          "role" : "target",
+          "spot" : "c06",
+          "tint" : 0.191
+        },
+        {
+          "flip" : false,
+          "id" : "key",
+          "longSide" : 53,
+          "role" : "target",
+          "spot" : "c10",
+          "tint" : 0.1923
+        },
+        {
+          "flip" : false,
+          "id" : "teacup",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "a14",
+          "tint" : 0.1973
+        },
+        {
+          "flip" : true,
+          "id" : "hourglass",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "a16",
+          "tint" : 0.2208
+        },
+        {
+          "flip" : false,
+          "id" : "butterfly",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "c18",
+          "tint" : 0.2348
+        },
+        {
+          "flip" : false,
+          "id" : "pinecone",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "a13",
+          "tint" : 0.2405
+        },
+        {
+          "flip" : true,
+          "id" : "frog",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "b03",
+          "tint" : 0.2118
+        },
+        {
+          "flip" : false,
+          "id" : "starfish",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "a24",
+          "tint" : 0.1844
+        },
+        {
+          "flip" : true,
+          "id" : "watch",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "b07",
+          "tint" : 0.182
+        },
+        {
+          "flip" : false,
+          "id" : "inkwell",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "a02",
+          "tint" : 0.247
+        },
+        {
+          "flip" : false,
+          "id" : "acorn",
+          "longSide" : 32,
+          "role" : "target",
+          "spot" : "b21",
+          "tint" : 0.197
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "a19",
+          "tint" : 0.1829
+        },
+        {
+          "flip" : false,
+          "id" : "chess_knight",
+          "longSide" : 58,
+          "role" : "target",
+          "spot" : "b01",
+          "tint" : 0.23
+        },
+        {
+          "flip" : false,
+          "id" : "firefly_jar",
+          "longSide" : 89,
+          "role" : "decoy",
+          "spot" : "c05",
+          "tint" : 0.2591
+        },
+        {
+          "flip" : true,
+          "id" : "magnifier",
+          "longSide" : 82,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "c07",
+          "tint" : 0.2039
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "b16",
+          "tint" : 0.2066
+        },
+        {
+          "flip" : false,
+          "id" : "scroll",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.207
+        },
+        {
+          "flip" : false,
+          "id" : "paintbrush",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : -50,
+          "spot" : "c17",
+          "tint" : 0.1992
+        },
+        {
+          "flip" : false,
+          "id" : "candle",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "c14",
+          "tint" : 0.191
+        },
+        {
+          "flip" : false,
+          "id" : "wand",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "b06",
+          "tint" : 0.1936
+        },
+        {
+          "flip" : false,
+          "id" : "book",
+          "longSide" : 77,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.1876
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 74,
+          "role" : "decoy",
+          "spot" : "b02",
+          "tint" : 0.2439
+        },
+        {
+          "flip" : false,
+          "id" : "quill",
+          "longSide" : 94,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "c16",
+          "tint" : 0.2224
+        },
+        {
+          "flip" : false,
+          "id" : "lamp",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "b17",
+          "tint" : 0.2157
+        },
+        {
+          "flip" : false,
+          "id" : "broom",
+          "longSide" : 91,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "b14",
+          "tint" : 0.2114
+        },
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "c04",
+          "tint" : 0.2147
+        },
+        {
+          "flip" : false,
+          "id" : "mortar",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "b15",
+          "tint" : 0.2583
+        },
+        {
+          "flip" : false,
+          "id" : "globe",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "c20",
+          "tint" : 0.2095
+        },
+        {
+          "flip" : false,
+          "id" : "mushroom",
+          "longSide" : 51,
+          "role" : "decoy",
+          "spot" : "a22",
+          "tint" : 0.1821
+        },
+        {
+          "flip" : false,
+          "id" : "potion",
+          "longSide" : 48,
+          "role" : "decoy",
+          "spot" : "a12",
+          "tint" : 0.2502
+        },
+        {
+          "flip" : true,
+          "id" : "crystal",
+          "longSide" : 56,
+          "role" : "decoy",
+          "spot" : "a20",
+          "tint" : 0.2289
+        },
+        {
+          "flip" : true,
+          "id" : "ring",
+          "longSide" : 30,
+          "role" : "decoy",
+          "spot" : "c03",
+          "tint" : 0.2418
+        }
+      ],
+      "round" : 9
+    },
+    {
+      "notes" : [
+        "wand: turned +40 deg to lie on the floor (looked propped up)",
+        "scissors: turned -80 deg to lie on the books (looked propped up)",
+        "frog: long 52->47 (real size next to the painted objects)",
+        "horseshoe: b09 (barrel)->b10 (books), L51 (spot marked unusable)",
+        "inkwell: long 55->47 (real size next to the painted objects)",
+        "pinecone: long 47->42 (real size next to the painted objects)",
+        "watch: long 51->43 (real size next to the painted objects)",
+        "egg: long 50->42 (real size next to the painted objects)",
+        "ring: long 49->27 (real size next to the painted objects)",
+        "flask: long 92->83 (real size next to the painted objects)",
+        "magnifier: turned +40 deg to lie on the rug (looked propped up)",
+        "padlock: long 46->39 (real size next to the painted objects)",
+        "starfish: long 52->47 (real size next to the painted objects)",
+        "spectacles: long 61->55 (real size next to the painted objects)",
+        "die: long 48->30 (real size next to the painted objects)",
+        "key: rot=80: stood on the tip of its blade on the basket lid; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "mirror",
+          "longSide" : 75,
+          "role" : "target",
+          "spot" : "a10",
+          "tint" : 0.2147
+        },
+        {
+          "flip" : true,
+          "id" : "wand",
+          "longSide" : 83,
+          "role" : "target",
+          "rotation" : 40,
+          "spot" : "b15",
+          "tint" : 0.2475
+        },
+        {
+          "flip" : false,
+          "id" : "chess_knight",
+          "longSide" : 45,
+          "role" : "target",
+          "spot" : "c15",
+          "tint" : 0.2129
+        },
+        {
+          "flip" : false,
+          "id" : "mushroom",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "a13",
+          "tint" : 0.2133
+        },
+        {
+          "flip" : true,
+          "id" : "scissors",
+          "longSide" : 49,
+          "role" : "target",
+          "rotation" : -80,
+          "spot" : "a22",
+          "tint" : 0.2273
+        },
+        {
+          "flip" : false,
+          "id" : "frog",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "b05",
+          "tint" : 0.2205
+        },
+        {
+          "flip" : false,
+          "id" : "horseshoe",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "b10",
+          "tint" : 0.2346
+        },
+        {
+          "flip" : true,
+          "id" : "key",
+          "longSide" : 67,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "c14",
+          "tint" : 0.194
+        },
+        {
+          "flip" : false,
+          "id" : "inkwell",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "b19",
+          "tint" : 0.2111
+        },
+        {
+          "flip" : true,
+          "id" : "shell",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "b02",
+          "tint" : 0.2348
+        },
+        {
+          "flip" : false,
+          "id" : "pinecone",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "b12",
+          "tint" : 0.2091
+        },
+        {
+          "flip" : false,
+          "id" : "watch",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "a03",
+          "tint" : 0.1926
+        },
+        {
+          "flip" : false,
+          "id" : "egg",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "c18",
+          "tint" : 0.2473
+        },
+        {
+          "flip" : false,
+          "id" : "ring",
+          "longSide" : 27,
+          "role" : "target",
+          "spot" : "a20",
+          "tint" : 0.2319
+        },
+        {
+          "flip" : true,
+          "id" : "teacup",
+          "longSide" : 53,
+          "role" : "target",
+          "spot" : "b07",
+          "tint" : 0.2473
+        },
+        {
+          "flip" : false,
+          "id" : "book",
+          "longSide" : 79,
+          "role" : "decoy",
+          "spot" : "c13",
+          "tint" : 0.2436
+        },
+        {
+          "flip" : false,
+          "id" : "lamp",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "c16",
+          "tint" : 0.1958
+        },
+        {
+          "flip" : false,
+          "id" : "flask",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "b16",
+          "tint" : 0.2088
+        },
+        {
+          "flip" : true,
+          "id" : "globe",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "c06",
+          "tint" : 0.223
+        },
+        {
+          "flip" : false,
+          "id" : "firefly_jar",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "c07",
+          "tint" : 0.2541
+        },
+        {
+          "flip" : true,
+          "id" : "owl",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "b06",
+          "tint" : 0.248
+        },
+        {
+          "flip" : false,
+          "id" : "quill",
+          "longSide" : 76,
+          "role" : "decoy",
+          "spot" : "b20",
+          "tint" : 0.216
+        },
+        {
+          "flip" : false,
+          "id" : "telescope",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "c17",
+          "tint" : 0.2151
+        },
+        {
+          "flip" : true,
+          "id" : "candle",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "a02",
+          "tint" : 0.2425
+        },
+        {
+          "flip" : false,
+          "id" : "scroll",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "c05",
+          "tint" : 0.2396
+        },
+        {
+          "flip" : false,
+          "id" : "pumpkin",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "c20",
+          "tint" : 0.2185
+        },
+        {
+          "flip" : true,
+          "id" : "mortar",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "c04",
+          "tint" : 0.2459
+        },
+        {
+          "flip" : false,
+          "id" : "lavender",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "b14",
+          "tint" : 0.2117
+        },
+        {
+          "flip" : false,
+          "id" : "magnifier",
+          "longSide" : 78,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "b17",
+          "tint" : 0.2284
+        },
+        {
+          "flip" : false,
+          "id" : "potion",
+          "longSide" : 46,
+          "role" : "decoy",
+          "spot" : "c10",
+          "tint" : 0.2231
+        },
+        {
+          "flip" : true,
+          "id" : "padlock",
+          "longSide" : 39,
+          "role" : "decoy",
+          "spot" : "a19",
+          "tint" : 0.2338
+        },
+        {
+          "flip" : false,
+          "id" : "starfish",
+          "longSide" : 47,
+          "role" : "decoy",
+          "spot" : "a15",
+          "tint" : 0.1849
+        },
+        {
+          "flip" : false,
+          "id" : "spectacles",
+          "longSide" : 55,
+          "role" : "decoy",
+          "spot" : "a25",
+          "tint" : 0.216
+        },
+        {
+          "flip" : true,
+          "id" : "crystal",
+          "longSide" : 48,
+          "role" : "decoy",
+          "spot" : "a16",
+          "tint" : 0.2395
+        },
+        {
+          "flip" : false,
+          "id" : "die",
+          "longSide" : 30,
+          "role" : "decoy",
+          "spot" : "a05",
+          "tint" : 0.2325
+        }
+      ],
+      "round" : 10
+    }
+  ],
+  "scene" : "attic"
+}

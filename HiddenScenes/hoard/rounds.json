@@ -1,0 +1,2188 @@
+{
+  "format" : "pourfect-hidden-rounds-v1",
+  "rounds" : [
+    {
+      "notes" : [
+        "battle_axe: turned -60 deg to lie on the floor (looked propped up)",
+        "jeweled_egg: long 64->51 (real size next to the painted objects)",
+        "emerald: long 56->35 (real size next to the painted objects)",
+        "sapphire: long 61->38 (real size next to the painted objects)",
+        "gold_plate: h29 (floor)->h19 (coins), L90 (upright disc stood in the open)",
+        "round_shield: h32 (floor)->h22 (coins), L90 (upright disc stood in the open)",
+        "dropped pearl_necklace (decoy @h20): a ring of pearls standing upright on the coins read as propped up (it can't drape)",
+        "moved dragon_scale h27->h23 (bowl, L57): the flat scale stood upright on the open floor"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 102,
+          "role" : "target",
+          "rotation" : -60,
+          "spot" : "h28",
+          "tint" : 0.2503
+        },
+        {
+          "flip" : true,
+          "id" : "drinking_horn",
+          "longSide" : 97,
+          "role" : "target",
+          "spot" : "h60",
+          "tint" : 0.1902
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 110,
+          "role" : "target",
+          "spot" : "h51",
+          "tint" : 0.2517
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "h53",
+          "tint" : 0.1904
+        },
+        {
+          "flip" : true,
+          "id" : "dragon_scale",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "h23",
+          "tint" : 0.2396
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "h59",
+          "tint" : 0.209
+        },
+        {
+          "flip" : false,
+          "id" : "sapphire",
+          "longSide" : 38,
+          "role" : "target",
+          "spot" : "h57",
+          "tint" : 0.1907
+        },
+        {
+          "flip" : true,
+          "id" : "dragon_egg",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "h25",
+          "tint" : 0.2226
+        },
+        {
+          "flip" : true,
+          "id" : "harp",
+          "longSide" : 102,
+          "role" : "decoy",
+          "spot" : "h50",
+          "tint" : 0.2353
+        },
+        {
+          "flip" : true,
+          "id" : "gold_plate",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.1907
+        },
+        {
+          "flip" : true,
+          "id" : "phoenix_feather",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "h46",
+          "tint" : 0.2423
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 101,
+          "role" : "decoy",
+          "spot" : "h31",
+          "tint" : 0.2082
+        },
+        {
+          "flip" : true,
+          "id" : "round_shield",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.1841
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.2086
+        },
+        {
+          "flip" : false,
+          "id" : "treasure_map",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "h34",
+          "tint" : 0.2406
+        }
+      ],
+      "round" : 1
+    },
+    {
+      "notes" : [
+        "pearl_necklace: h24 (rock)->h20 (coins), L81 (upright disc stood in the open)",
+        "ruby: long 56->35 (real size next to the painted objects)",
+        "brooch: long 62->46 (real size next to the painted objects)",
+        "jeweled_egg: long 57->46 (real size next to the painted objects)",
+        "round_shield: h34 (floor)->h19 (coins), L91 (upright disc stood in the open)",
+        "gold_plate: h29 (floor)->h13 (coins), L92 (upright disc stood in the open)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "replaced pearl_necklace by helmet @h20 (L81): the pearl ring stood upright on the coins; a helmet sits there naturally"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 91,
+          "role" : "target",
+          "spot" : "h46",
+          "tint" : 0.2559
+        },
+        {
+          "flip" : true,
+          "id" : "treasure_map",
+          "longSide" : 82,
+          "role" : "target",
+          "spot" : "h47",
+          "tint" : 0.207
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 81,
+          "role" : "target",
+          "spot" : "h20",
+          "tint" : 0.1886
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 87,
+          "role" : "target",
+          "spot" : "h25",
+          "tint" : 0.2017
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 104,
+          "role" : "target",
+          "spot" : "h28",
+          "tint" : 0.2485
+        },
+        {
+          "flip" : false,
+          "id" : "ruby",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "h35",
+          "tint" : 0.2452
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "h03",
+          "tint" : 0.2269
+        },
+        {
+          "flip" : true,
+          "id" : "brooch",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "h38",
+          "tint" : 0.233
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "h58",
+          "tint" : 0.1821
+        },
+        {
+          "flip" : false,
+          "id" : "round_shield",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.1825
+        },
+        {
+          "flip" : true,
+          "id" : "harp",
+          "longSide" : 103,
+          "role" : "decoy",
+          "spot" : "h51",
+          "tint" : 0.2256
+        },
+        {
+          "flip" : false,
+          "id" : "gold_plate",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "h13",
+          "tint" : 0.2385
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 96,
+          "role" : "decoy",
+          "spot" : "h52",
+          "tint" : 0.2108
+        },
+        {
+          "flip" : true,
+          "id" : "golden_mask",
+          "longSide" : 103,
+          "role" : "decoy",
+          "spot" : "h50",
+          "tint" : 0.2183
+        },
+        {
+          "flip" : false,
+          "id" : "gauntlet",
+          "longSide" : 106,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h27",
+          "tint" : 0.2187
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2124
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 96,
+          "role" : "decoy",
+          "spot" : "h42",
+          "tint" : 0.2042
+        },
+        {
+          "flip" : false,
+          "id" : "jade_dragon",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "h31",
+          "tint" : 0.2071
+        },
+        {
+          "flip" : false,
+          "id" : "drinking_horn",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "h53",
+          "tint" : 0.1829
+        }
+      ],
+      "round" : 2
+    },
+    {
+      "notes" : [
+        "battle_axe: turned -60 deg to lie on the floor (looked propped up)",
+        "emerald: long 54->33 (real size next to the painted objects)",
+        "brooch: long 57->43 (real size next to the painted objects)",
+        "pearl_necklace: h34 (floor)->h25 (coins), L87 (upright disc stood in the open)",
+        "scepter: turned +40 deg to lie on the floor (looked propped up)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "dropped pearl_necklace (decoy @h25): a ring of pearls standing upright on the coins read as propped up"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "jade_dragon",
+          "longSide" : 92,
+          "role" : "target",
+          "spot" : "h45",
+          "tint" : 0.189
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 95,
+          "role" : "target",
+          "spot" : "h50",
+          "tint" : 0.2496
+        },
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 95,
+          "role" : "target",
+          "spot" : "h52",
+          "tint" : 0.2495
+        },
+        {
+          "flip" : false,
+          "id" : "drinking_horn",
+          "longSide" : 90,
+          "role" : "target",
+          "spot" : "h54",
+          "tint" : 0.2304
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 95,
+          "role" : "target",
+          "rotation" : -60,
+          "spot" : "h30",
+          "tint" : 0.2418
+        },
+        {
+          "flip" : false,
+          "id" : "tiara",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "h08",
+          "tint" : 0.2159
+        },
+        {
+          "flip" : false,
+          "id" : "rune_stone",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "h05",
+          "tint" : 0.1914
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 33,
+          "role" : "target",
+          "spot" : "h35",
+          "tint" : 0.2391
+        },
+        {
+          "flip" : false,
+          "id" : "brooch",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "h58",
+          "tint" : 0.258
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "h15",
+          "tint" : 0.2124
+        },
+        {
+          "flip" : false,
+          "id" : "golden_mask",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "h29",
+          "tint" : 0.2088
+        },
+        {
+          "flip" : false,
+          "id" : "round_shield",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.221
+        },
+        {
+          "flip" : false,
+          "id" : "harp",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "h20",
+          "tint" : 0.2125
+        },
+        {
+          "flip" : true,
+          "id" : "scepter",
+          "longSide" : 89,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "h53",
+          "tint" : 0.1879
+        },
+        {
+          "flip" : true,
+          "id" : "crown",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "h42",
+          "tint" : 0.2462
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 109,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.1812
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.2509
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.1896
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 102,
+          "role" : "decoy",
+          "spot" : "h60",
+          "tint" : 0.2595
+        },
+        {
+          "flip" : true,
+          "id" : "gauntlet",
+          "longSide" : 99,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h33",
+          "tint" : 0.2049
+        }
+      ],
+      "round" : 3
+    },
+    {
+      "notes" : [
+        "jeweled_egg: long 55->44 (real size next to the painted objects)",
+        "oyster_pearl: long 62->50 (real size next to the painted objects)",
+        "emerald: long 61->38 (real size next to the painted objects)",
+        "gold_plate: h51 (floor)->h46 (coins), L81 (upright disc stood in the open)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "round_shield: h34 (floor)->h20 (coins), L82 (upright disc stood in the open)"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 92,
+          "role" : "target",
+          "spot" : "h25",
+          "tint" : 0.2327
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 89,
+          "role" : "target",
+          "spot" : "h53",
+          "tint" : 0.1838
+        },
+        {
+          "flip" : true,
+          "id" : "drinking_horn",
+          "longSide" : 86,
+          "role" : "target",
+          "spot" : "h24",
+          "tint" : 0.2199
+        },
+        {
+          "flip" : false,
+          "id" : "mini_chest",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "h23",
+          "tint" : 0.2034
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "h14",
+          "tint" : 0.2075
+        },
+        {
+          "flip" : true,
+          "id" : "coin_pouch",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "h08",
+          "tint" : 0.2535
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 59,
+          "role" : "target",
+          "spot" : "h30",
+          "tint" : 0.257
+        },
+        {
+          "flip" : true,
+          "id" : "oyster_pearl",
+          "longSide" : 50,
+          "role" : "target",
+          "spot" : "h47",
+          "tint" : 0.1814
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 38,
+          "role" : "target",
+          "spot" : "h54",
+          "tint" : 0.2067
+        },
+        {
+          "flip" : false,
+          "id" : "rune_stone",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "h39",
+          "tint" : 0.2541
+        },
+        {
+          "flip" : true,
+          "id" : "golden_mask",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "h33",
+          "tint" : 0.2294
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.2058
+        },
+        {
+          "flip" : true,
+          "id" : "gold_plate",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "h46",
+          "tint" : 0.2073
+        },
+        {
+          "flip" : true,
+          "id" : "scepter",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "h13",
+          "tint" : 0.2413
+        },
+        {
+          "flip" : false,
+          "id" : "gauntlet",
+          "longSide" : 113,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h31",
+          "tint" : 0.1859
+        },
+        {
+          "flip" : false,
+          "id" : "jade_dragon",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h42",
+          "tint" : 0.2373
+        },
+        {
+          "flip" : true,
+          "id" : "blue_vase",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "h50",
+          "tint" : 0.188
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "h32",
+          "tint" : 0.1821
+        },
+        {
+          "flip" : false,
+          "id" : "harp",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.2386
+        },
+        {
+          "flip" : true,
+          "id" : "candelabra",
+          "longSide" : 98,
+          "role" : "decoy",
+          "spot" : "h60",
+          "tint" : 0.1906
+        },
+        {
+          "flip" : false,
+          "id" : "round_shield",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h20",
+          "tint" : 0.2114
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2571
+        }
+      ],
+      "round" : 4
+    },
+    {
+      "notes" : [
+        "jeweled_egg: long 57->46 (real size next to the painted objects)",
+        "emerald: long 60->37 (real size next to the painted objects)",
+        "crystal_ball: long 57->48 (real size next to the painted objects)",
+        "scepter: turned +40 deg to lie on the floor (looked propped up)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "phoenix_feather: turned +45 deg to lie on the floor (looked propped up)",
+        "replaced pearl_necklace by drinking_horn @h51 (L91): the pearl ring stood upright on the open floor"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "drinking_horn",
+          "longSide" : 91,
+          "role" : "target",
+          "spot" : "h51",
+          "tint" : 0.2547
+        },
+        {
+          "flip" : true,
+          "id" : "treasure_map",
+          "longSide" : 89,
+          "role" : "target",
+          "spot" : "h25",
+          "tint" : 0.2411
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 87,
+          "role" : "target",
+          "spot" : "h20",
+          "tint" : 0.2341
+        },
+        {
+          "flip" : true,
+          "id" : "jade_dragon",
+          "longSide" : 82,
+          "role" : "target",
+          "spot" : "h19",
+          "tint" : 0.2286
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_scale",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "h10",
+          "tint" : 0.252
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "h56",
+          "tint" : 0.2518
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 37,
+          "role" : "target",
+          "spot" : "h59",
+          "tint" : 0.2466
+        },
+        {
+          "flip" : false,
+          "id" : "coin_pouch",
+          "longSide" : 58,
+          "role" : "target",
+          "spot" : "h38",
+          "tint" : 0.2068
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "h02",
+          "tint" : 0.2065
+        },
+        {
+          "flip" : false,
+          "id" : "mini_chest",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "h48",
+          "tint" : 0.2545
+        },
+        {
+          "flip" : false,
+          "id" : "crystal_ball",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "h49",
+          "tint" : 0.1829
+        },
+        {
+          "flip" : true,
+          "id" : "harp",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.2202
+        },
+        {
+          "flip" : false,
+          "id" : "scepter",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "h33",
+          "tint" : 0.2312
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h24",
+          "tint" : 0.2132
+        },
+        {
+          "flip" : false,
+          "id" : "gold_plate",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.2025
+        },
+        {
+          "flip" : true,
+          "id" : "golden_mask",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2082
+        },
+        {
+          "flip" : false,
+          "id" : "round_shield",
+          "longSide" : 89,
+          "role" : "decoy",
+          "spot" : "h46",
+          "tint" : 0.2237
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h57",
+          "tint" : 0.2166
+        },
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "h54",
+          "tint" : 0.1898
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "h29",
+          "tint" : 0.2338
+        },
+        {
+          "flip" : true,
+          "id" : "helmet",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "h27",
+          "tint" : 0.239
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "h13",
+          "tint" : 0.2342
+        },
+        {
+          "flip" : false,
+          "id" : "gauntlet",
+          "longSide" : 100,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h50",
+          "tint" : 0.2083
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "h32",
+          "tint" : 0.2165
+        },
+        {
+          "flip" : true,
+          "id" : "phoenix_feather",
+          "longSide" : 96,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "h60",
+          "tint" : 0.1854
+        }
+      ],
+      "round" : 5
+    },
+    {
+      "notes" : [
+        "amulet: long 56->48 (real size next to the painted objects)",
+        "crystal_ball: long 53->45 (real size next to the painted objects)",
+        "emerald: long 58->36 (real size next to the painted objects)",
+        "sapphire: long 63->39 (real size next to the painted objects)",
+        "battle_axe: turned -60 deg to lie on the floor (looked propped up)",
+        "dropped decoy gold_plate @h31 (upright disc stood in the open, no free spot)",
+        "dropped decoy pearl_necklace @h27 (upright disc stood in the open, no free spot)",
+        "dagger: turned -45 deg to lie on the floor (looked propped up)",
+        "phoenix_feather: turned +45 deg to lie on the rock (looked propped up)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "jade_dragon",
+          "longSide" : 94,
+          "role" : "target",
+          "spot" : "h52",
+          "tint" : 0.2414
+        },
+        {
+          "flip" : true,
+          "id" : "drinking_horn",
+          "longSide" : 93,
+          "role" : "target",
+          "spot" : "h30",
+          "tint" : 0.1953
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 91,
+          "role" : "target",
+          "spot" : "h53",
+          "tint" : 0.241
+        },
+        {
+          "flip" : false,
+          "id" : "treasure_map",
+          "longSide" : 79,
+          "role" : "target",
+          "spot" : "h45",
+          "tint" : 0.2474
+        },
+        {
+          "flip" : false,
+          "id" : "amulet",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "h18",
+          "tint" : 0.1864
+        },
+        {
+          "flip" : false,
+          "id" : "crystal_ball",
+          "longSide" : 45,
+          "role" : "target",
+          "spot" : "h40",
+          "tint" : 0.1909
+        },
+        {
+          "flip" : true,
+          "id" : "coin_pouch",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "h01",
+          "tint" : 0.1818
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 36,
+          "role" : "target",
+          "spot" : "h57",
+          "tint" : 0.2181
+        },
+        {
+          "flip" : true,
+          "id" : "dragon_scale",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "h03",
+          "tint" : 0.1815
+        },
+        {
+          "flip" : true,
+          "id" : "dragon_egg",
+          "longSide" : 63,
+          "role" : "target",
+          "spot" : "h29",
+          "tint" : 0.2415
+        },
+        {
+          "flip" : false,
+          "id" : "sapphire",
+          "longSide" : 39,
+          "role" : "target",
+          "spot" : "h54",
+          "tint" : 0.2126
+        },
+        {
+          "flip" : true,
+          "id" : "mini_chest",
+          "longSide" : 59,
+          "role" : "target",
+          "spot" : "h47",
+          "tint" : 0.235
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.2008
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 92,
+          "role" : "decoy",
+          "rotation" : -60,
+          "spot" : "h60",
+          "tint" : 0.186
+        },
+        {
+          "flip" : true,
+          "id" : "blue_vase",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2467
+        },
+        {
+          "flip" : false,
+          "id" : "golden_mask",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h20",
+          "tint" : 0.2476
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 105,
+          "role" : "decoy",
+          "spot" : "h32",
+          "tint" : 0.2101
+        },
+        {
+          "flip" : true,
+          "id" : "dagger",
+          "longSide" : 97,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "h50",
+          "tint" : 0.2201
+        },
+        {
+          "flip" : false,
+          "id" : "phoenix_feather",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "h24",
+          "tint" : 0.2588
+        },
+        {
+          "flip" : true,
+          "id" : "scepter",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "h25",
+          "tint" : 0.1824
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "h33",
+          "tint" : 0.2561
+        },
+        {
+          "flip" : false,
+          "id" : "harp",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h42",
+          "tint" : 0.243
+        },
+        {
+          "flip" : true,
+          "id" : "round_shield",
+          "longSide" : 79,
+          "role" : "decoy",
+          "spot" : "h13",
+          "tint" : 0.2224
+        },
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.2146
+        },
+        {
+          "flip" : false,
+          "id" : "gauntlet",
+          "longSide" : 105,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h51",
+          "tint" : 0.2208
+        }
+      ],
+      "round" : 6
+    },
+    {
+      "notes" : [
+        "battle_axe: turned -60 deg to lie on the floor (looked propped up)",
+        "dagger: turned -45 deg to lie on the floor (looked propped up)",
+        "bracelet: long 50->36 (real size next to the painted objects)",
+        "crystal_ball: long 61->52 (real size next to the painted objects)",
+        "ruby: long 57->35 (real size next to the painted objects)",
+        "emerald: long 57->35 (real size next to the painted objects)",
+        "jeweled_egg: long 54->43 (real size next to the painted objects)",
+        "sapphire: long 59->37 (real size next to the painted objects)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "scepter: turned +40 deg to lie on the floor (looked propped up)",
+        "pearl_necklace: h42 (step)->h20 (coins), L81 (upright disc stood in the open)",
+        "dropped decoy gold_plate @h31 (upright disc stood in the open, no free spot)",
+        "dropped pearl_necklace (decoy @h20): a ring of pearls standing upright on the coins read as propped up"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 98,
+          "role" : "target",
+          "spot" : "h50",
+          "tint" : 0.2495
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 87,
+          "role" : "target",
+          "rotation" : -60,
+          "spot" : "h27",
+          "tint" : 0.2225
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 83,
+          "role" : "target",
+          "rotation" : -45,
+          "spot" : "h54",
+          "tint" : 0.1817
+        },
+        {
+          "flip" : true,
+          "id" : "bracelet",
+          "longSide" : 36,
+          "role" : "target",
+          "spot" : "h23",
+          "tint" : 0.2357
+        },
+        {
+          "flip" : false,
+          "id" : "tiara",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "h37",
+          "tint" : 0.2087
+        },
+        {
+          "flip" : false,
+          "id" : "coin_pouch",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "h40",
+          "tint" : 0.2283
+        },
+        {
+          "flip" : false,
+          "id" : "rune_stone",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "h60",
+          "tint" : 0.247
+        },
+        {
+          "flip" : true,
+          "id" : "crystal_ball",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "h25",
+          "tint" : 0.2096
+        },
+        {
+          "flip" : false,
+          "id" : "ruby",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "h12",
+          "tint" : 0.2258
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "h46",
+          "tint" : 0.2125
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "h38",
+          "tint" : 0.1902
+        },
+        {
+          "flip" : true,
+          "id" : "sapphire",
+          "longSide" : 37,
+          "role" : "target",
+          "spot" : "h55",
+          "tint" : 0.2153
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "h24",
+          "tint" : 0.1942
+        },
+        {
+          "flip" : false,
+          "id" : "phoenix_feather",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "h13",
+          "tint" : 0.1868
+        },
+        {
+          "flip" : false,
+          "id" : "harp",
+          "longSide" : 73,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.2538
+        },
+        {
+          "flip" : false,
+          "id" : "treasure_map",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.249
+        },
+        {
+          "flip" : false,
+          "id" : "gauntlet",
+          "longSide" : 100,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h33",
+          "tint" : 0.2453
+        },
+        {
+          "flip" : true,
+          "id" : "jade_dragon",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "h30",
+          "tint" : 0.2071
+        },
+        {
+          "flip" : false,
+          "id" : "scepter",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "h52",
+          "tint" : 0.2507
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h34",
+          "tint" : 0.2001
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "h53",
+          "tint" : 0.2039
+        },
+        {
+          "flip" : true,
+          "id" : "round_shield",
+          "longSide" : 79,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2441
+        },
+        {
+          "flip" : true,
+          "id" : "drinking_horn",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.2414
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 76,
+          "role" : "decoy",
+          "spot" : "h57",
+          "tint" : 0.2208
+        },
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "h51",
+          "tint" : 0.2131
+        },
+        {
+          "flip" : false,
+          "id" : "golden_mask",
+          "longSide" : 89,
+          "role" : "decoy",
+          "spot" : "h32",
+          "tint" : 0.2422
+        }
+      ],
+      "round" : 7
+    },
+    {
+      "notes" : [
+        "gold_bar: long 51->43 (real size next to the painted objects)",
+        "oyster_pearl: long 54->43 (real size next to the painted objects)",
+        "sapphire: long 52->32 (real size next to the painted objects)",
+        "ruby: long 49->30 (real size next to the painted objects)",
+        "jeweled_egg: long 55->44 (real size next to the painted objects)",
+        "brooch: long 49->37 (real size next to the painted objects)",
+        "dropped decoy gold_plate @h30 (upright disc stood in the open, no free spot)",
+        "battle_axe: turned -60 deg to lie on the rock (looked propped up)",
+        "dagger: turned -45 deg to lie on the floor (looked propped up)",
+        "scepter: turned +40 deg to lie on the floor (looked propped up)",
+        "phoenix_feather: turned +45 deg to lie on the floor (looked propped up)",
+        "dropped decoy round_shield @h53 (upright disc stood in the open, no free spot)",
+        "golden_apple: long 55->47 (real size next to the painted objects)",
+        "bracelet: long 50->36 (real size next to the painted objects)",
+        "bracelet: h15 (block)->h14 (chest), L36 (upright disc stood in the open)",
+        "dropped pearl_necklace (decoy @h13): a ring of pearls standing upright on the coins read as propped up",
+        "gauntlet: rot=75: stood upright on its cuff on the coins; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "gauntlet",
+          "longSide" : 88,
+          "role" : "target",
+          "rotation" : 75,
+          "spot" : "h25",
+          "tint" : 0.2349
+        },
+        {
+          "flip" : false,
+          "id" : "treasure_map",
+          "longSide" : 77,
+          "role" : "target",
+          "spot" : "h20",
+          "tint" : 0.2278
+        },
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 82,
+          "role" : "target",
+          "spot" : "h34",
+          "tint" : 0.1878
+        },
+        {
+          "flip" : true,
+          "id" : "gold_bar",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "h08",
+          "tint" : 0.2006
+        },
+        {
+          "flip" : true,
+          "id" : "golden_key",
+          "longSide" : 62,
+          "role" : "target",
+          "spot" : "h09",
+          "tint" : 0.1905
+        },
+        {
+          "flip" : true,
+          "id" : "oyster_pearl",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "h18",
+          "tint" : 0.2454
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 50,
+          "role" : "target",
+          "spot" : "h01",
+          "tint" : 0.2081
+        },
+        {
+          "flip" : false,
+          "id" : "sapphire",
+          "longSide" : 32,
+          "role" : "target",
+          "spot" : "h04",
+          "tint" : 0.206
+        },
+        {
+          "flip" : false,
+          "id" : "ruby",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "h35",
+          "tint" : 0.2513
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "h60",
+          "tint" : 0.197
+        },
+        {
+          "flip" : false,
+          "id" : "brooch",
+          "longSide" : 37,
+          "role" : "target",
+          "spot" : "h44",
+          "tint" : 0.2316
+        },
+        {
+          "flip" : true,
+          "id" : "mini_chest",
+          "longSide" : 61,
+          "role" : "target",
+          "spot" : "h19",
+          "tint" : 0.1855
+        },
+        {
+          "flip" : false,
+          "id" : "tiara",
+          "longSide" : 57,
+          "role" : "target",
+          "spot" : "h27",
+          "tint" : 0.2242
+        },
+        {
+          "flip" : false,
+          "id" : "golden_mask",
+          "longSide" : 81,
+          "role" : "decoy",
+          "spot" : "h46",
+          "tint" : 0.2469
+        },
+        {
+          "flip" : false,
+          "id" : "jade_dragon",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h54",
+          "tint" : 0.197
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 79,
+          "role" : "decoy",
+          "rotation" : -60,
+          "spot" : "h24",
+          "tint" : 0.1856
+        },
+        {
+          "flip" : true,
+          "id" : "crown",
+          "longSide" : 75,
+          "role" : "decoy",
+          "spot" : "h42",
+          "tint" : 0.2175
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 95,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "h50",
+          "tint" : 0.1956
+        },
+        {
+          "flip" : false,
+          "id" : "scepter",
+          "longSide" : 90,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "h32",
+          "tint" : 0.2505
+        },
+        {
+          "flip" : true,
+          "id" : "phoenix_feather",
+          "longSide" : 86,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "h29",
+          "tint" : 0.2433
+        },
+        {
+          "flip" : true,
+          "id" : "drinking_horn",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.1848
+        },
+        {
+          "flip" : true,
+          "id" : "goblet",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2164
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.259
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "h31",
+          "tint" : 0.2177
+        },
+        {
+          "flip" : false,
+          "id" : "harp",
+          "longSide" : 72,
+          "role" : "decoy",
+          "spot" : "h57",
+          "tint" : 0.2517
+        },
+        {
+          "flip" : true,
+          "id" : "helmet",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "h52",
+          "tint" : 0.23
+        },
+        {
+          "flip" : false,
+          "id" : "golden_apple",
+          "longSide" : 47,
+          "role" : "decoy",
+          "spot" : "h21",
+          "tint" : 0.2094
+        },
+        {
+          "flip" : false,
+          "id" : "bracelet",
+          "longSide" : 36,
+          "role" : "decoy",
+          "spot" : "h14",
+          "tint" : 0.2572
+        }
+      ],
+      "round" : 8
+    },
+    {
+      "notes" : [
+        "golden_apple: long 50->42 (real size next to the painted objects)",
+        "brooch: long 50->38 (real size next to the painted objects)",
+        "ruby: long 55->34 (real size next to the painted objects)",
+        "jeweled_egg: long 51->41 (real size next to the painted objects)",
+        "emerald: long 57->35 (real size next to the painted objects)",
+        "sapphire: long 52->32 (real size next to the painted objects)",
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "dagger: turned -45 deg to lie on the floor (looked propped up)",
+        "phoenix_feather: turned +45 deg to lie on the floor (looked propped up)",
+        "scepter: turned +40 deg to lie on the floor (looked propped up)",
+        "battle_axe: turned -60 deg to lie on the floor (looked propped up)",
+        "gold_bar: long 52->44 (real size next to the painted objects)",
+        "replaced pearl_necklace by crystal_ball @h30 (L58): the pearl ring stood upright on the open floor"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 85,
+          "role" : "target",
+          "spot" : "h13",
+          "tint" : 0.1868
+        },
+        {
+          "flip" : false,
+          "id" : "crystal_ball",
+          "longSide" : 58,
+          "role" : "target",
+          "spot" : "h30",
+          "tint" : 0.1874
+        },
+        {
+          "flip" : false,
+          "id" : "golden_apple",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "h36",
+          "tint" : 0.2257
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_scale",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "h44",
+          "tint" : 0.1846
+        },
+        {
+          "flip" : false,
+          "id" : "brooch",
+          "longSide" : 38,
+          "role" : "target",
+          "spot" : "h10",
+          "tint" : 0.2497
+        },
+        {
+          "flip" : true,
+          "id" : "rune_stone",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "h15",
+          "tint" : 0.2131
+        },
+        {
+          "flip" : true,
+          "id" : "ruby",
+          "longSide" : 34,
+          "role" : "target",
+          "spot" : "h55",
+          "tint" : 0.1988
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 41,
+          "role" : "target",
+          "spot" : "h01",
+          "tint" : 0.189
+        },
+        {
+          "flip" : false,
+          "id" : "emerald",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "h25",
+          "tint" : 0.2419
+        },
+        {
+          "flip" : false,
+          "id" : "coin_pouch",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "h45",
+          "tint" : 0.2141
+        },
+        {
+          "flip" : false,
+          "id" : "sapphire",
+          "longSide" : 32,
+          "role" : "target",
+          "spot" : "h17",
+          "tint" : 0.2187
+        },
+        {
+          "flip" : true,
+          "id" : "tiara",
+          "longSide" : 62,
+          "role" : "target",
+          "spot" : "h42",
+          "tint" : 0.2355
+        },
+        {
+          "flip" : false,
+          "id" : "mini_chest",
+          "longSide" : 58,
+          "role" : "target",
+          "spot" : "h54",
+          "tint" : 0.2229
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "h59",
+          "tint" : 0.2239
+        },
+        {
+          "flip" : true,
+          "id" : "round_shield",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h57",
+          "tint" : 0.1958
+        },
+        {
+          "flip" : true,
+          "id" : "gauntlet",
+          "longSide" : 92,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h33",
+          "tint" : 0.2459
+        },
+        {
+          "flip" : false,
+          "id" : "jewel_box",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "h27",
+          "tint" : 0.2252
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.2213
+        },
+        {
+          "flip" : true,
+          "id" : "goblet",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h53",
+          "tint" : 0.2232
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 82,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "h31",
+          "tint" : 0.2557
+        },
+        {
+          "flip" : false,
+          "id" : "phoenix_feather",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "h29",
+          "tint" : 0.2193
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 77,
+          "role" : "decoy",
+          "spot" : "h24",
+          "tint" : 0.1824
+        },
+        {
+          "flip" : false,
+          "id" : "scepter",
+          "longSide" : 90,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "h52",
+          "tint" : 0.1889
+        },
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 90,
+          "role" : "decoy",
+          "rotation" : -60,
+          "spot" : "h51",
+          "tint" : 0.1942
+        },
+        {
+          "flip" : false,
+          "id" : "golden_mask",
+          "longSide" : 86,
+          "role" : "decoy",
+          "spot" : "h32",
+          "tint" : 0.2084
+        },
+        {
+          "flip" : false,
+          "id" : "drinking_horn",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.1899
+        },
+        {
+          "flip" : true,
+          "id" : "gold_plate",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h20",
+          "tint" : 0.2487
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 89,
+          "role" : "decoy",
+          "spot" : "h50",
+          "tint" : 0.226
+        },
+        {
+          "flip" : true,
+          "id" : "jade_dragon",
+          "longSide" : 76,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.2072
+        },
+        {
+          "flip" : true,
+          "id" : "harp",
+          "longSide" : 79,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.1807
+        },
+        {
+          "flip" : false,
+          "id" : "treasure_map",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "h60",
+          "tint" : 0.2593
+        },
+        {
+          "flip" : false,
+          "id" : "gold_bar",
+          "longSide" : 44,
+          "role" : "decoy",
+          "spot" : "h35",
+          "tint" : 0.2395
+        },
+        {
+          "flip" : false,
+          "id" : "golden_key",
+          "longSide" : 64,
+          "role" : "decoy",
+          "spot" : "h06",
+          "tint" : 0.2381
+        }
+      ],
+      "round" : 9
+    },
+    {
+      "notes" : [
+        "medallion: long 45->36 (real size next to the painted objects)",
+        "amulet: long 53->45 (real size next to the painted objects)",
+        "crystal_ball: long 50->42 (real size next to the painted objects)",
+        "emerald: long 52->32 (real size next to the painted objects)",
+        "jeweled_egg: long 58->46 (real size next to the painted objects)",
+        "sapphire: long 49->30 (real size next to the painted objects)",
+        "ruby: long 49->30 (real size next to the painted objects)",
+        "scepter: turned +40 deg to lie on the floor (looked propped up)",
+        "round_shield: h24 (rock)->h19 (coins), L74 (upright disc stood in the open)",
+        "phoenix_feather: turned +45 deg to lie on the step (looked propped up)",
+        "dagger: turned -45 deg to lie on the floor (looked propped up)",
+        "gold_plate: h32 (floor)->h47 (coins), L73 (upright disc stood in the open)",
+        "gold_bar: long 48->41 (real size next to the painted objects)",
+        "golden_apple: long 48->41 (real size next to the painted objects)",
+        "dropped pearl_necklace (decoy @h20): a ring of pearls standing upright on the coins read as propped up",
+        "gauntlet: rot=75: stood upright on its cuff on the coins; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "battle_axe",
+          "longSide" : 75,
+          "role" : "target",
+          "spot" : "h46",
+          "tint" : 0.2432
+        },
+        {
+          "flip" : false,
+          "id" : "treasure_map",
+          "longSide" : 81,
+          "role" : "target",
+          "spot" : "h51",
+          "tint" : 0.187
+        },
+        {
+          "flip" : true,
+          "id" : "golden_bird",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "h04",
+          "tint" : 0.2565
+        },
+        {
+          "flip" : false,
+          "id" : "medallion",
+          "longSide" : 36,
+          "role" : "target",
+          "spot" : "h08",
+          "tint" : 0.2481
+        },
+        {
+          "flip" : true,
+          "id" : "amulet",
+          "longSide" : 45,
+          "role" : "target",
+          "spot" : "h18",
+          "tint" : 0.2045
+        },
+        {
+          "flip" : false,
+          "id" : "crystal_ball",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "h40",
+          "tint" : 0.2402
+        },
+        {
+          "flip" : true,
+          "id" : "emerald",
+          "longSide" : 32,
+          "role" : "target",
+          "spot" : "h41",
+          "tint" : 0.238
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_scale",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "h05",
+          "tint" : 0.1849
+        },
+        {
+          "flip" : false,
+          "id" : "jeweled_egg",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "h55",
+          "tint" : 0.2437
+        },
+        {
+          "flip" : false,
+          "id" : "dragon_egg",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "h26",
+          "tint" : 0.2221
+        },
+        {
+          "flip" : true,
+          "id" : "tiara",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "h56",
+          "tint" : 0.2363
+        },
+        {
+          "flip" : true,
+          "id" : "rune_stone",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "h16",
+          "tint" : 0.1993
+        },
+        {
+          "flip" : false,
+          "id" : "sapphire",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "h03",
+          "tint" : 0.2258
+        },
+        {
+          "flip" : false,
+          "id" : "ruby",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "h37",
+          "tint" : 0.2152
+        },
+        {
+          "flip" : true,
+          "id" : "mini_chest",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "h39",
+          "tint" : 0.2063
+        },
+        {
+          "flip" : true,
+          "id" : "scepter",
+          "longSide" : 79,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "h33",
+          "tint" : 0.2417
+        },
+        {
+          "flip" : false,
+          "id" : "golden_mask",
+          "longSide" : 73,
+          "role" : "decoy",
+          "spot" : "h22",
+          "tint" : 0.2558
+        },
+        {
+          "flip" : false,
+          "id" : "round_shield",
+          "longSide" : 74,
+          "role" : "decoy",
+          "spot" : "h19",
+          "tint" : 0.2562
+        },
+        {
+          "flip" : false,
+          "id" : "candelabra",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "h31",
+          "tint" : 0.2044
+        },
+        {
+          "flip" : false,
+          "id" : "crown",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "h27",
+          "tint" : 0.2354
+        },
+        {
+          "flip" : true,
+          "id" : "gauntlet",
+          "longSide" : 94,
+          "role" : "decoy",
+          "rotation" : 75,
+          "spot" : "h25",
+          "tint" : 0.2247
+        },
+        {
+          "flip" : false,
+          "id" : "goblet",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h50",
+          "tint" : 0.2239
+        },
+        {
+          "flip" : true,
+          "id" : "phoenix_feather",
+          "longSide" : 73,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "h42",
+          "tint" : 0.1956
+        },
+        {
+          "flip" : false,
+          "id" : "helmet",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "h28",
+          "tint" : 0.2283
+        },
+        {
+          "flip" : true,
+          "id" : "jewel_box",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "h54",
+          "tint" : 0.1943
+        },
+        {
+          "flip" : false,
+          "id" : "blue_vase",
+          "longSide" : 71,
+          "role" : "decoy",
+          "spot" : "h57",
+          "tint" : 0.2249
+        },
+        {
+          "flip" : false,
+          "id" : "dagger",
+          "longSide" : 84,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "h34",
+          "tint" : 0.2351
+        },
+        {
+          "flip" : true,
+          "id" : "jade_dragon",
+          "longSide" : 78,
+          "role" : "decoy",
+          "spot" : "h13",
+          "tint" : 0.1991
+        },
+        {
+          "flip" : false,
+          "id" : "drinking_horn",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h30",
+          "tint" : 0.2398
+        },
+        {
+          "flip" : false,
+          "id" : "harp",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "h29",
+          "tint" : 0.1959
+        },
+        {
+          "flip" : false,
+          "id" : "gold_plate",
+          "longSide" : 73,
+          "role" : "decoy",
+          "spot" : "h47",
+          "tint" : 0.2184
+        },
+        {
+          "flip" : true,
+          "id" : "gold_bar",
+          "longSide" : 41,
+          "role" : "decoy",
+          "spot" : "h59",
+          "tint" : 0.2039
+        },
+        {
+          "flip" : true,
+          "id" : "golden_apple",
+          "longSide" : 41,
+          "role" : "decoy",
+          "spot" : "h01",
+          "tint" : 0.2514
+        },
+        {
+          "flip" : false,
+          "id" : "golden_key",
+          "longSide" : 61,
+          "role" : "decoy",
+          "spot" : "h36",
+          "tint" : 0.2562
+        }
+      ],
+      "round" : 10
+    }
+  ],
+  "scene" : "hoard"
+}

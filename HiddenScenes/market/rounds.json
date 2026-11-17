@@ -1,0 +1,2216 @@
+{
+  "format" : "pourfect-hidden-rounds-v1",
+  "rounds" : [
+    {
+      "notes" : [
+        "lute: turned +70 deg to lie on the paving (looked propped up)",
+        "sunflower: turned +80 deg to lie on the paving (looked propped up)",
+        "pepper: long 61->52 (real size next to the painted objects)",
+        "peacock_feather: turned +40 deg to lie on the paving (looked propped up)",
+        "rose: turned +45 deg to lie on the paving (looked propped up)",
+        "spoon: long 101->91 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "moved melon_slice m54->m55 (table, L58): spot m54 (flower box leaves) made it float",
+        "fish: long=100: as long as a paving stone"
+      ],
+      "objects" : [
+        {
+          "flip" : true,
+          "id" : "lute",
+          "longSide" : 113,
+          "role" : "target",
+          "rotation" : 70,
+          "spot" : "m38",
+          "tint" : 0.2475
+        },
+        {
+          "flip" : false,
+          "id" : "sunflower",
+          "longSide" : 104,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m36",
+          "tint" : 0.2056
+        },
+        {
+          "flip" : true,
+          "id" : "straw_hat",
+          "longSide" : 107,
+          "role" : "target",
+          "spot" : "m58",
+          "tint" : 0.2043
+        },
+        {
+          "flip" : false,
+          "id" : "teapot",
+          "longSide" : 86,
+          "role" : "target",
+          "spot" : "m47",
+          "tint" : 0.2398
+        },
+        {
+          "flip" : false,
+          "id" : "jug",
+          "longSide" : 106,
+          "role" : "target",
+          "spot" : "m57",
+          "tint" : 0.1938
+        },
+        {
+          "flip" : true,
+          "id" : "cheese",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "m15",
+          "tint" : 0.2584
+        },
+        {
+          "flip" : false,
+          "id" : "melon_slice",
+          "longSide" : 58,
+          "role" : "target",
+          "spot" : "m55",
+          "tint" : 0.23
+        },
+        {
+          "flip" : true,
+          "id" : "pepper",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "m10",
+          "tint" : 0.1852
+        },
+        {
+          "flip" : true,
+          "id" : "boot",
+          "longSide" : 108,
+          "role" : "decoy",
+          "spot" : "m37",
+          "tint" : 0.1959
+        },
+        {
+          "flip" : true,
+          "id" : "fish",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "m60",
+          "tint" : 0.2338
+        },
+        {
+          "flip" : false,
+          "id" : "peacock_feather",
+          "longSide" : 108,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "m34",
+          "tint" : 0.2333
+        },
+        {
+          "flip" : false,
+          "id" : "rose",
+          "longSide" : 95,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "m61",
+          "tint" : 0.198
+        },
+        {
+          "flip" : false,
+          "id" : "honey",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.2077
+        },
+        {
+          "flip" : false,
+          "id" : "spoon",
+          "longSide" : 91,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m59",
+          "tint" : 0.187
+        },
+        {
+          "flip" : true,
+          "id" : "scale",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "m28",
+          "tint" : 0.214
+        },
+        {
+          "flip" : true,
+          "id" : "lantern",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.1892
+        }
+      ],
+      "round" : 1
+    },
+    {
+      "notes" : [
+        "ladle: turned +35 deg to lie on the paving (looked propped up)",
+        "radish: long 99->87 (real size next to the painted objects)",
+        "cherries: long 59->44 (real size next to the painted objects)",
+        "lemon: long 60->48 (real size next to the painted objects)",
+        "eggplant: long 86->76 (real size next to the painted objects)",
+        "grapes: long 109->96 (real size next to the painted objects)",
+        "spoon: long 98->88 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "lute: turned +70 deg to lie on the paving (looked propped up)",
+        "glove: rot=80: stood upright on its cuff in the apples; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "jug",
+          "longSide" : 102,
+          "role" : "target",
+          "spot" : "m57",
+          "tint" : 0.2097
+        },
+        {
+          "flip" : true,
+          "id" : "teapot",
+          "longSide" : 100,
+          "role" : "target",
+          "spot" : "m37",
+          "tint" : 0.1878
+        },
+        {
+          "flip" : false,
+          "id" : "ladle",
+          "longSide" : 94,
+          "role" : "target",
+          "rotation" : 35,
+          "spot" : "m61",
+          "tint" : 0.2042
+        },
+        {
+          "flip" : false,
+          "id" : "rose",
+          "longSide" : 84,
+          "role" : "target",
+          "spot" : "m28",
+          "tint" : 0.189
+        },
+        {
+          "flip" : true,
+          "id" : "radish",
+          "longSide" : 87,
+          "role" : "target",
+          "spot" : "m34",
+          "tint" : 0.1803
+        },
+        {
+          "flip" : false,
+          "id" : "purse",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "m40",
+          "tint" : 0.2089
+        },
+        {
+          "flip" : true,
+          "id" : "cherries",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "m15",
+          "tint" : 0.2562
+        },
+        {
+          "flip" : false,
+          "id" : "lemon",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "m46",
+          "tint" : 0.2573
+        },
+        {
+          "flip" : false,
+          "id" : "wool",
+          "longSide" : 61,
+          "role" : "target",
+          "spot" : "m33",
+          "tint" : 0.2583
+        },
+        {
+          "flip" : false,
+          "id" : "eggplant",
+          "longSide" : 76,
+          "role" : "decoy",
+          "spot" : "m47",
+          "tint" : 0.2276
+        },
+        {
+          "flip" : true,
+          "id" : "peacock_feather",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.2126
+        },
+        {
+          "flip" : true,
+          "id" : "wine_bottle",
+          "longSide" : 117,
+          "role" : "decoy",
+          "spot" : "m35",
+          "tint" : 0.1945
+        },
+        {
+          "flip" : false,
+          "id" : "grapes",
+          "longSide" : 96,
+          "role" : "decoy",
+          "spot" : "m58",
+          "tint" : 0.2368
+        },
+        {
+          "flip" : true,
+          "id" : "bread",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.1941
+        },
+        {
+          "flip" : true,
+          "id" : "spoon",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m36",
+          "tint" : 0.2045
+        },
+        {
+          "flip" : false,
+          "id" : "lute",
+          "longSide" : 112,
+          "role" : "decoy",
+          "rotation" : 70,
+          "spot" : "m59",
+          "tint" : 0.1802
+        },
+        {
+          "flip" : true,
+          "id" : "toy_horse",
+          "longSide" : 99,
+          "role" : "decoy",
+          "spot" : "m60",
+          "tint" : 0.1908
+        },
+        {
+          "flip" : true,
+          "id" : "honey",
+          "longSide" : 102,
+          "role" : "decoy",
+          "spot" : "m38",
+          "tint" : 0.2499
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 60,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "m25",
+          "tint" : 0.1912
+        }
+      ],
+      "round" : 2
+    },
+    {
+      "notes" : [
+        "corn: turned +50 deg to lie on the paving (looked propped up)",
+        "spool: long 52->42 (real size next to the painted objects)",
+        "hen_egg: long 60->37 (real size next to the painted objects)",
+        "pepper: long 53->45 (real size next to the painted objects)",
+        "pear: long 59->50 (real size next to the painted objects)",
+        "spoon: long 102->92 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "lute: turned +70 deg to lie on the paving (looked propped up)",
+        "radish: long 103->91 (real size next to the painted objects)",
+        "peacock_feather: turned +40 deg to lie on the paving (looked propped up)",
+        "cherries: long 58->44 (real size next to the painted objects)",
+        "pretzel: long 54->46 (real size next to the painted objects)",
+        "moved hen_egg m54->m55 (table, L37): spot m54 (flower box leaves) made it float",
+        "fish: long=100: as long as a paving stone",
+        "glove: rot=80: stood upright on its cuff on the shelf; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "wine_bottle",
+          "longSide" : 111,
+          "role" : "target",
+          "spot" : "m27",
+          "tint" : 0.1832
+        },
+        {
+          "flip" : false,
+          "id" : "ladle",
+          "longSide" : 86,
+          "role" : "target",
+          "spot" : "m47",
+          "tint" : 0.2392
+        },
+        {
+          "flip" : true,
+          "id" : "scale",
+          "longSide" : 106,
+          "role" : "target",
+          "spot" : "m60",
+          "tint" : 0.2005
+        },
+        {
+          "flip" : false,
+          "id" : "jug",
+          "longSide" : 95,
+          "role" : "target",
+          "spot" : "m38",
+          "tint" : 0.2162
+        },
+        {
+          "flip" : false,
+          "id" : "corn",
+          "longSide" : 105,
+          "role" : "target",
+          "rotation" : 50,
+          "spot" : "m34",
+          "tint" : 0.2266
+        },
+        {
+          "flip" : true,
+          "id" : "spool",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "m41",
+          "tint" : 0.2227
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 67,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m10",
+          "tint" : 0.2473
+        },
+        {
+          "flip" : false,
+          "id" : "hen_egg",
+          "longSide" : 37,
+          "role" : "target",
+          "spot" : "m55",
+          "tint" : 0.2487
+        },
+        {
+          "flip" : false,
+          "id" : "pepper",
+          "longSide" : 45,
+          "role" : "target",
+          "spot" : "m14",
+          "tint" : 0.2274
+        },
+        {
+          "flip" : false,
+          "id" : "pear",
+          "longSide" : 50,
+          "role" : "target",
+          "spot" : "m42",
+          "tint" : 0.1884
+        },
+        {
+          "flip" : false,
+          "id" : "fish",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "m58",
+          "tint" : 0.1854
+        },
+        {
+          "flip" : false,
+          "id" : "spoon",
+          "longSide" : 92,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m57",
+          "tint" : 0.2505
+        },
+        {
+          "flip" : false,
+          "id" : "lute",
+          "longSide" : 105,
+          "role" : "decoy",
+          "rotation" : 70,
+          "spot" : "m61",
+          "tint" : 0.2435
+        },
+        {
+          "flip" : false,
+          "id" : "radish",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "m59",
+          "tint" : 0.2298
+        },
+        {
+          "flip" : false,
+          "id" : "boot",
+          "longSide" : 85,
+          "role" : "decoy",
+          "spot" : "m28",
+          "tint" : 0.2246
+        },
+        {
+          "flip" : true,
+          "id" : "toy_horse",
+          "longSide" : 89,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.2546
+        },
+        {
+          "flip" : false,
+          "id" : "tankard",
+          "longSide" : 104,
+          "role" : "decoy",
+          "spot" : "m36",
+          "tint" : 0.2297
+        },
+        {
+          "flip" : false,
+          "id" : "peacock_feather",
+          "longSide" : 105,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "m35",
+          "tint" : 0.1835
+        },
+        {
+          "flip" : false,
+          "id" : "teapot",
+          "longSide" : 95,
+          "role" : "decoy",
+          "spot" : "m37",
+          "tint" : 0.2503
+        },
+        {
+          "flip" : true,
+          "id" : "cherries",
+          "longSide" : 44,
+          "role" : "decoy",
+          "spot" : "m48",
+          "tint" : 0.2149
+        },
+        {
+          "flip" : true,
+          "id" : "pretzel",
+          "longSide" : 46,
+          "role" : "decoy",
+          "spot" : "m32",
+          "tint" : 0.1877
+        }
+      ],
+      "round" : 3
+    },
+    {
+      "notes" : [
+        "grapes: long 96->84 (real size next to the painted objects)",
+        "lute: turned +70 deg to lie on the paving (looked propped up)",
+        "eggplant: long 104->92 (real size next to the painted objects)",
+        "marble: long 58->24 (real size next to the painted objects)",
+        "hen_egg: long 56->35 (real size next to the painted objects)",
+        "strawberry: long 65->39 (real size next to the painted objects)",
+        "bell: long 50->42 (real size next to the painted objects)",
+        "spoon: long 101->91 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "radish: long 94->83 (real size next to the painted objects)",
+        "spool: long 56->45 (real size next to the painted objects)",
+        "glove: rot=80: stood upright on its cuff on the shelf; laid down",
+        "sunflower: rot=80: stood upright on its stem on the sack; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "grapes",
+          "longSide" : 84,
+          "role" : "target",
+          "spot" : "m34",
+          "tint" : 0.1886
+        },
+        {
+          "flip" : true,
+          "id" : "lute",
+          "longSide" : 106,
+          "role" : "target",
+          "rotation" : 70,
+          "spot" : "m60",
+          "tint" : 0.2517
+        },
+        {
+          "flip" : false,
+          "id" : "eggplant",
+          "longSide" : 92,
+          "role" : "target",
+          "spot" : "m36",
+          "tint" : 0.2184
+        },
+        {
+          "flip" : true,
+          "id" : "honey",
+          "longSide" : 95,
+          "role" : "target",
+          "spot" : "m37",
+          "tint" : 0.2059
+        },
+        {
+          "flip" : false,
+          "id" : "purse",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "m01",
+          "tint" : 0.2228
+        },
+        {
+          "flip" : false,
+          "id" : "marble",
+          "longSide" : 24,
+          "role" : "target",
+          "spot" : "m15",
+          "tint" : 0.2508
+        },
+        {
+          "flip" : false,
+          "id" : "hen_egg",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "m39",
+          "tint" : 0.2001
+        },
+        {
+          "flip" : false,
+          "id" : "strawberry",
+          "longSide" : 39,
+          "role" : "target",
+          "spot" : "m59",
+          "tint" : 0.2261
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 67,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m13",
+          "tint" : 0.2022
+        },
+        {
+          "flip" : true,
+          "id" : "bell",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "m56",
+          "tint" : 0.2361
+        },
+        {
+          "flip" : true,
+          "id" : "spoon",
+          "longSide" : 91,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m58",
+          "tint" : 0.2297
+        },
+        {
+          "flip" : false,
+          "id" : "carrot",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "m47",
+          "tint" : 0.2378
+        },
+        {
+          "flip" : false,
+          "id" : "radish",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "m57",
+          "tint" : 0.2177
+        },
+        {
+          "flip" : false,
+          "id" : "sunflower",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "m27",
+          "tint" : 0.2552
+        },
+        {
+          "flip" : true,
+          "id" : "straw_hat",
+          "longSide" : 97,
+          "role" : "decoy",
+          "spot" : "m61",
+          "tint" : 0.1884
+        },
+        {
+          "flip" : true,
+          "id" : "toy_horse",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "m38",
+          "tint" : 0.221
+        },
+        {
+          "flip" : false,
+          "id" : "ladle",
+          "longSide" : 90,
+          "role" : "decoy",
+          "spot" : "m28",
+          "tint" : 0.2452
+        },
+        {
+          "flip" : true,
+          "id" : "tankard",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.1969
+        },
+        {
+          "flip" : true,
+          "id" : "bread",
+          "longSide" : 101,
+          "role" : "decoy",
+          "spot" : "m35",
+          "tint" : 0.2364
+        },
+        {
+          "flip" : true,
+          "id" : "wool",
+          "longSide" : 60,
+          "role" : "decoy",
+          "spot" : "m49",
+          "tint" : 0.2348
+        },
+        {
+          "flip" : true,
+          "id" : "cheese",
+          "longSide" : 61,
+          "role" : "decoy",
+          "spot" : "m50",
+          "tint" : 0.1854
+        },
+        {
+          "flip" : false,
+          "id" : "spool",
+          "longSide" : 45,
+          "role" : "decoy",
+          "spot" : "m30",
+          "tint" : 0.2417
+        }
+      ],
+      "round" : 4
+    },
+    {
+      "notes" : [
+        "grapes: long 89->78 (real size next to the painted objects)",
+        "apple: long 54->43 (real size next to the painted objects)",
+        "pepper: long 62->53 (real size next to the painted objects)",
+        "bell: long 61->52 (real size next to the painted objects)",
+        "cherries: long 61->46 (real size next to the painted objects)",
+        "hen_egg: long 57->35 (real size next to the painted objects)",
+        "pretzel: long 55->47 (real size next to the painted objects)",
+        "hammer: turned +50 deg to lie on the paving (looked propped up)",
+        "rose: turned +45 deg to lie on the paving (looked propped up)",
+        "spoon: long 98->88 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "marble: long 59->25 (real size next to the painted objects)",
+        "pear: long 51->43 (real size next to the painted objects)",
+        "moved pretzel m54->m55 (table, L47): spot m54 (flower box leaves) made it float",
+        "fish: long=100: as long as a paving stone"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "wine_bottle",
+          "longSide" : 96,
+          "role" : "target",
+          "spot" : "m47",
+          "tint" : 0.2299
+        },
+        {
+          "flip" : true,
+          "id" : "grapes",
+          "longSide" : 78,
+          "role" : "target",
+          "spot" : "m61",
+          "tint" : 0.2134
+        },
+        {
+          "flip" : false,
+          "id" : "toy_horse",
+          "longSide" : 101,
+          "role" : "target",
+          "spot" : "m58",
+          "tint" : 0.2495
+        },
+        {
+          "flip" : true,
+          "id" : "fish",
+          "longSide" : 100,
+          "role" : "target",
+          "spot" : "m59",
+          "tint" : 0.2379
+        },
+        {
+          "flip" : false,
+          "id" : "apple",
+          "longSide" : 43,
+          "role" : "target",
+          "spot" : "m23",
+          "tint" : 0.1865
+        },
+        {
+          "flip" : false,
+          "id" : "pepper",
+          "longSide" : 53,
+          "role" : "target",
+          "spot" : "m44",
+          "tint" : 0.2477
+        },
+        {
+          "flip" : false,
+          "id" : "purse",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "m45",
+          "tint" : 0.2428
+        },
+        {
+          "flip" : true,
+          "id" : "bell",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "m29",
+          "tint" : 0.2266
+        },
+        {
+          "flip" : true,
+          "id" : "cherries",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "m17",
+          "tint" : 0.2256
+        },
+        {
+          "flip" : true,
+          "id" : "hen_egg",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "m14",
+          "tint" : 0.235
+        },
+        {
+          "flip" : false,
+          "id" : "pretzel",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "m55",
+          "tint" : 0.2369
+        },
+        {
+          "flip" : false,
+          "id" : "bread",
+          "longSide" : 98,
+          "role" : "decoy",
+          "spot" : "m35",
+          "tint" : 0.2102
+        },
+        {
+          "flip" : true,
+          "id" : "boot",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.2399
+        },
+        {
+          "flip" : false,
+          "id" : "hammer",
+          "longSide" : 100,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "m57",
+          "tint" : 0.2158
+        },
+        {
+          "flip" : true,
+          "id" : "ladle",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.2017
+        },
+        {
+          "flip" : false,
+          "id" : "jug",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "m34",
+          "tint" : 0.2427
+        },
+        {
+          "flip" : true,
+          "id" : "rose",
+          "longSide" : 94,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "m60",
+          "tint" : 0.2477
+        },
+        {
+          "flip" : false,
+          "id" : "tankard",
+          "longSide" : 104,
+          "role" : "decoy",
+          "spot" : "m38",
+          "tint" : 0.207
+        },
+        {
+          "flip" : true,
+          "id" : "spoon",
+          "longSide" : 88,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m36",
+          "tint" : 0.2182
+        },
+        {
+          "flip" : false,
+          "id" : "lantern",
+          "longSide" : 116,
+          "role" : "decoy",
+          "spot" : "m37",
+          "tint" : 0.2345
+        },
+        {
+          "flip" : false,
+          "id" : "cheese",
+          "longSide" : 47,
+          "role" : "decoy",
+          "spot" : "m09",
+          "tint" : 0.1908
+        },
+        {
+          "flip" : false,
+          "id" : "melon_slice",
+          "longSide" : 59,
+          "role" : "decoy",
+          "spot" : "m13",
+          "tint" : 0.1927
+        },
+        {
+          "flip" : true,
+          "id" : "marble",
+          "longSide" : 25,
+          "role" : "decoy",
+          "spot" : "m30",
+          "tint" : 0.1809
+        },
+        {
+          "flip" : false,
+          "id" : "pear",
+          "longSide" : 43,
+          "role" : "decoy",
+          "spot" : "m42",
+          "tint" : 0.1917
+        },
+        {
+          "flip" : false,
+          "id" : "wool",
+          "longSide" : 61,
+          "role" : "decoy",
+          "spot" : "m21",
+          "tint" : 0.2228
+        }
+      ],
+      "round" : 5
+    },
+    {
+      "notes" : [
+        "spoon: long 91->82 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "bell: long 52->44 (real size next to the painted objects)",
+        "hen_egg: long 59->37 (real size next to the painted objects)",
+        "strawberry: long 59->35 (real size next to the painted objects)",
+        "marble: long 55->23 (real size next to the painted objects)",
+        "pear: long 54->46 (real size next to the painted objects)",
+        "lemon: long 62->50 (real size next to the painted objects)",
+        "lute: turned +70 deg to lie on the paving (looked propped up)",
+        "peacock_feather: turned +40 deg to lie on the paving (looked propped up)",
+        "radish: long 87->77 (real size next to the painted objects)",
+        "ladle: turned +35 deg to lie on the paving (looked propped up)",
+        "rose: turned +45 deg to lie on the paving (looked propped up)",
+        "cherries: long 53->40 (real size next to the painted objects)",
+        "pepper: long 58->49 (real size next to the painted objects)",
+        "glove: rot=80: stood upright on its cuff; laid down",
+        "sunflower: rot=80: stood upright on its stem on the tub; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "bread",
+          "longSide" : 92,
+          "role" : "target",
+          "spot" : "m37",
+          "tint" : 0.2013
+        },
+        {
+          "flip" : false,
+          "id" : "lantern",
+          "longSide" : 106,
+          "role" : "target",
+          "spot" : "m61",
+          "tint" : 0.2427
+        },
+        {
+          "flip" : false,
+          "id" : "straw_hat",
+          "longSide" : 94,
+          "role" : "target",
+          "spot" : "m57",
+          "tint" : 0.2536
+        },
+        {
+          "flip" : false,
+          "id" : "spoon",
+          "longSide" : 82,
+          "role" : "target",
+          "rotation" : -45,
+          "spot" : "m36",
+          "tint" : 0.1842
+        },
+        {
+          "flip" : false,
+          "id" : "bell",
+          "longSide" : 44,
+          "role" : "target",
+          "spot" : "m07",
+          "tint" : 0.1851
+        },
+        {
+          "flip" : false,
+          "id" : "hen_egg",
+          "longSide" : 37,
+          "role" : "target",
+          "spot" : "m21",
+          "tint" : 0.2136
+        },
+        {
+          "flip" : true,
+          "id" : "strawberry",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "m10",
+          "tint" : 0.2267
+        },
+        {
+          "flip" : true,
+          "id" : "marble",
+          "longSide" : 23,
+          "role" : "target",
+          "spot" : "m32",
+          "tint" : 0.1991
+        },
+        {
+          "flip" : true,
+          "id" : "glove",
+          "longSide" : 61,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m11",
+          "tint" : 0.2083
+        },
+        {
+          "flip" : false,
+          "id" : "pear",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "m30",
+          "tint" : 0.187
+        },
+        {
+          "flip" : true,
+          "id" : "lemon",
+          "longSide" : 50,
+          "role" : "target",
+          "spot" : "m19",
+          "tint" : 0.2216
+        },
+        {
+          "flip" : false,
+          "id" : "cheese",
+          "longSide" : 60,
+          "role" : "target",
+          "spot" : "m24",
+          "tint" : 0.1816
+        },
+        {
+          "flip" : false,
+          "id" : "lute",
+          "longSide" : 106,
+          "role" : "decoy",
+          "rotation" : 70,
+          "spot" : "m59",
+          "tint" : 0.2402
+        },
+        {
+          "flip" : false,
+          "id" : "scale",
+          "longSide" : 101,
+          "role" : "decoy",
+          "spot" : "m58",
+          "tint" : 0.1889
+        },
+        {
+          "flip" : true,
+          "id" : "peacock_feather",
+          "longSide" : 92,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "m38",
+          "tint" : 0.2003
+        },
+        {
+          "flip" : true,
+          "id" : "honey",
+          "longSide" : 102,
+          "role" : "decoy",
+          "spot" : "m35",
+          "tint" : 0.1999
+        },
+        {
+          "flip" : false,
+          "id" : "corn",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.1857
+        },
+        {
+          "flip" : true,
+          "id" : "radish",
+          "longSide" : 77,
+          "role" : "decoy",
+          "spot" : "m28",
+          "tint" : 0.2313
+        },
+        {
+          "flip" : false,
+          "id" : "ladle",
+          "longSide" : 101,
+          "role" : "decoy",
+          "rotation" : 35,
+          "spot" : "m34",
+          "tint" : 0.2417
+        },
+        {
+          "flip" : true,
+          "id" : "rose",
+          "longSide" : 99,
+          "role" : "decoy",
+          "rotation" : 45,
+          "spot" : "m60",
+          "tint" : 0.1802
+        },
+        {
+          "flip" : true,
+          "id" : "sunflower",
+          "longSide" : 95,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "m53",
+          "tint" : 0.1892
+        },
+        {
+          "flip" : false,
+          "id" : "boot",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "m47",
+          "tint" : 0.216
+        },
+        {
+          "flip" : false,
+          "id" : "cherries",
+          "longSide" : 40,
+          "role" : "decoy",
+          "spot" : "m50",
+          "tint" : 0.188
+        },
+        {
+          "flip" : false,
+          "id" : "purse",
+          "longSide" : 58,
+          "role" : "decoy",
+          "spot" : "m26",
+          "tint" : 0.2409
+        },
+        {
+          "flip" : true,
+          "id" : "melon_slice",
+          "longSide" : 61,
+          "role" : "decoy",
+          "spot" : "m48",
+          "tint" : 0.2088
+        },
+        {
+          "flip" : false,
+          "id" : "wool",
+          "longSide" : 50,
+          "role" : "decoy",
+          "spot" : "m56",
+          "tint" : 0.2489
+        },
+        {
+          "flip" : false,
+          "id" : "pepper",
+          "longSide" : 49,
+          "role" : "decoy",
+          "spot" : "m43",
+          "tint" : 0.2097
+        }
+      ],
+      "round" : 6
+    },
+    {
+      "notes" : [
+        "rose: turned +45 deg to lie on the paving (looked propped up)",
+        "spoon: long 99->89 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "grapes: long 93->82 (real size next to the painted objects)",
+        "hen_egg: long 56->35 (real size next to the painted objects)",
+        "lemon: long 53->42 (real size next to the painted objects)",
+        "strawberry: long 56->34 (real size next to the painted objects)",
+        "pretzel: long 61->52 (real size next to the painted objects)",
+        "spool: long 50->40 (real size next to the painted objects)",
+        "marble: long 49->22 (real size next to the painted objects)",
+        "peacock_feather: turned +40 deg to lie on the paving (looked propped up)",
+        "eggplant: long 89->78 (real size next to the painted objects)",
+        "corn: turned +50 deg to lie on the paving (looked propped up)",
+        "radish: long 94->83 (real size next to the painted objects)",
+        "lute: turned +70 deg to lie on the paving (looked propped up)",
+        "apple: long 48->38 (real size next to the painted objects)",
+        "bell: long 55->47 (real size next to the painted objects)",
+        "cherries: long 57->43 (real size next to the painted objects)",
+        "pear: long 49->42 (real size next to the painted objects)",
+        "glove: rot=80: stood upright on its cuff; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : true,
+          "id" : "rose",
+          "longSide" : 91,
+          "role" : "target",
+          "rotation" : 45,
+          "spot" : "m61",
+          "tint" : 0.2445
+        },
+        {
+          "flip" : false,
+          "id" : "spoon",
+          "longSide" : 89,
+          "role" : "target",
+          "rotation" : -45,
+          "spot" : "m35",
+          "tint" : 0.1899
+        },
+        {
+          "flip" : true,
+          "id" : "grapes",
+          "longSide" : 82,
+          "role" : "target",
+          "spot" : "m60",
+          "tint" : 0.2554
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 55,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m02",
+          "tint" : 0.1941
+        },
+        {
+          "flip" : false,
+          "id" : "hen_egg",
+          "longSide" : 35,
+          "role" : "target",
+          "spot" : "m24",
+          "tint" : 0.1889
+        },
+        {
+          "flip" : false,
+          "id" : "cheese",
+          "longSide" : 59,
+          "role" : "target",
+          "spot" : "m13",
+          "tint" : 0.2365
+        },
+        {
+          "flip" : false,
+          "id" : "lemon",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "m31",
+          "tint" : 0.1896
+        },
+        {
+          "flip" : false,
+          "id" : "strawberry",
+          "longSide" : 34,
+          "role" : "target",
+          "spot" : "m11",
+          "tint" : 0.2083
+        },
+        {
+          "flip" : false,
+          "id" : "purse",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "m03",
+          "tint" : 0.1945
+        },
+        {
+          "flip" : true,
+          "id" : "pretzel",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "m44",
+          "tint" : 0.1809
+        },
+        {
+          "flip" : true,
+          "id" : "spool",
+          "longSide" : 40,
+          "role" : "target",
+          "spot" : "m52",
+          "tint" : 0.2204
+        },
+        {
+          "flip" : false,
+          "id" : "marble",
+          "longSide" : 22,
+          "role" : "target",
+          "spot" : "m05",
+          "tint" : 0.2293
+        },
+        {
+          "flip" : false,
+          "id" : "peacock_feather",
+          "longSide" : 100,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "m58",
+          "tint" : 0.1959
+        },
+        {
+          "flip" : false,
+          "id" : "eggplant",
+          "longSide" : 78,
+          "role" : "decoy",
+          "spot" : "m38",
+          "tint" : 0.2282
+        },
+        {
+          "flip" : true,
+          "id" : "corn",
+          "longSide" : 91,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "m34",
+          "tint" : 0.2408
+        },
+        {
+          "flip" : true,
+          "id" : "tankard",
+          "longSide" : 82,
+          "role" : "decoy",
+          "spot" : "m47",
+          "tint" : 0.1985
+        },
+        {
+          "flip" : true,
+          "id" : "honey",
+          "longSide" : 78,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.2515
+        },
+        {
+          "flip" : false,
+          "id" : "radish",
+          "longSide" : 83,
+          "role" : "decoy",
+          "spot" : "m59",
+          "tint" : 0.2289
+        },
+        {
+          "flip" : false,
+          "id" : "lantern",
+          "longSide" : 109,
+          "role" : "decoy",
+          "spot" : "m57",
+          "tint" : 0.1933
+        },
+        {
+          "flip" : false,
+          "id" : "carrot",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "m28",
+          "tint" : 0.2026
+        },
+        {
+          "flip" : false,
+          "id" : "fish",
+          "longSide" : 104,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.2568
+        },
+        {
+          "flip" : false,
+          "id" : "straw_hat",
+          "longSide" : 92,
+          "role" : "decoy",
+          "spot" : "m36",
+          "tint" : 0.2405
+        },
+        {
+          "flip" : false,
+          "id" : "lute",
+          "longSide" : 107,
+          "role" : "decoy",
+          "rotation" : 70,
+          "spot" : "m37",
+          "tint" : 0.2112
+        },
+        {
+          "flip" : true,
+          "id" : "apple",
+          "longSide" : 38,
+          "role" : "decoy",
+          "spot" : "m09",
+          "tint" : 0.2404
+        },
+        {
+          "flip" : false,
+          "id" : "bell",
+          "longSide" : 47,
+          "role" : "decoy",
+          "spot" : "m33",
+          "tint" : 0.2209
+        },
+        {
+          "flip" : false,
+          "id" : "wool",
+          "longSide" : 54,
+          "role" : "decoy",
+          "spot" : "m51",
+          "tint" : 0.1985
+        },
+        {
+          "flip" : false,
+          "id" : "cherries",
+          "longSide" : 43,
+          "role" : "decoy",
+          "spot" : "m10",
+          "tint" : 0.2301
+        },
+        {
+          "flip" : true,
+          "id" : "pear",
+          "longSide" : 42,
+          "role" : "decoy",
+          "spot" : "m42",
+          "tint" : 0.2469
+        }
+      ],
+      "round" : 7
+    },
+    {
+      "notes" : [
+        "rose: turned +45 deg to lie on the paving (looked propped up)",
+        "carrot: turned +45 deg to lie on the paving (looked propped up)",
+        "radish: long 83->73 (real size next to the painted objects)",
+        "pretzel: long 58->49 (real size next to the painted objects)",
+        "marble: long 48->22 (real size next to the painted objects)",
+        "pear: long 56->48 (real size next to the painted objects)",
+        "strawberry: long 53->32 (real size next to the painted objects)",
+        "bell: long 50->42 (real size next to the painted objects)",
+        "lemon: long 50->40 (real size next to the painted objects)",
+        "pepper: long 48->41 (real size next to the painted objects)",
+        "peacock_feather: turned +40 deg to lie on the paving (looked propped up)",
+        "spoon: long 90->81 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "hammer: turned +50 deg to lie on the paving (looked propped up)",
+        "sunflower: turned +80 deg to lie on the paving (looked propped up)",
+        "hen_egg: long 49->30 (real size next to the painted objects)",
+        "apple: long 58->46 (real size next to the painted objects)",
+        "cherries: long 52->39 (real size next to the painted objects)",
+        "spool: long 52->42 (real size next to the painted objects)",
+        "fish: long=96: as long as a paving stone",
+        "glove: rot=80: stood upright on its cuff; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "rose",
+          "longSide" : 87,
+          "role" : "target",
+          "rotation" : 45,
+          "spot" : "m61",
+          "tint" : 0.2469
+        },
+        {
+          "flip" : false,
+          "id" : "carrot",
+          "longSide" : 96,
+          "role" : "target",
+          "rotation" : 45,
+          "spot" : "m57",
+          "tint" : 0.2217
+        },
+        {
+          "flip" : false,
+          "id" : "radish",
+          "longSide" : 73,
+          "role" : "target",
+          "spot" : "m53",
+          "tint" : 0.1827
+        },
+        {
+          "flip" : false,
+          "id" : "pretzel",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "m29",
+          "tint" : 0.18
+        },
+        {
+          "flip" : false,
+          "id" : "marble",
+          "longSide" : 22,
+          "role" : "target",
+          "spot" : "m09",
+          "tint" : 0.2448
+        },
+        {
+          "flip" : false,
+          "id" : "wool",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "m39",
+          "tint" : 0.2286
+        },
+        {
+          "flip" : true,
+          "id" : "pear",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "m11",
+          "tint" : 0.2149
+        },
+        {
+          "flip" : true,
+          "id" : "melon_slice",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "m03",
+          "tint" : 0.1845
+        },
+        {
+          "flip" : true,
+          "id" : "strawberry",
+          "longSide" : 32,
+          "role" : "target",
+          "spot" : "m16",
+          "tint" : 0.1918
+        },
+        {
+          "flip" : false,
+          "id" : "bell",
+          "longSide" : 42,
+          "role" : "target",
+          "spot" : "m06",
+          "tint" : 0.1876
+        },
+        {
+          "flip" : true,
+          "id" : "cheese",
+          "longSide" : 50,
+          "role" : "target",
+          "spot" : "m55",
+          "tint" : 0.2186
+        },
+        {
+          "flip" : false,
+          "id" : "lemon",
+          "longSide" : 40,
+          "role" : "target",
+          "spot" : "m15",
+          "tint" : 0.1803
+        },
+        {
+          "flip" : false,
+          "id" : "pepper",
+          "longSide" : 41,
+          "role" : "target",
+          "spot" : "m07",
+          "tint" : 0.1823
+        },
+        {
+          "flip" : false,
+          "id" : "fish",
+          "longSide" : 96,
+          "role" : "decoy",
+          "spot" : "m59",
+          "tint" : 0.1971
+        },
+        {
+          "flip" : true,
+          "id" : "peacock_feather",
+          "longSide" : 89,
+          "role" : "decoy",
+          "rotation" : 40,
+          "spot" : "m35",
+          "tint" : 0.1966
+        },
+        {
+          "flip" : false,
+          "id" : "corn",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "m47",
+          "tint" : 0.2149
+        },
+        {
+          "flip" : true,
+          "id" : "spoon",
+          "longSide" : 81,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m34",
+          "tint" : 0.2196
+        },
+        {
+          "flip" : false,
+          "id" : "lantern",
+          "longSide" : 102,
+          "role" : "decoy",
+          "spot" : "m38",
+          "tint" : 0.2042
+        },
+        {
+          "flip" : false,
+          "id" : "hammer",
+          "longSide" : 97,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "m58",
+          "tint" : 0.207
+        },
+        {
+          "flip" : true,
+          "id" : "sunflower",
+          "longSide" : 95,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "m37",
+          "tint" : 0.202
+        },
+        {
+          "flip" : true,
+          "id" : "bread",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "m36",
+          "tint" : 0.2534
+        },
+        {
+          "flip" : false,
+          "id" : "teapot",
+          "longSide" : 87,
+          "role" : "decoy",
+          "spot" : "m60",
+          "tint" : 0.2545
+        },
+        {
+          "flip" : false,
+          "id" : "scale",
+          "longSide" : 80,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.2015
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 55,
+          "role" : "decoy",
+          "rotation" : 80,
+          "spot" : "m14",
+          "tint" : 0.1997
+        },
+        {
+          "flip" : false,
+          "id" : "hen_egg",
+          "longSide" : 30,
+          "role" : "decoy",
+          "spot" : "m41",
+          "tint" : 0.1906
+        },
+        {
+          "flip" : false,
+          "id" : "apple",
+          "longSide" : 46,
+          "role" : "decoy",
+          "spot" : "m13",
+          "tint" : 0.1895
+        },
+        {
+          "flip" : true,
+          "id" : "purse",
+          "longSide" : 55,
+          "role" : "decoy",
+          "spot" : "m20",
+          "tint" : 0.1845
+        },
+        {
+          "flip" : false,
+          "id" : "cherries",
+          "longSide" : 39,
+          "role" : "decoy",
+          "spot" : "m04",
+          "tint" : 0.2546
+        },
+        {
+          "flip" : false,
+          "id" : "spool",
+          "longSide" : 42,
+          "role" : "decoy",
+          "spot" : "m33",
+          "tint" : 0.212
+        }
+      ],
+      "round" : 8
+    },
+    {
+      "notes" : [
+        "cherries: long 54->40 (real size next to the painted objects)",
+        "lemon: long 49->39 (real size next to the painted objects)",
+        "pear: long 60->51 (real size next to the painted objects)",
+        "spool: long 57->46 (real size next to the painted objects)",
+        "pretzel: long 54->46 (real size next to the painted objects)",
+        "hen_egg: long 54->33 (real size next to the painted objects)",
+        "bell: long 58->49 (real size next to the painted objects)",
+        "pepper: long 58->49 (real size next to the painted objects)",
+        "spoon: long 89->80 (real size next to the painted objects)",
+        "spoon: turned -45 deg to lie on the paving (looked propped up)",
+        "ladle: turned +35 deg to lie on the paving (looked propped up)",
+        "hammer: turned +50 deg to lie on the paving (looked propped up)",
+        "strawberry: long 54->32 (real size next to the painted objects)",
+        "marble: long 56->24 (real size next to the painted objects)",
+        "apple: long 46->37 (real size next to the painted objects)",
+        "glove: rot=80: stood upright on its cuff; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : false,
+          "id" : "rose",
+          "longSide" : 83,
+          "role" : "target",
+          "spot" : "m53",
+          "tint" : 0.2403
+        },
+        {
+          "flip" : false,
+          "id" : "honey",
+          "longSide" : 88,
+          "role" : "target",
+          "spot" : "m60",
+          "tint" : 0.2402
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 46,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m08",
+          "tint" : 0.1907
+        },
+        {
+          "flip" : false,
+          "id" : "cherries",
+          "longSide" : 40,
+          "role" : "target",
+          "spot" : "m48",
+          "tint" : 0.2032
+        },
+        {
+          "flip" : false,
+          "id" : "lemon",
+          "longSide" : 39,
+          "role" : "target",
+          "spot" : "m56",
+          "tint" : 0.1811
+        },
+        {
+          "flip" : true,
+          "id" : "wool",
+          "longSide" : 56,
+          "role" : "target",
+          "spot" : "m13",
+          "tint" : 0.235
+        },
+        {
+          "flip" : true,
+          "id" : "purse",
+          "longSide" : 52,
+          "role" : "target",
+          "spot" : "m14",
+          "tint" : 0.2383
+        },
+        {
+          "flip" : true,
+          "id" : "pear",
+          "longSide" : 51,
+          "role" : "target",
+          "spot" : "m37",
+          "tint" : 0.2259
+        },
+        {
+          "flip" : false,
+          "id" : "spool",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "m21",
+          "tint" : 0.1826
+        },
+        {
+          "flip" : true,
+          "id" : "pretzel",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "m55",
+          "tint" : 0.1902
+        },
+        {
+          "flip" : false,
+          "id" : "melon_slice",
+          "longSide" : 54,
+          "role" : "target",
+          "spot" : "m23",
+          "tint" : 0.2582
+        },
+        {
+          "flip" : false,
+          "id" : "hen_egg",
+          "longSide" : 33,
+          "role" : "target",
+          "spot" : "m29",
+          "tint" : 0.2273
+        },
+        {
+          "flip" : false,
+          "id" : "bell",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "m46",
+          "tint" : 0.2275
+        },
+        {
+          "flip" : true,
+          "id" : "pepper",
+          "longSide" : 49,
+          "role" : "target",
+          "spot" : "m59",
+          "tint" : 0.1801
+        },
+        {
+          "flip" : false,
+          "id" : "straw_hat",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "m57",
+          "tint" : 0.218
+        },
+        {
+          "flip" : true,
+          "id" : "lantern",
+          "longSide" : 100,
+          "role" : "decoy",
+          "spot" : "m36",
+          "tint" : 0.2281
+        },
+        {
+          "flip" : false,
+          "id" : "tankard",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "m47",
+          "tint" : 0.2364
+        },
+        {
+          "flip" : false,
+          "id" : "spoon",
+          "longSide" : 80,
+          "role" : "decoy",
+          "rotation" : -45,
+          "spot" : "m35",
+          "tint" : 0.2163
+        },
+        {
+          "flip" : true,
+          "id" : "teapot",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "m58",
+          "tint" : 0.2074
+        },
+        {
+          "flip" : false,
+          "id" : "fish",
+          "longSide" : 105,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.2478
+        },
+        {
+          "flip" : false,
+          "id" : "ladle",
+          "longSide" : 87,
+          "role" : "decoy",
+          "rotation" : 35,
+          "spot" : "m38",
+          "tint" : 0.2496
+        },
+        {
+          "flip" : false,
+          "id" : "hammer",
+          "longSide" : 95,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "m34",
+          "tint" : 0.256
+        },
+        {
+          "flip" : false,
+          "id" : "scale",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "m61",
+          "tint" : 0.2087
+        },
+        {
+          "flip" : false,
+          "id" : "strawberry",
+          "longSide" : 32,
+          "role" : "decoy",
+          "spot" : "m12",
+          "tint" : 0.1986
+        },
+        {
+          "flip" : false,
+          "id" : "marble",
+          "longSide" : 24,
+          "role" : "decoy",
+          "spot" : "m51",
+          "tint" : 0.2399
+        },
+        {
+          "flip" : false,
+          "id" : "apple",
+          "longSide" : 37,
+          "role" : "decoy",
+          "spot" : "m07",
+          "tint" : 0.2245
+        },
+        {
+          "flip" : false,
+          "id" : "cheese",
+          "longSide" : 58,
+          "role" : "decoy",
+          "spot" : "m43",
+          "tint" : 0.223
+        }
+      ],
+      "round" : 9
+    },
+    {
+      "notes" : [
+        "rose: turned +45 deg to lie on the paving (looked propped up)",
+        "sunflower: turned +80 deg to lie on the paving (looked propped up)",
+        "strawberry: long 57->34 (real size next to the painted objects)",
+        "lemon: long 51->41 (real size next to the painted objects)",
+        "cherries: long 50->38 (real size next to the painted objects)",
+        "pear: long 54->46 (real size next to the painted objects)",
+        "bell: long 57->48 (real size next to the painted objects)",
+        "apple: long 48->38 (real size next to the painted objects)",
+        "marble: long 56->24 (real size next to the painted objects)",
+        "hen_egg: long 48->30 (real size next to the painted objects)",
+        "radish: long 89->78 (real size next to the painted objects)",
+        "hammer: turned +50 deg to lie on the paving (looked propped up)",
+        "grapes: long 80->70 (real size next to the painted objects)",
+        "corn: turned +50 deg to lie on the paving (looked propped up)",
+        "pretzel: long 54->46 (real size next to the painted objects)",
+        "spool: long 55->44 (real size next to the painted objects)",
+        "pepper: long 48->41 (real size next to the painted objects)",
+        "glove: rot=80: stood upright on its cuff; laid down"
+      ],
+      "objects" : [
+        {
+          "flip" : true,
+          "id" : "rose",
+          "longSide" : 88,
+          "role" : "target",
+          "rotation" : 45,
+          "spot" : "m36",
+          "tint" : 0.2423
+        },
+        {
+          "flip" : true,
+          "id" : "sunflower",
+          "longSide" : 96,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m58",
+          "tint" : 0.223
+        },
+        {
+          "flip" : false,
+          "id" : "melon_slice",
+          "longSide" : 47,
+          "role" : "target",
+          "spot" : "m02",
+          "tint" : 0.2432
+        },
+        {
+          "flip" : false,
+          "id" : "strawberry",
+          "longSide" : 34,
+          "role" : "target",
+          "spot" : "m22",
+          "tint" : 0.2554
+        },
+        {
+          "flip" : false,
+          "id" : "lemon",
+          "longSide" : 41,
+          "role" : "target",
+          "spot" : "m30",
+          "tint" : 0.2156
+        },
+        {
+          "flip" : false,
+          "id" : "cherries",
+          "longSide" : 38,
+          "role" : "target",
+          "spot" : "m14",
+          "tint" : 0.214
+        },
+        {
+          "flip" : false,
+          "id" : "cheese",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "m16",
+          "tint" : 0.2087
+        },
+        {
+          "flip" : false,
+          "id" : "glove",
+          "longSide" : 55,
+          "role" : "target",
+          "rotation" : 80,
+          "spot" : "m10",
+          "tint" : 0.2018
+        },
+        {
+          "flip" : true,
+          "id" : "pear",
+          "longSide" : 46,
+          "role" : "target",
+          "spot" : "m55",
+          "tint" : 0.2245
+        },
+        {
+          "flip" : true,
+          "id" : "purse",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "m25",
+          "tint" : 0.2394
+        },
+        {
+          "flip" : true,
+          "id" : "bell",
+          "longSide" : 48,
+          "role" : "target",
+          "spot" : "m47",
+          "tint" : 0.2232
+        },
+        {
+          "flip" : false,
+          "id" : "wool",
+          "longSide" : 55,
+          "role" : "target",
+          "spot" : "m35",
+          "tint" : 0.2519
+        },
+        {
+          "flip" : true,
+          "id" : "apple",
+          "longSide" : 38,
+          "role" : "target",
+          "spot" : "m50",
+          "tint" : 0.2253
+        },
+        {
+          "flip" : false,
+          "id" : "marble",
+          "longSide" : 24,
+          "role" : "target",
+          "spot" : "m11",
+          "tint" : 0.1831
+        },
+        {
+          "flip" : true,
+          "id" : "hen_egg",
+          "longSide" : 30,
+          "role" : "target",
+          "spot" : "m39",
+          "tint" : 0.2505
+        },
+        {
+          "flip" : false,
+          "id" : "jug",
+          "longSide" : 73,
+          "role" : "decoy",
+          "spot" : "m53",
+          "tint" : 0.2596
+        },
+        {
+          "flip" : false,
+          "id" : "scale",
+          "longSide" : 91,
+          "role" : "decoy",
+          "spot" : "m59",
+          "tint" : 0.194
+        },
+        {
+          "flip" : true,
+          "id" : "teapot",
+          "longSide" : 93,
+          "role" : "decoy",
+          "spot" : "m38",
+          "tint" : 0.2073
+        },
+        {
+          "flip" : true,
+          "id" : "radish",
+          "longSide" : 78,
+          "role" : "decoy",
+          "spot" : "m61",
+          "tint" : 0.2216
+        },
+        {
+          "flip" : true,
+          "id" : "boot",
+          "longSide" : 88,
+          "role" : "decoy",
+          "spot" : "m34",
+          "tint" : 0.2344
+        },
+        {
+          "flip" : false,
+          "id" : "hammer",
+          "longSide" : 90,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "m37",
+          "tint" : 0.249
+        },
+        {
+          "flip" : false,
+          "id" : "grapes",
+          "longSide" : 70,
+          "role" : "decoy",
+          "spot" : "m27",
+          "tint" : 0.2422
+        },
+        {
+          "flip" : false,
+          "id" : "ladle",
+          "longSide" : 84,
+          "role" : "decoy",
+          "spot" : "m28",
+          "tint" : 0.2163
+        },
+        {
+          "flip" : false,
+          "id" : "tankard",
+          "longSide" : 94,
+          "role" : "decoy",
+          "spot" : "m57",
+          "tint" : 0.2546
+        },
+        {
+          "flip" : true,
+          "id" : "corn",
+          "longSide" : 95,
+          "role" : "decoy",
+          "rotation" : 50,
+          "spot" : "m60",
+          "tint" : 0.2338
+        },
+        {
+          "flip" : false,
+          "id" : "pretzel",
+          "longSide" : 46,
+          "role" : "decoy",
+          "spot" : "m43",
+          "tint" : 0.2209
+        },
+        {
+          "flip" : false,
+          "id" : "spool",
+          "longSide" : 44,
+          "role" : "decoy",
+          "spot" : "m31",
+          "tint" : 0.2041
+        },
+        {
+          "flip" : false,
+          "id" : "pepper",
+          "longSide" : 41,
+          "role" : "decoy",
+          "spot" : "m04",
+          "tint" : 0.1876
+        }
+      ],
+      "round" : 10
+    }
+  ],
+  "scene" : "market"
+}

@@ -1307,7 +1307,8 @@
    "sizeClass": [
     "small"
    ],
-   "surface": "table"
+   "surface": "table",
+   "unusable": true
   },
   {
    "id": "m55",
