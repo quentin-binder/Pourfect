@@ -459,7 +459,8 @@ and daily goldens. Its bot-heavy tests (daily goldens, pass-rate sample, preset 
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-This runs 515 tests covering the rules (including every key and lock rule), undo/restart, hidden layers,
+A full `swift test` runs 656 tests in four suites: 516 in `BottleSortCoreTests`, 70 match-3, 47 distillery and 23
+Secret Recipe. The sorting suite covers the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
