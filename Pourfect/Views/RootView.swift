@@ -32,6 +32,9 @@ enum Route: Hashable {
     case distillDaily
     /// The daily hub: every daily game in one list (the map's "Today" card).
     case dailyHub
+    /// Secret Recipe (R10b): the daily screen, and a game (today's daily or a practice seed).
+    case recipeDaily
+    case recipe(RecipePlay)
 }
 
 struct RootView: View {
@@ -40,6 +43,7 @@ struct RootView: View {
     @Environment(DailyModel.self) private var daily
     @Environment(M3DailyModel.self) private var m3daily
     @Environment(DistillDailyModel.self) private var distillDaily
+    @Environment(RecipeDailyModel.self) private var recipeDaily
     @Environment(RushRecordModel.self) private var rushRecords
     @Environment(StoryPresenter.self) private var story
     @Environment(AppSettings.self) private var settings
@@ -76,7 +80,8 @@ struct RootView: View {
                                        onRandom: { path.append(.randomSettings) },
                                        onRush: { path.append(.rush) },
                                        onDistillPack: { path.append(.distillPack($0)) },
-                                       onDistillRandom: { path.append(.distillRandom) })
+                                       onDistillRandom: { path.append(.distillRandom) },
+                                       onRecipePractice: { path.append(.recipe(.practice(RecipeGameView.randomSeed()))) })
                     case .level(let packID, let index):
                         if let pack = catalog.pack(id: packID) {
                             GameView(model: GameViewModel(levels: pack.levels, index: index, progress: progress,
@@ -112,6 +117,10 @@ struct RootView: View {
                         DistillDailyView(onPlay: { level, date in path.append(.distill(level, .daily(date))) })
                     case .dailyHub:
                         DailyHubView { path.append($0) }
+                    case .recipeDaily:
+                        RecipeDailyView { path.append(.recipe($0)) }
+                    case .recipe(let play):
+                        RecipeGameView(play: play)
                     }
                 }
         }
@@ -156,7 +165,7 @@ struct RootView: View {
         .onChange(of: unlocked, initial: true) { _, now in announce(now) }
         // A new UTC day may have started while the app was in the background.
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { daily.refresh(); m3daily.refresh(); distillDaily.refresh() }
+            if phase == .active { daily.refresh(); m3daily.refresh(); distillDaily.refresh(); recipeDaily.refresh() }
         }
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
@@ -235,6 +244,19 @@ struct RootView: View {
         // `-LPM3Demo K` (in `MatchGameView`) plays K bot moves.
         // `-LPOpenEpisode N` opens gathering episode N's level list; `-LPOpenM3Daily 1` the Daily
         // Gathering screen (`-LPPlayM3Daily 1` also starts today's level).
+        // `-LPOpenRecipe daily|practice|stats` opens today's Secret Recipe, a practice one (seed
+        // `-LPRecipeSeed N`, else random) or the daily screen; `-LPRecipeDemo K` (in `RecipeGameView`)
+        // plays K guesses (nothing is saved).
+        if let raw = defaults.string(forKey: "LPOpenRecipe") {
+            switch raw {
+            case "practice":
+                let seed = defaults.integer(forKey: "LPRecipeSeed")
+                path = [.challenges, .recipe(.practice(seed > 0 ? UInt64(seed) : RecipeGameView.randomSeed()))]
+            case "stats": path = [.dailyHub, .recipeDaily]
+            default: path = [.dailyHub, .recipeDaily, .recipe(.daily(recipeDaily.today))]
+            }
+            return
+        }
         if defaults.integer(forKey: "LPOpenEpisode") > 0 {
             path = [.episode(defaults.integer(forKey: "LPOpenEpisode"))]
             return

@@ -11,6 +11,7 @@ let package = Package(
         .executable(name: "m3gen", targets: ["m3gen"]),
         .library(name: "DistilleryCore", targets: ["DistilleryCore"]),
         .executable(name: "distillgen", targets: ["distillgen"]),
+        .library(name: "SecretRecipeCore", targets: ["SecretRecipeCore"]),
     ],
     targets: [
         .target(name: "BottleSortCore"),
@@ -27,5 +28,8 @@ let package = Package(
         .executableTarget(name: "distillgen", dependencies: ["DistilleryCore", "BottleSortCore"],
                           swiftSettings: [.swiftLanguageMode(.v5)]),
         .testTarget(name: "DistilleryCoreTests", dependencies: ["DistilleryCore", "BottleSortCore"]),
+        // R10b Secret Recipe (code-breaking deduction): pure rules, candidates, daily generator, stats.
+        .target(name: "SecretRecipeCore", dependencies: ["BottleSortCore"]),
+        .testTarget(name: "SecretRecipeCoreTests", dependencies: ["SecretRecipeCore", "BottleSortCore"]),
     ]
 )

@@ -10,6 +10,7 @@
 		000000000000000000000302 /* BottleSortCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000301 /* BottleSortCore */; };
 		000000000000000000000304 /* Match3Core in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000303 /* Match3Core */; };
 		000000000000000000000306 /* DistilleryCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000305 /* DistilleryCore */; };
+		000000000000000000000308 /* SecretRecipeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000307 /* SecretRecipeCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -49,6 +50,7 @@
 				000000000000000000000302 /* BottleSortCore in Frameworks */,
 				000000000000000000000304 /* Match3Core in Frameworks */,
 				000000000000000000000306 /* DistilleryCore in Frameworks */,
+				000000000000000000000308 /* SecretRecipeCore in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -93,6 +95,7 @@
 				000000000000000000000301 /* BottleSortCore */,
 				000000000000000000000303 /* Match3Core */,
 				000000000000000000000305 /* DistilleryCore */,
+				000000000000000000000307 /* SecretRecipeCore */,
 			);
 			productName = Pourfect;
 			productReference = 000000000000000000000120 /* Pourfect.app */;
@@ -413,6 +416,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 000000000000000000000300 /* XCLocalSwiftPackageReference "Packages/BottleSortCore" */;
 			productName = DistilleryCore;
+		};
+		000000000000000000000307 /* SecretRecipeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 000000000000000000000300 /* XCLocalSwiftPackageReference "Packages/BottleSortCore" */;
+			productName = SecretRecipeCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

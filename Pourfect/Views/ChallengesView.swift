@@ -11,6 +11,8 @@ struct ChallengesView: View {
     /// The Distillery section (R10): a challenge pack's level list, and Random Distillery.
     let onDistillPack: (_ pack: DistillPack) -> Void
     let onDistillRandom: () -> Void
+    /// Secret Recipe practice (R10b; the daily is in the daily hub).
+    let onRecipePractice: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
@@ -30,6 +32,8 @@ struct ChallengesView: View {
                 randomCard
                 sectionTitle("Distillery", symbol: "drop.fill")
                 DistillChallengeSection(onOpenPack: onDistillPack, onRandom: onDistillRandom)
+                sectionTitle("Secret Recipe", symbol: "lock.fill")
+                RecipePracticeCard(action: onRecipePractice)
             }
             .padding()
             .frame(maxWidth: 640)
@@ -47,7 +51,7 @@ struct ChallengesView: View {
             Label("Challenges", systemImage: "trophy.fill")
                 .font(.largeTitle.bold())
                 .foregroundStyle(.white)
-            Text("A race against the clock, hard recipe books, random brews and the distillery's hardest stills. Always open; nothing here counts toward the chapter map.",
+            Text("A race against the clock, hard recipe books, random brews, the distillery's hardest stills and Secret Recipe practice. Always open; nothing here counts toward the chapter map.",
                  comment: "Challenges hub header")
                 .font(.callout)
                 .foregroundStyle(.white.opacity(0.85))

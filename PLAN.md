@@ -259,6 +259,14 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] Tests: `DistilleryCoreTests` (DECISIONS 279)
 - [x] App part 1, the board: `Pourfect/Distillery/` — `DistillBoardModel` (taps, undo, restart, hint, turn and fill timing), `DistillRenderer` / `DistillArt` (brass pipes on a wooden panel, cauldrons, flasks, rivets, valves with link numbers, glowing coils, murk and drips), `DistillGameView` (HUD, controls, win card), tips per piece type, VoiceOver, sounds and haptics, `-LPOpenDistill` / `-LPDistillDemo` (DECISIONS 280)
 - [x] App part 2, integration: the Distillery wing up the map's left edge (three stills joined by a brass pipe, locked / open / complete, unlock popover), stage and pack screens (`DistillPackView`, levels in order, "new piece" marks), stage story scenes (`StoryScene.distillery(N)`), the Challenges hub's Distillery section (Expert, Master, Random Distillery), the Daily Distillery screen (own streak, stats, calendar, share) and one "Today" card on the map opening the daily hub of every daily game (DECISIONS 281–283)
+## R10b — Secret Recipe (code-breaking deduction; daily + practice)
+- [x] Core: `SecretRecipeCore` target — 8 ingredients, recipe codes (5 different, ordered; 6720), count feedback (gold in place / silver elsewhere), game with 8 guesses, win / lose / reveal, candidate counter (DECISIONS 285–286)
+- [x] Daily generator `recipe-daily-v1` (UTC date, goldens), practice seeds, spoiler-free share grid, append-only daily history, stats with guess distribution and streaks via `DailyStreaks` (DECISIONS 287–288)
+- [x] Tests: 23 in `SecretRecipeCoreTests` (all feedback pairs in the optimized run)
+- [x] App: recipe book screen (book with guesses and drops, bench of five slots, tray of eight with notes, Brew), honeycomb and starleaf drawn in the gathering style with runes, drops appearing with sounds and haptics, end cards, keyboard 1–8 / Delete / Return, drag to a slot, VoiceOver, Reduce Motion, iPhone and Mac layouts (DECISIONS 289–290)
+- [x] Daily screen (status, stats, guess distribution, calendar, share, countdown), practice with "possible recipes left", tip; the daily is a row of the Today card / daily hub, practice a card in the Challenges hub (DECISIONS 293) (DECISIONS 291–292)
+- [x] Merged into main: daily in the Today hub with the other three dailies, practice in Challenges (DECISIONS 293)
+- Not covered: notes aren't saved; no hard mode (guesses needn't fit earlier clues)
 
 ## Parked ideas (user, not scheduled)
 - [ ] **Different-sized flasks** as a mechanic (mixed capacities in one recipe). Open decisions when it's picked up: win rule (workspace flasks that must end empty / colors sized to a flask / loose sorting) and which chapter introduces it.

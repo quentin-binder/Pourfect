@@ -8,6 +8,8 @@ struct TutorialStep: Identifiable {
         case m3(M3TipScene)
         /// A distillery tip, drawn by `DistillTipSceneView` (R10).
         case distill(DistillTipScene)
+        /// A Secret Recipe tip, drawn by `RecipeTipSceneView` (R10b).
+        case recipe(RecipeTipScene)
         case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
         case iceHolds, iceSeals, iceThaws
@@ -30,6 +32,8 @@ struct TutorialStep: Identifiable {
             return M3Tips.steps(for: topic)
         case .distillBasics, .distillTee, .distillFixed, .distillColors, .distillCross, .distillCoil, .distillValve:
             return DistillTips.steps(for: topic)
+        case .recipe:
+            return RecipeTips.steps()
         case .basic:
             return [
                 TutorialStep(id: "basic.pour", topic: topic, title: String(localized: "Pour"),
@@ -297,6 +301,7 @@ extension TutorialTopic {
         case .distillCross: return String(localized: "New: crossings", comment: "Tip heading: distillery cross pieces")
         case .distillCoil: return String(localized: "New: heat coils", comment: "Tip heading: distillery heat coils")
         case .distillValve: return String(localized: "New: valves", comment: "Tip heading: distillery valves")
+        case .recipe: return String(localized: "Secret Recipe", comment: "Title of the code-breaking recipe game")
         }
     }
 }
@@ -313,6 +318,8 @@ private struct TutorialScene: View {
                 M3TipSceneView(scene: tip)
             case .distill(let tip):
                 DistillTipSceneView(scene: tip)
+            case .recipe(let tip):
+                RecipeTipSceneView(scene: tip)
             case .pickAndPour:
                 BottleView(bottle: Bottle([0, 1, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)

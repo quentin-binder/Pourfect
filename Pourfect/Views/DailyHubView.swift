@@ -1,6 +1,7 @@
 import BottleSortCore
 import DistilleryCore
 import Match3Core
+import SecretRecipeCore
 import SwiftUI
 
 /// One daily game as the "Today" card and the daily hub show it (R10): its name, today's flavour,
@@ -11,14 +12,27 @@ struct DailyGameSummary: Identifiable {
         case solved
         case perfect
         case stars(Int)
+        /// Secret Recipe: cracked in N guesses, or not cracked today (still done for the day).
+        case cracked(guesses: Int)
+        case notCracked
 
         var isDone: Bool { self != .notPlayed }
+
+        /// For VoiceOver on the Today card.
+        var spoken: String {
+            switch self {
+            case .notPlayed: String(localized: "not played")
+            case .notCracked: String(localized: "not cracked", comment: "VoiceOver: today's Secret Recipe was lost")
+            default: String(localized: "won")
+            }
+        }
     }
 
     enum Art: Equatable {
         case symbol(String)
         case basket
         case still
+        case recipeBook
     }
 
     let id: String
@@ -40,8 +54,15 @@ struct DailyGameSummary: Identifiable {
 /// route); the Today card and the hub pick it up.
 @MainActor
 enum DailyGames {
-    static func today(brew: DailyModel, gathering: M3DailyModel, distill: DistillDailyModel) -> [DailyGameSummary] {
+    static func today(brew: DailyModel, gathering: M3DailyModel, distill: DistillDailyModel,
+                      recipe: RecipeDailyModel) -> [DailyGameSummary] {
         let brewStatus: DailyGameSummary.Status = brew.todayResult.map { $0.isPerfect ? .perfect : .solved } ?? .notPlayed
+        let recipeGame = recipe.todayGame
+        let recipeStatus: DailyGameSummary.Status = switch recipeGame.status {
+        case .won: .cracked(guesses: recipeGame.turns.count)
+        case .lost: .notCracked
+        case .playing: .notPlayed
+        }
         return [
             DailyGameSummary(
                 id: "brew", title: String(localized: "Daily Brew"), label: brew.spec.localizedLabel,
@@ -64,6 +85,14 @@ enum DailyGames {
                 status: distill.todayDetail.map { .stars($0.stars) } ?? .notPlayed,
                 streak: distill.stats.currentStreak, bestStreak: distill.stats.bestStreak,
                 route: .distillDaily, accessibility: DistillDailyStyle.summary(distill)),
+            DailyGameSummary(
+                id: "recipe", title: String(localized: "Secret Recipe", comment: "Title of the code-breaking recipe game"),
+                label: RecipeDailyStatus.text(recipeGame),
+                blurb: String(localized: "Deduce the alchemist's hidden recipe", comment: "Daily hub: what Secret Recipe asks for"),
+                art: .recipeBook, tint: RecipeBook.tint, status: recipeStatus,
+                streak: recipe.stats.currentStreak, bestStreak: recipe.stats.bestStreak, route: .recipeDaily,
+                accessibility: Text("Secret Recipe, \(RecipeDailyStatus.text(recipeGame)), streak \(recipe.stats.currentStreak)",
+                                    comment: "VoiceOver: the Secret Recipe card")),
         ]
     }
 }
@@ -75,9 +104,10 @@ private struct DailyGamesReader<Content: View>: View {
     @Environment(DailyModel.self) private var brew
     @Environment(M3DailyModel.self) private var gathering
     @Environment(DistillDailyModel.self) private var distill
+    @Environment(RecipeDailyModel.self) private var recipe
 
     var body: some View {
-        content(DailyGames.today(brew: brew, gathering: gathering, distill: distill))
+        content(DailyGames.today(brew: brew, gathering: gathering, distill: distill, recipe: recipe))
     }
 }
 
@@ -92,6 +122,7 @@ struct DailyGameIcon: View {
             case .symbol(let name): Image(systemName: name).font(.system(size: size * 0.62)).foregroundStyle(.white)
             case .basket: IngredientBasket(kinds: [.moonflower, .mushroom, .crystal], size: size)
             case .still: StillIcon(liquid: Palette.color(0), size: size)
+            case .recipeBook: RecipeBookIcon(open: game.status.isDone, size: size * 0.85)
             }
         }
         .frame(width: size, height: size)
@@ -114,6 +145,12 @@ private struct DailyStatusMark: View {
             Image(systemName: "checkmark.seal.fill").font(.system(size: size)).foregroundStyle(PerfectBadge.gold)
         case .stars(let n):
             StarsView(count: n, size: size * 0.8)
+        case .cracked(let guesses):
+            Text("\(guesses)/\(RecipeGame.maxGuesses)", comment: "Today card: guesses the Secret Recipe took, e.g. 4/8")
+                .font(.system(size: size, weight: .semibold).monospacedDigit())
+                .foregroundStyle(RecipeBook.brass)
+        case .notCracked:
+            Image(systemName: "xmark.circle.fill").font(.system(size: size)).foregroundStyle(.white, .secondary)
         }
     }
 }
@@ -172,7 +209,7 @@ private enum TodayText {
     }
 
     static func accessibility(_ games: [DailyGameSummary]) -> Text {
-        let names = games.map { "\($0.title) \($0.status.isDone ? String(localized: "won") : String(localized: "not played"))" }
+        let names = games.map { "\($0.title) \($0.status.spoken)" }
             .joined(separator: ", ")
         return Text("Today's dailies, \(done(games)). \(names)", comment: "VoiceOver: the Today card on the map")
     }
@@ -298,6 +335,7 @@ struct DailyHubView: View {
     @Environment(DailyModel.self) private var brew
     @Environment(M3DailyModel.self) private var gathering
     @Environment(DistillDailyModel.self) private var distill
+    @Environment(RecipeDailyModel.self) private var recipe
 
     var body: some View {
         DailyGamesReader { games in
@@ -328,7 +366,7 @@ struct DailyHubView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) { SettingsButton() }
         }
-        .onAppear { brew.refresh(); gathering.refresh(); distill.refresh() }
+        .onAppear { brew.refresh(); gathering.refresh(); distill.refresh(); recipe.refresh() }
     }
 
     private func header(_ games: [DailyGameSummary]) -> some View {
@@ -388,6 +426,14 @@ struct DailyHubView: View {
                         PerfectBadge()
                     case .stars(let n):
                         StarsView(count: n, size: 14)
+                    case .cracked:
+                        Label { Text("Cracked", comment: "Daily hub: today's Secret Recipe was solved") } icon: {
+                            Image(systemName: "lock.open.fill")
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(RecipeBook.brass)
+                    case .notCracked:
+                        Text(game.blurb).font(.subheadline).foregroundStyle(.secondary)
                     }
                 }
                 Spacer(minLength: 0)

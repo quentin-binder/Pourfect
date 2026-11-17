@@ -14,6 +14,8 @@ enum TutorialTopic: String, CaseIterable, Hashable {
     case distillBasics = "distill.basics", distillTee = "distill.tee", distillFixed = "distill.fixed"
     case distillColors = "distill.colors", distillCross = "distill.cross", distillCoil = "distill.coil"
     case distillValve = "distill.valve"
+    /// R10b Secret Recipe (never a `Mechanic` either).
+    case recipe = "recipe"
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 
