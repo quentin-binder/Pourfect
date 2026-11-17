@@ -281,6 +281,7 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] App: the viewer — scene fills the screen, pinch-zoom + pan (iPhone), trackpad / wheel zoom + drag (Mac), double-tap zoom; objects drawn with tint, shadow and occluder; alpha hit testing with the zoom-scaled radius (DECISIONS 306)
 - [x] App: find list (catalog names + thumbnails, tick-off flourish, count), found objects fading out with a sparkle, wrong-tap puff + shake, lantern glow and recharge, round card with stars; sounds, haptics, VoiceOver ("reveal next"), Reduce Motion; tip (DECISIONS 306)
 - [x] Tests: 31 in `HiddenCoreTests` (DECISIONS 307)
+- [x] Review fixes: generator keeps the difficulty cap and never overlaps targets, rounds validated against the curve, four over-hard targets and three bad attic spots fixed, double tap only zooms, one room cached, one VoiceOver announcement per reveal (DECISIONS 308)
 - Not planned yet: a daily room
 
 ## Parked ideas (user, not scheduled)

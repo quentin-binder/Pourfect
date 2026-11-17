@@ -795,7 +795,7 @@ counts toward the chapter map, the Lab Style rewards or any gate.
 Search scenes ("Wimmelbild"), the fourth pillar: three rooms — **Alchemist's Attic**, **Market Stall** and
 **Dragon's Hoard** — each played as **ten fixed rounds**. A round hides objects from the room's 40-object library on
 its hand-placed spots; the player finds the ones on the find list by tapping them. Calm: no timer; stars from hints
-and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anything. DECISIONS 294–307.
+and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anything. DECISIONS 294–308.
 
 - **On the map**: the *Curiosity Rooms* wing up the map's right edge (a magnifier token per room, level with chapters
   2, 5 and 8; a closed one tells which chapter opens it). A room's screen lists its ten rounds (open in order, stars,
@@ -807,7 +807,9 @@ and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anyth
   (⇧⌘H) circles one remaining object and recharges for 30 s. VoiceOver: the picture's **Reveal next** action finds
   the next object (counts as a hint). Reduce Motion: fades instead of particles, shake and zoom animations.
 - **Fixed rounds**: `HiddenScenes/<room>/rounds.json` holds the ten curated layouts (targets, decoys, spot, size,
-  turn, flip, offset, review notes) — the same for every player; the generator only proposes them:
+  turn, flip, offset, review notes) — the same for every player; the generator only proposes them. Every round is
+  also checked against its place on the curve (hardest target spot, hard-spot and medium counts, gold targets), and
+  `propose` refuses to write a candidate that breaks a rule:
 
   ```sh
   cd Packages/BottleSortCore
@@ -822,7 +824,8 @@ and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anyth
 - **Assets**: `HiddenScenes/<attic|market|hoard>/` (bundled as a folder reference, 10.5 MB): `scene.json`
   (`pourfect-hidden-v1`: objects with id / English name / size class / PNG size; spots with anchor, maxSize, size
   classes, surface and an occlusion polygon for containers), `background.jpg` (2752×1536), `background_1376.jpg` and
-  `objects/<id>.png` (≤ 220 px, alpha, untinted). They are the art pipeline's export, unchanged; the pipeline (merged
+  `objects/<id>.png` (≤ 220 px, alpha, untinted). They are the art pipeline's export; the layout review only marked
+  bad spots `"unusable"` and moved the attic basket's spot `a10` up to its rim (DECISIONS 305, 308). The pipeline (merged
   from the `wimmel-poc` branch, images not committed) lives in `poc/hidden-object/` (see its README).
 - **Placement and blending** follow the pipeline's `layout.py` / `hocommon.py` exactly: size from the spot and the
   object's class, thin objects longer, bottom centre on the spot, spacing, flips; each object tinted toward the mean
