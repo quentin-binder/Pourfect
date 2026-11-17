@@ -65,7 +65,7 @@ struct StoryOverlay: View {
     private var backdrop: some View {
         ZStack {
             GeometryReader { proxy in
-                Image(StoryScript.backdrop(scene))
+                StoryScript.backdropImage(scene)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(width: proxy.size.width, height: proxy.size.height)

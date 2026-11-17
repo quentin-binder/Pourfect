@@ -1,4 +1,5 @@
 import BottleSortCore
+import HiddenCore
 import Match3Core
 import Observation
 import SwiftUI
@@ -198,6 +199,33 @@ enum StoryScript {
             ]
         case .distillery:
             return []
+        case .hidden(1):
+            return [
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "Up the ladder already? It's dark up here, and everything is buried under dust and cobwebs.", comment: "Story, curiosity room 1 (The Alchemist's Attic)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "My attic! Forty years of curiosities. Somewhere in this mess are the things I need for tomorrow's brew.", comment: "Story, curiosity room 1 (The Alchemist's Attic)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "I'll give you a list. Find each thing and tap it, and it goes straight into my basket.", comment: "Story, curiosity room 1 (The Alchemist's Attic)")),
+                L(speaker: .apprentice, mood: .neutral, text: String(localized: "And everything that isn't on the list?", comment: "Story, curiosity room 1 (The Alchemist's Attic)")),
+                L(speaker: .alchemist, mood: .worried, text: String(localized: "Leave it be! Grabbing the wrong thing only stirs up dust. Look closely before you reach.", comment: "Story, curiosity room 1 (The Alchemist's Attic)")),
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "And if I can't find something, I'll light the lantern.", comment: "Story, curiosity room 1 (The Alchemist's Attic)")),
+            ]
+        case .hidden(2):
+            return [
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "Market day! Look at all these stalls, there's fruit stacked to the awnings.", comment: "Story, curiosity room 2 (The Market Stall)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Old Berta keeps the best stall in town, and the most crowded. My list is long today.", comment: "Story, curiosity room 2 (The Market Stall)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Pears, pots, a skein of wool… she has all of it somewhere. Just don't buy her cheese by mistake.", comment: "Story, curiosity room 2 (The Market Stall)")),
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "Everything looks like everything else in this heap.", comment: "Story, curiosity room 2 (The Market Stall)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Then come closer and look again. Small things hide in plain sight.", comment: "Story, curiosity room 2 (The Market Stall)")),
+            ]
+        case .hidden(3):
+            return [
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "We're in the dragon's cave. On purpose. Tell me again why we're in the dragon's cave?", comment: "Story, curiosity room 3 (The Dragon's Hoard)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Because she sleeps after a good meal, and she owes me a favour. I want a few things from her hoard.", comment: "Story, curiosity room 3 (The Dragon's Hoard)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Gold on gold, mind you. A golden key is hard to see on a pile of coins.", comment: "Story, curiosity room 3 (The Dragon's Hoard)")),
+                L(speaker: .apprentice, mood: .neutral, text: String(localized: "And if I touch the wrong treasure?", comment: "Story, curiosity room 3 (The Dragon's Hoard)")),
+                L(speaker: .alchemist, mood: .worried, text: String(localized: "She'll snore a little louder. Find what's on the list, take nothing else, and keep your voice down.", comment: "Story, curiosity room 3 (The Dragon's Hoard)")),
+            ]
+        case .hidden:
+            return []
         case .ending:
             return [
                 L(speaker: .apprentice, mood: .happy, text: String(localized: "Every flask sorted, every gate open… and listen, the dragon is purring!", comment: "Story, ending")),
@@ -221,6 +249,9 @@ enum StoryScript {
             return String(localized: "Gathering · \(name)", comment: "Story scene heading of an ingredient-gathering episode")
         case .distillery(let n):
             return String(localized: "Distillery · \(DistillWing.stageTitle(n))", comment: "Story scene heading of a distillery workshop stage")
+        case .hidden(let n):
+            let name = HiddenSceneID(number: n).map { HiddenNames.title($0) } ?? ""
+            return String(localized: "Curiosity Rooms · \(name)", comment: "Story scene heading of a hidden-object room")
         }
     }
 
@@ -233,7 +264,15 @@ enum StoryScript {
         case .gathering(let n): ChapterArt.vignette(min(n + 1, 10)) ?? .bgWorkbenchLandscape
         // The old lab's workbench; the Great Alembic stands in the alchemist's hall.
         case .distillery(let n): n >= 3 ? .chapter09 : .bgWorkbenchLandscape
+        // The room's own painting is drawn instead (`backdropImage`).
+        case .hidden: .bgWorkbenchLandscape
         }
+    }
+
+    /// The painting behind a scene: a hidden-object room shows the room itself.
+    static func backdropImage(_ scene: StoryScene) -> Image {
+        if case .hidden(let n) = scene, let room = HiddenSceneID(number: n) { return HiddenArt.backdropImage(room) }
+        return Image(backdrop(scene))
     }
 }
 

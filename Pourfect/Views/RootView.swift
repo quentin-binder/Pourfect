@@ -1,5 +1,6 @@
 import BottleSortCore
 import DistilleryCore
+import HiddenCore
 import Match3Core
 import SwiftUI
 
@@ -35,6 +36,9 @@ enum Route: Hashable {
     /// Secret Recipe (R10b): the daily screen, and a game (today's daily or a practice seed).
     case recipeDaily
     case recipe(RecipePlay)
+    /// A curiosity room's round list, and a hidden-object round (R11).
+    case hiddenRoom(HiddenSceneID)
+    case hidden(HiddenSceneID, round: Int)
 }
 
 struct RootView: View {
@@ -68,6 +72,7 @@ struct RootView: View {
                            onToday: { path.append(.dailyHub) },
                            onEpisode: { path.append(.episode($0)) },
                            onDistillStage: { stage in DistillPack.stage(stage).map { path.append(.distillPack($0)) } },
+                           onHiddenRoom: { path.append(.hiddenRoom($0)) },
                            onLabStyle: { showsLabStyle = true })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
@@ -121,6 +126,10 @@ struct RootView: View {
                         RecipeDailyView { path.append(.recipe($0)) }
                     case .recipe(let play):
                         RecipeGameView(play: play)
+                    case .hiddenRoom(let room):
+                        HiddenRoomView(room: room) { path.append(.hidden(room, round: $0)) }
+                    case .hidden(let room, let round):
+                        HiddenGameView(room: room, round: round) { if !path.isEmpty { path.removeLast() } }
                     }
                 }
         }
@@ -247,6 +256,26 @@ struct RootView: View {
         // `-LPOpenRecipe daily|practice|stats` opens today's Secret Recipe, a practice one (seed
         // `-LPRecipeSeed N`, else random) or the daily screen; `-LPRecipeDemo K` (in `RecipeGameView`)
         // plays K guesses (nothing is saved).
+        // `-LPOpenHidden attic|market|hoard` opens a hidden-object round (`-LPHiddenRound N`, default 1;
+        // `-LPHiddenSeed S` replaces its seed, `-LPHiddenShow 1` outlines the objects to find; in
+        // `HiddenGameView`: `-LPHiddenDemo K` finds K, `-LPHiddenWrong 1` taps a decoy, `-LPHiddenHint 1`
+        // lights the lantern, `-LPHiddenZoom F` zooms by F, `-LPHiddenTray 0` folds the find list);
+        // `-LPOpenHiddenRoom attic` opens the room's round list.
+        // `-LPHiddenExport <dir>` renders every fixed round for the layout review (`HiddenExport`).
+        if let dir = defaults.string(forKey: "LPHiddenExport") {
+            let rooms = (defaults.string(forKey: "LPHiddenExportRooms") ?? "attic,market,hoard")
+                .split(separator: ",").compactMap { HiddenSceneID(rawValue: String($0)) }
+            await HiddenExport.run(to: URL(fileURLWithPath: dir), rooms: rooms)
+            return
+        }
+        if let raw = defaults.string(forKey: "LPOpenHidden"), let room = HiddenSceneID(rawValue: raw) {
+            path = [.hiddenRoom(room), .hidden(room, round: min(10, max(1, defaults.integer(forKey: "LPHiddenRound"))))]
+            return
+        }
+        if let raw = defaults.string(forKey: "LPOpenHiddenRoom"), let room = HiddenSceneID(rawValue: raw) {
+            path = [.hiddenRoom(room)]
+            return
+        }
         if let raw = defaults.string(forKey: "LPOpenRecipe") {
             switch raw {
             case "practice":

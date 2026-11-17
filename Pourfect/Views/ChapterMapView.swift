@@ -1,5 +1,6 @@
 import BottleSortCore
 import DistilleryCore
+import HiddenCore
 import SwiftUI
 
 /// Art and names for the ten chapters of the main path.
@@ -89,17 +90,21 @@ struct ChapterMapView: View {
     let onEpisode: (_ number: Int) -> Void
     /// Opens distillery workshop stage N (R10).
     let onDistillStage: (_ stage: Int) -> Void
+    /// Opens a curiosity room (R11).
+    let onHiddenRoom: (_ room: HiddenSceneID) -> Void
     let onLabStyle: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
     @Environment(Match3ProgressModel.self) private var m3progress
     @Environment(DistillProgressModel.self) private var distill
+    @Environment(HiddenProgressModel.self) private var hidden
 
     var body: some View {
         let entries = MapChapter.entries(catalog: catalog, progress: progress)
         let episodes = m3progress.entries(catalog: catalog, progress: progress)
         let stages = distill.stageEntries(catalog: catalog, progress: progress)
+        let rooms = hidden.entries(catalog: catalog, progress: progress)
         let current = entries.last(where: \.isOpen)
         GeometryReader { geo in
             let wide = geo.size.width >= 760
@@ -107,7 +112,7 @@ struct ChapterMapView: View {
                 let panelWidth = min(340, geo.size.width * 0.38)
                 let mapWidth = min(520, geo.size.width - panelWidth - 72)
                 HStack(spacing: 28) {
-                    map(entries, episodes: episodes, stages: stages, current: current, width: mapWidth)
+                    map(entries, episodes: episodes, stages: stages, rooms: rooms, current: current, width: mapWidth)
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(.white.opacity(0.15)))
                         .shadow(color: .black.opacity(0.5), radius: 18)
@@ -118,7 +123,7 @@ struct ChapterMapView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 // The bar is a safe-area inset of the scroll view, so chapter 1 can scroll above it.
-                map(entries, episodes: episodes, stages: stages, current: current, width: geo.size.width)
+                map(entries, episodes: episodes, stages: stages, rooms: rooms, current: current, width: geo.size.width)
                     .safeAreaInset(edge: .bottom) { compactBar(current: current) }
             }
         }
@@ -146,7 +151,7 @@ struct ChapterMapView: View {
 
     // MARK: Map
 
-    private func map(_ entries: [MapChapter], episodes: [MapEpisode], stages: [MapDistillStage],
+    private func map(_ entries: [MapChapter], episodes: [MapEpisode], stages: [MapDistillStage], rooms: [MapHiddenRoom],
                      current: MapChapter?, width: CGFloat) -> some View {
         let height = width / ChapterArt.mapAspect
         // Opens scrolled to the chapter the player is on.
@@ -175,6 +180,16 @@ struct ChapterMapView: View {
                         }
                         .position(x: spot.x * width, y: spot.y * height)
                     }
+                }
+                // The curiosity rooms up the right edge: a dotted thread, then a magnifier per room (R11).
+                HiddenWingThread(rooms: rooms, size: CGSize(width: width, height: height),
+                                 scale: min(1.15, max(0.8, width / 440)))
+                ForEach(rooms) { room in
+                    let spot = HiddenArt.mapSpots[room.room.number - 1]
+                    HiddenRoomMarker(entry: room, scale: min(1.15, max(0.8, width / 440))) {
+                        onHiddenRoom(room.room)
+                    }
+                    .position(x: spot.x * width, y: spot.y * height)
                 }
                 // Gathering episodes sit on the path between the chapters (drawn first, under them).
                 ForEach(episodes) { episode in

@@ -16,6 +16,8 @@ enum TutorialTopic: String, CaseIterable, Hashable {
     case distillValve = "distill.valve"
     /// R10b Secret Recipe (never a `Mechanic` either).
     case recipe = "recipe"
+    /// R11 hidden-object rooms (never a `Mechanic`).
+    case hiddenBasics = "hidden.basics"
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 

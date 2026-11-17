@@ -10,6 +10,8 @@ struct TutorialStep: Identifiable {
         case distill(DistillTipScene)
         /// A Secret Recipe tip, drawn by `RecipeTipSceneView` (R10b).
         case recipe(RecipeTipScene)
+        /// A hidden-object room tip, drawn by `HiddenTipSceneView` (R11).
+        case hidden(HiddenTipScene)
         case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
         case iceHolds, iceSeals, iceThaws
@@ -34,6 +36,8 @@ struct TutorialStep: Identifiable {
             return DistillTips.steps(for: topic)
         case .recipe:
             return RecipeTips.steps()
+        case .hiddenBasics:
+            return HiddenTips.steps()
         case .basic:
             return [
                 TutorialStep(id: "basic.pour", topic: topic, title: String(localized: "Pour"),
@@ -302,6 +306,7 @@ extension TutorialTopic {
         case .distillCoil: return String(localized: "New: heat coils", comment: "Tip heading: distillery heat coils")
         case .distillValve: return String(localized: "New: valves", comment: "Tip heading: distillery valves")
         case .recipe: return String(localized: "Secret Recipe", comment: "Title of the code-breaking recipe game")
+        case .hiddenBasics: return String(localized: "Curiosity Rooms", comment: "Name of the hidden-object wing")
         }
     }
 }
@@ -320,6 +325,8 @@ private struct TutorialScene: View {
                 DistillTipSceneView(scene: tip)
             case .recipe(let tip):
                 RecipeTipSceneView(scene: tip)
+            case .hidden(let tip):
+                HiddenTipSceneView(scene: tip)
             case .pickAndPour:
                 BottleView(bottle: Bottle([0, 1, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)
