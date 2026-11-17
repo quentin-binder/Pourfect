@@ -250,5 +250,14 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] R9 review fixes: win saved before the finale animates, flasks need a column with an open cell (validation), VoiceOver announcements on the board, hint timer restarts after a tip, flask points in the HUD, locked episode markers say when they open (DECISIONS 269)
 - Not covered in R9: no match-3 milestones or rewards (gathering never feeds the reward system); no keyboard play on the board; the finale can't be skipped
 
+## R10 — Distillery (pipe rotation, third pillar)
+- [x] Core: `DistilleryCore` target — grid, pieces (straight, elbow, tee, cross, cap, empty; riveted, valves, heat coils), sources and flasks, flow evaluation (breadth-first fill, murky channels and seams, leaks, valve fixpoint, coils), win check, taps both ways, undo, restart, stars by taps (DECISIONS 270–272)
+- [x] Exact solver: minimum taps (min(k, 4 − k) per piece), network count / uniqueness, hint; cross-checked against brute force; 0.1 ms on 7×7 (DECISIONS 273)
+- [x] Generator (routes with branches, crossings, cap stubs, coils, valves, rivets, decoys, uniqueness repair, tap window, difficulty score), level format v1 with validation, `distillgen` (DECISIONS 274–275)
+- [x] Content: three workshop stages and the Expert / Master packs, 20 levels each, rising curve (DECISIONS 276)
+- [x] Progression (stages open with chapters 3 / 6 / 9, levels in order, scene ids `distillery.N`), Random Distillery tiers, Daily Distillery `distill-daily-v1` (DECISIONS 277–278)
+- [x] Tests: `DistilleryCoreTests` (DECISIONS 279)
+- [ ] App: the Distillery wing on the map, stage screens and story scenes (`StoryScene.distillery`), board view (brass and glass in Canvas, flow and win animations, runes, Reduce Motion), Challenges section (Expert, Master, Random), Daily Distillery screen and the "Today" daily hub replacing the separate daily cards
+
 ## Parked ideas (user, not scheduled)
 - [ ] **Different-sized flasks** as a mechanic (mixed capacities in one recipe). Open decisions when it's picked up: win rule (workspace flasks that must end empty / colors sized to a flask / loose sorting) and which chapter introduces it.

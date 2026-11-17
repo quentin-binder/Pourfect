@@ -425,7 +425,13 @@ scripts/test-fast.sh --filter Cauldron   # only matching tests
 cd Packages/BottleSortCore && swift test # debug build, ~80 s — run once before committing
 LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 days of Daily generation)
 scripts/test-fast.sh --filter Match3CoreTests   # only the match-3 suite (~2 s)
+scripts/test-fast.sh --filter DistilleryCoreTests   # only the distillery suite (~3 s)
 ```
+
+The distillery suite (`Tests/DistilleryCoreTests`) covers the flow of every piece, murk, leaks, valves and coils,
+taps/undo/stars, the solver against brute force on 300 random tiny boards, the generator, every shipped level
+(valid, one solved network, its recorded `minTaps`), packs regenerating byte-identically and daily goldens; the heavy
+parts run optimized, and in a debug `swift test` only with `LP_SLOW_TESTS=1`.
 
 The match-3 suite (`Tests/Match3CoreTests`, 70 tests) covers every match shape and where its special goes, each
 special and combo, frost, crates, flasks, gravity behind crates and across holes, the refill order from the seed,
@@ -627,6 +633,58 @@ Policies: `greedy` (best one-wave value, random tie-break), `reference` (15 % ra
 **Daily match-3** (`M3Daily`, generator id `m3daily-v1`): one level per UTC date, separate from the Daily Brew (which is
 unchanged): Monday Gentle (85 %) → Sunday Grand Gathering (58 %, frost + crates + flasks). Median 55 ms, 96 % of days
 under 0.5 s, worst ≈ 1.1 s (release, 365 days).
+
+## Distillery (pipe rotation, R10)
+
+The third pillar: repair the old lab's distillery. A grid (≤ 7×7) of brass pipe pieces lies between cauldron outlets
+(sources, one color each) and empty flasks (each wants one color). Tap a piece to turn it a quarter clockwise
+(long-press / right-click: counter-clockwise). Liquid fills every pipe connected to a source, live. Won when every
+flask holds exactly its color, no two colors meet (a murky junction blocks) and nothing drips from an open end; dry,
+unconnected pieces are fine. No tap limit: stars compare the final tap count (Undo takes a tap back) with the
+solver's minimum: 3 at the minimum, 2 within `2 + minTaps / 5` more. Pieces: straight, elbow, tee (splitter), cross
+(two independent pipes), end cap, empty cell; riveted pieces don't turn; a valve stays shut until its linked flask is
+full of its own color; a heat coil turns one color into another (red → orange, blue → purple, yellow → green). Rules,
+solver and generator are in the `DistilleryCore` library (pure Swift); `distillgen` is its tool. DECISIONS 270–279.
+
+| File (`Levels/distillery/`) | Pack | Ids | Size | Min taps | What it adds |
+|---|---|---|---|---|---|
+| `distillery_stage_01.json` | Stage 1 The Cold Still (opens with chapter 3) | `d1-01…20` | 4×4 → 5×5 | 3 → 14 | Turning straights and elbows; decoys; riveted decoys at the end |
+| `distillery_stage_02.json` | Stage 2 Copper and Steam (chapter 6) | `d2-…` | 5×5 → 6×6 | 6 → 20 | Tees (1), riveted pieces (5), two colors (9), crossings (13), cap stubs |
+| `distillery_stage_03.json` | Stage 3 The Great Alembic (chapter 9) | `d3-…` | 6×6 → 7×7 | 10 → 29 | Heat coils (1), valves (5), then everything; three colors at the end |
+| `distillery_expert.json` | Challenges: Distillery Expert | `dx-…` | 6×6 → 7×7 | 17 → 28 | Two to three colors, every mechanic |
+| `distillery_master.json` | Challenges: Distillery Master | `dm-…` | 7×7 | 24 → 38 | Up to three colors, valves and coils everywhere |
+
+Stages are optional, open in order of their chapters, never block sorting and keep their own stars
+(`DistillProgression`); levels inside a stage open in order; each stage opens with story scene `distillery.N`.
+Random Distillery: `DistillRandom.level(tier: .gentle | .tricky | .fiendish, seed:)`. **Daily Distillery**
+(`DistillDaily`, generator id `distill-daily-v1`): one level per UTC date, Monday Gentle 5×5 → Sunday Grand Still
+7×7, 1–16 ms per day, own streak via `DailyStreaks`.
+
+**For the app:** `DistillGame(level:)` with `tap(_:clockwise:)` / `undo()` / `restart()`, `taps`, `stars`, `isWon`,
+`hint()`; each tap returns `DistillTapResult` (old/new rotation, the new `DistillFlow`, channels that became wet in
+`tick` order or ran dry, flasks newly satisfied, `didWin`). `DistillFlow` has per channel (`nodes`): `liquid`
+(dry / color / murky), `sideColors` (a coil's exit sides carry the heated color), `entry` sides (fill from there),
+`tick` (animation step, counted on across valve stages) and `shutValve`; plus `leaks` (cell, side, color, tick),
+`seams` (murky meetings), `received` per flask, `valveOpenedAt` (stage) and `isWon`.
+
+**Format** (`format: "pourfect-distillery"`, `version: 1`): `levels` with `id`, `width`, `height`, `grid` (rows of
+space-separated tokens: `.` empty, `S` source, `F` flask, `X` cross, `C`/`I`/`L`/`T` + rotation 0–3 for cap /
+straight / elbow / tee, `*` riveted), `sources` / `targets` `[{r, c, color, dir}]` (outlet / inlet side n/e/s/w),
+optional `valves [{r, c, target}]` and `coils [{r, c, from, to}]`, `minTaps` and informational `stats`.
+`validate()` lists structural problems, `validateSolving()` also solves (unique network, `minTaps` matches).
+
+```sh
+cd Packages/BottleSortCore
+swift build -c release --product distillgen        # then use .build/release/distillgen
+.build/release/distillgen packs                    # regenerate the five files from the presets (~1.5 s, byte-identical)
+.build/release/distillgen packs --only stage2      # one pack
+.build/release/distillgen report                   # validate + re-solve every level (unique, minTaps), with timings
+.build/release/distillgen show ../../Levels/distillery/distillery_stage_03.json --level d3-05   # text picture
+.build/release/distillgen daily 2026-11-16 --days 7 [--show]       # distill-daily-v1 levels, timings, fingerprints
+.build/release/distillgen random --tier fiendish --seed 3 --count 5 [--show]
+.build/release/distillgen gen --size 6x6 --groups 2 --crosses 1-2 --coils 1 --taps 10-18 --count 5
+.build/release/distillgen bench                    # solver time per shipped level
+```
 
 ## Generate levels
 
