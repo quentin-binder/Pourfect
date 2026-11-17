@@ -57,8 +57,10 @@ else is a challenge).
   or "coming soon". The map opens scrolled to the chapter you're on, which glows. On wide windows (Mac, iPad) the
   map is a framed column beside a panel with the total stars, a **Continue** card and **Challenges**; on narrow
   ones it fills the width with a Continue / Challenges bar at the bottom. The toolbar has Challenges and Settings.
-  A **Daily Brew** card sits at the top of the panel (and as a row in the bottom bar on iPhone): today's weekday
-  and difficulty, mode, solved / perfect state, the streak flame and "New brew in 3 h 12 m" (UTC midnight).
+  A **Today** card sits at the top of the panel (and as a row in the bottom bar on iPhone): every daily game
+  (Daily Brew, Daily Gathering, Daily Distillery) with today's flavour, won state and streak flame, "N of 3 done"
+  and "New dailies in 3 h 12 m" (UTC midnight); it opens the daily hub, which leads to each daily's own screen.
+  The Distillery wing (R10) climbs the map's left edge.
 - **Daily Brew:** today's puzzle (weekday · difficulty, mode, difficulty pips, **Play** / **Replay**), current and
   best streak, brews solved and perfect count, and a month calendar (Monday first, navigable back to your first
   result) with solved days in amber, perfect days in gold with a seal, today ringed and future days dimmed. All
@@ -400,6 +402,12 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPM3Moves N` | With `-LPOpenMatch3`: replaces the move limit (e.g. 3 with `-LPM3Demo 3` to reach the "Out of moves" card). |
 | `-LPOpenDistill ID` | Opens a distillery level (R10) by id (`d1-07`, `dx-03`, `dm-12`), `random` (with `-LPDistillTier gentle\|tricky\|fiendish` and `-LPDistillSeed S`), `daily` (today's Daily Distillery) or `daily-YYYY-MM-DD`. |
 | `-LPDistillDemo K` | With `-LPOpenDistill`: plays K solver taps (the fewest-taps path, one every 0.45 s) through the normal tap path, with the animations (a demo win saves nothing). |
+| `-LPOpenDistillStage N` | Opens distillery stage N's level list (1–3; its story scene plays the first time unless `-LPSkipTutorials 1`; add `-LPUnlockAll 1` to open its levels). |
+| `-LPOpenDistillPack P` | Opens a distillery pack's level list: `stage1`…`stage3`, `expert` or `master` (the challenge packs inside Challenges). |
+| `-LPOpenDistillRandom 1` | Opens Random Distillery (inside Challenges). |
+| `-LPOpenDistillDaily 1` | Opens the Daily Distillery screen (from the daily hub); `-LPPlayDistillDaily 1` also starts today's level. `-LPDailyDate` and `-LPDailySeedResults` apply to it too (memory only). |
+| `-LPOpenDailyHub 1` | Opens the daily hub ("Today": every daily game). |
+| `-LPShowStory distillery.N` | Plays distillery stage N's story scene. |
 | `-LPOpenEpisode N` | Opens ingredient-gathering episode N's level list (its story scene plays the first time unless `-LPSkipTutorials 1`; add `-LPUnlockAll 1` to open its levels). |
 | `-LPOpenM3Daily 1` | Opens the Daily Gathering screen; `-LPPlayM3Daily 1` also starts today's level. `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake wins, memory only). |
 | `-LPShowStory gathering.N` | Plays gathering episode N's story scene (like `-LPShowStory N` for chapters). |
@@ -565,8 +573,7 @@ linearly to 55 % for the 80th. The app loads them separately from the recipe pac
   two specials) from episode 2 and in the daily; *frost*, *sealed crates* and *potion flasks* on the first level
   that has them. Seen-state per topic in `tutorial.seen.m3.*`; **?** (⌘/) in the level reopens every topic of that
   level. The idle hint glow waits while a tip or story scene is open, and its 5 s start over when it closes.
-- **Daily Gathering** (`M3DailyModel`, `M3DailyViews`): a green card under the Daily Brew card on the map's panel
-  (a row under the Daily Brew row in the iPhone bar, and a card on the Daily Brew screen). Its screen shows today's
+- **Daily Gathering** (`M3DailyModel`, `M3DailyViews`): a row of the map's **Today** card and of the daily hub (R10). Its screen shows today's
   weekday · flavour (Gentle, Steady, Frosty, Sealed Crates, Flask Drop, Tricky, Grand Gathering) with difficulty
   pips and the day's ingredients, **Play** / **Replay**, the current and best streak, days gathered, three-star
   days, and the month calendar (won days amber, three-star days gold). The level is built off the main thread
@@ -674,6 +681,18 @@ space-separated tokens: `.` empty, `S` source, `F` flask, `X` cross, `C`/`I`/`L`
 straight / elbow / tee, `*` riveted), `sources` / `targets` `[{r, c, color, dir}]` (outlet / inlet side n/e/s/w),
 optional `valves [{r, c, target}]` and `coils [{r, c, from, to}]`, `minTaps` and informational `stats`.
 `validate()` lists structural problems, `validateSolving()` also solves (unique network, `minTaps` matches).
+
+**In the app** (`Pourfect/Distillery/`): the *Distillery wing* climbs the map's left edge, three stills joined by a
+brass pipe (`DistillWing`, `DistillStageMarker`): a locked still shows the chapter that opens it (tap: a popover),
+an open one its stars, a finished one a check (gold ring at full stars). A stage opens its level list
+(`DistillPackView`, twenty stills in order, a brass mark on the level that brings a new piece) and, the first time,
+its story scene (`StoryScene.distillery(N)`; **Story** replays it). **Challenges → Distillery**: the Expert and Master
+packs (same screen) and **Random Distillery** (`RandomDistillView`: Gentle / Tricky / Fiendish, a fresh seed each
+time, nothing saved). The **Daily Distillery** (`DistillDailyModel`, `DistillDailyView`) has its own streak, stats,
+calendar and share text (`Pourfect Distillery — 17 Nov ★★★ 12 taps (fewest 12)`), stored in
+`distill.daily.history.v1` / `distill.daily.details.v1`. All daily games sit behind one **Today** card on the map
+(panel or iPhone bar) that opens the **daily hub** (`DailyHubView`): one row per daily with today's flavour, state
+and streak, opening that game's own screen. To add a daily, add a `DailyGameSummary` in `DailyGames.today`.
 
 ```sh
 cd Packages/BottleSortCore
