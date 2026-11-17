@@ -73,6 +73,8 @@ struct RecipeGameView: View {
                         }
                     }
                 }
+                // Nothing under a tip takes taps or keys (Return would brew).
+                .disabled(tip != nil)
                 .overlay { if showsEndCard, model.showsEnd { endCard(model) } }
                 .overlay {
                     if let tip {
