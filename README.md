@@ -154,12 +154,14 @@ Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
   Sources/Match3Core/        Ingredient gathering (match-3) rules, bots, daily (R9); Sources/m3gen its CLI
   Sources/DistilleryCore/    Distillery (R10): pipe flow, solver, generator, level format, daily; Sources/distillgen its CLI
   Sources/SecretRecipeCore/  Secret Recipe (R10b): recipe codes, feedback, game, candidates, daily, share, stats
-  Sources/HiddenCore/        Hidden-object rooms (R11): scene files, placement + blending, rounds with decoys, hit tests
+  Sources/HiddenCore/        Hidden-object rooms (R11): scene files, placement + blending, fixed rounds with decoys,
+                             hit tests; Sources/hiddengen proposes / checks / freezes the rounds
 scripts/                     test-fast.sh (optimized core tests), testflight.sh + ExportOptions.plist (release upload),
                              appstore-caption.swift / appstore-flatten.swift (App Store screenshots)
 docs/APP_STORE.md            Store category, age rating, privacy answers, size report, App Store Connect steps
 Levels/chapter_0N.json       Main-path chapters 1–3; challenge_*.json: optional challenges (synchronized folder: every JSON file is bundled)
-HiddenScenes/<room>/         Hidden-object rooms: scene.json, backgrounds, object PNGs (folder reference, bundled as is)
+HiddenScenes/<room>/         Hidden-object rooms: scene.json, rounds.json (the ten fixed rounds), backgrounds, object PNGs
+                             (folder reference, bundled as is)
 poc/hidden-object/           The rooms' art pipeline (Python scripts, libraries, spot lists; images not committed)
 ```
 
@@ -418,6 +420,12 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPOpenRecipe daily\|practice\|stats` | Opens today's Secret Recipe game (`daily`, over the daily hub and its daily screen), a practice recipe (`practice`, inside Challenges) or the daily screen (`stats`). `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake games, memory only). |
 | `-LPRecipeSeed N` | With `-LPOpenRecipe practice`: the practice seed (else a random one), so the same recipe comes back. |
 | `-LPRecipeDemo K` | With `-LPOpenRecipe`: plays K guesses through the tray (each one still possible after the drops so far). Nothing is saved: the daily runs on a memory store. |
+| `-LPOpenHidden attic\|market\|hoard` | Opens a hidden-object round (over its room screen); `-LPHiddenRound N` picks the round (1–10, default 1). `-LPOpenHiddenRoom <room>` opens the room screen only. |
+| `-LPHiddenShow 1` | Outlines the round's objects to find (to check a layout). |
+| `-LPHiddenDemo K` / `-LPHiddenWrong 1` / `-LPHiddenHint 1` | In a round: finds the first K objects (as if tapped; `99` finishes the round and shows the card), taps a decoy, lights the lantern. Results are saved like real play. |
+| `-LPHiddenZoom F` / `-LPHiddenTray 0` | In a round: zooms in by F after loading; folds the find list. |
+| `-LPHiddenSeed S` | Plays the generator's proposal for seed S instead of the fixed round (layout work only). |
+| `-LPHiddenExport <dir>` | Renders every fixed round with the app's renderer into `<dir>` (`<room>_rNN.png`, `_half.png`, `_close.png` with a close-up of every object) and writes `DONE`; `-LPHiddenExportRooms attic,hoard` limits the rooms. |
 | `-LPOpenM3Daily 1` | Opens the Daily Gathering screen; `-LPPlayM3Daily 1` also starts today's level. `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake wins, memory only). |
 | `-LPShowStory gathering.N` | Plays gathering episode N's story scene (like `-LPShowStory N` for chapters). |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
@@ -445,7 +453,7 @@ cd Packages/BottleSortCore && swift test # debug build, ~80 s — run once befor
 LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 days of Daily generation)
 scripts/test-fast.sh --filter Match3CoreTests   # only the match-3 suite (~2 s)
 scripts/test-fast.sh --filter DistilleryCoreTests   # only the distillery suite (~3 s)
-scripts/test-fast.sh --filter HiddenCoreTests   # only the hidden-object suite (< 1 s)
+scripts/test-fast.sh --filter HiddenCoreTests   # only the hidden-object suite (31 tests, < 1 s)
 ```
 
 The distillery suite (`Tests/DistilleryCoreTests`) covers the flow of every piece, murk, leaks, valves and coils,
@@ -463,8 +471,8 @@ and daily goldens. Its bot-heavy tests (daily goldens, pass-rate sample, preset 
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
 
-A full `swift test` runs 678 tests in five suites: 516 in `BottleSortCoreTests`, 70 match-3, 47 distillery, 23
-Secret Recipe and 22 hidden-object. The sorting suite covers the rules (including every key and lock rule), undo/restart, hidden layers,
+A full `swift test` runs 687 tests in five suites: 516 in `BottleSortCoreTests`, 70 match-3, 47 distillery, 23
+Secret Recipe and 31 hidden-object. The sorting suite covers the rules (including every key and lock rule), undo/restart, hidden layers,
 validation, the solver (cross-checked against a naive BFS on 125 random puzzles and 175 random lock levels),
 hints, canonical keys, difficulty metrics, the generator's determinism, random levels, the JSON format and pack metadata,
 the chapter gate (including the exact-50 % boundary), the lock-impact check, the daily puzzle (UTC dates seen from
@@ -782,14 +790,34 @@ counts toward the chapter map, the Lab Style rewards or any gate.
   optimized run, game end and reveal, candidates against a brute-force filter, daily goldens and spread, practice
   seeds, share text, saving rules, stats and streaks).
 
-## Hidden-object rooms (R11, core and assets)
+## Hidden-object rooms (R11, the Curiosity Rooms)
 
 Search scenes ("Wimmelbild"), the fourth pillar: three rooms — **Alchemist's Attic**, **Market Stall** and
-**Dragon's Hoard** — each played as **ten seeded rounds**. A round hides objects from the room's 40-object library on
+**Dragon's Hoard** — each played as **ten fixed rounds**. A round hides objects from the room's 40-object library on
 its hand-placed spots; the player finds the ones on the find list by tapping them. Calm: no timer; stars from hints
-and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anything. The app screens (wing on the
-map, viewer with pinch / scroll zoom, find list, lantern hint, sounds, VoiceOver) are the next step; this part ships
-the art and the rules. DECISIONS 294–302.
+and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anything. DECISIONS 294–307.
+
+- **On the map**: the *Curiosity Rooms* wing up the map's right edge (a magnifier token per room, level with chapters
+  2, 5 and 8; a closed one tells which chapter opens it). A room's screen lists its ten rounds (open in order, stars,
+  replayable) and plays the room's story scene on the first visit. Progress: `hidden.progress.v1`.
+- **In a round**: the room fills the screen; pinch / double-tap to zoom and drag to pan on iPhone and iPad, trackpad
+  pinch, ⌘/⌥ + scroll or a mouse wheel, double-click and ⌘+ / ⌘− on the Mac. Taps test the object's alpha with a
+  touch radius that follows the zoom. Finds fade out with a sparkle and tick off the find list (names + thumbnails;
+  a side column on Mac / iPad, a tray on iPhone). A wrong tap puffs dust and costs nothing but stars. The lantern
+  (⇧⌘H) circles one remaining object and recharges for 30 s. VoiceOver: the picture's **Reveal next** action finds
+  the next object (counts as a hint). Reduce Motion: fades instead of particles, shake and zoom animations.
+- **Fixed rounds**: `HiddenScenes/<room>/rounds.json` holds the ten curated layouts (targets, decoys, spot, size,
+  turn, flip, offset, review notes) — the same for every player; the generator only proposes them:
+
+  ```sh
+  cd Packages/BottleSortCore
+  swift run -c release hiddengen check ../../HiddenScenes            # validate all rooms
+  swift run -c release hiddengen propose ../../HiddenScenes attic --round 3 --variant 2   # print a candidate
+  swift run -c release hiddengen freeze ../../HiddenScenes           # validate + rewrite canonically
+  ```
+
+  To look at layouts the way the app draws them, run a DEBUG build with `-LPHiddenExport <dir>` (full-size render,
+  half size and a close-up sheet of every object per round).
 
 - **Assets**: `HiddenScenes/<attic|market|hoard>/` (bundled as a folder reference, 10.5 MB): `scene.json`
   (`pourfect-hidden-v1`: objects with id / English name / size class / PNG size; spots with anchor, maxSize, size
@@ -800,17 +828,19 @@ the art and the rules. DECISIONS 294–302.
   object's class, thin objects longer, bottom centre on the spot, spacing, flips; each object tinted toward the mean
   colour around it (`HiddenTint`: 3×3 matrix + bias, e.g. for `CIColorMatrix`), a soft contact shadow (α 0.38, blur
   σ 5, offset +5, +4) and, in containers, the background drawn again over its foot (`HiddenBlend.occluderMask`).
-- **Rounds**: 8 → 15 objects to find, 8 → 20 decoys (non-findable library objects drawn exactly the same way, never
-  covering a target; tapping one is a wrong tap), objects shrinking, harder spots later, gold objects on the hoard's
-  find list only from round 6. Same picture for the same round and variant; a replay after finishing gets a new one.
+- **Rounds**: 8 → 15 objects to find, 7 → 20 decoys (non-findable library objects drawn exactly the same way, never
+  covering a target; tapping one is a wrong tap), objects smaller, harder spots later, gold objects on the hoard's
+  find list only from round 6. Every round is a fixed layout; a replay is the same picture.
 - **Stars**: 3 = no hint and ≤ 3 wrong taps, 2 = ≤ 2 hints and ≤ 10 wrong taps, else 1. The lantern hint circles
   one remaining object and recharges for 30 s; VoiceOver's "reveal next" finds the next object and counts as a hint.
 
 **Core** (`HiddenCore`, no dependencies; linked into the app):
 
 - `HiddenScene(data:)` decodes and validates a `scene.json`; `HiddenSceneID` (`attic`, `market`, `hoard`).
-- `HiddenGenerator.round(scene, round:variant:)` → `HiddenRoundLayout` (`targets` = find list, `decoys`,
-  `drawOrder` back to front); `HiddenCurve.spec(_:round:)`, `HiddenCurve.goldish(_:)`; `HiddenGenerator.seed`.
+- `HiddenFixedLayouts.load(data, scene:)` → the ten `HiddenRoundLayout`s of `rounds.json` (`targets` = find list,
+  `decoys`, `drawOrder` back to front), refusing any broken rule; `HiddenRotation` for turned objects.
+- `HiddenGenerator.round(scene, round:variant:)` proposes rounds (`hiddengen`); `HiddenCurve.spec(_:round:)`,
+  `HiddenCurve.goldish(_:)`; `HiddenGenerator.seed`.
 - `HiddenPlacement` (size, flip, top-left, tint strength, `shadowRect`, `tintSampleRect`, `occlusion`),
   `HiddenBlend` (shadow constants, `tint(mean:strength:)`, `occluderMask`), `HiddenRaster.mean` for the tint colour.
 - `HiddenAlphaMask` (from a PNG's alpha), `HiddenHitTester.hit(at:slop:found:)` → target / decoy / nothing,
@@ -819,7 +849,7 @@ the art and the rules. DECISIONS 294–302.
   `HiddenProgression` (room unlocks, rounds in order, story ids `hidden.<room>`), `HiddenProgress` (best stars and
   finished plays per round, Codable).
 - `PythonRandom` (CPython's Mersenne Twister, bit for bit) and `HiddenPoC.layout` (layout.py replayed) for the goldens.
-- Tests: `scripts/test-fast.sh --filter HiddenCoreTests` (22 tests, < 1 s). Goldens:
+- Tests: `scripts/test-fast.sh --filter HiddenCoreTests` (31 tests, < 1 s). Goldens:
   `poc/hidden-object/tools/swift_goldens.py HiddenScenes Packages/BottleSortCore/Tests/HiddenCoreTests/Goldens/poc_layouts.json`
   (Pillow + numpy, Python 3.9+).
 

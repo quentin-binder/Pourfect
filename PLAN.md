@@ -272,12 +272,15 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] Art: v1 set from the `wimmel-poc` art test (3 rooms × 40 objects, ~60 spots each), approved; branch merged so the pipeline and specs stay in `poc/hidden-object/` (images not committed) (DECISIONS 294)
 - [x] Assets in the app: `HiddenScenes/<room>/` as a bundled folder reference, 10.5 MB (DECISIONS 295)
 - [x] Core: `HiddenCore` target — scene files with validation, placement and blending rules ported exactly from `layout.py` / `hocommon.py` with Python goldens (DECISIONS 296)
-- [x] Ten rounds per room (more and smaller objects, harder spots, gold in the hoard from round 6), seeded generator with non-findable decoys that never cover a target (DECISIONS 297–298)
+- [x] Ten rounds per room (more and smaller objects, harder spots, gold in the hoard from round 6), generator with non-findable decoys that never cover a target — now the proposer of the fixed rounds (DECISIONS 297–298, 304)
 - [x] Hit testing on downsampled alpha with a zoom-scaled touch radius; round state, stars (no timer), lantern hint with 30 s recharge, "reveal next"; room unlocks with chapters 2 / 5 / 8, rounds in order, progress (DECISIONS 299–301)
 - [x] Tests: 22 in `HiddenCoreTests` (DECISIONS 302)
-- [ ] App: the rooms' wing on the chapter map (locked / open / stars), room screen with the ten rounds, story scene `hidden.<room>` on first opening (`StoryScene` case + lines)
-- [ ] App: the viewer — scene fills the screen, pinch-zoom + pan (iPhone), scroll / trackpad zoom + drag (Mac), double-tap zoom; objects drawn with tint, shadow and occluder; hit testing with the zoom-scaled radius
-- [ ] App: find list (catalog names + thumbnails, tick-off flourish, count), found objects fading out with a sparkle, wrong-tap shake / puff, lantern glow and recharge, round-complete card with stars; sounds, haptics, VoiceOver (readable list, "reveal next"), Reduce Motion
+- [x] Fixed, curated rounds (user update): every round is one frozen layout in `HiddenScenes/<room>/rounds.json` (targets + decoys, spot, size, turn, flip, offset), the same for every player; loader + validation + tests in the core, `hiddengen propose / check / freeze`; the generator only proposes (DECISIONS 304)
+- [x] Layout review of all 30 rounds with the app's own renderer (`-LPHiddenExport`): real sizes, thin things laid down, upright discs moved, necklace removed, two bad spots marked unusable; notes per round in rounds.json (DECISIONS 305)
+- [x] App: the Curiosity Rooms wing on the chapter map (locked / open / stars, popover), room screen with the ten rounds, story scene per room on first opening (DECISIONS 303)
+- [x] App: the viewer — scene fills the screen, pinch-zoom + pan (iPhone), trackpad / wheel zoom + drag (Mac), double-tap zoom; objects drawn with tint, shadow and occluder; alpha hit testing with the zoom-scaled radius (DECISIONS 306)
+- [x] App: find list (catalog names + thumbnails, tick-off flourish, count), found objects fading out with a sparkle, wrong-tap puff + shake, lantern glow and recharge, round card with stars; sounds, haptics, VoiceOver ("reveal next"), Reduce Motion; tip (DECISIONS 306)
+- [x] Tests: 31 in `HiddenCoreTests` (DECISIONS 307)
 - Not planned yet: a daily room
 
 ## Parked ideas (user, not scheduled)
