@@ -4,6 +4,9 @@
     "%@ %@" : {
       "comment" : "VoiceOver: an ingredient that is a special, e.g. Ember row comet"
     },
+    "%@ (%@)" : {
+      "comment" : "Tooltip of a tray ingredient: its name and Mac keyboard key"
+    },
     "%@ and %@" : {
       "comment" : "Toast: two new rewards"
     },
@@ -96,8 +99,14 @@
         }
       }
     },
+    "%lld in place, %lld elsewhere" : {
+      "comment" : "Secret Recipe feedback for VoiceOver: gold drops (right ingredient, right slot) and silver drops (right ingredient, other slot)"
+    },
     "%lld layers of %@" : {
       "comment" : "VoiceOver: what an order flask wants; the arguments are the layer count and the potion"
+    },
+    "%lld left" : {
+      "comment" : "Secret Recipe: guesses left"
     },
     "%lld more %@ needed" : {
       "localizations" : {
@@ -292,6 +301,9 @@
     "%lld of %lld filled" : {
       "comment" : "VoiceOver: how many order flasks hold what they should"
     },
+    "%lld of %lld guesses brewed" : {
+      "comment" : "Daily Secret Recipe status: in progress"
+    },
     "%lld of %lld recipes with a gold seal" : {
       "comment" : "VoiceOver: gold seals earned in a chapter"
     },
@@ -447,6 +459,9 @@
         }
       }
     },
+    "%lld%%" : {
+      "comment" : "Secret Recipe stat value: win percentage"
+    },
     "+%lld" : {
       "comment" : "Push preview under a flask: how many layers a pour would push into its bottom through a pressure pipe"
     },
@@ -454,6 +469,9 @@
       "comment" : "Rush: time bonus for a solved recipe"
     },
     "3 stars" : {
+
+    },
+    "4 guesses or fewer" : {
 
     },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {
@@ -488,6 +506,9 @@
     },
     "A narrow neck lets one layer through at a time, a funnel only takes potions in, and a tap pours from the bottom. Each one changes how the potions flow." : {
       "comment" : "Story, chapter 5 (Glass Works)"
+    },
+    "A new recipe to crack, as many times as you like. Nothing is saved." : {
+      "comment" : "VoiceOver hint: Secret Recipe practice"
     },
     "A potion buried at the bottom comes up on its own. Time your pours so it has somewhere to go when it rises." : {
 
@@ -553,6 +574,9 @@
     },
     "Alchemist's Workbench" : {
       "comment" : "Workbench theme name"
+    },
+    "All five in place" : {
+      "comment" : "Secret Recipe feedback: the guess is the recipe"
     },
     "An alchemist's journey from the cellar to the dragon's hoard." : {
 
@@ -698,6 +722,12 @@
     "Challenges" : {
 
     },
+    "Change note" : {
+      "comment" : "VoiceOver action: cycle a tray ingredient's note"
+    },
+    "Changes its note" : {
+      "comment" : "VoiceOver hint: tray ingredient in notes mode"
+    },
     "Chapter %lld" : {
 
     },
@@ -809,11 +839,17 @@
     "Classic · Rune Seals · Murky Layers" : {
 
     },
+    "Clear" : {
+      "comment" : "Secret Recipe: empty the five slots"
+    },
     "Clear the cells below them and they sink. Bring each one down to the bottom and it's ours." : {
       "comment" : "Story, gathering episode 7 (Bogwater Springs)"
     },
     "Clear the mist" : {
 
+    },
+    "Clears this slot" : {
+      "comment" : "VoiceOver hint: filled slot"
     },
     "Color Runes" : {
 
@@ -877,6 +913,15 @@
     "Couldn't find a hint in time" : {
 
     },
+    "Crack the recipe" : {
+      "comment" : "Secret Recipe tip title"
+    },
+    "Cracked" : {
+      "comment" : "Secret Recipe stat: share of days won"
+    },
+    "Cracked in %lld of %lld" : {
+      "comment" : "Daily Secret Recipe status: won"
+    },
     "Crates" : {
       "comment" : "Match-3 goal: break every sealed crate"
     },
@@ -938,6 +983,9 @@
         }
       }
     },
+    "Daily Secret Recipe" : {
+      "comment" : "Title of the daily Secret Recipe game"
+    },
     "Daily solved!" : {
 
     },
@@ -945,6 +993,9 @@
 
     },
     "Days follow UTC. A new gathering appears at midnight UTC." : {
+
+    },
+    "Days follow UTC. A new recipe is hidden at midnight UTC. Secret Recipe never counts toward the chapter map." : {
 
     },
     "Days gathered" : {
@@ -970,6 +1021,9 @@
     },
     "Dragons love a tidy shelf. Let's not keep it waiting." : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "Each gold drop means one ingredient sits in its right slot. Each silver drop means one is in the recipe, but in another slot. The drops never tell you which ones." : {
+      "comment" : "Secret Recipe tip: the feedback"
     },
     "Each poured layer mixes with one layer below it into two layers of the new potion. Poured layers left over stay on top." : {
 
@@ -1014,6 +1068,9 @@
     },
     "Earn new looks for your lab by playing: finish chapters, collect stars and gold seals, keep a Daily Brew streak or set a Rush record." : {
 
+    },
+    "Eight guesses to open the alchemist's book" : {
+      "comment" : "Daily Secret Recipe status: not started"
     },
     "Ember" : {
       "comment" : "Match-3 ingredient"
@@ -1159,6 +1216,9 @@
     "Forest Hut" : {
       "comment" : "Workbench theme name"
     },
+    "Found in %lld of %lld guesses" : {
+      "comment" : "Secret Recipe win card: guesses used"
+    },
     "Four in a row leaves a comet. Match it and it sweeps its whole row or column, the way its trail points." : {
       "comment" : "Match-3 tip: comet special"
     },
@@ -1231,6 +1291,9 @@
     "Gold" : {
       "comment" : "Metal of a rune key and its seal"
     },
+    "Gold and silver drops" : {
+      "comment" : "Secret Recipe tip title"
+    },
     "Gold seal" : {
       "comment" : "VoiceOver: the win card's gold seal for a perfect brew"
     },
@@ -1246,6 +1309,18 @@
     "Grand Gathering" : {
       "comment" : "Daily gathering flavour (Sunday)"
     },
+    "Guess %lld: %@" : {
+      "comment" : "VoiceOver announcement after a Secret Recipe guess"
+    },
+    "Guess %lld: %@. %@" : {
+      "comment" : "VoiceOver: a line of the Secret Recipe book: number, the five ingredients, the feedback"
+    },
+    "Guess %lld: not brewed yet" : {
+      "comment" : "VoiceOver: an empty line of the Secret Recipe book"
+    },
+    "Guesses" : {
+      "comment" : "Heading of the Secret Recipe guess distribution"
+    },
     "Haptics" : {
 
     },
@@ -1255,8 +1330,20 @@
     "Hexagon" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Hide a new practice recipe" : {
+      "comment" : "Tooltip of the new practice recipe button"
+    },
+    "Hide the count" : {
+      "comment" : "VoiceOver: hide possible recipes count"
+    },
     "Hint" : {
 
+    },
+    "Honeycomb" : {
+      "comment" : "Secret Recipe ingredient"
+    },
+    "How Secret Recipe works" : {
+      "comment" : "Tooltip of the Secret Recipe help button"
     },
     "How this level works" : {
       "comment" : "Tooltip of the match-3 help button"
@@ -1310,6 +1397,9 @@
     },
     "Icefall crystals. The Bubbling Bog boils over without something cold to calm it." : {
       "comment" : "Story, gathering episode 6 (Icefall Ridge)"
+    },
+    "In %lld guesses: %lld days" : {
+      "comment" : "VoiceOver: a bar of the Secret Recipe guess distribution"
     },
     "In use" : {
       "comment" : "Lab Style: the chosen reward"
@@ -1368,6 +1458,9 @@
     "Keep it full" : {
 
     },
+    "Keep notes" : {
+      "comment" : "Secret Recipe tip title"
+    },
     "Keep the bottom" : {
 
     },
@@ -1419,6 +1512,9 @@
       "comment" : "Daily gathering card: what to do"
     },
     "Matching potions" : {
+
+    },
+    "Maybe" : {
 
     },
     "Mermaid Teal" : {
@@ -1522,6 +1618,15 @@
     "New gathering in %lld m" : {
       "comment" : "Countdown to the next daily gathering, minutes"
     },
+    "New recipe" : {
+      "comment" : "Starts another practice Secret Recipe"
+    },
+    "New recipe in %lld h %lld m" : {
+      "comment" : "Countdown to the next daily Secret Recipe, hours and minutes"
+    },
+    "New recipe in %lld m" : {
+      "comment" : "Countdown to the next daily Secret Recipe, minutes"
+    },
     "New reward!" : {
       "comment" : "Toast title when a cosmetic reward unlocks"
     },
@@ -1597,6 +1702,9 @@
     "No match, the pieces slide back" : {
       "comment" : "VoiceOver: a match-3 swap that makes no line of three"
     },
+    "No note" : {
+
+    },
     "No recipe chapters found in the app bundle" : {
 
     },
@@ -1606,8 +1714,17 @@
     "No swaps left: stirring the tray" : {
       "comment" : "Match-3: the board is reshuffled"
     },
+    "Not cracked today" : {
+      "comment" : "Daily Secret Recipe status: lost"
+    },
+    "Not cracked: %lld days" : {
+      "comment" : "VoiceOver: the lost-days bar of the Secret Recipe guess distribution"
+    },
     "Not until you pour off what's on top. A good alchemist is patient, and a little curious." : {
       "comment" : "Story, chapter 3 (Misty Marsh)"
+    },
+    "Notes" : {
+      "comment" : "Secret Recipe: notes mode toggle"
     },
     "Nothing can be poured into a tap flask, not even a key. Drain it, or leave it full of one potion." : {
 
@@ -1672,14 +1789,26 @@
     "Phoenix Ember" : {
       "comment" : "Potion name of the orange liquid"
     },
+    "Pick five different ingredients, then brew." : {
+      "comment" : "Secret Recipe bench caption"
+    },
     "Pip" : {
       "comment" : "Name of the child with a cat who orders potions"
     },
     "Play" : {
       "comment" : "Start today's daily puzzle"
     },
+    "Played" : {
+      "comment" : "Secret Recipe stat"
+    },
     "Politely?" : {
       "comment" : "Story, chapter 4 (Glyph Library)"
+    },
+    "Possible recipes left: %lld" : {
+      "comment" : "Secret Recipe practice helper: recipes still consistent with every clue"
+    },
+    "Possible recipes left: hidden" : {
+      "comment" : "Secret Recipe practice helper, turned off"
     },
     "Potion Bottle" : {
       "comment" : "Flask shape name"
@@ -1743,6 +1872,9 @@
         }
       }
     },
+    "Pourfect Secret Recipe · %@ · %@" : {
+      "comment" : "Shared Secret Recipe result header: date and guesses used (4/8, or X/8 when not found); the drop grid follows"
+    },
     "Pourfect collects no data: no accounts, no ads, no analytics. Your progress is saved only on this device." : {
       "comment" : "About screen: privacy note"
     },
@@ -1751,6 +1883,9 @@
     },
     "Pouring out of a twin works as usual: only the flask you pick up pours. One twin can't pour into the other." : {
 
+    },
+    "Practice recipe" : {
+      "comment" : "Opens an unlimited practice Secret Recipe"
     },
     "Pressure pipes" : {
 
@@ -1766,6 +1901,9 @@
     },
     "Privacy" : {
       "comment" : "About screen section header"
+    },
+    "Puts it in the selected slot" : {
+      "comment" : "VoiceOver hint: tray ingredient"
     },
     "Random Brew" : {
 
@@ -1829,6 +1967,9 @@
     "Recipe books" : {
 
     },
+    "Recipe cracked!" : {
+      "comment" : "Secret Recipe win card title"
+    },
     "Reduce Motion" : {
 
     },
@@ -1867,6 +2008,9 @@
     },
     "Row %lld, column %lld" : {
       "comment" : "VoiceOver: position of a match-3 cell"
+    },
+    "Ruled out" : {
+
     },
     "Rune Seal" : {
       "comment" : "Daily puzzle mode: one sealed flask"
@@ -1945,6 +2089,18 @@
     "Seals give way when you match beside them. The stronger ones need a few knocks." : {
       "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
     },
+    "Secret Recipe" : {
+      "comment" : "Title of the code-breaking recipe game"
+    },
+    "Secret Recipe Practice" : {
+      "comment" : "Title of a practice Secret Recipe game"
+    },
+    "Secret Recipe, %@, streak %lld" : {
+      "comment" : "VoiceOver: the Secret Recipe card"
+    },
+    "See the book" : {
+      "comment" : "Opens the finished daily Secret Recipe"
+    },
     "Settings" : {
 
     },
@@ -1956,6 +2112,9 @@
     },
     "Shh. Its hoard is kept behind gates. Fill a switch flask to the top with one potion and its gate lifts." : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "Show the count" : {
+      "comment" : "VoiceOver: show possible recipes count"
     },
     "Silver" : {
       "comment" : "Metal of a rune key and its seal"
@@ -1974,6 +2133,12 @@
     },
     "Skipped %lld" : {
       "comment" : "Rush end card: recipes skipped in this run"
+    },
+    "Slot %lld: %@" : {
+      "comment" : "VoiceOver: a slot of the revealed recipe"
+    },
+    "Slot %lld: empty" : {
+      "comment" : "VoiceOver: an empty slot of the brewing bench"
     },
     "So I can't see what's at the bottom?" : {
       "comment" : "Story, chapter 3 (Misty Marsh)"
@@ -2034,6 +2199,9 @@
     },
     "Starburst" : {
       "comment" : "Completion effect name"
+    },
+    "Starleaf" : {
+      "comment" : "Secret Recipe ingredient: a star-shaped leaf"
     },
     "Start Rush" : {
 
@@ -2117,6 +2285,9 @@
     "Th" : {
       "comment" : "Calendar column: Thursday"
     },
+    "The Alchemist's Recipe" : {
+      "comment" : "Heading of the Secret Recipe book"
+    },
     "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
       "comment" : "Story, chapter 5 (Glass Works)"
     },
@@ -2125,6 +2296,21 @@
     },
     "The Rune Vault is pitch dark. Hollow-caps glow for hours once they're gathered: our lanterns for tomorrow." : {
       "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
+    },
+    "The alchemist has locked away a recipe: five different ingredients, in order, out of the eight on the tray. Fill the five slots and brew. You have eight tries." : {
+      "comment" : "Secret Recipe tip: the goal"
+    },
+    "The alchemist's recipe was:" : {
+      "comment" : "Secret Recipe loss card, above the revealed recipe"
+    },
+    "The book opens: this is the recipe." : {
+      "comment" : "Secret Recipe bench caption after a win"
+    },
+    "The book stays shut" : {
+      "comment" : "Secret Recipe loss card title"
+    },
+    "The book stays shut. The recipe was:" : {
+      "comment" : "Secret Recipe bench caption after a loss, above the revealed recipe"
     },
     "The card under the cauldron shows two potions… and a new one?" : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
@@ -2153,6 +2339,9 @@
     "The marsh ahead is all mist. How will we see a thing?" : {
       "comment" : "Story, gathering episode 2 (Crystal Grotto)"
     },
+    "The next ingredient you pick goes here" : {
+      "comment" : "VoiceOver hint: empty slot"
+    },
     "The number on the ice counts down after every pour, wherever you pour. At zero the ice cracks and melts." : {
 
     },
@@ -2167,6 +2356,9 @@
     },
     "The recipe is done when every order is filled and every other flask holds one potion or nothing. The card above the board ticks each order off." : {
 
+    },
+    "The recipe: %@" : {
+      "comment" : "VoiceOver: the revealed Secret Recipe"
     },
     "The shape of every flask on the board. Flasks hold just as much in any shape." : {
 
@@ -2234,6 +2426,9 @@
     "Today · %@" : {
       "comment" : "Daily screen: today's date"
     },
+    "Today's recipe · %@" : {
+      "comment" : "Secret Recipe book subtitle: the daily and its date"
+    },
     "Today, not solved yet" : {
 
     },
@@ -2243,6 +2438,9 @@
     "Tricky" : {
       "comment" : "Daily puzzle difficulty (Friday)"
     },
+    "Tries these five ingredients as the recipe" : {
+      "comment" : "VoiceOver hint: Brew"
+    },
     "Try Again" : {
 
     },
@@ -2251,6 +2449,9 @@
     },
     "Tuesday" : {
       "comment" : "Weekday of the daily puzzle"
+    },
+    "Turn on Notes and tap an ingredient to mark it ruled out, then maybe. With a keyboard: 1 to 8 pick, Delete clears, Return brews." : {
+      "comment" : "Secret Recipe tip: notes and keyboard"
     },
     "Twice the cracking. I'll bring a bloom or two." : {
       "comment" : "Story, gathering episode 4 (Ember Hearth)"
@@ -2315,6 +2516,9 @@
     "What happens when they bubble?" : {
       "comment" : "Story, chapter 7 (Bubbling Bog)"
     },
+    "When on, tapping an ingredient marks it ruled out, then maybe, then clears the mark" : {
+      "comment" : "VoiceOver hint: Secret Recipe notes toggle"
+    },
     "When the top layer is frozen, the flask is shut: nothing pours in or out until the ice thaws." : {
 
     },
@@ -2323,6 +2527,9 @@
     },
     "With grotto crystals. Hold one up and the fog thins around it." : {
       "comment" : "Story, gathering episode 2 (Crystal Grotto)"
+    },
+    "Won %lld%%" : {
+      "comment" : "Secret Recipe end card: win percentage"
     },
     "Workbench" : {
       "comment" : "Lab Style section: workbench themes"
@@ -2456,6 +2663,15 @@
     },
     "narrow neck, one layer per pour" : {
       "comment" : "VoiceOver: a narrow-neck flask moves one layer per pour, in or out"
+    },
+    "noted: maybe" : {
+      "comment" : "VoiceOver: a tray ingredient's note"
+    },
+    "noted: ruled out" : {
+      "comment" : "VoiceOver: a tray ingredient's note"
+    },
+    "on the bench" : {
+      "comment" : "VoiceOver: this tray ingredient is in the draft"
     },
     "order filled" : {
       "comment" : "VoiceOver: an order flask holds what was asked for"

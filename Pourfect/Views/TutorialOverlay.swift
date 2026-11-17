@@ -6,6 +6,8 @@ struct TutorialStep: Identifiable {
     enum Scene: Equatable {
         /// An ingredient-gathering (match-3) tip, drawn by `M3TipSceneView` (R9).
         case m3(M3TipScene)
+        /// A Secret Recipe tip, drawn by `RecipeTipSceneView` (R10b).
+        case recipe(RecipeTipScene)
         case pickAndPour, pourRules, goal, sealed, keyOpensSeal, murky, reveal, essence, essenceOut
         case neckOut, neckIn, funnelIn, funnelCare, tapBottom, tapNoIn
         case iceHolds, iceSeals, iceThaws
@@ -26,6 +28,8 @@ struct TutorialStep: Identifiable {
         switch topic {
         case .m3Swap, .m3Specials, .m3Frost, .m3Crates, .m3Flasks:
             return M3Tips.steps(for: topic)
+        case .recipe:
+            return RecipeTips.steps()
         case .basic:
             return [
                 TutorialStep(id: "basic.pour", topic: topic, title: String(localized: "Pour"),
@@ -286,6 +290,7 @@ extension TutorialTopic {
         case .m3Frost: return String(localized: "New: frost", comment: "Tip heading: match-3 frost tiles")
         case .m3Crates: return String(localized: "New: sealed crates", comment: "Tip heading: match-3 crates")
         case .m3Flasks: return String(localized: "New: potion flasks", comment: "Tip heading: match-3 drop-down flasks")
+        case .recipe: return String(localized: "Secret Recipe", comment: "Title of the code-breaking recipe game")
         }
     }
 }
@@ -300,6 +305,8 @@ private struct TutorialScene: View {
             switch scene {
             case .m3(let tip):
                 M3TipSceneView(scene: tip)
+            case .recipe(let tip):
+                RecipeTipSceneView(scene: tip)
             case .pickAndPour:
                 BottleView(bottle: Bottle([0, 1, 1], capacity: 4), width: w, isSelected: true)
                     .offset(y: -14)

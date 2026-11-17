@@ -8,6 +8,8 @@ struct DailyView: View {
     let onPlay: (_ level: LevelDefinition, _ date: DailyDate) -> Void
     /// Opens the Daily Gathering (R9), shown as a card under the stats.
     var onGathering: (() -> Void)?
+    /// Opens Secret Recipe (R10b; a temporary spot until the Today hub).
+    var onRecipe: (() -> Void)?
 
     @Environment(DailyModel.self) private var daily
     /// First day of the month on show; nil = today's month.
@@ -19,6 +21,7 @@ struct DailyView: View {
                 todayCard
                 statsGrid
                 if let onGathering { M3DailyHomeCard(action: onGathering) }
+                if let onRecipe { RecipeEntryCard(onDaily: onRecipe) }
                 DailyCalendar(month: month, today: daily.today, stats: daily.stats,
                               canGoBack: month > earliestMonth, canGoForward: month < daily.today.firstOfMonth,
                               onMove: move(by:))

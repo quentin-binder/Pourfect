@@ -10,6 +10,8 @@ enum TutorialTopic: String, CaseIterable, Hashable {
     case order, layered
     /// R9 ingredient gathering (match-3): never a `Mechanic`, so recipes never ask for them.
     case m3Swap = "m3.swap", m3Specials = "m3.specials", m3Frost = "m3.frost", m3Crates = "m3.crates", m3Flasks = "m3.flasks"
+    /// R10b Secret Recipe (never a `Mechanic` either).
+    case recipe = "recipe"
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 

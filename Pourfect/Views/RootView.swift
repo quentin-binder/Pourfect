@@ -21,6 +21,9 @@ enum Route: Hashable {
     /// The Daily Gathering screen, and its level of a UTC day.
     case m3Daily
     case m3DailyPlay(M3Level, DailyDate)
+    /// Secret Recipe (R10b): the daily screen, and a game (today's daily or a practice seed).
+    case recipeDaily
+    case recipe(RecipePlay)
 }
 
 struct RootView: View {
@@ -28,6 +31,7 @@ struct RootView: View {
     @Environment(ProgressModel.self) private var progress
     @Environment(DailyModel.self) private var daily
     @Environment(M3DailyModel.self) private var m3daily
+    @Environment(RecipeDailyModel.self) private var recipeDaily
     @Environment(RushRecordModel.self) private var rushRecords
     @Environment(StoryPresenter.self) private var story
     @Environment(AppSettings.self) private var settings
@@ -62,7 +66,9 @@ struct RootView: View {
                     case .challenges:
                         ChallengesView(onOpenPack: { path.append(.pack($0)) },
                                        onRandom: { path.append(.randomSettings) },
-                                       onRush: { path.append(.rush) })
+                                       onRush: { path.append(.rush) },
+                                       onRecipeDaily: { path.append(.recipeDaily) },
+                                       onRecipePractice: { path.append(.recipe(.practice(RecipeGameView.randomSeed()))) })
                     case .level(let packID, let index):
                         if let pack = catalog.pack(id: packID) {
                             GameView(model: GameViewModel(levels: pack.levels, index: index, progress: progress,
@@ -74,7 +80,8 @@ struct RootView: View {
                         GameView(model: GameViewModel(randomLevel: level, options: options))
                     case .daily:
                         DailyView(onPlay: { level, date in path.append(.dailyPlay(level, date)) },
-                                  onGathering: { path.append(.m3Daily) })
+                                  onGathering: { path.append(.m3Daily) },
+                                  onRecipe: { path.append(.recipeDaily) })
                     case .dailyPlay(let level, let date):
                         GameView(model: GameViewModel(dailyLevel: level, date: date, daily: daily))
                     case .rush:
@@ -89,6 +96,10 @@ struct RootView: View {
                         M3DailyView(onPlay: { level, date in path.append(.m3DailyPlay(level, date)) })
                     case .m3DailyPlay(let level, let date):
                         MatchGameView(level: level, daily: date) { if !path.isEmpty { path.removeLast() } }
+                    case .recipeDaily:
+                        RecipeDailyView { path.append(.recipe($0)) }
+                    case .recipe(let play):
+                        RecipeGameView(play: play)
                     }
                 }
         }
@@ -133,7 +144,7 @@ struct RootView: View {
         .onChange(of: unlocked, initial: true) { _, now in announce(now) }
         // A new UTC day may have started while the app was in the background.
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { daily.refresh(); m3daily.refresh() }
+            if phase == .active { daily.refresh(); m3daily.refresh(); recipeDaily.refresh() }
         }
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
@@ -212,6 +223,19 @@ struct RootView: View {
         // `-LPM3Demo K` (in `MatchGameView`) plays K bot moves.
         // `-LPOpenEpisode N` opens gathering episode N's level list; `-LPOpenM3Daily 1` the Daily
         // Gathering screen (`-LPPlayM3Daily 1` also starts today's level).
+        // `-LPOpenRecipe daily|practice|stats` opens today's Secret Recipe, a practice one (seed
+        // `-LPRecipeSeed N`, else random) or the daily screen; `-LPRecipeDemo K` (in `RecipeGameView`)
+        // plays K guesses (nothing is saved).
+        if let raw = defaults.string(forKey: "LPOpenRecipe") {
+            switch raw {
+            case "practice":
+                let seed = defaults.integer(forKey: "LPRecipeSeed")
+                path = [.challenges, .recipe(.practice(seed > 0 ? UInt64(seed) : RecipeGameView.randomSeed()))]
+            case "stats": path = [.recipeDaily]
+            default: path = [.recipeDaily, .recipe(.daily(recipeDaily.today))]
+            }
+            return
+        }
         if defaults.integer(forKey: "LPOpenEpisode") > 0 {
             path = [.episode(defaults.integer(forKey: "LPOpenEpisode"))]
             return

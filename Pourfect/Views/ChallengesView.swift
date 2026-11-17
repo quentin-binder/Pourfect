@@ -7,6 +7,9 @@ struct ChallengesView: View {
     let onOpenPack: (_ packID: String) -> Void
     let onRandom: () -> Void
     let onRush: () -> Void
+    /// Secret Recipe (R10b): the daily screen and a practice game.
+    var onRecipeDaily: (() -> Void)?
+    var onRecipePractice: (() -> Void)?
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
@@ -18,6 +21,10 @@ struct ChallengesView: View {
                 header
                 sectionTitle("Rush", symbol: "timer")
                 rushCard
+                if let onRecipeDaily {
+                    sectionTitle("Secret Recipe", symbol: "lock.fill")
+                    RecipeEntryCard(onDaily: onRecipeDaily, onPractice: onRecipePractice)
+                }
                 sectionTitle("Recipe books", symbol: "book.closed.fill")
                 ForEach(catalog.challenges) { pack in
                     packCard(pack)
