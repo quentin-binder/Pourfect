@@ -10,6 +10,10 @@ enum TutorialTopic: String, CaseIterable, Hashable {
     case order, layered
     /// R9 ingredient gathering (match-3): never a `Mechanic`, so recipes never ask for them.
     case m3Swap = "m3.swap", m3Specials = "m3.specials", m3Frost = "m3.frost", m3Crates = "m3.crates", m3Flasks = "m3.flasks"
+    /// R10 distillery (pipe rotation): one topic per piece type or rule, shown the first time a level has it.
+    case distillBasics = "distill.basics", distillTee = "distill.tee", distillFixed = "distill.fixed"
+    case distillColors = "distill.colors", distillCross = "distill.cross", distillCoil = "distill.coil"
+    case distillValve = "distill.valve"
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 

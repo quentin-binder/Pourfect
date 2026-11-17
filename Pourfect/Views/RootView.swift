@@ -1,4 +1,5 @@
 import BottleSortCore
+import DistilleryCore
 import Match3Core
 import SwiftUI
 
@@ -21,6 +22,8 @@ enum Route: Hashable {
     /// The Daily Gathering screen, and its level of a UTC day.
     case m3Daily
     case m3DailyPlay(M3Level, DailyDate)
+    /// A distillery level (R10): a stage or challenge pack level, a random one, or a day's daily.
+    case distill(DistillLevel, DistillGameView.Kind)
 }
 
 struct RootView: View {
@@ -89,6 +92,8 @@ struct RootView: View {
                         M3DailyView(onPlay: { level, date in path.append(.m3DailyPlay(level, date)) })
                     case .m3DailyPlay(let level, let date):
                         MatchGameView(level: level, daily: date) { if !path.isEmpty { path.removeLast() } }
+                    case .distill(let level, let kind):
+                        DistillGameView(level: level, kind: kind) { if !path.isEmpty { path.removeLast() } }
                     }
                 }
         }
@@ -238,6 +243,24 @@ struct RootView: View {
                 let moves = defaults.integer(forKey: "LPM3Moves")
                 if moves > 0 { level.moves = moves }
                 path = [.match3(level)]
+            }
+            return
+        }
+        // `-LPOpenDistill ID` opens a distillery level: a level id (`d1-07`, `dx-03`), `random`
+        // (`-LPDistillTier gentle|tricky|fiendish`, `-LPDistillSeed S`), `daily` or `daily-YYYY-MM-DD`;
+        // `-LPDistillDemo K` (in `DistillGameView`) then plays K solver taps.
+        if let id = defaults.string(forKey: "LPOpenDistill") {
+            if id.hasPrefix("daily") {
+                let date = DailyDate(isoString: String(id.dropFirst("daily-".count))) ?? DailyDate.today()
+                let level = await Task.detached { DistillDaily.level(for: date) }.value
+                path = [.distill(level, .daily(date))]
+            } else if id == "random" {
+                let tier = DistillRandomTier(rawValue: defaults.string(forKey: "LPDistillTier") ?? "") ?? .gentle
+                let seed = UInt64(max(1, defaults.integer(forKey: "LPDistillSeed")))
+                let level = await Task.detached { DistillRandom.level(tier: tier, seed: seed) }.value
+                path = [.distill(level, .random)]
+            } else if let level = DistillLibrary.shared.level(id: id) {
+                path = [.distill(level, .pack)]
             }
             return
         }

@@ -292,6 +292,9 @@
     "%lld of %lld filled" : {
       "comment" : "VoiceOver: how many order flasks hold what they should"
     },
+    "%lld of %lld flasks filled" : {
+      "comment" : "VoiceOver: distillery progress"
+    },
     "%lld of %lld recipes with a gold seal" : {
       "comment" : "VoiceOver: gold seals earned in a chapter"
     },
@@ -447,6 +450,54 @@
         }
       }
     },
+    "%lld stars" : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld star"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld stars"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld taps" : {
+      "comment" : "VoiceOver: distillery tap count",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld tap"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld taps"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld taps · fewest possible %lld" : {
+      "comment" : "Distillery win card: taps used and the minimum"
+    },
     "+%lld" : {
       "comment" : "Push preview under a flask: how many layers a pour would push into its bottom through a pressure pipe"
     },
@@ -458,6 +509,9 @@
     },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {
 
+    },
+    "A crossing carries two pipes over each other. They never mix, so two potions can pass through the same spot." : {
+      "comment" : "Distillery tip: cross pieces"
     },
     "A flask etched with a glowing rune takes only the potion of that rune. Anything else is refused, even when the flask is empty." : {
 
@@ -480,11 +534,17 @@
     "A funnel flask only fills. Nothing pours out of it." : {
       "comment" : "Shown when the player tries to pour from a funnel flask"
     },
+    "A glowing coil brews the potion passing through it: the tag in its corner shows what goes in and what comes out. Other potions pass unchanged." : {
+      "comment" : "Distillery tip: heat coils change a color"
+    },
     "A hint was used, so no gold seal this time" : {
 
     },
     "A hint was used, so this brew can't be perfect" : {
 
+    },
+    "A hint was used, so two stars at most" : {
+  
     },
     "A narrow neck lets one layer through at a time, a funnel only takes potions in, and a tap pours from the bottom. Each one changes how the potions flow." : {
       "comment" : "Story, chapter 5 (Glass Works)"
@@ -506,6 +566,9 @@
     },
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {
 
+    },
+    "A splitter joins three pipes: whatever comes in runs out of both other ends. One cauldron can fill two flasks." : {
+      "comment" : "Distillery tip: tee pieces"
     },
     "A tap can't pour while its flask holds ice. It thaws in %lld moves." : {
       "comment" : "Shown when the player picks up a tap flask that holds a frozen layer; the argument is the moves until the last ice thaws",
@@ -536,6 +599,9 @@
     "A treasure hunt inside a puzzle. Best day ever." : {
       "comment" : "Story, chapter 2 (Rune Vault)"
     },
+    "A valve stays shut until the flask with the same number holds its own potion. Then it opens and lets the liquid through." : {
+      "comment" : "Distillery tip: valves linked to a flask"
+    },
     "A villager has ordered a potion. The flask with the paper ticket must end full of the potion shown on it." : {
 
     },
@@ -560,6 +626,9 @@
     "An essence flask. It takes only the potion its rune names, and politely refuses everything else." : {
       "comment" : "Story, chapter 4 (Glyph Library)"
     },
+    "An open pipe end is dripping" : {
+      "comment" : "Tooltip: distillery leak warning"
+    },
     "And the dragon?" : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
     },
@@ -578,8 +647,14 @@
     "Before the climb to Frost Peak we need warm supplies, and they're locked in my old storeroom." : {
       "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
     },
+    "best" : {
+      "comment" : "Distillery HUD caption: fewest taps of a win"
+    },
     "Best %lld" : {
       "comment" : "Rush best score\nRush end card: the saved best score"
+    },
+    "Best %lld taps" : {
+      "comment" : "VoiceOver: distillery best tap count"
     },
     "Best Rush: %lld recipes" : {
       "comment" : "VoiceOver: Rush best score",
@@ -628,6 +703,9 @@
     },
     "Bram" : {
       "comment" : "Name of the village baker who orders potions"
+    },
+    "Brass rivets hold a piece in place: it can't be turned. Build your pipes around it." : {
+      "comment" : "Distillery tip: fixed pieces"
     },
     "Brew" : {
 
@@ -683,8 +761,14 @@
     "Careful now. The bog air makes some of the flasks bubble." : {
       "comment" : "Story, chapter 7 (Bubbling Bog)"
     },
+    "carries %@" : {
+      "comment" : "VoiceOver: what flows through a distillery pipe"
+    },
     "Cascade ×%lld" : {
       "comment" : "Match-3: several matches in a row after one swap"
+    },
+    "Cauldron of %@, pours %@" : {
+      "comment" : "VoiceOver: a distillery source; arguments are the potion and the outlet side"
     },
     "Chains, pipes… everything in these towers is connected!" : {
       "comment" : "Story, chapter 8 (Twin Towers)"
@@ -815,11 +899,17 @@
     "Clear the mist" : {
 
     },
+    "Click a pipe to turn it a quarter clockwise; right-click or Option-click turns it back. Potion runs from the cauldron through every connected pipe." : {
+      "comment" : "Distillery tip (Mac): how to turn pipes"
+    },
     "Color Runes" : {
 
     },
     "Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle change of the potion levels; System follows your device setting." : {
 
+    },
+    "colors mixing" : {
+      "comment" : "VoiceOver: two colors met in the distillery"
     },
     "Comets" : {
       "comment" : "Match-3 tip title: the line-clear special"
@@ -889,6 +979,12 @@
     "Cross" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Crossing" : {
+      "comment" : "Distillery piece: two pipes crossing without mixing"
+    },
+    "Crossings" : {
+      "comment" : "Distillery tip title"
+    },
     "Crystal" : {
       "comment" : "Match-3 ingredient"
     },
@@ -906,6 +1002,9 @@
     },
     "Daily Brew, %@, %@, streak %lld" : {
       "comment" : "VoiceOver: daily card (label, state, streak)"
+    },
+    "Daily Distillery" : {
+      "comment" : "Title of the daily distillery level"
     },
     "Daily Gathering" : {
       "comment" : "Title of the daily match-3 level"
@@ -959,6 +1058,9 @@
     "Difficulty %lld of 7" : {
 
     },
+    "Distilled!" : {
+  
+    },
     "Done" : {
       "comment" : "Ends a story scene"
     },
@@ -970,6 +1072,12 @@
     },
     "Dragons love a tidy shelf. Let's not keep it waiting." : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "dripping" : {
+      "comment" : "VoiceOver: an open pipe end in the distillery drips"
+    },
+    "Each flask wants the potion on its tag. No open pipe end may drip; a cap closes a line. Pipes left dry don't matter. Fewer taps earn more stars." : {
+      "comment" : "Distillery tip: the goal, leaks, caps and stars"
     },
     "Each poured layer mixes with one layer below it into two layers of the new potion. Poured layers left over stay on top." : {
 
@@ -1015,6 +1123,12 @@
     "Earn new looks for your lab by playing: finish chapters, collect stars and gold seals, keep a Daily Brew streak or set a Rush record." : {
 
     },
+    "east" : {
+      "comment" : "Distillery direction, spoken by VoiceOver"
+    },
+    "Elbow" : {
+      "comment" : "Distillery piece: a bent pipe"
+    },
     "Ember" : {
       "comment" : "Match-3 ingredient"
     },
@@ -1024,8 +1138,14 @@
     "Empty" : {
       "comment" : "VoiceOver: an empty match-3 cell"
     },
+    "empty" : {
+      "comment" : "VoiceOver: a distillery flask holds nothing yet"
+    },
     "Empty flasks" : {
 
+    },
+    "End cap" : {
+      "comment" : "Distillery piece: a pipe closed at one end"
     },
     "Ending" : {
       "comment" : "Story menu: the ending scene"
@@ -1066,6 +1186,15 @@
     "Feedback" : {
 
     },
+    "fewest" : {
+      "comment" : "Distillery HUD caption: the minimum taps, shown once won"
+    },
+    "Fewest possible %lld taps" : {
+      "comment" : "VoiceOver: distillery minimum taps"
+    },
+    "Fill every flask" : {
+      "comment" : "Distillery tip title"
+    },
     "Fill every flask with a single potion. Undo, Restart and Hint are always there to help." : {
 
     },
@@ -1080,6 +1209,9 @@
     },
     "Fill the switch flask to the top with one potion: its gem lights up, the lever swings over and the gate opens." : {
 
+    },
+    "filled" : {
+      "comment" : "VoiceOver: a distillery flask holds its own color"
     },
     "Fireflies" : {
       "comment" : "Completion effect name"
@@ -1134,6 +1266,9 @@
     },
     "Flask %lld pushed its bottom layer into the bottom of flask %lld" : {
       "comment" : "VoiceOver: a pour into a full flask pushed its bottom layer through its pressure pipe; the arguments are the flask poured into and the flask at the pipe's far end"
+    },
+    "Flask %lld, wants %@, fills from %@" : {
+      "comment" : "VoiceOver: a distillery target flask; arguments are its number, wanted potion and inlet side"
     },
     "Flask Drop" : {
       "comment" : "Daily gathering flavour (Friday): potion flasks to bring down"
@@ -1252,11 +1387,26 @@
     "Heart" : {
       "comment" : "Name of a colorblind rune"
     },
+    "heat coil, turns %@ into %@" : {
+      "comment" : "VoiceOver: a distillery heat coil; arguments are the potions in and out"
+    },
+    "Heat coils" : {
+      "comment" : "Distillery tip title"
+    },
     "Hexagon" : {
       "comment" : "Name of a colorblind rune"
     },
     "Hint" : {
 
+    },
+    "holds %@, wrong potion" : {
+      "comment" : "VoiceOver: a distillery flask holds another color"
+    },
+    "holds murky liquid" : {
+      "comment" : "VoiceOver: a distillery flask"
+    },
+    "How the distillery works" : {
+      "comment" : "Tooltip of the distillery help button"
     },
     "How this level works" : {
       "comment" : "Tooltip of the match-3 help button"
@@ -1377,6 +1527,9 @@
     "Layered recipes" : {
 
     },
+    "leaking" : {
+      "comment" : "VoiceOver: liquid drips out of this distillery pipe"
+    },
     "Level %lld, %lld stars. Goals: %@" : {
       "comment" : "VoiceOver: a gathering level tile",
       "localizations" : {
@@ -1463,6 +1616,9 @@
     "Murky" : {
       "comment" : "Daily puzzle difficulty (Thursday)"
     },
+    "murky" : {
+      "comment" : "Distillery: two colors met in this pipe"
+    },
     "Murky Layers" : {
       "comment" : "Random recipe mode with hidden layers"
     },
@@ -1492,6 +1648,9 @@
     },
     "Narrow necks" : {
 
+    },
+    "New best" : {
+  
     },
     "New Random Brew" : {
 
@@ -1531,6 +1690,9 @@
     "New: bubbling flasks" : {
 
     },
+    "New: crossings" : {
+      "comment" : "Tip heading: distillery cross pieces"
+    },
     "New: customer orders" : {
 
     },
@@ -1548,6 +1710,9 @@
     },
     "New: glowing specials" : {
       "comment" : "Tip heading: match-3 specials"
+    },
+    "New: heat coils" : {
+      "comment" : "Tip heading: distillery heat coils"
     },
     "New: layered recipes" : {
 
@@ -1567,11 +1732,17 @@
     "New: pressure pipes" : {
 
     },
+    "New: riveted pieces" : {
+      "comment" : "Tip heading: distillery fixed pieces"
+    },
     "New: sealed crates" : {
       "comment" : "Tip heading: match-3 crates"
     },
     "New: sealed flasks" : {
 
+    },
+    "New: splitters" : {
+      "comment" : "Tip heading: distillery tee pieces"
     },
     "New: switches and gates" : {
 
@@ -1581,6 +1752,12 @@
     },
     "New: twin flasks" : {
 
+    },
+    "New: two potions" : {
+      "comment" : "Tip heading: distillery with several colors"
+    },
+    "New: valves" : {
+      "comment" : "Tip heading: distillery valves"
     },
     "Next" : {
       "comment" : "Next story line"
@@ -1594,6 +1771,9 @@
     "Next month" : {
 
     },
+    "No best yet" : {
+      "comment" : "VoiceOver: distillery level not yet won"
+    },
     "No match, the pieces slide back" : {
       "comment" : "VoiceOver: a match-3 swap that makes no line of three"
     },
@@ -1605,6 +1785,12 @@
     },
     "No swaps left: stirring the tray" : {
       "comment" : "Match-3: the board is reshuffled"
+    },
+    "north" : {
+      "comment" : "Distillery direction, spoken by VoiceOver"
+    },
+    "north to south and east to west, never mixing" : {
+      "comment" : "VoiceOver: a distillery crossing's two pipes"
     },
     "Not until you pour off what's on top. A good alchemist is patient, and a little curious." : {
       "comment" : "Story, chapter 3 (Misty Marsh)"
@@ -1632,6 +1818,9 @@
     },
     "Only in the cauldron" : {
 
+    },
+    "opens %@" : {
+      "comment" : "VoiceOver: the sides a distillery pipe opens to"
     },
     "Opens Lab Style" : {
 
@@ -1665,6 +1854,9 @@
     },
     "Perfect brew!" : {
       "comment" : "Win card title: solved in the fewest moves without a hint"
+    },
+    "Perfect distillation!" : {
+  
     },
     "Perfect solve" : {
 
@@ -1773,6 +1965,9 @@
     "Random Brew · %@" : {
 
     },
+    "Random Distillery" : {
+      "comment" : "Title of a random distillery level"
+    },
     "Rare ingredients, kept for a thousand years. Enough for the grandest brew of all." : {
       "comment" : "Story, gathering episode 10 (Dragon's Larder)"
     },
@@ -1855,6 +2050,12 @@
     },
     "Ring" : {
       "comment" : "Name of a colorblind rune"
+    },
+    "Riveted pieces" : {
+      "comment" : "Distillery tip title"
+    },
+    "riveted, can't turn" : {
+      "comment" : "VoiceOver: a fixed distillery piece"
     },
     "Room to push" : {
 
@@ -2017,11 +2218,20 @@
     "Sounds and Fonts" : {
       "comment" : "About screen section header"
     },
+    "south" : {
+      "comment" : "Distillery direction, spoken by VoiceOver"
+    },
     "Sparkles" : {
       "comment" : "Completion effect name"
     },
     "Split between flask %lld and flask %lld" : {
       "comment" : "VoiceOver: a pour into a twin flask was shared evenly with its twin; the arguments are flask numbers"
+    },
+    "Splitter" : {
+      "comment" : "Distillery piece: a T-shaped junction"
+    },
+    "Splitters" : {
+      "comment" : "Distillery tip title: the tee piece"
     },
     "Spring water from the bog, for the Twin Towers. Their chained flasks need it pure." : {
       "comment" : "Story, gathering episode 7 (Bogwater Springs)"
@@ -2060,8 +2270,14 @@
         }
       }
     },
+    "Still %lld" : {
+      "comment" : "Title of a distillery level; the argument is its number in the stage"
+    },
     "Story" : {
 
+    },
+    "Straight pipe" : {
+      "comment" : "Distillery piece"
     },
     "Streak %lld" : {
       "comment" : "Current daily streak (consecutive days solved)"
@@ -2111,8 +2327,14 @@
     "Tap a flask to pick it up, then tap another flask to pour into it." : {
 
     },
+    "Tap a pipe to turn it a quarter clockwise; touch and hold turns it back. Potion runs from the cauldron through every connected pipe." : {
+      "comment" : "Distillery tip (iPhone, iPad): how to turn pipes"
+    },
     "Tap flasks" : {
 
+    },
+    "taps" : {
+      "comment" : "Distillery HUD caption under the tap count"
     },
     "Th" : {
       "comment" : "Calendar column: Thursday"
@@ -2216,6 +2438,9 @@
     "Those little potion flasks are floating in the tray." : {
       "comment" : "Story, gathering episode 7 (Bogwater Springs)"
     },
+    "Three stars at %lld taps, two up to %lld." : {
+      "comment" : "Distillery win card: the tap counts for three and two stars"
+    },
     "Three-star days" : {
       "comment" : "Daily gathering stat"
     },
@@ -2252,6 +2477,18 @@
     "Tuesday" : {
       "comment" : "Weekday of the daily puzzle"
     },
+    "Turn counter-clockwise" : {
+      "comment" : "VoiceOver action: turn a distillery pipe back"
+    },
+    "Turn the pipes" : {
+      "comment" : "Distillery tip title"
+    },
+    "Turns it a quarter clockwise." : {
+      "comment" : "VoiceOver hint of a distillery pipe piece"
+    },
+    "Turns one piece towards the solution. A hint costs the third star." : {
+      "comment" : "Tooltip of the distillery Hint button"
+    },
     "Twice the cracking. I'll bring a bloom or two." : {
       "comment" : "Story, gathering episode 4 (Ember Hearth)"
     },
@@ -2276,6 +2513,12 @@
     "Two lines crossing in an L or a T leave a bloom. It bursts open and clears the ingredients around it." : {
       "comment" : "Match-3 tip: bloom special"
     },
+    "Two potions" : {
+      "comment" : "Distillery tip title"
+    },
+    "Two potions are mixing" : {
+      "comment" : "Tooltip: distillery murk warning"
+    },
     "Undo" : {
 
     },
@@ -2284,6 +2527,15 @@
     },
     "Use the rise" : {
 
+    },
+    "valve, open" : {
+      "comment" : "VoiceOver: a distillery valve"
+    },
+    "valve, shut until flask %lld is filled" : {
+      "comment" : "VoiceOver: a distillery valve; the argument is the linked flask's number"
+    },
+    "Valves" : {
+      "comment" : "Distillery tip title"
     },
     "Verdigris" : {
       "comment" : "Metal of a rune key and its seal"
@@ -2309,6 +2561,9 @@
     "Welcome to my cellar, young one. Every great alchemist starts down here, among the dusty flasks." : {
       "comment" : "Story, chapter 1 (Apprentice Cellar)"
     },
+    "west" : {
+      "comment" : "Distillery direction, spoken by VoiceOver"
+    },
     "What bursts out of a flask when you cork it. Reduce Motion shows none." : {
 
     },
@@ -2317,6 +2572,9 @@
     },
     "When the top layer is frozen, the flask is shut: nothing pours in or out until the ice thaws." : {
 
+    },
+    "Where two potions meet, they turn murky and block the pipe. Give each color its own path to its flasks." : {
+      "comment" : "Distillery tip: several colors and murk"
     },
     "Why are these two flasks chained together?" : {
       "comment" : "Story, chapter 8 (Twin Towers)"
