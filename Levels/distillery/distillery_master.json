@@ -1,0 +1,1877 @@
+{
+  "format" : "pourfect-distillery",
+  "id" : "distillery-master",
+  "levels" : [
+    {
+      "coils" : [
+        {
+          "c" : 5,
+          "from" : 2,
+          "r" : 5,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "S L3 I0 T3 I0 I2 S",
+        "I1 I1 I1 C3 L3 C3* L3",
+        "T2 X I0 I2 I2 I1* F",
+        "I3 T2 I0 I2 I0 L0 T0",
+        "L2 X I0 L0 I3 I1 .",
+        "T3 I1 I3* I3 L2 I3 T1",
+        "C1 F L3 F L1 L2 F"
+      ],
+      "height" : 7,
+      "id" : "dm-01",
+      "minTaps" : 34,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 0,
+        "decoys" : 13,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors2"
+        ],
+        "networkCells" : 29,
+        "nodes" : 27,
+        "score" : 60,
+        "seed" : 3618856042083366324
+      },
+      "targets" : [
+        {
+          "c" : 1,
+          "color" : 2,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "w",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 2
+        },
+        {
+          "c" : 3,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 1,
+          "r" : 5,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 0,
+          "r" : 4,
+          "to" : 5
+        },
+        {
+          "c" : 2,
+          "from" : 2,
+          "r" : 5,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "F I1 I2 I2 I2 T3 F",
+        "L1 T3 T1* T1 I3 I3 I1",
+        "F L0 T3 T0 L3 I3 L2",
+        "I0 L0 L3 C2 I2 I0* L0",
+        "L3 I2 X I2 I1 L1 .",
+        "L2 L1 L3 T3 L0 C0 L2",
+        "L3 S C2* S L3 I0 F"
+      ],
+      "height" : 7,
+      "id" : "dm-02",
+      "minTaps" : 26,
+      "sources" : [
+        {
+          "c" : 3,
+          "color" : 2,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 1,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 3,
+        "decoys" : 18,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors2"
+        ],
+        "networkCells" : 24,
+        "nodes" : 27,
+        "score" : 59,
+        "seed" : 8759217774424346410
+      },
+      "targets" : [
+        {
+          "c" : 0,
+          "color" : 3,
+          "dir" : "e",
+          "r" : 2
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 5,
+          "dir" : "w",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 5,
+          "dir" : "e",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 1,
+          "r" : 5,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 0,
+          "r" : 4,
+          "to" : 5
+        }
+      ],
+      "grid" : [
+        "S L1 L3 C3 F L3 S",
+        "I2 L0 I3 I1 L0 I2 I2",
+        "L2 T2* L1 L1 L2 T2 L3",
+        "L2 L2 L0 T1 I1 L2 F",
+        "F L3 I3 L0 I2 C0 T0*",
+        "L3 I3 I1 L3 L2 L0 L1",
+        "T3 L1 L2 T1* T3 F I3"
+      ],
+      "height" : 7,
+      "id" : "dm-03",
+      "minTaps" : 24,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 6,
+        "decoys" : 19,
+        "mechanics" : [
+          "tee",
+          "fixed",
+          "valve",
+          "coil",
+          "colors2"
+        ],
+        "networkCells" : 24,
+        "nodes" : 39,
+        "score" : 64,
+        "seed" : 15110786189957685799
+      },
+      "targets" : [
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 4
+        },
+        {
+          "c" : 4,
+          "color" : 7,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 5,
+          "color" : 5,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 3
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 2,
+          "r" : 5,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 0,
+          "r" : 1,
+          "to" : 5
+        },
+        {
+          "c" : 6,
+          "from" : 1,
+          "r" : 1,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "I0 S T1 L3 F T0 F",
+        "L2 L0* L3 L3 I1 L3 L1",
+        "C0 I3 I3 L2 L3 I3 I3",
+        "T0 L0 I3 I3 C0* T2 F",
+        "L0 I2* L0 X L0 I3 I0",
+        "L3 I0 I0 T0 L2 L1 T3",
+        "F L2 C3 T1 I0 I0 S"
+      ],
+      "height" : 7,
+      "id" : "dm-04",
+      "minTaps" : 32,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 6
+        },
+        {
+          "c" : 1,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 2,
+        "decoys" : 17,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors2"
+        ],
+        "networkCells" : 26,
+        "nodes" : 27,
+        "score" : 64,
+        "seed" : 4799891215135513250
+      },
+      "targets" : [
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 4,
+          "color" : 5,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 3
+        },
+        {
+          "c" : 6,
+          "color" : 4,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 2,
+          "r" : 4,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 6,
+          "from" : 2,
+          "r" : 5,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "F L3 C3 I3 F T1* C3",
+        "I0* L1 I3 L1 I3 L2 S",
+        "L2 I0 I0 I2 T1 X L0",
+        "F I0 L0 C2 C3 I3 I1",
+        "L2 L3 X I0 I2 L1 I1",
+        "L3 T1 L1 C2 L3* L3 L1",
+        "F L3 . T3 I0 L3 S"
+      ],
+      "height" : 7,
+      "id" : "dm-05",
+      "minTaps" : 34,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 1
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 2,
+        "decoys" : 16,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors2"
+        ],
+        "networkCells" : 26,
+        "nodes" : 25,
+        "score" : 64,
+        "seed" : 4441926273121709923
+      },
+      "targets" : [
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "e",
+          "r" : 3
+        },
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 3,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 4,
+          "color" : 3,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 1,
+          "r" : 3,
+          "target" : 3
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 3,
+          "from" : 2,
+          "r" : 1,
+          "to" : 3
+        },
+        {
+          "c" : 1,
+          "from" : 0,
+          "r" : 2,
+          "to" : 5
+        }
+      ],
+      "grid" : [
+        ". F I2 I3 L3 L0 S",
+        "T2 I3 L3 I2 L0 L2 L1",
+        "T3 L2 X I1* T3 I1 F",
+        "L3 I0 T0 L3 I1 C3 I1",
+        "I1 T0 L2 I2 X L0 I0",
+        "I3 I2 L3 I2 L1 I0 I0",
+        "F C0* S T3 L2 F L1*"
+      ],
+      "height" : 7,
+      "id" : "dm-06",
+      "minTaps" : 35,
+      "sources" : [
+        {
+          "c" : 2,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 3,
+        "decoys" : 15,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors2"
+        ],
+        "networkCells" : 27,
+        "nodes" : 29,
+        "score" : 68,
+        "seed" : 8444362518177284055
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 2
+        },
+        {
+          "c" : 1,
+          "color" : 5,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 3,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 5,
+          "color" : 3,
+          "dir" : "n",
+          "r" : 6
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 2,
+          "r" : 5,
+          "target" : 3
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 3,
+          "from" : 2,
+          "r" : 3,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "S L3 S L2 L3* L3 F",
+        "I3 C2 T3 I1 I1* L1 L3",
+        "I1 I3 I3 I1 L3 I3 F",
+        "T2 I0 X I3 L1 L3 L3",
+        "I1 I2 T2 I2 I0 X L2",
+        "L2 L0 C2 L2 L3* I2 T1",
+        ". F L1 L1 . F C0"
+      ],
+      "height" : 7,
+      "id" : "dm-07",
+      "minTaps" : 30,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 2,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 2,
+          "color" : 0,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 4,
+        "decoys" : 14,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors2"
+        ],
+        "networkCells" : 27,
+        "nodes" : 32,
+        "score" : 68,
+        "seed" : 13424258276251104711
+      },
+      "targets" : [
+        {
+          "c" : 1,
+          "color" : 2,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "w",
+          "r" : 2
+        },
+        {
+          "c" : 5,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 2,
+          "r" : 2,
+          "target" : 3
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 3,
+          "from" : 1,
+          "r" : 1,
+          "to" : 4
+        },
+        {
+          "c" : 3,
+          "from" : 0,
+          "r" : 4,
+          "to" : 5
+        }
+      ],
+      "grid" : [
+        "T0 C3 . L2* S L3 F",
+        "F I1 I0 I2 T0 L2 L2",
+        "T3 I3 L1* L3 L2 L0 I1",
+        "C0 T1 T2 X I0 X L2",
+        "C0 L0 I1 L2 L1 L0 F",
+        "L1 I2* I3 L3 I1 L2 L0",
+        "F I0 L3 I2 S L0 L3"
+      ],
+      "height" : 7,
+      "id" : "dm-08",
+      "minTaps" : 25,
+      "sources" : [
+        {
+          "c" : 4,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 4,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 6,
+        "decoys" : 17,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors2"
+        ],
+        "networkCells" : 25,
+        "nodes" : 37,
+        "score" : 67,
+        "seed" : 8692937598515328343
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 4
+        },
+        {
+          "c" : 0,
+          "color" : 4,
+          "dir" : "e",
+          "r" : 1
+        },
+        {
+          "c" : 6,
+          "color" : 5,
+          "dir" : "w",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 5,
+          "dir" : "e",
+          "r" : 6
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 4,
+          "r" : 2,
+          "target" : 2
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 5,
+          "from" : 1,
+          "r" : 6,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "L2 F L1 L2 L2 T2 C2",
+        "L2 L1 I2 L1 T3 L3 F",
+        "T3 L1 L3 X I0 T0 T3",
+        "F I0 L1 I3 L1* L1 C2*",
+        "L0 C2 L2 I1 L2 I1 S",
+        "L1 I1 T3 X I2 I2 L0",
+        "F C1* S L2 I2 I2 L0"
+      ],
+      "height" : 7,
+      "id" : "dm-09",
+      "minTaps" : 30,
+      "sources" : [
+        {
+          "c" : 2,
+          "color" : 1,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 4
+        }
+      ],
+      "stats" : {
+        "decisions" : 6,
+        "decoys" : 16,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors2"
+        ],
+        "networkCells" : 27,
+        "nodes" : 37,
+        "score" : 73,
+        "seed" : 14625280649056618650
+      },
+      "targets" : [
+        {
+          "c" : 1,
+          "color" : 4,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 1
+        },
+        {
+          "c" : 0,
+          "color" : 2,
+          "dir" : "e",
+          "r" : 3
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 4,
+          "r" : 2,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 5,
+          "from" : 0,
+          "r" : 3,
+          "to" : 5
+        },
+        {
+          "c" : 3,
+          "from" : 1,
+          "r" : 5,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "L0 L2 L3 I2 T1 I3 F",
+        "S I0 X L0 C2 L2* I2",
+        "I1 I2 I3 T2 I0 I2 F",
+        "L3 I3 I3 I0* L3 I0 L3",
+        "T3* L3 T1 X L1 L1 L1",
+        "F L1 L3 L2 C0 I1 T0",
+        "C2 L1 F . . L2 S"
+      ],
+      "height" : 7,
+      "id" : "dm-10",
+      "minTaps" : 34,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "e",
+          "r" : 1
+        },
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 5,
+        "decoys" : 13,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors2"
+        ],
+        "networkCells" : 28,
+        "nodes" : 39,
+        "score" : 75,
+        "seed" : 1553321515746751611
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 2
+        },
+        {
+          "c" : 2,
+          "color" : 4,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 5,
+          "dir" : "e",
+          "r" : 5
+        },
+        {
+          "c" : 6,
+          "color" : 5,
+          "dir" : "w",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 5,
+          "r" : 4,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 5,
+          "from" : 2,
+          "r" : 2,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "T0 L2* F T2 L2 I2 F",
+        "F L1 L0 I2 T0 L1* I3",
+        "L1 L2 L2 L3 L2 L2 F",
+        "I1 L3 X L1 L3 L2 T1",
+        ". I1 L3 I1* T0 L3 S",
+        "T3 I0 I2 L3 X L1 T2",
+        "S L1 L0 F L2 I0 S"
+      ],
+      "height" : 7,
+      "id" : "dm-11",
+      "minTaps" : 34,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 0,
+          "dir" : "w",
+          "r" : 4
+        },
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "e",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 7,
+        "decoys" : 12,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 28,
+        "nodes" : 34,
+        "score" : 79,
+        "seed" : 9608528222252332074
+      },
+      "targets" : [
+        {
+          "c" : 3,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 2,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "w",
+          "r" : 2
+        },
+        {
+          "c" : 0,
+          "color" : 2,
+          "dir" : "e",
+          "r" : 1
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 4,
+          "r" : 6,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 2,
+          "r" : 2,
+          "to" : 3
+        },
+        {
+          "c" : 3,
+          "from" : 1,
+          "r" : 3,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "F T1 L0 F L3 I2 S",
+        "I3 T0 L1 I3 I1 L3 L3",
+        "L1 L0 T0 I1 I3 L1 L1",
+        "S T1 I2 L0 I1 L3 F",
+        "I3 L3* C0 L3 X L1 C2",
+        "L3 L2* L3 T3 L2 L0 C1*",
+        "S L2 L1 F T3 L3 F"
+      ],
+      "height" : 7,
+      "id" : "dm-12",
+      "minTaps" : 36,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "e",
+          "r" : 3
+        },
+        {
+          "c" : 0,
+          "color" : 9,
+          "dir" : "n",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 4,
+        "decoys" : 15,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 26,
+        "nodes" : 35,
+        "score" : 71,
+        "seed" : 8601027568667178596
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "w",
+          "r" : 6
+        },
+        {
+          "c" : 3,
+          "color" : 4,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 3,
+          "color" : 9,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 9,
+          "dir" : "w",
+          "r" : 3
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 4,
+          "r" : 3,
+          "target" : 4
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 2,
+          "from" : 1,
+          "r" : 5,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "S L0 T3 S C3* T2 I1",
+        "L0 I1 L3 L1 I1 L3 F",
+        "F L3* I1 L3 L0 I3 I0",
+        "T2 I3* I3 L2 X L1 .",
+        "L0 L0 I1 L3 X I0 F",
+        "T1 I3 L3 L1 T2 C2 L0",
+        "F I0 I0 I0 T2 I2 S"
+      ],
+      "height" : 7,
+      "id" : "dm-13",
+      "minTaps" : 35,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 0
+        },
+        {
+          "c" : 3,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 6,
+        "decoys" : 14,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors3"
+        ],
+        "networkCells" : 27,
+        "nodes" : 33,
+        "score" : 79,
+        "seed" : 7996142936187493460
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 1
+        },
+        {
+          "c" : 0,
+          "color" : 2,
+          "dir" : "e",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 2
+        },
+        {
+          "c" : 6,
+          "color" : 4,
+          "dir" : "w",
+          "r" : 4
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 3,
+          "r" : 4,
+          "target" : 0
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 3,
+          "from" : 0,
+          "r" : 0,
+          "to" : 5
+        },
+        {
+          "c" : 5,
+          "from" : 2,
+          "r" : 4,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "F . L0 L0 S T3* F",
+        "L2 I0 L1 L2 L1 L3 L0",
+        "I2 L3 L1 T2 L3 L1 I3",
+        "S I0 I2 L0 I3 L3 S",
+        "L0 L1 I0 I3 I1 I0 T1",
+        "F L0 I2 L0* L1 T1 F",
+        "T1* L1 I2 I2 I3 L1 I0"
+      ],
+      "height" : 7,
+      "id" : "dm-14",
+      "minTaps" : 38,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "e",
+          "r" : 3
+        },
+        {
+          "c" : 4,
+          "color" : 0,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 3
+        }
+      ],
+      "stats" : {
+        "decisions" : 9,
+        "decoys" : 13,
+        "mechanics" : [
+          "tee",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 28,
+        "nodes" : 39,
+        "score" : 87,
+        "seed" : 16435617035910360633
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 5,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "w",
+          "r" : 5
+        },
+        {
+          "c" : 0,
+          "color" : 3,
+          "dir" : "e",
+          "r" : 5
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 4,
+          "r" : 5,
+          "target" : 2
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 5,
+          "from" : 1,
+          "r" : 1,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "F L3 F L3 L3 L0 F",
+        "L3 I1* T1 X L2 L2 L1",
+        "L2 L1 I2 X L1 I1 T1",
+        "F L2 L3 L0 I2 L2 S",
+        "L1* I0 I3 L1 I1 I3 L1",
+        "I0 T1* I1 L3 T2 L3 T1",
+        "S I2 L3 F L2 I3 S"
+      ],
+      "height" : 7,
+      "id" : "dm-15",
+      "minTaps" : 27,
+      "sources" : [
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 3
+        },
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 6
+        }
+      ],
+      "stats" : {
+        "decisions" : 10,
+        "decoys" : 13,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 28,
+        "nodes" : 54,
+        "score" : 81,
+        "seed" : 6758833356738564423
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 4,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 2,
+          "color" : 7,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 2,
+          "dir" : "e",
+          "r" : 3
+        },
+        {
+          "c" : 3,
+          "color" : 2,
+          "dir" : "n",
+          "r" : 6
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 5,
+          "r" : 6,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 2,
+          "from" : 2,
+          "r" : 4,
+          "to" : 3
+        },
+        {
+          "c" : 2,
+          "from" : 1,
+          "r" : 6,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "T0 I3* F L2 F L1 C1",
+        "F I1 T0 C3 T3 L3 F",
+        "T2 L0 L1 L3 L3* I1 I2",
+        "I0 L2 L0 I1 L2 L2 L2",
+        "S L1 L3 X X I0 S",
+        "C1 L1 I3 L1 T0 L2 L2*",
+        "F I3 I1 I2 L0 S ."
+      ],
+      "height" : 7,
+      "id" : "dm-16",
+      "minTaps" : 28,
+      "sources" : [
+        {
+          "c" : 5,
+          "color" : 1,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 4
+        },
+        {
+          "c" : 0,
+          "color" : 9,
+          "dir" : "e",
+          "r" : 4
+        }
+      ],
+      "stats" : {
+        "decisions" : 10,
+        "decoys" : 11,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors3"
+        ],
+        "networkCells" : 29,
+        "nodes" : 65,
+        "score" : 83,
+        "seed" : 5749760285286522894
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 1
+        },
+        {
+          "c" : 0,
+          "color" : 4,
+          "dir" : "e",
+          "r" : 6
+        },
+        {
+          "c" : 2,
+          "color" : 3,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 3,
+          "dir" : "e",
+          "r" : 1
+        },
+        {
+          "c" : 4,
+          "color" : 9,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 2,
+          "r" : 2,
+          "target" : 1
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 1,
+          "r" : 1,
+          "to" : 4
+        }
+      ],
+      "grid" : [
+        "F L0 S L0* F L2 C1",
+        "T3 I3 I1 I0 I1 L3 F",
+        "L1 I3 I1 L0 I1 I1 C3",
+        "S L1 I0* L3 X L1 T3",
+        "L3 L1 L1 I3 I1 I0* L1",
+        "I0 L2 I0 L1 T2 L0 T2",
+        "S I0 I0 I2 L1 F I2"
+      ],
+      "height" : 7,
+      "id" : "dm-17",
+      "minTaps" : 35,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 1,
+          "dir" : "e",
+          "r" : 6
+        },
+        {
+          "c" : 2,
+          "color" : 2,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 3
+        }
+      ],
+      "stats" : {
+        "decisions" : 7,
+        "decoys" : 15,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 27,
+        "nodes" : 45,
+        "score" : 80,
+        "seed" : 9130082078276134899
+      },
+      "targets" : [
+        {
+          "c" : 5,
+          "color" : 1,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 4,
+          "color" : 4,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 1
+        },
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 1,
+          "r" : 4,
+          "target" : 3
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 1,
+          "r" : 3,
+          "to" : 4
+        },
+        {
+          "c" : 5,
+          "from" : 2,
+          "r" : 3,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "F C0* C2 F L1 L3 S",
+        "I1 L3 L3 L1 I3 I3 I3",
+        "L3 L0 I0 I2 L3 L2 I3",
+        "F T0 I3 L3 L1 L3 F",
+        "L2 I1 I1 I3 T2 I1 L0",
+        "L3 X L1 I1 L2* I3 I2",
+        "S L2 I2 L1 . L0* S"
+      ],
+      "height" : 7,
+      "id" : "dm-18",
+      "minTaps" : 38,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "w",
+          "r" : 6
+        },
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 8,
+        "decoys" : 13,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 28,
+        "nodes" : 50,
+        "score" : 86,
+        "seed" : 12857861079086577576
+      },
+      "targets" : [
+        {
+          "c" : 3,
+          "color" : 0,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "w",
+          "r" : 3
+        },
+        {
+          "c" : 0,
+          "color" : 4,
+          "dir" : "e",
+          "r" : 3
+        },
+        {
+          "c" : 0,
+          "color" : 4,
+          "dir" : "s",
+          "r" : 0
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 3,
+          "r" : 3,
+          "target" : 0
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 4,
+          "from" : 2,
+          "r" : 4,
+          "to" : 3
+        }
+      ],
+      "grid" : [
+        "L0 C1 S T0 L0 C1 I3",
+        "S L0 L2 I2 I2 T1 F",
+        "L1 L3 I0 I3 L0 I0 I3",
+        "L2 T0 L2 L1* X I2 F",
+        "S I1 I1 L1 L1 L0 T2",
+        "T3* L2* C0 L2 T3 X L0",
+        "F I3 I2 L0 F L2 L1"
+      ],
+      "height" : 7,
+      "id" : "dm-19",
+      "minTaps" : 30,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 4
+        },
+        {
+          "c" : 2,
+          "color" : 1,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 0,
+          "color" : 2,
+          "dir" : "e",
+          "r" : 1
+        }
+      ],
+      "stats" : {
+        "decisions" : 9,
+        "decoys" : 15,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "cap",
+          "colors3"
+        ],
+        "networkCells" : 27,
+        "nodes" : 66,
+        "score" : 83,
+        "seed" : 17276563395348146543
+      },
+      "targets" : [
+        {
+          "c" : 6,
+          "color" : 7,
+          "dir" : "w",
+          "r" : 3
+        },
+        {
+          "c" : 6,
+          "color" : 1,
+          "dir" : "w",
+          "r" : 1
+        },
+        {
+          "c" : 4,
+          "color" : 3,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 3,
+          "dir" : "e",
+          "r" : 6
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 2,
+          "r" : 4,
+          "target" : 2
+        }
+      ],
+      "width" : 7
+    },
+    {
+      "coils" : [
+        {
+          "c" : 6,
+          "from" : 2,
+          "r" : 2,
+          "to" : 3
+        },
+        {
+          "c" : 3,
+          "from" : 0,
+          "r" : 5,
+          "to" : 5
+        }
+      ],
+      "grid" : [
+        "S I3 L1 I2 F T2* F",
+        "I0 C1 I3 C1 I0 T2* I3",
+        "F I1 T0 C1 L2 L1 I1",
+        "L1 L2 X I2 I0 L1 I1",
+        "I3 I2 L0* L0 T3 L1 L1",
+        "S L1 L0 I3 L3 X L0",
+        "L0 I0 T1 F L2 L1 S"
+      ],
+      "height" : 7,
+      "id" : "dm-20",
+      "minTaps" : 30,
+      "sources" : [
+        {
+          "c" : 0,
+          "color" : 7,
+          "dir" : "e",
+          "r" : 5
+        },
+        {
+          "c" : 6,
+          "color" : 2,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "e",
+          "r" : 0
+        }
+      ],
+      "stats" : {
+        "decisions" : 9,
+        "decoys" : 14,
+        "mechanics" : [
+          "tee",
+          "cross",
+          "fixed",
+          "valve",
+          "coil",
+          "colors3"
+        ],
+        "networkCells" : 28,
+        "nodes" : 66,
+        "score" : 81,
+        "seed" : 10495969142557717745
+      },
+      "targets" : [
+        {
+          "c" : 4,
+          "color" : 7,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 6,
+          "color" : 3,
+          "dir" : "s",
+          "r" : 0
+        },
+        {
+          "c" : 3,
+          "color" : 5,
+          "dir" : "n",
+          "r" : 6
+        },
+        {
+          "c" : 0,
+          "color" : 0,
+          "dir" : "e",
+          "r" : 2
+        }
+      ],
+      "valves" : [
+        {
+          "c" : 4,
+          "r" : 1,
+          "target" : 3
+        }
+      ],
+      "width" : 7
+    }
+  ],
+  "title" : "Distillery Master",
+  "version" : 1
+}
