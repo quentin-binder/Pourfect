@@ -394,6 +394,10 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPPlayDaily 1` | Opens the Daily Brew screen and starts today's puzzle (once it is generated). |
 | `-LPDailyDate YYYY-MM-DD` | Pretends today is that UTC date (the clock is shifted by whole days, so the countdown and "solved today" still work). Results stay in memory only. |
 | `-LPDailySeedResults N` | Adds fake results for the N days before today (a few gaps, mostly perfect, a 5-day run ending yesterday), for calendar screenshots. Results stay in memory only: nothing is saved and the real history is untouched. |
+| `-LPOpenMatch3 ID` | Opens an ingredient-gathering (match-3) level by id (`m3-03-2`), or `daily` (today's daily match-3) / `daily-YYYY-MM-DD`. |
+| `-LPM3Demo K` | With `-LPOpenMatch3`: plays K greedy-bot moves through the normal swap path, with the animations (a demo win saves nothing). |
+| `-LPM3Seed S` | With `-LPOpenMatch3`: replaces the level's seed (another start board and refill stream). |
+| `-LPM3Moves N` | With `-LPOpenMatch3`: replaces the move limit (e.g. 3 with `-LPM3Demo 3` to reach the "Out of moves" card). |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
 | `-LPWindowSize WxH` | macOS: sets the main window's frame to W × H points (title bar included) and centers it, for App Store screenshots (e.g. `1120x700`, 16:10). |
 | `-LPOpenAbout 1` | macOS, with `-LPOpenSettings 1`: also opens the About sheet. |
@@ -524,8 +528,36 @@ DECISIONS 251–263.
 | `gathering_10` | 10 Dragon's Larder | `m3-10-…` | 8 | 26–38 | 58 → 55 % | Everything, hardest |
 
 The target is the pass rate of the reference bot (greedy with 15 % random slips): 90 % for the first level, falling
-linearly to 55 % for the 80th. The app does not load these files yet (it reads only `chapter_*`, `challenge_*` and
-`pack_*`).
+linearly to 55 % for the 80th. The app loads them separately from the recipe packs (`Match3Library`, every
+`gathering_*` file in the bundle; the recipe catalog still reads only `chapter_*`, `challenge_*` and `pack_*`).
+
+**Board screen** (`Pourfect/Match3/`, app part 1; not on the chapter map yet, open a level with `-LPOpenMatch3`):
+
+- `MatchGameView`: HUD (moves left, goals with ingredient / frost / crate / flask icons and counters, score with
+  marks at the two- and three-star thresholds), the board, the win card (stars, score, Retry / Map / Next Level) and
+  the "Out of moves" card (free Retry, Map). Best stars and score per level go to `m3.bestStars.v1` /
+  `m3.bestScore.v1` (`Match3Records`), apart from the sorting chapters' stars.
+- `MatchBoardView`: tray following the cell mask, sealed crates (wood with the rune-key seal of `BottleView`, metal by
+  hits left: copper 1, steel 2, gold 3), pieces, flasks, selection ring, idle hint glow (after 5 s, `M3Game.hint()`,
+  free) and effects. Input: drag a piece onto a neighbour (touch or mouse), or tap / click one piece, then a
+  neighbour. A swap that makes no match slides back with a soft knock; a frozen piece, crate or flask leans and comes
+  back. VoiceOver: a board summary, every cell's content, and Swap up / down / left / right actions.
+- `IngredientArt`: the six ingredients drawn with paths, each with its own silhouette, palette color and that
+  color's rune (Color Runes setting): mushroom red ▲, crystal cyan ◆, feather yellow ★, moonflower purple ☾, ember
+  orange ⚡, potion drop blue ∿. Comets carry a glowing trail with arrowheads in their direction, blooms a halo with a
+  ring of sparks, prisms are rainbow gems. Frost is a see-through ice cover in the Frost Peak colors (two layers:
+  thicker, with a crystal showing 2).
+- `MatchBoardModel`: plays a swap on `M3Game` at once, then animates its `M3StepResult` phase by phase in the core's
+  order: swap; per wave squash of the matched pieces, prism conversions, matched pieces popping with sparkles,
+  specials firing in order (comet beam, bloom burst, prism rays, board flash) with what each reaches popping right
+  after, frost cracking, crates splintering, new specials growing in, the wave's score floating up; settles (falls
+  and new pieces dropping from above their column with a slight bounce); flasks collected; the reshuffle swirl.
+  After a win, "Bubbling Over!" turns each move left into a firing special. Input is locked while anything animates;
+  after each step the tokens are compared with the game's board and rebuilt from it if they ever differ. Reduce
+  Motion: no travel, short fades. `-LPSlowMotion F` slows it down.
+- Sounds (synthesized in `SoundEngine`, with their own noise stream so older sounds are unchanged): match pops
+  climbing a pentatonic scale with each cascade, swap swish, special whoosh, ice crack, crate knock, flask chime,
+  special sparkle; haptics on iOS.
 
 **Format** (`format: "pourfect-match3"`, `version: 1`): `episode {number, name, subtitle, followsChapter}` and
 `levels`, each with `id`, `title`, `seed` (< 2^53; drives the start board, every refill and every reshuffle),

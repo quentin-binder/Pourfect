@@ -1,4 +1,5 @@
 import BottleSortCore
+import Match3Core
 import SwiftUI
 
 /// Screens reachable from the chapter map.
@@ -13,6 +14,8 @@ enum Route: Hashable {
     case dailyPlay(LevelDefinition, DailyDate)
     /// A new Rush run (R6).
     case rush
+    /// An ingredient-gathering (match-3) level (R9).
+    case match3(M3Level)
 }
 
 struct RootView: View {
@@ -67,6 +70,8 @@ struct RootView: View {
                         GameView(model: GameViewModel(dailyLevel: level, date: date, daily: daily))
                     case .rush:
                         RushView(makeRun: makeRushRun)
+                    case .match3(let level):
+                        MatchGameView(level: level) { path.removeAll() }
                     }
                 }
         }
@@ -182,6 +187,27 @@ struct RootView: View {
             }
         }
         #endif
+        // `-LPOpenMatch3 ID` opens an ingredient-gathering level (`m3-03-2`, or `daily` for today's
+        // daily match-3, `daily-YYYY-MM-DD` for another day's); `-LPM3Seed S` replaces its seed and
+        // `-LPM3Demo K` (in `MatchGameView`) plays K bot moves.
+        if let id = defaults.string(forKey: "LPOpenMatch3") {
+            var level: M3Level?
+            if id.hasPrefix("daily") {
+                let date = DailyDate(isoString: String(id.dropFirst("daily-".count))) ?? DailyDate.today()
+                level = await Task.detached { M3Daily.level(for: date) }.value
+            } else {
+                level = Match3Library.shared.level(id: id)
+            }
+            if var level {
+                let seed = defaults.integer(forKey: "LPM3Seed")
+                if seed > 0 { level.seed = UInt64(seed) }
+                // `-LPM3Moves N` replaces its move limit (to reach the win or out-of-moves card fast).
+                let moves = defaults.integer(forKey: "LPM3Moves")
+                if moves > 0 { level.moves = moves }
+                path = [.match3(level)]
+            }
+            return
+        }
         // `-LPOpenLabStyle 1` opens the Lab Style rewards screen.
         if defaults.bool(forKey: "LPOpenLabStyle") { showsLabStyle = true }
         if defaults.bool(forKey: "LPOpenDaily") || defaults.bool(forKey: "LPPlayDaily") {
