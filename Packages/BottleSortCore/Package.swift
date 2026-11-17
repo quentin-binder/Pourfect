@@ -12,6 +12,7 @@ let package = Package(
         .library(name: "DistilleryCore", targets: ["DistilleryCore"]),
         .executable(name: "distillgen", targets: ["distillgen"]),
         .library(name: "SecretRecipeCore", targets: ["SecretRecipeCore"]),
+        .library(name: "HiddenCore", targets: ["HiddenCore"]),
     ],
     targets: [
         .target(name: "BottleSortCore"),
@@ -31,5 +32,9 @@ let package = Package(
         // R10b Secret Recipe (code-breaking deduction): pure rules, candidates, daily generator, stats.
         .target(name: "SecretRecipeCore", dependencies: ["BottleSortCore"]),
         .testTarget(name: "SecretRecipeCoreTests", dependencies: ["SecretRecipeCore", "BottleSortCore"]),
+        // R11 hidden-object rooms: scene files, placement + blending rules (ported from the art pipeline), round
+        // generator with decoys, hit testing, round state, progression. Goldens come from poc/hidden-object/tools.
+        .target(name: "HiddenCore"),
+        .testTarget(name: "HiddenCoreTests", dependencies: ["HiddenCore"], exclude: ["Goldens"]),
     ]
 )
