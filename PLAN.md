@@ -96,7 +96,7 @@ Every mechanic still ships as **rules + solver + generator + JSON + UI + tutoria
 
 Already done from the docs: pour animation with stream and wobble (M1), sealed flasks & keys (A1), murky/hidden layers (B1), random levels, six generated packs.
 
-Order: **R1 Polish → R2 Pourfect theme & chapters → R3 Daily → R4 Mechanics architecture → R5 Mechanics (one chapter each) → R6 Challenges → R7 Orders & story → R8 Release.**
+Order: **R1 Polish → R2 Pourfect theme & chapters → R3 Daily → R4 Mechanics architecture → R5 Mechanics (one chapter each) → R6 Challenges → R7 Orders & story → R8 Release → R9 Ingredient gathering (match-3).**
 Each R-step is sized as one Claude Code task (or one workflow); stop for a checkpoint after each.
 
 ## R1 — Polish (finish Milestone 1)
@@ -235,6 +235,14 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [ ] Accessibility pass: VoiceOver labels for flasks and layers, Dynamic Type in menus, reduce-motion everywhere — not in scope (user)
 - [ ] Optional: TestFlight beta (App Store Connect stats only, no third-party analytics) — `scripts/testflight.sh` is ready (DECISIONS 249); the upload is the operator's
 - [ ] Business decision point; `HintService` and `ProgressStore` stay behind protocols
+
+## R9 — Ingredient gathering (match-3, optional episodes)
+- [x] Core: `Match3Core` target — board with masks, swaps, matches and specials (comet, bloom, prism) with every combo, frost, sealed crates, potion flasks, gravity behind crates and across holes, one seeded stream for start board/refill/reshuffle/finale, cascades, scoring, goals, stars, *Bubbling Over* finale, reshuffle, hint, step results for the app (DECISIONS 251–258)
+- [x] Level format v1 with validation; `m3gen` (sim, tune, trace, bench, episodes, report, daily) with greedy/reference/novice/random bots on their own stream (DECISIONS 259–260)
+- [x] Content: 10 episodes × 8 levels in `Levels/match3/gathering_NN.json`, target pass rate 90 % → 55 %, all within ±12 points in `m3gen report` (DECISIONS 261)
+- [x] Episode unlock, level order, opening scene ids, daily match-3 `m3daily-v1` with its own streak via `DailyStreaks` (DECISIONS 262)
+- [x] Tests: 69 in `Match3CoreTests` (DECISIONS 263)
+- [ ] App: chapter-map spots between chapters, episode screen, board view (ingredient shapes + runes in Canvas, frost/seal looks reused), animations from `M3StepResult`, out-of-moves card with Retry, idle hint glow, finale, story scenes `gathering.N`, Daily card next to the Daily Brew, strings in the catalog; bundle-load `gathering_*.json`
 
 ## Parked ideas (user, not scheduled)
 - [ ] **Different-sized flasks** as a mechanic (mixed capacities in one recipe). Open decisions when it's picked up: win rule (workspace flasks that must end empty / colors sized to a flask / loose sorting) and which chapter introduces it.

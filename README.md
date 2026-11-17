@@ -417,7 +417,15 @@ scripts/test-fast.sh                     # optimized build, the suite runs in ~2
 scripts/test-fast.sh --filter Cauldron   # only matching tests
 cd Packages/BottleSortCore && swift test # debug build, ~80 s — run once before committing
 LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 days of Daily generation)
+scripts/test-fast.sh --filter Match3CoreTests   # only the match-3 suite (~2 s)
 ```
+
+The match-3 suite (`Tests/Match3CoreTests`, 69 tests) covers every match shape and where its special goes, each
+special and combo, frost, crates, flasks, gravity behind crates and across holes, the refill order from the seed,
+cascades and their multiplier, identical results for identical swaps, reshuffles, hints, goals, stars, the finale, the
+JSON round trip, every validation error, start boards, the shipped episodes, bots and the tuner, the progression rules
+and daily goldens. Its bot-heavy tests (daily goldens, pass-rate sample, preset re-tuning) run in the optimized
+`scripts/test-fast.sh`; in a debug `swift test` they are skipped unless `LP_SLOW_TESTS=1`.
 
 Debug builds make the solver 30–40× slower, so iterate with `scripts/test-fast.sh` and do one debug `swift test` at the end.
 The 60-day Daily performance test is opt-in (`LP_SLOW_TESTS=1`); run it when Daily, generator or solver code changes.
@@ -493,6 +501,60 @@ stars count, finishing doesn't need them), only main-path stars and shipped seal
 shipped game, the cosmetic settings round trip (old saves load the defaults), and when story scenes play (the
 ending after Dragon's Hoard's last own recipe, not its bonus orders).
 You can also run them in Xcode by opening `Packages/BottleSortCore/Package.swift` and pressing ⌘U.
+
+## Ingredient gathering (match-3, R9)
+
+Optional match-3 **episodes**, one after each sorting chapter: the apprentice and the alchemist gather ingredients
+for the next chapter. Swap two neighbouring ingredients to line up three or more of one kind; reach the goals
+within the move limit. Out of moves → retry for free (no lives, no energy, no purchases). The rules are in the
+`Match3Core` library of the same package (pure Swift, no UI frameworks); `m3gen` is its tool. Rules as implemented:
+DECISIONS 251–263.
+
+| File (`Levels/match3/`) | Episode (after chapter) | Ids | Levels | Moves | Target pass rate | What it adds |
+|---|---|---|---|---|---|---|
+| `gathering_01` | 1 Mushroom Hollow | `m3-01-1…8` | 8 | 17–26 | 90 → 87 % | Swapping and collecting; 4 kinds, then 5; a score goal |
+| `gathering_02` | 2 Crystal Grotto | `m3-02-…` | 8 | 22–26 | 86 → 83 % | Specials from 4/5/L/T matches, shaped boards, three collect goals |
+| `gathering_03` | 3 Moonlit Meadow | `m3-03-…` | 8 | 18–24 | 83 → 80 % | Frost (one layer, then two) |
+| `gathering_04` | 4 Ember Hearth | `m3-04-…` | 8 | 18–29 | 79 → 76 % | Double frost, frost rows |
+| `gathering_05` | 5 Sealed Storeroom | `m3-05-…` | 8 | 18–37 | 76 → 73 % | Sealed crates (1–3 hits), crates with frost |
+| `gathering_06` | 6 Icefall Ridge | `m3-06-…` | 8 | 20–29 | 72 → 69 % | Frost and crates together, 6 kinds |
+| `gathering_07` | 7 Bogwater Springs | `m3-07-…` | 8 | 21–37 | 69 → 66 % | Potion flasks to bring down; with frost or crates |
+| `gathering_08` | 8 Windy Rookery | `m3-08-…` | 8 | 23–34 | 65 → 62 % | Flasks, crates and frost mixed |
+| `gathering_09` | 9 Alchemist's Garden | `m3-09-…` | 8 | 18–34 | 62 → 59 % | Everything, 6 kinds |
+| `gathering_10` | 10 Dragon's Larder | `m3-10-…` | 8 | 26–38 | 58 → 55 % | Everything, hardest |
+
+The target is the pass rate of the reference bot (greedy with 15 % random slips): 90 % for the first level, falling
+linearly to 55 % for the 80th. The app does not load these files yet (it reads only `chapter_*`, `challenge_*` and
+`pack_*`).
+
+**Format** (`format: "pourfect-match3"`, `version: 1`): `episode {number, name, subtitle, followsChapter}` and
+`levels`, each with `id`, `title`, `seed` (< 2^53; drives the start board, every refill and every reshuffle),
+`layout` (rows top first, ≤ 8×8: `.` hole, `o` seeded piece, `1`/`2` seeded piece under 1/2 frost layers, `A`/`B`/`C`
+crate with 1/2/3 hits, `F` potion flask), `kinds` (3–6 of `mushroom crystal feather moonflower ember drop`), `moves`,
+`goals` (`{"type":"collect","kind":…,"count":N}`, `{"type":"frost"}`, `{"type":"crates"}`, `{"type":"drops","count":N}`,
+`{"type":"score","count":N}`), `stars {two, three}` (score thresholds; one star = goals met), optional `drops
+{total, maxOnBoard, columns}`, optional `pieces [{row, col, kind, special}]` (placed instead of seeded; specials
+`row`, `column`, `bloom`, `prism`) and optional `tuning {target, passRate, runs}` (written by `m3gen`, not read by
+the rules). `M3EpisodeFile.validate()` / `M3Level.validate()` list every problem.
+
+```sh
+cd Packages/BottleSortCore
+swift build -c release --product m3gen            # then use .build/release/m3gen
+.build/release/m3gen episodes                     # regenerate all ten files from the preset (~30 s, byte-identical)
+.build/release/m3gen episodes --only 7            # one episode
+.build/release/m3gen report                       # validate every file and re-measure every level with another bot stream (~16 s)
+.build/release/m3gen sim ../../Levels/match3/gathering_03.json --policy all --runs 200   # pass rate, moves left, scores
+.build/release/m3gen tune ../../Levels/match3/gathering_03.json --level m3-03-2 --target 70  # moves and stars for a target
+.build/release/m3gen trace ../../Levels/match3/gathering_07.json --level m3-07-1 --max 10     # boards after each bot move
+.build/release/m3gen daily 2026-11-16 --days 7    # m3daily-v1 levels with timings and fingerprints
+```
+
+Policies: `greedy` (best one-wave value, random tie-break), `reference` (15 % random slips; tuning and reports),
+`novice` (40 %), `random`. The bot's randomness comes from its own stream, never the level's.
+
+**Daily match-3** (`M3Daily`, generator id `m3daily-v1`): one level per UTC date, separate from the Daily Brew (which is
+unchanged): Monday Gentle (85 %) → Sunday Grand Gathering (58 %, frost + crates + flasks). Median 55 ms, 96 % of days
+under 0.5 s, worst ≈ 1.1 s (release, 365 days).
 
 ## Generate levels
 
