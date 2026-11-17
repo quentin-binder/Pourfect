@@ -427,7 +427,7 @@ LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 d
 scripts/test-fast.sh --filter Match3CoreTests   # only the match-3 suite (~2 s)
 ```
 
-The match-3 suite (`Tests/Match3CoreTests`, 69 tests) covers every match shape and where its special goes, each
+The match-3 suite (`Tests/Match3CoreTests`, 70 tests) covers every match shape and where its special goes, each
 special and combo, frost, crates, flasks, gravity behind crates and across holes, the refill order from the seed,
 cascades and their multiplier, identical results for identical swaps, reshuffles, hints, goals, stars, the finale, the
 JSON round trip, every validation error, start boards, the shipped episodes, bots and the tuner, the progression rules
@@ -538,7 +538,7 @@ linearly to 55 % for the 80th. The app loads them separately from the recipe pac
 
 - Each episode is a small ingredient-basket token on the path between chapter N and N + 1 (`EpisodeArt.mapSpots`;
   episode 10 up in the tower above Dragon's Hoard), with its stars, a check when every level is won (gold ring at
-  all stars), or a lock and "Gathering N". **How episodes unlock:** episode N (1–9) opens together with sorting
+  all stars), or a lock and "Gathering N" (tapping a locked one, or its tooltip on the Mac, says when it opens). **How episodes unlock:** episode N (1–9) opens together with sorting
   chapter N + 1; episode 10 opens once chapter 10's last own recipe (not a customer order) is brewed. Levels inside
   an episode open in order (level 1 at once, each next one after the previous is won). Episodes never block a
   chapter, and their stars never count towards a chapter gate, a milestone or a reward. With `-LPUnlockAll 1`
@@ -556,7 +556,7 @@ linearly to 55 % for the 80th. The app loads them separately from the recipe pac
   (swap and match, goals, moves and free retry) on the first level; *glowing specials* (comet, bloom, prism, mixing
   two specials) from episode 2 and in the daily; *frost*, *sealed crates* and *potion flasks* on the first level
   that has them. Seen-state per topic in `tutorial.seen.m3.*`; **?** (⌘/) in the level reopens every topic of that
-  level. The idle hint glow waits while a tip is open.
+  level. The idle hint glow waits while a tip or story scene is open, and its 5 s start over when it closes.
 - **Daily Gathering** (`M3DailyModel`, `M3DailyViews`): a green card under the Daily Brew card on the map's panel
   (a row under the Daily Brew row in the iPhone bar, and a card on the Daily Brew screen). Its screen shows today's
   weekday · flavour (Gentle, Steady, Frosty, Sealed Crates, Flask Drop, Tricky, Grand Gathering) with difficulty
@@ -578,7 +578,9 @@ linearly to 55 % for the 80th. The app loads them separately from the recipe pac
   hits left: copper 1, steel 2, gold 3), pieces, flasks, selection ring, idle hint glow (after 5 s, `M3Game.hint()`,
   free) and effects. Input: drag a piece onto a neighbour (touch or mouse), or tap / click one piece, then a
   neighbour. A swap that makes no match slides back with a soft knock; a frozen piece, crate or flask leans and comes
-  back. VoiceOver: a board summary, every cell's content, and Swap up / down / left / right actions.
+  back. VoiceOver: a board summary, every cell's content, and Swap up / down / left / right actions; a refused or
+  matchless swap, the moves and goals after each swap, a reshuffle, the finale, the win and "Out of moves" are
+  announced.
 - `IngredientArt`: the six ingredients drawn with paths, each with its own silhouette, palette color and that
   color's rune (Color Runes setting): mushroom red ▲, crystal cyan ◆, feather yellow ★, moonflower purple ☾, ember
   orange ⚡, potion drop blue ∿. Comets carry a glowing trail with arrowheads in their direction, blooms a halo with a
@@ -589,7 +591,8 @@ linearly to 55 % for the 80th. The app loads them separately from the recipe pac
   specials firing in order (comet beam, bloom burst, prism rays, board flash) with what each reaches popping right
   after, frost cracking, crates splintering, new specials growing in, the wave's score floating up; settles (falls
   and new pieces dropping from above their column with a slight bounce); flasks collected; the reshuffle swirl.
-  After a win, "Bubbling Over!" turns each move left into a firing special. Input is locked while anything animates;
+  After a win, "Bubbling Over!" turns each move left into a firing special; the core plays the finale and the win
+  (stars, best score, next level, Daily Gathering day) is saved before it is animated, so leaving mid-finale keeps it. Input is locked while anything animates;
   after each step the tokens are compared with the game's board and rebuilt from it if they ever differ. Reduce
   Motion: no travel, short fades. `-LPSlowMotion F` slows it down.
 - Sounds (synthesized in `SoundEngine`, with their own noise stream so older sounds are unchanged): match pops

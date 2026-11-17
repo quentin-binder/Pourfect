@@ -241,12 +241,13 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] Level format v1 with validation; `m3gen` (sim, tune, trace, bench, episodes, report, daily) with greedy/reference/novice/random bots on their own stream (DECISIONS 259–260)
 - [x] Content: 10 episodes × 8 levels in `Levels/match3/gathering_NN.json`, target pass rate 90 % → 55 %, all within ±12 points in `m3gen report` (DECISIONS 261)
 - [x] Episode unlock, level order, opening scene ids, daily match-3 `m3daily-v1` with its own streak via `DailyStreaks` (DECISIONS 262)
-- [x] Tests: 69 in `Match3CoreTests` (DECISIONS 263)
+- [x] Tests: 70 in `Match3CoreTests` (DECISIONS 263, 269)
 - [x] App part 1: board view (ingredient shapes + runes in Canvas, frost/seal looks reused), animations from `M3StepResult`, out-of-moves card with free Retry, idle hint glow, finale, sounds and haptics; bundle-load `gathering_*.json`
 - [x] App part 2: basket spots on the chapter map between chapters (locked / open / complete with stars), episode screen with ordered levels, unlock rules (`-LPUnlockAll` opens all), separate progress keys (DECISIONS 264–265)
 - [x] Story scenes `gathering.1…10` on an episode's first opening, replayable from its screen (DECISIONS 266)
 - [x] Daily Gathering card next to the Daily Brew (map panel, iPhone bar, Daily Brew screen) and its own screen: streak, stats, calendar, share text (DECISIONS 267)
 - [x] Match-3 tips (swap/goals, specials, frost, crates, flasks) in the tutorial overlay, reopened with "?" (DECISIONS 268); strings in the catalog, VoiceOver labels, Reduce Motion, iPhone / Mac / narrow-window layouts
+- [x] R9 review fixes: win saved before the finale animates, flasks need a column with an open cell (validation), VoiceOver announcements on the board, hint timer restarts after a tip, flask points in the HUD, locked episode markers say when they open (DECISIONS 269)
 - Not covered in R9: no match-3 milestones or rewards (gathering never feeds the reward system); no keyboard play on the board; the finale can't be skipped
 
 ## Parked ideas (user, not scheduled)
