@@ -11,10 +11,12 @@
 		000000000000000000000304 /* Match3Core in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000303 /* Match3Core */; };
 		000000000000000000000306 /* DistilleryCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000305 /* DistilleryCore */; };
 		000000000000000000000308 /* SecretRecipeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000307 /* SecretRecipeCore */; };
+		000000000000000000000321 /* HiddenScenes in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000320 /* HiddenScenes */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		000000000000000000000120 /* Pourfect.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pourfect.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000320 /* HiddenScenes */ = {isa = PBXFileReference; lastKnownFileType = folder; path = HiddenScenes; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -61,6 +63,7 @@
 			children = (
 				000000000000000000000010 /* Pourfect */,
 				000000000000000000000312 /* Levels */,
+				000000000000000000000320 /* HiddenScenes */,
 				000000000000000000000020 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -142,6 +145,7 @@
 		000000000000000140000000 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				000000000000000000000321 /* HiddenScenes in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
