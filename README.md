@@ -652,7 +652,7 @@ counts toward the chapter map, the Lab Style rewards or any gate.
   **Notes** (a tap then marks an ingredient *ruled out* ✕, then *maybe* ?, then clears; also in the tray's context
   menu and as a VoiceOver action; notes are only a memory aid and last while the screen is open); **Clear**;
   **Brew** (Return). Drag an ingredient onto a slot works too. Keyboard: **1–8** pick, **Delete** clears the last
-  slot, **Return** brews, **⌘/** the tip, **⌘N** a new practice recipe. Drops appear one by one with a click
+  slot, **Return** brews, **⌘/** the tip, **⌘R** a new practice recipe (⌘N stays New Window on the Mac). Drops appear one by one with a click
   (gold) or a lower clink (silver); win and loss sounds and haptics; Reduce Motion shows them at once. Wide
   windows put the book left and the bench, tray and buttons right; iPhone stacks them (the tray is one row).
   The end card (win: guesses used, the recipe; loss: the recipe revealed) shows the daily streak, win rate and the
