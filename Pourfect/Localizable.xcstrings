@@ -4,135 +4,6 @@
     "%@ %@" : {
       "comment" : "VoiceOver: an ingredient that is a special, e.g. Ember row comet"
     },
-    "%@: %lld of %lld" : {
-      "comment" : "VoiceOver: a match-3 goal and its progress"
-    },
-    "%lld by %lld board, %lld moves left, %@" : {
-      "comment" : "VoiceOver: match-3 board summary"
-    },
-    "%lld moves left" : {
-      "comment" : "VoiceOver: match-3 moves left"
-    },
-    "bloom" : {
-      "comment" : "Match-3 special that clears the 3 by 3 square around it"
-    },
-    "Bubbling Over!" : {
-      "comment" : "Match-3 finale: the moves left become specials that fire"
-    },
-    "Cascade ×%lld" : {
-      "comment" : "Match-3: several matches in a row after one swap"
-    },
-    "column comet" : {
-      "comment" : "Match-3 special that clears its column"
-    },
-    "Crates" : {
-      "comment" : "Match-3 goal: break every sealed crate"
-    },
-    "Crystal" : {
-      "comment" : "Match-3 ingredient"
-    },
-    "Ember" : {
-      "comment" : "Match-3 ingredient"
-    },
-    "Feather" : {
-      "comment" : "Match-3 ingredient"
-    },
-    "Frost" : {
-      "comment" : "Match-3 goal: clear every frost layer"
-    },
-    "frozen, %lld ice layers" : {
-      "comment" : "VoiceOver: a frozen match-3 piece"
-    },
-    "Gathered!" : {
-      "comment" : "Match-3 win card title"
-    },
-    "Its board could not be set up." : {
-
-    },
-    "Map" : {
-
-    },
-    "Moonflower" : {
-      "comment" : "Match-3 ingredient"
-    },
-    "moves" : {
-      "comment" : "Match-3 HUD caption under the moves left"
-    },
-    "Mushroom" : {
-      "comment" : "Match-3 ingredient"
-    },
-    "New best score" : {
-
-    },
-    "Next Level" : {
-
-    },
-    "No swaps left: stirring the tray" : {
-      "comment" : "Match-3: the board is reshuffled"
-    },
-    "Out of moves" : {
-      "comment" : "Match-3 card when the moves run out"
-    },
-    "Potion Drop" : {
-      "comment" : "Match-3 ingredient"
-    },
-    "Potion flask, bring it to the bottom" : {
-      "comment" : "VoiceOver: the drop-down goal item"
-    },
-    "prism" : {
-      "comment" : "Match-3 special that clears every piece of one kind"
-    },
-    "Prism, clears every piece of the kind it is swapped with" : {
-      "comment" : "VoiceOver: a prism piece"
-    },
-    "Retry" : {
-
-    },
-    "Retrying is free, and the board starts the same way." : {
-      "comment" : "Match-3 out-of-moves card: retry costs nothing; the seed gives the same start"
-    },
-    "Row %lld, column %lld" : {
-      "comment" : "VoiceOver: position of a match-3 cell"
-    },
-    "row comet" : {
-      "comment" : "Match-3 special that clears its row"
-    },
-    "Score" : {
-      "comment" : "Match-3 goal: reach a score"
-    },
-    "Score %lld" : {
-      "comment" : "Match-3 win card: the final score"
-    },
-    "Score %lld; two stars at %lld, three stars at %lld" : {
-      "comment" : "VoiceOver: match-3 score and star thresholds"
-    },
-    "Sealed crate, %lld hits left" : {
-      "comment" : "VoiceOver: a match-3 crate cell"
-    },
-    "Start this level over" : {
-
-    },
-    "Swap down" : {
-      "comment" : "VoiceOver action: swap a match-3 piece with the one below"
-    },
-    "Swap left" : {
-      "comment" : "VoiceOver action: swap a match-3 piece with the one on the left"
-    },
-    "Swap right" : {
-      "comment" : "VoiceOver action: swap a match-3 piece with the one on the right"
-    },
-    "Swap up" : {
-      "comment" : "VoiceOver action: swap a match-3 piece with the one above"
-    },
-    "This level can't be played" : {
-
-    },
-    "· Best %lld" : {
-
-    },
-    "%@ · %@" : {
-      "comment" : "Daily puzzle label: weekday · difficulty, e.g. Sunday · Grand Brew"
-    },
     "%@ and %@" : {
       "comment" : "Toast: two new rewards"
     },
@@ -160,6 +31,9 @@
     "%@ with %@ brews %@" : {
       "comment" : "VoiceOver: one recipe of a mixing cauldron; the arguments are the two ingredients and the potion they brew"
     },
+    "%@ · %@" : {
+      "comment" : "Daily puzzle label: weekday · difficulty, e.g. Sunday · Grand Brew"
+    },
     "%@, %lld of %lld stars, %lld gold seals" : {
       "comment" : "VoiceOver: a challenge book in the hub"
     },
@@ -178,6 +52,12 @@
     "%@: %@" : {
       "comment" : "VoiceOver: a story line, speaker then line"
     },
+    "%@: %lld of %lld" : {
+      "comment" : "VoiceOver: a match-3 goal and its progress"
+    },
+    "%lld %@" : {
+      "comment" : "Layer count and potion name, e.g. 2 Moonshade"
+    },
     "%lld / %lld" : {
       "localizations" : {
         "en" : {
@@ -188,8 +68,8 @@
         }
       }
     },
-    "%lld %@" : {
-      "comment" : "Layer count and potion name, e.g. 2 Moonshade"
+    "%lld by %lld board, %lld moves left, %@" : {
+      "comment" : "VoiceOver: match-3 board summary"
     },
     "%lld flasks in total." : {
       "localizations" : {
@@ -242,6 +122,54 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld moves (perfect)" : {
+      "comment" : "Shared daily result",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move (perfect)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves (perfect)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld moves left" : {
+      "comment" : "VoiceOver: match-3 moves left"
+    },
+    "%lld moves this time. Your first solve of the day is the one that counts." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move this time. Your first solve of the day is the one that counts."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves this time. Your first solve of the day is the one that counts."
                 }
               }
             }
@@ -306,51 +234,6 @@
                       "value" : "%arg moves"
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld moves (perfect)" : {
-      "comment" : "Shared daily result",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld move (perfect)"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld moves (perfect)"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld moves this time. Your first solve of the day is the one that counts." : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld move this time. Your first solve of the day is the one that counts."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld moves this time. Your first solve of the day is the one that counts."
                 }
               }
             }
@@ -567,6 +450,9 @@
     "+%lld s" : {
       "comment" : "Rush: time bonus for a solved recipe"
     },
+    "3 stars" : {
+
+    },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {
 
     },
@@ -584,6 +470,9 @@
     },
     "A flask with a narrow neck and a brass collar lets one layer through per pour, even when more would fit." : {
 
+    },
+    "A frozen ingredient can't be swapped. Match it, or match right beside it, to crack one layer of ice. Thick frost needs two." : {
+      "comment" : "Match-3 tip: frost tiles"
     },
     "A funnel flask only fills. Nothing pours out of it." : {
       "comment" : "Shown when the player tries to pour from a funnel flask"
@@ -683,6 +572,9 @@
     "Back" : {
 
     },
+    "Before the climb to Frost Peak we need warm supplies, and they're locked in my old storeroom." : {
+      "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
+    },
     "Best %lld" : {
       "comment" : "Rush best score\nRush end card: the saved best score"
     },
@@ -722,14 +614,14 @@
     "Best streak" : {
 
     },
+    "Blooms" : {
+      "comment" : "Match-3 tip title: the 3x3 special"
+    },
     "Bolt" : {
       "comment" : "Name of a colorblind rune"
     },
     "Both twins must take the potion, and each gets the same amount. A single layer can't be split, so it can't go in." : {
 
-    },
-    "bottom to top %@" : {
-      "comment" : "VoiceOver: the layers a layered-recipe flask wants, listed from the bottom; the argument lists them"
     },
     "Bram" : {
       "comment" : "Name of the village baker who orders potions"
@@ -770,28 +662,8 @@
     "Bubble Pop" : {
       "comment" : "Completion effect name"
     },
-    "bubbling flask, its bottom potion rises to the top in %lld moves" : {
-      "comment" : "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "bubbling flask, its bottom potion rises to the top after the next move"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "bubbling flask, its bottom potion rises to the top in %lld moves"
-                }
-              }
-            }
-          }
-        }
-      }
+    "Bubbling Over!" : {
+      "comment" : "Match-3 finale: the moves left become specials that fire"
     },
     "Bubbling flasks" : {
 
@@ -801,6 +673,9 @@
     },
     "Careful now. The bog air makes some of the flasks bubble." : {
       "comment" : "Story, chapter 7 (Bubbling Bog)"
+    },
+    "Cascade ×%lld" : {
+      "comment" : "Match-3: several matches in a row after one swap"
     },
     "Chains, pipes… everything in these towers is connected!" : {
       "comment" : "Story, chapter 8 (Twin Towers)"
@@ -919,11 +794,14 @@
     "Classic" : {
       "comment" : "Random recipe mode"
     },
+    "Classic Flask" : {
+      "comment" : "Flask shape name"
+    },
     "Classic · Rune Seals · Murky Layers" : {
 
     },
-    "Classic Flask" : {
-      "comment" : "Flask shape name"
+    "Clear the cells below them and they sink. Bring each one down to the bottom and it's ours." : {
+      "comment" : "Story, gathering episode 7 (Bogwater Springs)"
     },
     "Clear the mist" : {
 
@@ -934,6 +812,9 @@
     "Color Runes draw a symbol on every potion so colors can be told apart without relying on hue. Reduce Motion replaces the flying pour with a gentle change of the potion levels; System follows your device setting." : {
 
     },
+    "Comets" : {
+      "comment" : "Match-3 tip title: the line-clear special"
+    },
     "Coming soon" : {
 
     },
@@ -941,9 +822,6 @@
       "comment" : "Flask shape name"
     },
     "Continue" : {
-
-    },
-    "Continue · Chapter %lld" : {
 
     },
     "Continue chapter %lld, %@" : {
@@ -956,11 +834,11 @@
         }
       }
     },
+    "Continue · Chapter %lld" : {
+
+    },
     "Copper" : {
       "comment" : "Metal of a rune key and its seal"
-    },
-    "corked" : {
-
     },
     "Costs %lld seconds" : {
       "comment" : "VoiceOver hint on Rush's Skip button; the argument is the time penalty"
@@ -990,11 +868,20 @@
     "Couldn't find a hint in time" : {
 
     },
+    "Crates" : {
+      "comment" : "Match-3 goal: break every sealed crate"
+    },
+    "Crates hold their place. Match beside one, or catch it in a special's blast, to knock its seal. The dots show the knocks left." : {
+      "comment" : "Match-3 tip: sealed crates"
+    },
     "Crescent" : {
       "comment" : "Name of a colorblind rune"
     },
     "Cross" : {
       "comment" : "Name of a colorblind rune"
+    },
+    "Crystal" : {
+      "comment" : "Match-3 ingredient"
     },
     "Current streak" : {
 
@@ -1011,11 +898,48 @@
     "Daily Brew, %@, %@, streak %lld" : {
       "comment" : "VoiceOver: daily card (label, state, streak)"
     },
+    "Daily Gathering" : {
+      "comment" : "Title of the daily match-3 level"
+    },
+    "Daily Gathering streak %lld" : {
+      "comment" : "Match-3 win card of the daily level"
+    },
+    "Daily Gathering · %@" : {
+      "comment" : "iPhone home bar: the daily match-3 level and its weekday"
+    },
+    "Daily Gathering, %@, not played yet, streak %lld" : {
+      "comment" : "VoiceOver: the daily gathering card",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Daily Gathering, %1$@, not played yet, streak %2$lld"
+          }
+        }
+      }
+    },
+    "Daily Gathering, %@, won with %lld stars, streak %lld" : {
+      "comment" : "VoiceOver: the daily gathering card, won today",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Daily Gathering, %1$@, won with %2$lld stars, streak %3$lld"
+          }
+        }
+      }
+    },
     "Daily solved!" : {
 
     },
     "Days follow UTC. A new brew appears at midnight UTC." : {
 
+    },
+    "Days follow UTC. A new gathering appears at midnight UTC." : {
+
+    },
+    "Days gathered" : {
+      "comment" : "Daily gathering stat: days won"
     },
     "Deep Seal" : {
       "comment" : "Daily puzzle difficulty (Saturday)"
@@ -1082,8 +1006,14 @@
     "Earn new looks for your lab by playing: finish chapters, collect stars and gold seals, keep a Daily Brew streak or set a Rush record." : {
 
     },
+    "Ember" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "Embers! Are these for the Glass Works?" : {
+      "comment" : "Story, gathering episode 4 (Ember Hearth)"
+    },
     "Empty" : {
-
+      "comment" : "VoiceOver: an empty match-3 cell"
     },
     "Empty flasks" : {
 
@@ -1097,11 +1027,11 @@
     "Epilogue" : {
       "comment" : "Story scene heading for the ending"
     },
-    "essence flask, accepts %@ only" : {
-      "comment" : "An essence flask; the argument is the only potion it takes"
-    },
     "Essence flasks" : {
 
+    },
+    "Every crate has a rune seal on it." : {
+      "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
     },
     "Every few moves a bubbling flask bubbles up: its bottom potion rises to the top, and the potions above it sink one place." : {
 
@@ -1121,6 +1051,9 @@
     "Fairy Blush" : {
       "comment" : "Potion name of the pink liquid"
     },
+    "Feather" : {
+      "comment" : "Match-3 ingredient"
+    },
     "Feedback" : {
 
     },
@@ -1130,6 +1063,9 @@
     "Fill it with care" : {
 
     },
+    "Fill the basket" : {
+      "comment" : "Match-3 tip title"
+    },
     "Fill the switch" : {
 
     },
@@ -1138,6 +1074,9 @@
     },
     "Fireflies" : {
       "comment" : "Completion effect name"
+    },
+    "Five in a row makes a prism. Swap it with any ingredient to gather every one of that kind." : {
+      "comment" : "Match-3 tip: prism special"
     },
     "Flask %lld" : {
 
@@ -1187,17 +1126,32 @@
     "Flask %lld pushed its bottom layer into the bottom of flask %lld" : {
       "comment" : "VoiceOver: a pour into a full flask pushed its bottom layer through its pressure pipe; the arguments are the flask poured into and the flask at the pipe's far end"
     },
+    "Flask Drop" : {
+      "comment" : "Daily gathering flavour (Friday): potion flasks to bring down"
+    },
     "Flask size" : {
 
     },
     "Flasks" : {
-      "comment" : "Lab Style section: flask shapes"
+      "comment" : "Lab Style section: flask shapes\nMatch-3 goal: bring the potion flasks down"
+    },
+    "Flasks can't be matched. Clear the cells below one and it sinks; it's collected when it reaches the bottom of its column." : {
+      "comment" : "Match-3 tip: drop-down flasks"
+    },
+    "For the dragon we'll need a sleeping draught: every herb in my garden, at once." : {
+      "comment" : "Story, gathering episode 9 (Alchemist's Garden)"
+    },
+    "For the grand brew at %@" : {
+      "comment" : "Episode 10 header: what the ingredients are for"
     },
     "Forest Elixir" : {
       "comment" : "Potion name of the green liquid"
     },
     "Forest Hut" : {
       "comment" : "Workbench theme name"
+    },
+    "Four in a row leaves a comet. Match it and it sweeps its whole row or column, the way its trail points." : {
+      "comment" : "Match-3 tip: comet special"
     },
     "Fr" : {
       "comment" : "Calendar column: Friday"
@@ -1208,8 +1162,20 @@
     "From a dusty cellar to a dragon's hoard. You're no apprentice any more, my friend." : {
       "comment" : "Story, ending"
     },
+    "Frost" : {
+      "comment" : "Match-3 goal: clear every frost layer\nMatch-3 tip title"
+    },
     "Frost Lab" : {
       "comment" : "Workbench theme name"
+    },
+    "Frost, crates, flasks… the whole garden is a puzzle!" : {
+      "comment" : "Story, gathering episode 9 (Alchemist's Garden)"
+    },
+    "Frost, seals and six ingredients. I'm ready!" : {
+      "comment" : "Story, gathering episode 6 (Icefall Ridge)"
+    },
+    "Frosty" : {
+      "comment" : "Daily gathering flavour (Wednesday): frost tiles"
     },
     "Frozen layers" : {
 
@@ -1220,40 +1186,26 @@
     "Frozen over" : {
 
     },
-    "frozen over, nothing goes in or out, thaws in %lld moves" : {
-      "comment" : "VoiceOver: the top layer of a flask is frozen; the argument is the moves until it thaws",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "frozen over, nothing goes in or out, thaws in %lld move"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "frozen over, nothing goes in or out, thaws in %lld moves"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "funnel flask, fills only, never pours out" : {
-      "comment" : "VoiceOver: a funnel flask"
-    },
     "Funnel flasks" : {
 
     },
-    "gate open while flask %lld stays full of one potion" : {
-      "comment" : "VoiceOver: an open gate flask; the argument is its switch's flask number"
+    "Gather them quickly, before the wind changes its mind." : {
+      "comment" : "Story, gathering episode 8 (Windy Rookery)"
     },
-    "gate shut, nothing pours in or out until flask %lld is full of one potion" : {
-      "comment" : "VoiceOver: a closed gate flask; the argument is its switch's flask number"
+    "Gathered!" : {
+      "comment" : "Match-3 win card title"
+    },
+    "Gathering %lld" : {
+      "comment" : "Map plate of a locked ingredient-gathering episode"
+    },
+    "Gathering is optional: its stars are kept apart and never lock a chapter." : {
+
+    },
+    "Gathering · %@" : {
+      "comment" : "Story scene heading of an ingredient-gathering episode"
+    },
+    "Gathering…" : {
+      "comment" : "Daily gathering level is being generated"
     },
     "Gentle" : {
       "comment" : "Daily puzzle difficulty (Monday)"
@@ -1279,6 +1231,9 @@
     "Grand Brew" : {
       "comment" : "Daily puzzle difficulty (Sunday)"
     },
+    "Grand Gathering" : {
+      "comment" : "Daily gathering flavour (Sunday)"
+    },
     "Haptics" : {
 
     },
@@ -1291,14 +1246,26 @@
     "Hint" : {
 
     },
+    "How this level works" : {
+      "comment" : "Tooltip of the match-3 help button"
+    },
     "How this recipe works" : {
 
+    },
+    "How to gather" : {
+      "comment" : "Tip heading: match-3 basics"
     },
     "How to play" : {
 
     },
+    "How to play this level" : {
+      "comment" : "VoiceOver: the match-3 help button"
+    },
     "How to play this recipe" : {
 
+    },
+    "Ice and crates, all over the ridge. What are we after up here?" : {
+      "comment" : "Story, gathering episode 6 (Icefall Ridge)"
     },
     "Ice holds a layer in place: it can't move, and neither can anything below it. The potion above the ice pours as usual." : {
 
@@ -1329,8 +1296,50 @@
         }
       }
     },
+    "Icefall crystals. The Bubbling Bog boils over without something cold to calm it." : {
+      "comment" : "Story, gathering episode 6 (Icefall Ridge)"
+    },
     "In use" : {
       "comment" : "Lab Style: the chosen reward"
+    },
+    "Ingredient gathering %lld" : {
+      "comment" : "Episode screen kicker"
+    },
+    "Ingredient gathering %lld, %@, %lld of %lld stars" : {
+      "comment" : "VoiceOver: an open gathering episode on the map",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ingredient gathering %1$lld, %2$@, %3$lld of %4$lld stars"
+          }
+        }
+      }
+    },
+    "Ingredient gathering %lld, %@, locked. Opens when chapter 10's last recipe is brewed" : {
+      "comment" : "VoiceOver: the last gathering episode, locked",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ingredient gathering %1$lld, %2$@, locked. Opens when chapter 10's last recipe is brewed"
+          }
+        }
+      }
+    },
+    "Ingredient gathering %lld, %@, locked. Opens with chapter %lld" : {
+      "comment" : "VoiceOver: a locked gathering episode on the map",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Ingredient gathering %1$lld, %2$@, locked. Opens with chapter %3$lld"
+          }
+        }
+      }
+    },
+    "Ingredient gathering: %@" : {
+      "comment" : "Tooltip of an episode marker on the map"
     },
     "Is that… a dragon? Asleep on a mountain of gold?" : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
@@ -1341,6 +1350,9 @@
     "It's all mixed up! Is that three different potions in one flask?" : {
       "comment" : "Story, chapter 1 (Apprentice Cellar)"
     },
+    "Its board could not be set up." : {
+
+    },
     "Keep it full" : {
 
     },
@@ -1350,44 +1362,28 @@
     "Lab Style" : {
       "comment" : "Title of the cosmetic rewards screen"
     },
-    "layer %lld frozen, thaws in %lld moves" : {
-      "comment" : "VoiceOver: a frozen layer (counted from the bottom, 1 = bottom) holds it and everything below; the second argument is the moves until it thaws",
+    "Layered recipes" : {
+
+    },
+    "Level %lld, %lld stars. Goals: %@" : {
+      "comment" : "VoiceOver: a gathering level tile",
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "translated",
-            "value" : "layer %1$lld frozen, thaws in %#@moves@"
-          },
-          "substitutions" : {
-            "moves" : {
-              "argNum" : 2,
-              "formatSpecifier" : "lld",
-              "variations" : {
-                "plural" : {
-                  "one" : {
-                    "stringUnit" : {
-                      "state" : "translated",
-                      "value" : "%arg move"
-                    }
-                  },
-                  "other" : {
-                    "stringUnit" : {
-                      "state" : "translated",
-                      "value" : "%arg moves"
-                    }
-                  }
-                }
-              }
-            }
+            "state" : "new",
+            "value" : "Level %1$lld, %2$lld stars. Goals: %3$@"
           }
         }
       }
     },
-    "Layered recipes" : {
-
+    "Level %lld, locked" : {
+      "comment" : "VoiceOver: a locked gathering level"
     },
     "Line %lld of %lld" : {
 
+    },
+    "Line up four or five and they leave a glowing special behind. Set it off and a whole row comes loose." : {
+      "comment" : "Story, gathering episode 2 (Crystal Grotto)"
     },
     "Liquid Sunlight" : {
       "comment" : "Potion name of the yellow liquid"
@@ -1395,8 +1391,20 @@
     "Locked" : {
 
     },
+    "Look at all these glowing caps! Why are we picking mushrooms instead of sorting?" : {
+      "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
+    },
     "Mandrake Root" : {
       "comment" : "Potion name of the brown liquid"
+    },
+    "Map" : {
+
+    },
+    "Match right beside them and the ice cracks. Patience, and a little warmth." : {
+      "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
+    },
+    "Match three, gather today's basket" : {
+      "comment" : "Daily gathering card: what to do"
     },
     "Matching potions" : {
 
@@ -1413,11 +1421,11 @@
     "Mira" : {
       "comment" : "Name of the farmer who orders potions"
     },
+    "Mix two specials" : {
+      "comment" : "Match-3 tip title"
+    },
     "Mixing cauldron" : {
 
-    },
-    "mixing cauldron, %@" : {
-      "comment" : "VoiceOver: a mixing cauldron; the argument lists its recipes"
     },
     "Mo" : {
       "comment" : "Calendar column: Monday"
@@ -1428,6 +1436,9 @@
     "Monday" : {
       "comment" : "Weekday of the daily puzzle"
     },
+    "Moonflower" : {
+      "comment" : "Match-3 ingredient"
+    },
     "Moonshade" : {
       "comment" : "Potion name of the purple liquid"
     },
@@ -1437,14 +1448,14 @@
     "Murky" : {
       "comment" : "Daily puzzle difficulty (Thursday)"
     },
-    "Murky flasks hide what lies beneath. Only the top potion is visible." : {
-
-    },
     "Murky Layers" : {
       "comment" : "Random recipe mode with hidden layers"
     },
     "Murky Layers + Rune Seal" : {
       "comment" : "Daily puzzle mode"
+    },
+    "Murky flasks hide what lies beneath. Only the top potion is visible." : {
+
     },
     "Murky layers below the top show as “?” until you uncover them." : {
 
@@ -1452,13 +1463,25 @@
     "Murky potions" : {
 
     },
+    "Mushroom" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "My friend's furnace needs the hottest coals in the land. Mind the double frost here: it takes two thaws." : {
+      "comment" : "Story, gathering episode 4 (Ember Hearth)"
+    },
+    "My hall needs fresh quills. Every recipe on the cauldron cards is written with one." : {
+      "comment" : "Story, gathering episode 8 (Windy Rookery)"
+    },
     "My old hall, and my favorite cauldron. Here we don't just sort potions, we brew them." : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
     },
-    "narrow neck, one layer per pour" : {
-      "comment" : "VoiceOver: a narrow-neck flask moves one layer per pour, in or out"
-    },
     "Narrow necks" : {
+
+    },
+    "New Random Brew" : {
+
+    },
+    "New best score" : {
 
     },
     "New best!" : {
@@ -1470,14 +1493,25 @@
     "New brew in %lld m" : {
       "comment" : "Countdown to the next daily puzzle, minutes"
     },
-    "New Random Brew" : {
-
+    "New gathering in %lld h %lld m" : {
+      "comment" : "Countdown to the next daily gathering, hours and minutes",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "New gathering in %1$lld h %2$lld m"
+          }
+        }
+      }
     },
-    "New reward: %@" : {
-      "comment" : "VoiceOver announcement when rewards unlock"
+    "New gathering in %lld m" : {
+      "comment" : "Countdown to the next daily gathering, minutes"
     },
     "New reward!" : {
       "comment" : "Toast title when a cosmetic reward unlocks"
+    },
+    "New reward: %@" : {
+      "comment" : "VoiceOver announcement when rewards unlock"
     },
     "New: bubbling flasks" : {
 
@@ -1488,11 +1522,17 @@
     "New: essence flasks" : {
 
     },
+    "New: frost" : {
+      "comment" : "Tip heading: match-3 frost tiles"
+    },
     "New: frozen layers" : {
 
     },
     "New: funnel flasks" : {
 
+    },
+    "New: glowing specials" : {
+      "comment" : "Tip heading: match-3 specials"
     },
     "New: layered recipes" : {
 
@@ -1506,8 +1546,14 @@
     "New: narrow necks" : {
 
     },
+    "New: potion flasks" : {
+      "comment" : "Tip heading: match-3 drop-down flasks"
+    },
     "New: pressure pipes" : {
 
+    },
+    "New: sealed crates" : {
+      "comment" : "Tip heading: match-3 crates"
     },
     "New: sealed flasks" : {
 
@@ -1524,10 +1570,13 @@
     "Next" : {
       "comment" : "Next story line"
     },
-    "Next month" : {
+    "Next Level" : {
 
     },
     "Next Recipe" : {
+
+    },
+    "Next month" : {
 
     },
     "No recipe chapters found in the app bundle" : {
@@ -1535,6 +1584,9 @@
     },
     "No solution from here — undo?" : {
 
+    },
+    "No swaps left: stirring the tray" : {
+      "comment" : "Match-3: the board is reshuffled"
     },
     "Not until you pour off what's on top. A good alchemist is patient, and a little curious." : {
       "comment" : "Story, chapter 3 (Misty Marsh)"
@@ -1566,17 +1618,14 @@
     "Opens Lab Style" : {
 
     },
-    "order filled" : {
-      "comment" : "VoiceOver: an order flask holds what was asked for"
-    },
     "Order filled: flask %lld" : {
       "comment" : "VoiceOver: a customer's order flask now holds what was asked for; the argument is the flask number"
     },
-    "order flask, wanted: %@" : {
-      "comment" : "VoiceOver: a customer's order flask; the argument says what it must end with"
-    },
     "Orrin" : {
       "comment" : "Name of the travelling merchant who orders potions"
+    },
+    "Out of moves" : {
+      "comment" : "Match-3 card when the moves run out"
     },
     "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {
 
@@ -1608,8 +1657,17 @@
     "Potion Bottle" : {
       "comment" : "Flask shape name"
     },
+    "Potion Drop" : {
+      "comment" : "Match-3 ingredient"
+    },
     "Potion Effects" : {
       "comment" : "Lab Style section: completion effects"
+    },
+    "Potion flask, bring it to the bottom" : {
+      "comment" : "VoiceOver: the drop-down goal item"
+    },
+    "Potion flasks" : {
+      "comment" : "Match-3 tip title"
     },
     "Potions" : {
 
@@ -1644,17 +1702,22 @@
     "Pourfect" : {
 
     },
-    "Pourfect collects no data: no accounts, no ads, no analytics. Your progress is saved only on this device." : {
-      "comment" : "About screen: privacy note"
-    },
     "Pourfect Daily %@ · %@ · 🔥 %lld" : {
       "comment" : "Shared daily result: date, moves, streak"
     },
-    "pouring here pushes %lld layers into flask %lld" : {
-      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push several layers through the pipe; the arguments are the number of layers (2 or more) and the flask at the pipe's far end"
+    "Pourfect Gathering — %@ %@ %lld moves left" : {
+      "comment" : "Shared daily gathering result: date, stars as ★/☆, moves left at the win",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Pourfect Gathering — %1$@ %2$@ %3$lld moves left"
+          }
+        }
+      }
     },
-    "pouring here pushes 1 layer into flask %lld" : {
-      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push one layer through the pipe; the argument is the flask at the pipe's far end"
+    "Pourfect collects no data: no accounts, no ads, no analytics. Your progress is saved only on this device." : {
+      "comment" : "About screen: privacy note"
     },
     "Pouring into a narrow neck works the same way: one layer per pour. Plan for the extra pours." : {
 
@@ -1662,14 +1725,17 @@
     "Pouring out of a twin works as usual: only the flask you pick up pours. One twin can't pour into the other." : {
 
     },
-    "pressure pipe, pushes its bottom layer into the bottom of flask %lld" : {
-      "comment" : "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into"
-    },
     "Pressure pipes" : {
 
     },
     "Previous month" : {
 
+    },
+    "Prism, clears every piece of the kind it is swapped with" : {
+      "comment" : "VoiceOver: a prism piece"
+    },
+    "Prisms" : {
+      "comment" : "Match-3 tip title: the color-clear special"
     },
     "Privacy" : {
       "comment" : "About screen section header"
@@ -1679,6 +1745,12 @@
     },
     "Random Brew · %@" : {
 
+    },
+    "Rare ingredients, kept for a thousand years. Enough for the grandest brew of all." : {
+      "comment" : "Story, gathering episode 10 (Dragon's Larder)"
+    },
+    "Reach every goal at the top before the moves run out. Out of moves? Retry is free, and the board starts the same way." : {
+      "comment" : "Match-3 tip: goals, moves and free retry"
     },
     "Ready to use" : {
       "comment" : "Lab Style: an unlocked reward"
@@ -1730,12 +1802,6 @@
     "Recipe books" : {
 
     },
-    "recipe brewed" : {
-      "comment" : "Rush end card, under the number of solved recipes (one)"
-    },
-    "recipes brewed" : {
-      "comment" : "Rush end card, under the number of solved recipes"
-    },
     "Reduce Motion" : {
 
     },
@@ -1745,11 +1811,20 @@
     "Replay this chapter's story" : {
       "comment" : "Tooltip of the Story button"
     },
+    "Replay this episode's story" : {
+      "comment" : "Tooltip of the Story button on a gathering episode"
+    },
     "Resets at midnight UTC" : {
 
     },
     "Restart" : {
 
+    },
+    "Retry" : {
+
+    },
+    "Retrying is free, and the board starts the same way." : {
+      "comment" : "Match-3 out-of-moves card: retry costs nothing; the seed gives the same start"
     },
     "Ring" : {
       "comment" : "Name of a colorblind rune"
@@ -1763,17 +1838,20 @@
     "Round-Bottom Flask" : {
       "comment" : "Flask shape name"
     },
-    "Rune key" : {
-
+    "Row %lld, column %lld" : {
+      "comment" : "VoiceOver: position of a match-3 cell"
     },
     "Rune Seal" : {
       "comment" : "Daily puzzle mode: one sealed flask"
     },
-    "Rune seals" : {
-
-    },
     "Rune Seals" : {
       "comment" : "Random recipe mode with sealed flasks and rune keys"
+    },
+    "Rune key" : {
+
+    },
+    "Rune seals" : {
+
     },
     "Rune seals. Somewhere in the other flasks lies a rune-stone key of the same metal. Pour it onto its seal and the lock gives way." : {
       "comment" : "Story, chapter 2 (Rune Vault)"
@@ -1784,11 +1862,11 @@
     "Rush" : {
 
     },
-    "Rush · Recipe %lld" : {
-      "comment" : "Game title in Rush mode; the argument is the recipe's number in the run"
-    },
     "Rush Again" : {
 
+    },
+    "Rush · Recipe %lld" : {
+      "comment" : "Game title in Rush mode; the argument is the recipe's number in the run"
     },
     "Rush, hard recipe books and Random Brew, open any time" : {
 
@@ -1802,16 +1880,48 @@
     "Saturday" : {
       "comment" : "Weekday of the daily puzzle"
     },
+    "Score" : {
+      "comment" : "Match-3 goal: reach a score"
+    },
+    "Score %lld" : {
+      "comment" : "Match-3 win card: the final score"
+    },
+    "Score %lld · %lld moves left" : {
+      "comment" : "Daily gathering result: score and moves left at the win",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Score %1$lld · %2$lld moves left"
+          }
+        }
+      }
+    },
+    "Score %lld; two stars at %lld, three stars at %lld" : {
+      "comment" : "VoiceOver: match-3 score and star thresholds"
+    },
     "Sealed" : {
       "comment" : "Daily puzzle difficulty (Wednesday)"
+    },
+    "Sealed Crates" : {
+      "comment" : "Daily gathering flavour (Thursday)"
+    },
+    "Sealed crate, %lld hits left" : {
+      "comment" : "VoiceOver: a match-3 crate cell"
+    },
+    "Sealed crates" : {
+      "comment" : "Match-3 tip title"
     },
     "Sealed flasks open when you pour their rune key into them. Keys move alone." : {
 
     },
-    "sealed with a %@ rune" : {
-      "comment" : "A sealed flask; the argument is the key metal"
+    "Seals give way when you match beside them. The stronger ones need a few knocks." : {
+      "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
     },
     "Settings" : {
+
+    },
+    "Share" : {
 
     },
     "Share Result" : {
@@ -1829,10 +1939,10 @@
     "Skip" : {
       "comment" : "Skips the rest of a story scene"
     },
-    "Skip −%lld s" : {
+    "Skip this recipe" : {
 
     },
-    "Skip this recipe" : {
+    "Skip −%lld s" : {
 
     },
     "Skipped %lld" : {
@@ -1847,20 +1957,20 @@
     "So many books! Wait, that flask has a glowing rune on it." : {
       "comment" : "Story, chapter 4 (Glyph Library)"
     },
+    "So many feathers up here! The wind has carried them all over the towers." : {
+      "comment" : "Story, gathering episode 8 (Windy Rookery)"
+    },
     "Solve every recipe in %@" : {
       "comment" : "Lab Style milestone; the argument is a chapter name"
     },
     "Solve the Daily Brew %lld days in a row" : {
       "comment" : "Lab Style milestone"
     },
-    "solved" : {
-      "comment" : "VoiceOver: state of today's daily puzzle"
-    },
     "Solved" : {
       "comment" : "Daily puzzle solved today"
     },
-    "solved perfectly" : {
-      "comment" : "VoiceOver: state of today's daily puzzle"
+    "Some of them are frozen in the night frost!" : {
+      "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
     },
     "Some of them look funny. That one has a skinny neck, and that one has a tap on its side!" : {
       "comment" : "Story, chapter 5 (Glass Works)"
@@ -1886,6 +1996,9 @@
     "Split between flask %lld and flask %lld" : {
       "comment" : "VoiceOver: a pour into a twin flask was shared evenly with its twin; the arguments are flask numbers"
     },
+    "Spring water from the bog, for the Twin Towers. Their chained flasks need it pure." : {
+      "comment" : "Story, gathering episode 7 (Bogwater Springs)"
+    },
     "Square" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -1896,6 +2009,9 @@
       "comment" : "Completion effect name"
     },
     "Start Rush" : {
+
+    },
+    "Start this level over" : {
 
     },
     "Starts a 3 minute run" : {
@@ -1932,11 +2048,32 @@
     "Sunday" : {
       "comment" : "Weekday of the daily puzzle"
     },
-    "switch flask, fill it with one potion to open the gate of flask %lld" : {
-      "comment" : "VoiceOver: a switch flask that is not complete; the argument is its gate's flask number"
+    "Supplies for %@" : {
+      "comment" : "Episode header: the next chapter the ingredients are for"
     },
-    "switch flask, full of one potion: the gate of flask %lld is open" : {
-      "comment" : "VoiceOver: a switch flask that is complete; the argument is its gate's flask number"
+    "Swap and match" : {
+      "comment" : "Match-3 tip title"
+    },
+    "Swap down" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one below"
+    },
+    "Swap left" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one on the left"
+    },
+    "Swap right" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one on the right"
+    },
+    "Swap two neighbors to line up three of a kind, and the basket fills itself." : {
+      "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
+    },
+    "Swap two specials together for a bigger blast: two comets make a cross, a comet and a bloom clear three rows and three columns." : {
+      "comment" : "Match-3 tip: special combos"
+    },
+    "Swap up" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one above"
+    },
+    "Swipe an ingredient onto a neighbor, or tap one and then the other, to swap them. Line up three or more of a kind and they're gathered." : {
+      "comment" : "Match-3 tip: how to swap"
     },
     "Switches and gates" : {
 
@@ -1947,14 +2084,20 @@
     "Tap a flask to pick it up, then tap another flask to pour into it." : {
 
     },
-    "tap flask, pours from the bottom, nothing goes in" : {
-      "comment" : "VoiceOver: a tap flask"
-    },
     "Tap flasks" : {
 
     },
     "Th" : {
       "comment" : "Calendar column: Thursday"
+    },
+    "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
+      "comment" : "Story, chapter 5 (Glass Works)"
+    },
+    "The Glyph Library's oldest runes have faded. Moonflowers glow just bright enough to read them." : {
+      "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
+    },
+    "The Rune Vault is pitch dark. Hollow-caps glow for hours once they're gathered: our lanterns for tomorrow." : {
+      "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
     },
     "The card under the cauldron shows two potions… and a new one?" : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
@@ -1962,11 +2105,14 @@
     "The dial under the flask lights up after every pour, wherever you pour. Its number is the moves left until it bubbles up." : {
 
     },
-    "The fewest moves, without a hint: a gold seal for this recipe." : {
-      "comment" : "Win card line under a perfect brew"
+    "The dragon is purring, and it showed us its larder!" : {
+      "comment" : "Story, gathering episode 10 (Dragon's Larder)"
     },
     "The fewest moves, without a hint." : {
       "comment" : "Win card line under a perfect random brew"
+    },
+    "The fewest moves, without a hint: a gold seal for this recipe." : {
+      "comment" : "Win card line under a perfect brew"
     },
     "The gate is shut. Fill flask %lld with one potion to open it." : {
       "comment" : "Shown when the player pours into or out of a closed gate flask; the argument is the number of its switch flask"
@@ -1977,8 +2123,8 @@
     "The gate of flask %@ shut" : {
       "comment" : "VoiceOver: a switch flask stopped being full of one potion and its gate closed; the argument lists flask numbers"
     },
-    "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
-      "comment" : "Story, chapter 5 (Glass Works)"
+    "The marsh ahead is all mist. How will we see a thing?" : {
+      "comment" : "Story, gathering episode 2 (Crystal Grotto)"
     },
     "The number on the ice counts down after every pour, wherever you pour. At zero the ice cracks and melts." : {
 
@@ -1992,20 +2138,23 @@
     "The pipe can only push when the far flask has room. Any color goes through, but only in the arrow's direction." : {
 
     },
-    "the pressure pipe of flask %lld pushes layers into its bottom" : {
-      "comment" : "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from"
-    },
     "The recipe is done when every order is filled and every other flask holds one potion or nothing. The card above the board ticks each order off." : {
 
     },
     "The shape of every flask on the board. Flasks hold just as much in any shape." : {
 
     },
+    "Then let's gather every last one." : {
+      "comment" : "Story, gathering episode 10 (Dragon's Larder)"
+    },
     "Then sort the rest" : {
 
     },
     "Then think in pairs, and the towers will dance for you." : {
       "comment" : "Story, chapter 8 (Twin Towers)"
+    },
+    "Then use all you've learned. A prism and a comet together make quite a harvest." : {
+      "comment" : "Story, gathering episode 9 (Alchemist's Garden)"
     },
     "Thinking…" : {
 
@@ -2025,11 +2174,20 @@
     "This flask is full, and its pipe can't push: flask %lld is full too." : {
       "comment" : "Shown when a pour into a full pressure-pipe flask is refused because the flask at the pipe's far end is full; the argument is that flask's number"
     },
+    "This level can't be played" : {
+
+    },
     "This ticket shows layers, bottom to top. Its flask must end with exactly that pattern." : {
 
     },
     "This vault hasn't been opened in a hundred years. And these flasks are sealed shut!" : {
       "comment" : "Story, chapter 2 (Rune Vault)"
+    },
+    "Those little potion flasks are floating in the tray." : {
+      "comment" : "Story, gathering episode 7 (Bogwater Springs)"
+    },
+    "Three-star days" : {
+      "comment" : "Daily gathering stat"
     },
     "Thursday" : {
       "comment" : "Weekday of the daily puzzle"
@@ -2064,11 +2222,11 @@
     "Tuesday" : {
       "comment" : "Weekday of the daily puzzle"
     },
+    "Twice the cracking. I'll bring a bloom or two." : {
+      "comment" : "Story, gathering episode 4 (Ember Hearth)"
+    },
     "Twin flasks" : {
 
-    },
-    "twin of flask %lld, every pour into either is split evenly between both" : {
-      "comment" : "VoiceOver: a twin flask; the argument is the other twin's number"
     },
     "Twins can't pour into each other." : {
       "comment" : "Shown when the player pours from one twin flask into the other"
@@ -2084,6 +2242,9 @@
     },
     "Two flasks on a silver chain are twins. Pour into either one and the pour is split evenly: half lands in each." : {
 
+    },
+    "Two lines crossing in an L or a T leave a bloom. It bursts open and clears the ingredients around it." : {
+      "comment" : "Match-3 tip: bloom special"
     },
     "Undo" : {
 
@@ -2130,6 +2291,9 @@
     "Why are these two flasks chained together?" : {
       "comment" : "Story, chapter 8 (Twin Towers)"
     },
+    "With grotto crystals. Hold one up and the fog thins around it." : {
+      "comment" : "Story, gathering episode 2 (Crystal Grotto)"
+    },
     "Workbench" : {
       "comment" : "Lab Style section: workbench themes"
     },
@@ -2147,6 +2311,175 @@
     },
     "Yours from the start" : {
       "comment" : "Lab Style: a reward everyone owns"
+    },
+    "bloom" : {
+      "comment" : "Match-3 special that clears the 3 by 3 square around it"
+    },
+    "bottom to top %@" : {
+      "comment" : "VoiceOver: the layers a layered-recipe flask wants, listed from the bottom; the argument lists them"
+    },
+    "bubbling flask, its bottom potion rises to the top in %lld moves" : {
+      "comment" : "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "bubbling flask, its bottom potion rises to the top after the next move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "bubbling flask, its bottom potion rises to the top in %lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "column comet" : {
+      "comment" : "Match-3 special that clears its column"
+    },
+    "corked" : {
+
+    },
+    "essence flask, accepts %@ only" : {
+      "comment" : "An essence flask; the argument is the only potion it takes"
+    },
+    "frozen over, nothing goes in or out, thaws in %lld moves" : {
+      "comment" : "VoiceOver: the top layer of a flask is frozen; the argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "frozen over, nothing goes in or out, thaws in %lld move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "frozen over, nothing goes in or out, thaws in %lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "frozen, %lld ice layers" : {
+      "comment" : "VoiceOver: a frozen match-3 piece"
+    },
+    "funnel flask, fills only, never pours out" : {
+      "comment" : "VoiceOver: a funnel flask"
+    },
+    "gate open while flask %lld stays full of one potion" : {
+      "comment" : "VoiceOver: an open gate flask; the argument is its switch's flask number"
+    },
+    "gate shut, nothing pours in or out until flask %lld is full of one potion" : {
+      "comment" : "VoiceOver: a closed gate flask; the argument is its switch's flask number"
+    },
+    "layer %lld frozen, thaws in %lld moves" : {
+      "comment" : "VoiceOver: a frozen layer (counted from the bottom, 1 = bottom) holds it and everything below; the second argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "layer %1$lld frozen, thaws in %#@moves@"
+          },
+          "substitutions" : {
+            "moves" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg move"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg moves"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "mixing cauldron, %@" : {
+      "comment" : "VoiceOver: a mixing cauldron; the argument lists its recipes"
+    },
+    "moves" : {
+      "comment" : "Match-3 HUD caption under the moves left"
+    },
+    "narrow neck, one layer per pour" : {
+      "comment" : "VoiceOver: a narrow-neck flask moves one layer per pour, in or out"
+    },
+    "order filled" : {
+      "comment" : "VoiceOver: an order flask holds what was asked for"
+    },
+    "order flask, wanted: %@" : {
+      "comment" : "VoiceOver: a customer's order flask; the argument says what it must end with"
+    },
+    "pouring here pushes %lld layers into flask %lld" : {
+      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push several layers through the pipe; the arguments are the number of layers (2 or more) and the flask at the pipe's far end"
+    },
+    "pouring here pushes 1 layer into flask %lld" : {
+      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push one layer through the pipe; the argument is the flask at the pipe's far end"
+    },
+    "pressure pipe, pushes its bottom layer into the bottom of flask %lld" : {
+      "comment" : "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into"
+    },
+    "prism" : {
+      "comment" : "Match-3 special that clears every piece of one kind"
+    },
+    "recipe brewed" : {
+      "comment" : "Rush end card, under the number of solved recipes (one)"
+    },
+    "recipes brewed" : {
+      "comment" : "Rush end card, under the number of solved recipes"
+    },
+    "row comet" : {
+      "comment" : "Match-3 special that clears its row"
+    },
+    "sealed with a %@ rune" : {
+      "comment" : "A sealed flask; the argument is the key metal"
+    },
+    "solved" : {
+      "comment" : "VoiceOver: state of today's daily puzzle"
+    },
+    "solved perfectly" : {
+      "comment" : "VoiceOver: state of today's daily puzzle"
+    },
+    "switch flask, fill it with one potion to open the gate of flask %lld" : {
+      "comment" : "VoiceOver: a switch flask that is not complete; the argument is its gate's flask number"
+    },
+    "switch flask, full of one potion: the gate of flask %lld is open" : {
+      "comment" : "VoiceOver: a switch flask that is complete; the argument is its gate's flask number"
+    },
+    "tap flask, pours from the bottom, nothing goes in" : {
+      "comment" : "VoiceOver: a tap flask"
+    },
+    "the pressure pipe of flask %lld pushes layers into its bottom" : {
+      "comment" : "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from"
+    },
+    "twin of flask %lld, every pour into either is split evenly between both" : {
+      "comment" : "VoiceOver: a twin flask; the argument is the other twin's number"
+    },
+    "· Best %lld" : {
+
     }
   },
   "version" : "1.0"
