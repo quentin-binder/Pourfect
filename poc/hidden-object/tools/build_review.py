@@ -45,14 +45,14 @@ label{color:var(--muted);user-select:none}button{background:var(--panel);color:v
 .chip img{width:40px;height:40px;object-fit:contain}.chip.done{opacity:.35;text-decoration:line-through}
 p.note{color:var(--muted);margin:0 16px 16px;max-width:900px}
 </style></head><body>
-<header><h1>Alchemist's Attic — hidden-object art test</h1>
+<header><h1>__TITLE__</h1>
 <label>Zoom <input id="zoom" type="range" min="0.35" max="1.2" step="0.05" value="0.5"></label>
 <label><input id="dbg" type="checkbox"> show where things are</label>
 <label><input id="bare" type="checkbox"> background only</label>
 <button id="reset">Reset</button><span id="count"></span></header>
 <div id="wrap"><div id="stage"></div></div>
 <div id="list"></div>
-<p class="note">Everything here is generated art: one painted background plus 12 separately generated objects, cut out, tinted toward the scene, given soft contact shadows, and in two cases (toadstool in the fruit bowl, egg in the basket) partly hidden behind scene pixels drawn back on top. Each object is its own layer, so it can vanish cleanly. Click an object to find it.</p>
+<p class="note">__NOTE__</p>
 <script>
 const BG = "__BG__", W = __W__, H = __H__, LAYERS = __LAYERS__;
 const stage = document.getElementById('stage'), list = document.getElementById('list');
@@ -97,6 +97,8 @@ document.getElementById('wrap').addEventListener('click', ev => {
   const m = document.createElement('div'); m.className='miss'; Object.assign(m.style,{left:(x-25)+'px',top:(y-25)+'px',width:'50px',height:'50px'}); stage.appendChild(m); setTimeout(()=>m.remove(),500);
 });
 </script></body></html>"""
+DEFAULT_NOTE = """Everything here is generated art: one painted background plus 12 separately generated objects, cut out, tinted toward the scene, given soft contact shadows, and in two cases (toadstool in the fruit bowl, egg in the basket) partly hidden behind scene pixels drawn back on top. Each object is its own layer, so it can vanish cleanly. Click an object to find it."""
+html = html.replace("__TITLE__", spec.get("title", "Alchemist's Attic — hidden-object art test")).replace("__NOTE__", spec.get("note", DEFAULT_NOTE))
 html = (html.replace("__BG__", data_url(bg, "JPEG", quality=86)).replace("__W__", str(m["size"][0])).replace("__H__", str(m["size"][1]))
         .replace("__LAYERS__", json.dumps(layers)))
 (root / "out/review.html").write_text(html)

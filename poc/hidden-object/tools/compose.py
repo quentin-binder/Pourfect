@@ -17,6 +17,20 @@ W, H = bg.size
 (root / "out").mkdir(exist_ok=True)
 (root / "layers").mkdir(exist_ok=True)
 
+def keep_main_blob(mask):
+    """Connected region (4-neighbour) containing the centre of the mask's bounding box, grown by repeated dilation."""
+    ys, xs = np.nonzero(mask)
+    cy, cx = (ys.min() + ys.max()) // 2, (xs.min() + xs.max()) // 2
+    if not mask[cy, cx]:                             # fall back to the opaque pixel nearest the centre
+        k = np.argmin((ys - cy) ** 2 + (xs - cx) ** 2); cy, cx = ys[k], xs[k]
+    region = np.zeros_like(mask); region[cy, cx] = True
+    while True:
+        grown = region.copy()
+        grown[1:] |= region[:-1]; grown[:-1] |= region[1:]; grown[:, 1:] |= region[:, :-1]; grown[:, :-1] |= region[:, 1:]
+        grown &= mask
+        if (grown == region).all(): return region
+        region = grown
+
 def prepare(name, o):
     im = Image.open(root / f"objects/{name}.png").convert("RGBA")
     a = np.array(im).astype(np.float32)
@@ -25,6 +39,8 @@ def prepare(name, o):
     alpha[alpha < o.get("alphaCut", 40)] = 0
     for (y0, y1) in o.get("eraseRows", []):          # fractions of height, e.g. grass under the mushroom
         alpha[int(y0 * alpha.shape[0]):int(y1 * alpha.shape[0]), :] = 0
+    if o.get("keepLargest"):                         # drop stray bits (loose coins, crumbs): keep the blob around the densest pixel
+        alpha[~keep_main_blob(alpha > 0)] = 0
     a[..., 3] = alpha
     im = Image.fromarray(a.astype(np.uint8))
     im = im.crop(im.getbbox())
