@@ -3,6 +3,9 @@ import CoreGraphics
 import Foundation
 import HiddenCore
 import ImageIO
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// A decoded picture with straight (not premultiplied) RGBA, 8 bits per channel, row-major.
 nonisolated struct HiddenPixels: Sendable {
@@ -238,7 +241,19 @@ nonisolated final class HiddenRoomAssets: @unchecked Sendable {
     }
 
     private static let lock = NSLock()
+    /// Only the room loaded last (about 57 MB: the background twice, its half-size copy and 40 objects); a screen
+    /// that still shows an older room keeps its own reference. Emptied on a memory warning (iOS).
     nonisolated(unsafe) private static var cache: [HiddenSceneID: HiddenRoomAssets] = [:]
+    #if canImport(UIKit)
+    nonisolated(unsafe) private static var memoryWarning: NSObjectProtocol?
+    #endif
+
+    /// Drops the cached room (it is loaded again when next needed).
+    static func purgeCache() {
+        lock.lock()
+        defer { lock.unlock() }
+        cache = [:]
+    }
 
     /// Loads (or returns the cached) room. Slow the first time (about a quarter second): call off the main actor.
     static func load(_ room: HiddenSceneID) throws -> HiddenRoomAssets {
@@ -270,7 +285,13 @@ nonisolated final class HiddenRoomAssets: @unchecked Sendable {
         let rounds = try HiddenFixedLayouts.load(Data(contentsOf: dir.appending(path: "rounds.json")), scene: scene)
         let assets = HiddenRoomAssets(scene: scene, background: bg, backgroundSmall: small, raster: raster,
                                       pixels: pixels, images: images, masks: masks, rounds: rounds)
-        cache[room] = assets
+        cache = [room: assets]
+        #if canImport(UIKit)
+        if memoryWarning == nil {
+            memoryWarning = NotificationCenter.default.addObserver(
+                forName: UIApplication.didReceiveMemoryWarningNotification, object: nil, queue: nil) { _ in purgeCache() }
+        }
+        #endif
         return assets
     }
 

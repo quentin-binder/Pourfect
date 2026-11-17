@@ -140,7 +140,7 @@ final class HiddenSceneLayers {
                 layer.opacity = 0
             }
         }
-        // A replayed state (a wrong tap taken back never un-finds, but a new round resets everything).
+        // A new round (or a replay) resets everything.
         for id in back { objectLayers[id].map { $0.shadow.opacity = 1; $0.object.opacity = 1 } }
     }
 }
@@ -175,7 +175,6 @@ private struct HiddenSceneRepresentable: UIViewRepresentable {
 
     func updateUIView(_ v: HiddenUIScrollView, context: Context) {
         v.onTap = { [model] p, ppp in model.tap(at: p, pointsPerPixel: ppp) }
-        v.onDoubleTap = { [model] p, ppp in model.doubleTapped(at: p, pointsPerPixel: ppp) }
         v.reduceMotion = reduceMotion
         if let assets = model.assets {
             v.setScene(assets: assets)
@@ -194,7 +193,6 @@ final class HiddenUIScrollView: UIScrollView, UIScrollViewDelegate, HiddenScroll
     let sceneLayers = HiddenSceneLayers()
     let viewport: HiddenViewport
     var onTap: ((CGPoint, CGFloat) -> Void)?
-    var onDoubleTap: ((CGPoint, CGFloat) -> Void)?
     var reduceMotion = false
     var lastFocus = 0
     private var sceneSize: CGSize = .zero
@@ -216,6 +214,8 @@ final class HiddenUIScrollView: UIScrollView, UIScrollViewDelegate, HiddenScroll
         let tap = UITapGestureRecognizer(target: self, action: #selector(tapped(_:)))
         let double = UITapGestureRecognizer(target: self, action: #selector(doubleTapped(_:)))
         double.numberOfTapsRequired = 2
+        // A double tap only zooms: the single tap waits for it to fail, so a double tap never finds or misses.
+        tap.require(toFail: double)
         addGestureRecognizer(tap)
         addGestureRecognizer(double)
         isAccessibilityElement = false
@@ -285,7 +285,6 @@ final class HiddenUIScrollView: UIScrollView, UIScrollViewDelegate, HiddenScroll
 
     @objc private func doubleTapped(_ g: UITapGestureRecognizer) {
         let p = g.location(in: content)
-        onDoubleTap?(p, zoomScale)
         let target = zoomScale < fillScale * 1.9 ? min(maximumZoomScale, fillScale * 2.5) : fillScale
         let size = CGSize(width: bounds.width / target, height: bounds.height / target)
         zoom(to: CGRect(x: p.x - size.width / 2, y: p.y - size.height / 2, width: size.width, height: size.height),
@@ -333,7 +332,6 @@ private struct HiddenSceneRepresentable: NSViewRepresentable {
 
     func updateNSView(_ v: HiddenNSScrollView, context: Context) {
         v.onTap = { [model] p, ppp in model.tap(at: p, pointsPerPixel: ppp) }
-        v.onDoubleTap = { [model] p, ppp in model.doubleTapped(at: p, pointsPerPixel: ppp) }
         v.reduceMotion = reduceMotion
         if let assets = model.assets {
             v.setScene(assets: assets)
@@ -363,6 +361,10 @@ final class HiddenSceneNSView: NSView {
     weak var owner: HiddenNSScrollView?
     private var downAt: NSPoint?
     private var dragged = false
+    /// A click waits this long for a second one: a double click only zooms (it never finds or misses).
+    private static var clickWindow: TimeInterval { min(NSEvent.doubleClickInterval, 0.3) }
+    private var clickToken = 0
+    private var clickPending = false
 
     override var isFlipped: Bool { true }
     override var acceptsFirstResponder: Bool { true }
@@ -390,10 +392,21 @@ final class HiddenSceneNSView: NSView {
         }
         guard let owner else { return }
         let p = convert(event.locationInWindow, from: nil)
-        if event.clickCount >= 2 {
+        if event.clickCount >= 2, clickPending {
+            clickPending = false
             owner.doubleClicked(at: p)
-        } else {
-            owner.onTap?(p, owner.magnification)
+            return
+        }
+        // A single click (or a slow second click whose first one already counted) is a tap once no second
+        // click follows.
+        clickToken += 1
+        let token = clickToken, ppp = owner.magnification
+        clickPending = true
+        Task { [weak self] in
+            try? await Task.sleep(for: .seconds(Self.clickWindow))
+            guard let self, self.clickPending, self.clickToken == token else { return }
+            self.clickPending = false
+            self.owner?.onTap?(p, ppp)
         }
     }
 }
@@ -403,7 +416,6 @@ final class HiddenNSScrollView: NSScrollView, HiddenScroller {
     let sceneLayers = HiddenSceneLayers()
     let viewport: HiddenViewport
     var onTap: ((CGPoint, CGFloat) -> Void)?
-    var onDoubleTap: ((CGPoint, CGFloat) -> Void)?
     var reduceMotion = false
     var lastFocus = 0
     private var sceneSize: CGSize = .zero
@@ -500,7 +512,6 @@ final class HiddenNSScrollView: NSScrollView, HiddenScroller {
     }
 
     func doubleClicked(at p: CGPoint) {
-        onDoubleTap?(p, magnification)
         let target = magnification < fillScale * 1.9 ? min(maxMagnification, fillScale * 2.5) : fillScale
         if reduceMotion {
             setMagnification(target, centeredAt: p)

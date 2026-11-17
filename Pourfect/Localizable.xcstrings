@@ -2998,8 +2998,16 @@
     "Reveal next" : {
       "comment" : "VoiceOver action: find the next hidden object (counts as a hint)"
     },
-    "Revealed %@." : {
-      "comment" : "VoiceOver: reveal next found an object"
+    "Revealed %@. %lld left." : {
+      "comment" : "VoiceOver: reveal next found an object; the count still to find",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Revealed %1$@. %2$lld left."
+          }
+        }
+      }
     },
     "Ring" : {
       "comment" : "Name of a colorblind rune"

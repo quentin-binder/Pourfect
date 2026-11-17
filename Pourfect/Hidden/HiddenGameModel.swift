@@ -45,6 +45,8 @@ final class HiddenGameModel {
     private(set) var hint: (glow: HiddenHintGlow, lit: Date)?
     /// The object just found (the find list's flourish).
     private(set) var lastFound: String?
+    /// Whether `lastFound` came from the accessibility "reveal next" (one announcement says which).
+    @ObservationIgnored private(set) var lastFoundRevealed = false
     /// Bumped on each wrong tap (the count's little shake).
     private(set) var wrongPulse = 0
     /// Asks the viewer to bring a background point into view (hint, reveal).
@@ -57,9 +59,6 @@ final class HiddenGameModel {
     @ObservationIgnored private var hitTester: HiddenHitTester?
     @ObservationIgnored private var loadID = 0
     @ObservationIgnored private var focusCounter = 0
-    /// The state before the last wrong tap, for a double tap / double click that was meant as a zoom.
-    @ObservationIgnored private var beforeWrong: (state: HiddenRoundState, at: Date, point: CGPoint, effect: UUID)?
-    @ObservationIgnored private var lastTap: (at: Date, point: CGPoint)?
 
     init(room: HiddenSceneID, round: Int) {
         self.room = room
@@ -89,7 +88,6 @@ final class HiddenGameModel {
         effects = []
         hint = nil
         lastFound = nil
-        beforeWrong = nil
         let room = room
         do {
             let result = try await Task.detached(priority: .userInitiated) { () throws -> (HiddenRoomAssets, HiddenRoundLayout, [HiddenLayerSet]) in
@@ -119,18 +117,12 @@ final class HiddenGameModel {
     // MARK: Play
 
     /// A tap at a background point; `pointsPerPixel` is the current zoom (screen points per background pixel).
+    /// The viewers send only single taps: a double tap / double click zooms and never reaches the round.
     func tap(at p: CGPoint, pointsPerPixel: CGFloat) {
         guard phase == .playing, var s = state, let hitTester else { return }
         let now = Date()
-        // The second tap of a double tap (a zoom) is not a tap.
-        if let last = lastTap, now.timeIntervalSince(last.at) < 0.35,
-           hypot(last.point.x - p.x, last.point.y - p.y) * pointsPerPixel < 30 {
-            return
-        }
-        lastTap = (now, p)
         let slop = HiddenTouch.slop(pointsPerBackgroundPixel: Double(pointsPerPixel))
         let hit = hitTester.hit(at: HiddenPoint(x: Double(p.x), y: Double(p.y)), slop: slop, found: s.foundSet)
-        let before = s
         switch s.tap(hit) {
         case .found(let id, _):
             state = s
@@ -139,24 +131,14 @@ final class HiddenGameModel {
             state = s
             let effect = HiddenEffect(kind: .puff, point: p, size: 24 / max(pointsPerPixel, 0.05), start: now)
             effects.append(effect)
-            beforeWrong = (before, now, p, effect.id)
             wrongPulse += 1
             HiddenFeedback.play(.wrong, settings: settings)
             prune()
         }
     }
 
-    /// A double tap / double click zooms; a wrong tap it began with is taken back.
-    func doubleTapped(at p: CGPoint, pointsPerPixel: CGFloat) {
-        guard let b = beforeWrong, Date().timeIntervalSince(b.at) < 0.6,
-              hypot(b.point.x - p.x, b.point.y - p.y) * pointsPerPixel < 30 else { return }
-        state = b.state
-        effects.removeAll { $0.id == b.effect }
-        beforeWrong = nil
-    }
-
-    private func found(_ id: String) {
-        beforeWrong = nil
+    private func found(_ id: String, revealed: Bool = false) {
+        lastFoundRevealed = revealed
         lastFound = id
         if hint?.glow.objectID == id { hint = nil }
         if let p = layout?.placement(id) {
@@ -211,7 +193,7 @@ final class HiddenGameModel {
         guard phase == .playing, var s = state, let id = s.revealNext() else { return nil }
         state = s
         if let p = layout?.placement(id) { focus(CGPoint(x: p.center.x, y: p.center.y)) }
-        found(id)
+        found(id, revealed: true)
         return name(id)
     }
 
@@ -247,7 +229,6 @@ final class HiddenGameModel {
         let middle = CGPoint(x: sceneSize.width / 2, y: sceneSize.height / 2)
         if wrong, let d = layout.decoys.min(by: { hypot($0.center.x - middle.x, $0.center.y - middle.y)
                                                     < hypot($1.center.x - middle.x, $1.center.y - middle.y) }) {
-            lastTap = nil
             tap(at: CGPoint(x: d.center.x, y: d.center.y), pointsPerPixel: 1)
         }
         if lantern { useHint() }

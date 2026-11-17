@@ -83,8 +83,12 @@ struct HiddenGameView: View {
         .onChange(of: model.lastFound) { _, id in
             guard let id, model.phase == .playing else { return }
             let left = model.targets.count - model.found.count
-            AccessibilityNotification.Announcement(
-                String(localized: "Found \(model.name(id)). \(left) left.", comment: "VoiceOver: an object was found; the count still to find")).post()
+            // One announcement per find; a reveal says so (its action posts nothing itself).
+            let text = model.lastFoundRevealed
+                ? String(localized: "Revealed \(model.name(id)). \(left) left.",
+                         comment: "VoiceOver: reveal next found an object; the count still to find")
+                : String(localized: "Found \(model.name(id)). \(left) left.", comment: "VoiceOver: an object was found; the count still to find")
+            AccessibilityNotification.Announcement(text).post()
         }
         .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }
     }
@@ -161,11 +165,9 @@ struct HiddenGameView: View {
         .opacity(model.phase == .playing ? 1 : 0)
     }
 
+    /// Announced by the `lastFound` change like any find ("Revealed …").
     private func reveal() {
-        if let name = model.revealNext() {
-            AccessibilityNotification.Announcement(
-                String(localized: "Revealed \(name).", comment: "VoiceOver: reveal next found an object")).post()
-        }
+        model.revealNext()
     }
 
     // MARK: Loading
