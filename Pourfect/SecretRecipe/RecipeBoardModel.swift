@@ -41,8 +41,11 @@ final class RecipeBoardModel {
 
     @ObservationIgnored var settings = GameSettings()
     @ObservationIgnored var reduceMotion = false
-    /// Called after each brew with the guesses so far (the daily saves them).
-    @ObservationIgnored var onBrew: (([RecipeCode]) -> Void)?
+    /// Called after each brew with the guesses so far (the daily saves them); returns false when
+    /// they couldn't be stored because the saved game moved on elsewhere (another window).
+    @ObservationIgnored var onBrew: (([RecipeCode]) -> Bool)?
+    /// The saved daily no longer matches this board; the view reloads it from the save.
+    private(set) var isStale = false
     @ObservationIgnored private var revealTask: Task<Void, Never>?
 
     init(play: RecipePlay, game: RecipeGame, isDemo: Bool = false) {
@@ -95,12 +98,14 @@ final class RecipeBoardModel {
         cursor = index
     }
 
-    /// Delete key: clears the slot before the cursor (or the cursor's own, if filled).
+    /// Delete key: clears the cursor's slot if filled, else the nearest filled slot before the
+    /// cursor (else the last filled one), and moves the cursor there.
     func backspace() {
         guard !isOver else { return }
         if draft[cursor] == nil {
-            guard let last = draft.lastIndex(where: { $0 != nil }) else { return }
-            cursor = last
+            guard let target = draft[..<cursor].lastIndex(where: { $0 != nil })
+                    ?? draft.lastIndex(where: { $0 != nil }) else { return }
+            cursor = target
         }
         draft[cursor] = nil
         feedback(.clear)
@@ -150,7 +155,10 @@ final class RecipeBoardModel {
         guard let turn = game.brew(code) else { return nil }
         draft = Array(repeating: nil, count: RecipeCode.length)
         cursor = 0
-        if !isDemo { onBrew?(game.guesses) }
+        if !isDemo, let onBrew, !onBrew(game.guesses) {
+            isStale = true
+            return nil
+        }
         feedback(.brew)
         revealDrops(turn)
         let text = String(localized: "Guess \(game.turns.count): \(RecipeText.feedback(turn.feedback))",

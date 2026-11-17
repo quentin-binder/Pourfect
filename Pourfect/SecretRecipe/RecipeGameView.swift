@@ -28,6 +28,7 @@ struct RecipeGameView: View {
     @Environment(\.effectiveReduceMotion) private var reduceMotion
     @Environment(\.colorRunesEnabled) private var runes
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @AppStorage("recipe.practice.showsCount") private var showsCount = true
 
     init(play: RecipePlay) {
@@ -86,6 +87,7 @@ struct RecipeGameView: View {
                     }
                 }
                 .background { keyboardShortcuts(model) }
+                .onChange(of: model.isStale) { _, stale in if stale { load() } }
                 .onChange(of: model.showsEnd) { _, ended in
                     if ended { withAnimation(reduceMotion ? nil : .spring(duration: 0.4)) { showsEndCard = true } }
                 }
@@ -114,7 +116,7 @@ struct RecipeGameView: View {
                     Button { newPractice() } label: {
                         Label { Text("New recipe", comment: "Starts another practice Secret Recipe") } icon: { Image(systemName: "arrow.triangle.2.circlepath") }
                     }
-                    .keyboardShortcut("n", modifiers: .command)
+                    .keyboardShortcut("r", modifiers: .command)
                     .help(Text("Hide a new practice recipe", comment: "Tooltip of the new practice recipe button"))
                 }
             }
@@ -148,7 +150,12 @@ struct RecipeGameView: View {
         }
         let fresh = RecipeBoardModel(play: play, game: game, isDemo: demo > 0)
         if case .daily(let date) = play {
-            fresh.onBrew = { [daily] guesses in daily.save(date: date, guesses: guesses) }
+            fresh.onBrew = { [daily] guesses in
+                switch daily.save(date: date, guesses: guesses) {
+                case .saved, .finished: true
+                case .alreadyFinished, .mismatch: false
+                }
+            }
         }
         fresh.settings = settings.value
         fresh.reduceMotion = reduceMotion
@@ -468,16 +475,21 @@ struct RecipeGameView: View {
         if model.showsEnd {
             endButtons(model)
         } else {
+            // At accessibility text sizes Notes and Clear show only their icons (VoiceOver still
+            // reads the titles), so they don't shrink to "N…" next to Brew.
+            let compact = dynamicTypeSize.isAccessibilitySize
             HStack(spacing: 10) {
                 Toggle(isOn: Binding(get: { model.notesMode }, set: { model.notesMode = $0 })) {
                     Label { Text("Notes", comment: "Secret Recipe: notes mode toggle") } icon: { Image(systemName: "pencil") }
                 }
                 .toggleStyle(.button)
+                .labelStyle(RecipeControlLabelStyle(compact: compact))
                 .accessibilityHint(Text("When on, tapping an ingredient marks it ruled out, then maybe, then clears the mark",
                                         comment: "VoiceOver hint: Secret Recipe notes toggle"))
                 Button { model.clearDraft() } label: {
                     Label { Text("Clear", comment: "Secret Recipe: empty the five slots") } icon: { Image(systemName: "xmark.circle") }
                 }
+                .labelStyle(RecipeControlLabelStyle(compact: compact))
                 .disabled(!model.draft.contains { $0 != nil } || model.isOver)
                 Spacer(minLength: 0)
                 Button { model.brew() } label: {
@@ -633,6 +645,19 @@ private struct Shake: ViewModifier {
                 LinearKeyframe(amount * 0.5, duration: 0.08)
                 LinearKeyframe(0, duration: 0.06)
             }
+        }
+    }
+}
+
+/// Title and icon, or only the icon when `compact` (the title stays the accessibility label).
+private struct RecipeControlLabelStyle: LabelStyle {
+    var compact: Bool
+
+    @ViewBuilder func makeBody(configuration: Configuration) -> some View {
+        if compact {
+            Label(configuration).labelStyle(.iconOnly)
+        } else {
+            Label(configuration).labelStyle(.titleAndIcon)
         }
     }
 }
