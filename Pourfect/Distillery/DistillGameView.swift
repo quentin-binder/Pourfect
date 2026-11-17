@@ -18,6 +18,8 @@ struct DistillGameView: View {
     @State private var model: DistillBoardModel?
     /// The open tip, if any (first time, or "?").
     @State private var tip: [TutorialTopic]?
+    /// A new Random Distillery still is being built.
+    @State private var buildingRandom = false
     let kind: Kind
     /// Called on each win (not for a demo), after the level's best is saved: the daily screen records its streak here.
     var onWin: ((_ level: DistillLevel, _ stars: Int, _ taps: Int, _ usedHint: Bool) -> Void)?
@@ -107,6 +109,23 @@ struct DistillGameView: View {
             if let title = level.title { return title }
             let number = DistillLibrary.shared.number(of: level.id) ?? 1
             return String(localized: "Still \(number)", comment: "Title of a distillery level; the argument is its number in the stage")
+        }
+    }
+
+    /// The tier of a Random Distillery still (from its id, `distill-random-<tier>-<seed>`).
+    private var randomTier: DistillRandomTier? {
+        DistillRandomTier.allCases.first { level.id.hasPrefix("distill-random-\($0.rawValue)-") }
+    }
+
+    /// Builds another random still of the same tier and plays it here (like "New Random Brew").
+    private func newRandomStill(_ tier: DistillRandomTier) {
+        guard !buildingRandom else { return }
+        buildingRandom = true
+        let seed = UInt64.random(in: 1...999_999_999)
+        Task {
+            let fresh = await Task.detached(priority: .userInitiated) { DistillRandom.level(tier: tier, seed: seed) }.value
+            buildingRandom = false
+            level = fresh
         }
     }
 
@@ -210,6 +229,16 @@ struct DistillGameView: View {
                             Label("Share", systemImage: "square.and.arrow.up")
                         }
                         .buttonStyle(.bordered)
+                    }
+                    if kind == .random, let tier = randomTier {
+                        Button {
+                            newRandomStill(tier)
+                        } label: {
+                            Text("New Random Still", comment: "Random Distillery win card: build another random level of the same tier")
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .keyboardShortcut(.defaultAction)
+                        .disabled(buildingRandom)
                     }
                     if kind == .pack, let next = DistillLibrary.shared.next(after: level.id) {
                         Button("Next Level") { level = next }

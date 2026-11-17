@@ -2,6 +2,7 @@ import BottleSortCore
 import DistilleryCore
 import Foundation
 import Observation
+import SwiftUI
 
 /// The distillery board on screen (R10): the game (`DistillGame`, the only truth) and the timing of
 /// what the board shows: pieces turning, liquid running along newly connected pipes in the core's
@@ -57,12 +58,24 @@ final class DistillBoardModel {
     private(set) var refusedAt = Date.distantPast
 
     var settings = GameSettings()
-    var reduceMotion = false
+    var reduceMotion = false {
+        didSet {
+            // Turned on (also right after init, which laid out a running fill): every fill lands now.
+            guard reduceMotion, !oldValue else { return }
+            let now = Date()
+            for (ref, start) in fillStart where start > now { fillStart[ref] = now }
+        }
+    }
     /// Saves a win; returns true when its tap count is a new best. Not called for a demo.
     var onWin: ((_ stars: Int, _ taps: Int, _ usedHint: Bool) -> Bool)?
     let isDemo: Bool
 
     @ObservationIgnored private var timers: [Task<Void, Never>] = []
+    /// Said before the next tap's VoiceOver summary (the hint names the piece it turned).
+    @ObservationIgnored private var announcePrefix: String?
+
+    /// Seconds per channel on screen: none under Reduce Motion, where fills are instant (DECISIONS 280).
+    private var fillStep: TimeInterval { reduceMotion ? 0 : Self.step }
 
     init(level: DistillLevel, isDemo: Bool = false) {
         game = DistillGame(level: level)
@@ -153,6 +166,8 @@ final class DistillBoardModel {
             hintBusy = false
             guard let tap, game.board == snapshot.board else { return }
             usedHint = true
+            announcePrefix = String(localized: "Hint turned the piece in row \(tap.pos.r + 1), column \(tap.pos.c + 1).",
+                                    comment: "VoiceOver: a distillery hint turned a piece; arguments are its row and column")
             self.tap(tap.pos, clockwise: tap.clockwise)
             hintCell = tap.pos
         }
@@ -183,10 +198,10 @@ final class DistillBoardModel {
         for i in 0..<board.cellCount where board.pieces[i].isRotatable { angles[i] = Double(board.pieces[i].rotation) }
         fillStart = [:]
         let now = Date()
-        let base = animateFlow ? now.addingTimeInterval(0.35) : now
+        let base = animateFlow && !reduceMotion ? now.addingTimeInterval(0.35) : now
         var last = now
         for node in flow.nodes where node.liquid.isWet {
-            let start = base.addingTimeInterval(Double(node.tick) * Self.step)
+            let start = base.addingTimeInterval(Double(node.tick) * fillStep)
             fillStart[DistillNodeRef(pos: node.pos, channel: node.channel)] = start
             last = max(last, start)
         }
@@ -216,11 +231,11 @@ final class DistillBoardModel {
         for node in wet {
             let ref = DistillNodeRef(pos: node.pos, channel: node.channel)
             guard fresh.contains(ref) else { continue }
-            let start = landed.addingTimeInterval(Double(node.tick - firstTick) * Self.step)
+            let start = landed.addingTimeInterval(Double(node.tick - firstTick) * fillStep)
             fillStart[ref] = start
             lastFill = max(lastFill, start)
         }
-        let done = max(landed, lastFill.addingTimeInterval(Self.step))
+        let done = max(landed, lastFill.addingTimeInterval(fillStep))
         markBusy(until: done)
 
         // Sound and touch, timed with the board.
@@ -231,7 +246,7 @@ final class DistillBoardModel {
         }
         for target in result.newlySatisfied {
             let ref = DistillNodeRef(pos: board.targets[target].pos, channel: 0)
-            let at = (fillStart[ref] ?? landed).addingTimeInterval(Self.step).timeIntervalSince(now)
+            let at = (fillStart[ref] ?? landed).addingTimeInterval(fillStep).timeIntervalSince(now)
             DistillFeedback.play(.flaskFilled, settings: settings, after: at)
         }
         if result.flow.valveOpenedAt.count > valvesBefore {
@@ -240,7 +255,29 @@ final class DistillBoardModel {
         if result.flow.murkyCount > 0, !fresh.isEmpty {
             DistillFeedback.play(.murky, settings: settings, after: done.timeIntervalSince(now))
         }
-        if result.didWin { scheduleWin(after: done.timeIntervalSince(now)) }
+        if result.didWin {
+            announcePrefix = nil
+            scheduleWin(after: done.timeIntervalSince(now))
+        } else {
+            announceTurn(result)
+        }
+    }
+
+    /// VoiceOver: the turned piece's new openings and the board's state (flasks filled, drips, murk).
+    private func announceTurn(_ result: DistillTapResult) {
+        var parts: [String] = []
+        if let prefix = announcePrefix { parts.append(prefix) }
+        announcePrefix = nil
+        if !result.newlySatisfied.isEmpty {
+            parts.append(String(localized: "Flask \(result.newlySatisfied.map { String($0 + 1) }.formatted(.list(type: .and))) filled.",
+                                comment: "VoiceOver: distillery flasks just received their potion; the argument lists their numbers"))
+        }
+        parts.append(DistillSpeech.status(result.flow, targets: board.targets.count))
+        announce(parts.joined(separator: " "))
+    }
+
+    private func announce(_ text: String) {
+        AccessibilityNotification.Announcement(text).post()
     }
 
     private func scheduleWin(after delay: TimeInterval) {
@@ -254,6 +291,8 @@ final class DistillBoardModel {
         }
         later(delay + (reduceMotion ? 0.5 : 1.3)) { [weak self] in
             self?.outcome = .won(stars: stars, taps: taps, newBest: newBest)
+            self?.announce(String(localized: "Distilled! Every flask is filled. \(stars) stars, \(taps) taps.",
+                                  comment: "VoiceOver: a distillery level is won; arguments are stars and taps"))
         }
     }
 

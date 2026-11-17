@@ -686,6 +686,9 @@
     "Before the climb to Frost Peak we need warm supplies, and they're locked in my old storeroom." : {
       "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
     },
+    "Distilled! Every flask is filled. %lld stars, %lld taps." : {
+      "comment" : "VoiceOver: a distillery level is won; arguments are stars and taps"
+    },
     "best" : {
       "comment" : "Distillery HUD caption: fewest taps of a win"
     },
@@ -1321,6 +1324,9 @@
     "Five in a row makes a prism. Swap it with any ingredient to gather every one of that kind." : {
       "comment" : "Match-3 tip: prism special"
     },
+    "Flask %@ filled." : {
+      "comment" : "VoiceOver: distillery flasks just received their potion; the argument lists their numbers"
+    },
     "Flask %lld" : {
 
     },
@@ -1524,6 +1530,9 @@
     },
     "holds murky liquid" : {
       "comment" : "VoiceOver: a distillery flask"
+    },
+    "Hint turned the piece in row %lld, column %lld." : {
+      "comment" : "VoiceOver: a distillery hint turned a piece; arguments are its row and column"
     },
     "How the distillery works" : {
       "comment" : "Tooltip of the distillery help button"
@@ -1774,6 +1783,9 @@
     },
     "Narrow necks" : {
 
+    },
+    "New Random Still" : {
+      "comment" : "Random Distillery win card: build another random level of the same tier"
     },
     "New best" : {
   
