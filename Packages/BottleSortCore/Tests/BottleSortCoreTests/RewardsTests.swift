@@ -187,6 +187,15 @@ struct StoryTests {
         }
         #expect(StoryScene(id: "chapter.11") == nil)
         #expect(StoryScene(id: "chapter.x") == nil)
+        // R9: gathering episodes' opening scenes share the seen set, with the match-3 core's ids.
+        for n in Story.gatherings {
+            #expect(StoryScene(id: StoryScene.gathering(n).id) == .gathering(n))
+        }
+        #expect(StoryScene(id: "gathering.0") == nil)
+        #expect(StoryScene(id: "gathering.11") == nil)
+        #expect(Story.sceneOnOpening(gathering: 4, seen: []) == .gathering(4))
+        #expect(Story.sceneOnOpening(gathering: 4, seen: ["gathering.4"]) == nil)
+        #expect(Story.sceneOnOpening(gathering: 11, seen: []) == nil)
         #expect(Story.replayable(chapter: 3, seen: ["ending"]) == [.chapter(3)])
         #expect(Story.replayable(chapter: 10, seen: []) == [.chapter(10)])
         #expect(Story.replayable(chapter: 10, seen: ["ending"]) == [.chapter(10), .ending])

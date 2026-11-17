@@ -7,17 +7,24 @@ public enum StoryScene: Hashable, Sendable {
     case chapter(Int)
     /// Plays once after the last recipe of the final chapter is solved for the first time.
     case ending
+    /// Plays the first time ingredient-gathering episode N (R9, match-3) is opened.
+    case gathering(Int)
 
-    /// Stable id saved in the "seen" set: `chapter.3`, `ending`.
+    /// Stable id saved in the "seen" set: `chapter.3`, `ending`, `gathering.3`.
     public var id: String {
         switch self {
         case .chapter(let n): "chapter.\(n)"
         case .ending: "ending"
+        case .gathering(let n): "gathering.\(n)"
         }
     }
 
     public init?(id: String) {
         if id == "ending" { self = .ending; return }
+        if id.hasPrefix("gathering."), let n = Int(id.dropFirst("gathering.".count)), Story.gatherings.contains(n) {
+            self = .gathering(n)
+            return
+        }
         guard id.hasPrefix("chapter."), let n = Int(id.dropFirst("chapter.".count)),
               Story.chapters.contains(n) else { return nil }
         self = .chapter(n)
@@ -29,6 +36,16 @@ public enum Story {
     public static let chapters = 1...10
     /// The chapter whose last recipe leads to the ending.
     public static let finalChapter = 10
+    /// Ingredient-gathering episodes with an opening scene (R9; the same numbers as
+    /// `M3Progression.episodes`, whose `sceneID` is this scene's id).
+    public static let gatherings = 1...10
+
+    /// The scene to play when gathering episode `number` is opened, if it hasn't been seen.
+    public static func sceneOnOpening(gathering number: Int, seen: Set<String>) -> StoryScene? {
+        guard gatherings.contains(number) else { return nil }
+        let scene = StoryScene.gathering(number)
+        return seen.contains(scene.id) ? nil : scene
+    }
 
     /// The scene to play when chapter `number` is opened, if it has one and it hasn't been seen.
     public static func sceneOnOpening(chapter number: Int, seen: Set<String>) -> StoryScene? {

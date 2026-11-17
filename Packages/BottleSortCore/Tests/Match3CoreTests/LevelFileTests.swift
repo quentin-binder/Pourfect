@@ -284,5 +284,8 @@ import Testing
         #expect(M3Progression.sceneOnOpening(episode: 4, seen: []) == "gathering.4")
         #expect(M3Progression.sceneOnOpening(episode: 4, seen: ["gathering.4"]) == nil)
         #expect(M3Progression.sceneOnOpening(episode: 12, seen: []) == nil)
+        // The app plays these as `StoryScene.gathering(n)`, saved in the same seen set.
+        #expect(Array(M3Progression.episodes) == Array(Story.gatherings))
+        for n in M3Progression.episodes { #expect(StoryScene.gathering(n).id == M3Progression.sceneID(episode: n)) }
     }
 }
