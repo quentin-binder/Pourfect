@@ -250,5 +250,13 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] R9 review fixes: win saved before the finale animates, flasks need a column with an open cell (validation), VoiceOver announcements on the board, hint timer restarts after a tip, flask points in the HUD, locked episode markers say when they open (DECISIONS 269)
 - Not covered in R9: no match-3 milestones or rewards (gathering never feeds the reward system); no keyboard play on the board; the finale can't be skipped
 
+## R10b — Secret Recipe (code-breaking deduction; daily + practice)
+- [x] Core: `SecretRecipeCore` target — 8 ingredients, recipe codes (5 different, ordered; 6720), count feedback (gold in place / silver elsewhere), game with 8 guesses, win / lose / reveal, candidate counter (DECISIONS 500–501)
+- [x] Daily generator `recipe-daily-v1` (UTC date, goldens), practice seeds, spoiler-free share grid, append-only daily history, stats with guess distribution and streaks via `DailyStreaks` (DECISIONS 502–503)
+- [x] Tests: 23 in `SecretRecipeCoreTests` (all feedback pairs in the optimized run)
+- [x] App: recipe book screen (book with guesses and drops, bench of five slots, tray of eight with notes, Brew), honeycomb and starleaf drawn in the gathering style with runes, drops appearing with sounds and haptics, end cards, keyboard 1–8 / Delete / Return, drag to a slot, VoiceOver, Reduce Motion, iPhone and Mac layouts (DECISIONS 504–505)
+- [x] Daily screen (status, stats, guess distribution, calendar, share, countdown), practice with "possible recipes left", tip, temporary entry cards in Challenges and on the Daily Brew screen (DECISIONS 506)
+- Not covered: notes aren't saved; no hard mode (guesses needn't fit earlier clues); the entry point moves to the Today hub at merge
+
 ## Parked ideas (user, not scheduled)
 - [ ] **Different-sized flasks** as a mechanic (mixed capacities in one recipe). Open decisions when it's picked up: win rule (workspace flasks that must end empty / colors sized to a flask / loose sorting) and which chapter introduces it.

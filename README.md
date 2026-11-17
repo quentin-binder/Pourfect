@@ -149,6 +149,8 @@ Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
                              RandomLevel, Settings
   Sources/levelgen/          Command-line level generator
   Tests/BottleSortCoreTests/ Swift Testing suite
+  Sources/Match3Core/        Ingredient gathering (match-3) rules, bots, daily (R9); Sources/m3gen its CLI
+  Sources/SecretRecipeCore/  Secret Recipe (R10b): recipe codes, feedback, game, candidates, daily, share, stats
 scripts/                     test-fast.sh (optimized core tests), testflight.sh + ExportOptions.plist (release upload),
                              appstore-caption.swift / appstore-flatten.swift (App Store screenshots)
 docs/APP_STORE.md            Store category, age rating, privacy answers, size report, App Store Connect steps
@@ -399,6 +401,9 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPM3Seed S` | With `-LPOpenMatch3`: replaces the level's seed (another start board and refill stream). |
 | `-LPM3Moves N` | With `-LPOpenMatch3`: replaces the move limit (e.g. 3 with `-LPM3Demo 3` to reach the "Out of moves" card). |
 | `-LPOpenEpisode N` | Opens ingredient-gathering episode N's level list (its story scene plays the first time unless `-LPSkipTutorials 1`; add `-LPUnlockAll 1` to open its levels). |
+| `-LPOpenRecipe daily\|practice\|stats` | Opens today's Secret Recipe game (`daily`, over its daily screen), a practice recipe (`practice`, inside Challenges) or the daily screen (`stats`). `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake games, memory only). |
+| `-LPRecipeSeed N` | With `-LPOpenRecipe practice`: the practice seed (else a random one), so the same recipe comes back. |
+| `-LPRecipeDemo K` | With `-LPOpenRecipe`: plays K guesses through the tray (each one still possible after the drops so far). Nothing is saved: the daily runs on a memory store. |
 | `-LPOpenM3Daily 1` | Opens the Daily Gathering screen; `-LPPlayM3Daily 1` also starts today's level. `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake wins, memory only). |
 | `-LPShowStory gathering.N` | Plays gathering episode N's story scene (like `-LPShowStory N` for chapters). |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
@@ -627,6 +632,70 @@ Policies: `greedy` (best one-wave value, random tie-break), `reference` (15 % ra
 **Daily match-3** (`M3Daily`, generator id `m3daily-v1`): one level per UTC date, separate from the Daily Brew (which is
 unchanged): Monday Gentle (85 %) → Sunday Grand Gathering (58 %, frost + crates + flasks). Median 55 ms, 96 % of days
 under 0.5 s, worst ≈ 1.1 s (release, 365 days).
+
+## Secret Recipe (code-breaking, R10b)
+
+The alchemist locks a **recipe** in the book: an ordered row of **five different ingredients** out of the eight on the
+tray (no repeats; 6720 possible recipes). The player has **eight guesses**, each five different ingredients in order.
+After each **Brew** the book shows only counts: a **gold drop** for every ingredient in its right slot, a **silver
+drop** for every ingredient that is in the recipe but in another slot, never which ones (two guesses always share at
+least two ingredients). All five in place opens the book; after eight wrong guesses the recipe is revealed. It never
+counts toward the chapter map, the Lab Style rewards or any gate.
+
+- **Ingredients** (tray order = keys 1–8): the six gathering ingredients drawn by `IngredientArt` (mushroom,
+  crystal, feather, moonflower, ember, potion drop) plus two new ones in the same style (`RecipeArt`): **honeycomb**
+  (four amber wax cells with a honey drip; brown, rune ■) and **starleaf** (a five-pointed leaf with veins and a
+  stem; green, rune ›). Every ingredient has its own silhouette and its palette color's rune (Color Runes setting).
+- **Screen** (`Pourfect/SecretRecipe/RecipeGameView`): the leather-bound recipe book with a brass lock (it opens on a
+  win) and eight ruled parchment lines (each guess with its drops, gold first); the brewing bench (five slots; the
+  next tray pick fills the highlighted slot, tapping a filled slot clears it and selects it); the tray of eight;
+  **Notes** (a tap then marks an ingredient *ruled out* ✕, then *maybe* ?, then clears; also in the tray's context
+  menu and as a VoiceOver action; notes are only a memory aid and last while the screen is open); **Clear**;
+  **Brew** (Return). Drag an ingredient onto a slot works too. Keyboard: **1–8** pick, **Delete** clears the last
+  slot, **Return** brews, **⌘/** the tip, **⌘N** a new practice recipe. Drops appear one by one with a click
+  (gold) or a lower clink (silver); win and loss sounds and haptics; Reduce Motion shows them at once. Wide
+  windows put the book left and the bench, tray and buttons right; iPhone stacks them (the tray is one row).
+  The end card (win: guesses used, the recipe; loss: the recipe revealed) shows the daily streak, win rate and the
+  share grid; "See the book" closes it, and the bench then shows the recipe with Share / Done or New recipe.
+- **Daily** (`RecipeDailyModel`, `RecipeDailyView`, generator `recipe-daily-v1`): one recipe per UTC date for
+  everyone. Every brew is saved at once (`recipe.daily.v1`), so leaving never resets the day. Only a game finished on
+  its own UTC day, and not before a game already saved (clock set back), counts. Streak = consecutive won days (a
+  loss or a missed day ends it; today open keeps yesterday's run alive). The screen shows today (Play / Continue /
+  See the book, Share, countdown), Played, Cracked %, current and best streak, the **guess distribution** (wins in
+  1–8 guesses and ✕ for not cracked, today's bar lit) and the month calendar (won days amber, wins in ≤ 4 guesses
+  gold). Share text (no ingredients):
+  ```
+  Pourfect Secret Recipe · 17 Nov · 4/8
+  🟡⚪⚪⚫⚫
+  🟡🟡⚪⚪⚫
+  🟡🟡🟡⚫⚫
+  🟡🟡🟡🟡🟡
+  ```
+  No hints and no helper count in the daily.
+- **Practice** (Challenges → Secret Recipe → *Practice recipe*, also on the daily screen): unlimited random recipes
+  (`RecipePractice.secret(seed:)`), nothing saved. It shows **Possible recipes left: N** (from the core's candidate
+  counter) after the first guess; the eye button hides it (remembered).
+- **Entry points (temporary)**: a Secret Recipe card in the Challenges hub (daily + Practice) and on the Daily Brew
+  screen under the Daily Gathering card (`RecipeEntryCard`, one line each in `ChallengesView` / `DailyView`); they
+  move to the Today hub when the branches merge.
+- **Tip**: one topic (`TutorialTopic.recipe`, three pages: goal, gold and silver drops, notes and keys) the first
+  time a game opens, again with **?**.
+
+**Core** (`SecretRecipeCore`, depends on `BottleSortCore` for `DailyDate`, `SplitMix64` and `DailyStreaks`):
+
+- `RecipeIngredient` (8, tray order), `RecipeCode` (five different ingredients; `RecipeCode.all` lists the 6720 in
+  lexicographic order; Codable as digits `"03571"`), `RecipeCode.feedback(for:) -> RecipeFeedback {exact, misplaced}`.
+- `RecipeGame` (`maxGuesses` 8, `brew(_:)`, `status` playing / won / lost, `guessesLeft`, `revealed`, `candidatesLeft`)
+  and `RecipeCandidates.count(consistentWith:)` / `consistent(with:)` (all 6720 checked with ingredient bitmasks; fast enough to recount after every brew on the main thread).
+- `RecipeDaily.secret(for:)` (`recipe-daily-v1`: FNV-1a of `recipe-daily-v1|YYYY-MM-DD` mixed by SplitMix64, a
+  uniform draw from `RecipeCode.all`, redrawn while the recipe follows the tray order strictly up or down),
+  `RecipePractice.secret(seed:)`, `RecipeShare` (rows `🟡`/`⚪`/`⚫`, score `4/8` or `X/8`), `RecipeDailyHistory`
+  (append-only saves per date, `counts` set once at the end) and `RecipeStats` (played, won, win %, streaks via
+  `DailyStreaks`, distribution, lost days, calendar).
+- Tests: `scripts/test-fast.sh --filter SecretRecipe` (23 tests: validation, all permutations, feedback examples and
+  combinatorics for every guess against 70 secrets, all 45 million pairs against a slot-by-slot reference in the
+  optimized run, game end and reveal, candidates against a brute-force filter, daily goldens and spread, practice
+  seeds, share text, saving rules, stats and streaks).
 
 ## Generate levels
 
