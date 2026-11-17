@@ -1,0 +1,62 @@
+# id x y maxSize classes surface [occludeBelow]   (x,y = bottom-centre anchor in 2752x1536 background px)
+m01 90 662 58 s flowerbox 652
+m02 650 636 58 s shelf
+m03 800 712 58 s shelf
+m04 1210 642 58 s shelf
+m05 1050 728 58 s shelf
+m06 1700 563 58 s shelf
+m07 1780 692 58 s shelf
+m08 1980 668 55 s shelf
+m09 1880 725 55 s shelf
+m10 1100 505 85 s beam
+m11 1600 505 70 s beam
+m12 2120 505 70 s beam
+m13 760 505 70 s beam
+m14 640 830 60 s shelf
+m15 950 830 60 s shelf
+m16 1100 915 60 s shelf
+m17 230 912 75 s basket 900
+m18 450 1082 66 s table
+m19 680 1084 66 s table
+m20 1050 1080 66 s table
+m21 1250 1080 66 s table
+m22 100 1205 66 s basket 1190
+m23 215 1195 60 s barrel 1183
+m24 330 1207 66 s barrel 1195
+m25 215 1312 60 s bucket 1302
+m26 335 1318 66 s pot
+m27 500 1215 95 sm sack
+m28 640 1300 95 sm sack
+m29 690 1222 85 s barrel 1208
+m30 860 1360 62 s basket 1345
+m31 1000 1245 66 s crate 1232
+m32 1250 1310 62 s basket 1298
+m33 1340 1210 66 s barrel
+m34 450 1460 110 sm paving
+m35 700 1440 110 sm paving
+m36 920 1500 110 sm paving
+m37 1150 1450 110 sm paving
+m38 1320 1520 110 sm paving
+m39 1450 832 60 s shelf
+m40 1530 950 60 s shelf
+m41 1810 975 60 s shelf
+m42 2100 965 60 s crate
+m43 1520 1085 66 s table
+m44 1720 1088 66 s table
+m45 2000 1086 66 s table
+m46 2230 1085 66 s table
+m47 1585 1180 95 sm barrel
+m48 1760 1255 66 s basket 1243
+m49 1960 1268 62 s pot 1262
+m50 2110 1215 62 s basket 1198
+m51 2350 1225 66 s basket 1210
+m52 2462 1258 62 s basket 1240
+m53 2640 1305 95 sm barrel
+m54 2470 990 62 s table
+m55 2700 990 62 s table
+m56 2660 836 55 s shelf
+m57 1500 1430 110 sm paving
+m58 1750 1460 110 sm paving
+m59 2000 1420 110 sm paving
+m60 2200 1500 110 sm paving
+m61 2420 1460 105 sm paving

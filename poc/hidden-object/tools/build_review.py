@@ -5,8 +5,11 @@ from pathlib import Path
 from PIL import Image
 
 root = Path(sys.argv[1])
-m = json.loads((root / "layers/scene.json").read_text())
-spec = json.loads((root / "scene_spec.json").read_text())
+# optional: a layer manifest other than layers/scene.json (e.g. a random layout) and an output path
+m = json.loads(Path(sys.argv[2]).read_text() if len(sys.argv) > 2 else (root / "layers/scene.json").read_text())
+out_path = Path(sys.argv[3]) if len(sys.argv) > 3 else root / "out/review.html"
+spec = json.loads((root / "scene_spec.json").read_text()) if (root / "scene_spec.json").exists() else {}
+spec.update({k: m[k] for k in ("title", "note") if k in m})
 
 def data_url(img, fmt="PNG", **kw):
     b = io.BytesIO(); img.save(b, fmt, **kw)
@@ -19,7 +22,7 @@ for L in m["objects"]:
     for k in ("shadow", "object", "occluder"):
         if k in L:
             item[k] = {"src": data_url(Image.open(root / L[k]["file"])), "x": L[k]["x"], "y": L[k]["y"]}
-    o = Image.open(root / f"objects/{L['name']}.png").convert("RGBA"); o = o.crop(o.getbbox()); o.thumbnail((96, 96))
+    o = Image.open(root / L.get("thumb", f"objects/{L['name']}.png")).convert("RGBA"); o = o.crop(o.getbbox()); o.thumbnail((96, 96))
     item["thumb"] = data_url(o)
     layers.append(item)
 
@@ -101,5 +104,6 @@ DEFAULT_NOTE = """Everything here is generated art: one painted background plus 
 html = html.replace("__TITLE__", spec.get("title", "Alchemist's Attic — hidden-object art test")).replace("__NOTE__", spec.get("note", DEFAULT_NOTE))
 html = (html.replace("__BG__", data_url(bg, "JPEG", quality=86)).replace("__W__", str(m["size"][0])).replace("__H__", str(m["size"][1]))
         .replace("__LAYERS__", json.dumps(layers)))
-(root / "out/review.html").write_text(html)
+out_path.parent.mkdir(parents=True, exist_ok=True)
+out_path.write_text(html)
 print("review.html", round(len(html) / 1e6, 1), "MB")

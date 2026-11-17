@@ -1,0 +1,101 @@
+scene	id	name	size	seed	subject
+attic	candle	Candle	medium	9601	short white candle in a small brass candle holder with a ring handle, unlit
+attic	magnifier	Magnifying glass	medium	9602	round magnifying glass with a brass rim and a turned wooden handle, lying diagonally
+attic	starfish	Starfish	small	9643	dried orange starfish with five arms
+attic	spectacles	Spectacles	small	9604	pair of round wire-rimmed reading spectacles, folded
+attic	inkwell	Inkwell	small	9605	small square glass inkwell full of dark blue ink with a brass lid
+attic	mortar	Mortar and pestle	medium	9606	small grey stone mortar bowl with a wooden pestle leaning in it
+attic	book	Red book	medium	9607	small closed red leather-bound book with brass corners, blank cover
+attic	frog	Frog figurine	small	9608	small green ceramic frog figurine sitting
+attic	flask	Blue flask	medium	9609	conical glass laboratory flask with glowing blue liquid and a cork
+attic	telescope	Telescope	medium	9610	small extended brass telescope, lying diagonally
+attic	globe	Desk globe	medium	9611	small antique desk globe in a wooden stand, teal seas and beige land, no writing
+attic	die	Bone die	small	9612	single ivory six-sided die with dark dot pips
+attic	ring	Ruby ring	small	9613	gold ring with a single large red ruby
+attic	pinecone	Pinecone	small	9614	brown pinecone
+attic	acorn	Acorn	small	9615	acorn with its cap and a tiny stem
+attic	shell	Seashell	small	9616	spiral seashell in cream and coral colours
+attic	lavender	Lavender bundle	medium	9617	small bundle of dried purple lavender tied with twine
+attic	lamp	Oil lamp	medium	9618	small brass genie oil lamp with a curved spout
+attic	scissors	Scissors	small	9629	pair of old black iron tailor's shears, closed
+attic	paintbrush	Paintbrush	medium	9620	wooden artist paintbrush with a red-tipped bristle head, lying diagonally
+attic	firefly_jar	Firefly jar	medium	9621	small corked glass jar with tiny glowing yellow fireflies inside
+attic	chess_knight	Chess knight	small	9622	carved black wooden chess knight piece (horse head)
+attic	butterfly	Butterfly	small	9623	blue morpho butterfly with open wings, seen from above
+attic	pumpkin	Pumpkin	medium	9624	small orange pumpkin with a curly stem
+attic	broom	Broom	medium	9641	small witch's broom with a twig brush and a crooked wooden handle, lying diagonally
+attic	wand	Magic wand	medium	9626	slim dark wooden magic wand with a small golden star tip, lying diagonally
+attic	mirror	Hand mirror	medium	9627	oval silver hand mirror with an ornate handle
+attic	padlock	Padlock	small	9628	old black iron padlock with a curved shackle
+market	pear	Pear	small	9701	ripe green-yellow pear with a stem
+market	cheese	Cheese wedge	small	9742	wedge of yellow cheese with holes
+market	bread	Bread loaf	medium	9703	round crusty brown bread loaf with scored top
+market	fish	Fish	medium	9704	silver-blue fresh fish lying sideways
+market	eggplant	Eggplant	medium	9705	glossy purple eggplant with a green cap, lying diagonally
+market	lemon	Lemon	small	9706	bright yellow lemon with a small green leaf
+market	grapes	Grapes	medium	9707	bunch of purple grapes with a vine leaf
+market	cherries	Cherries	small	9708	pair of red cherries joined at the stems
+market	strawberry	Strawberry	small	9709	big red strawberry with a green top
+market	melon_slice	Melon slice	small	9710	slice of watermelon, red flesh with black seeds and green rind
+market	corn	Corn cob	medium	9711	yellow ear of corn with peeled-back green husk, lying diagonally
+market	pepper	Red pepper	small	9712	shiny red bell pepper with a green stem
+market	radish	Radish bunch	medium	9713	small bunch of three pink radishes with green leaves
+market	honey	Honey pot	medium	9714	small round clay honey pot with a wooden honey dipper, honey dripping on the dipper
+market	jug	Clay jug	medium	9715	small terracotta clay jug with one handle
+market	hen_egg	Brown egg	small	9716	single brown hen's egg
+market	peacock_feather	Peacock feather	medium	9717	peacock feather with an iridescent eye, lying diagonally
+market	straw_hat	Straw hat	medium	9718	woven straw sun hat with a red ribbon band
+market	boot	Leather boot	medium	9719	single old brown leather boot
+market	spoon	Wooden spoon	medium	9720	carved wooden spoon, lying diagonally
+market	ladle	Copper ladle	medium	9741	copper soup ladle with a deep round bowl and a long handle ending in a hook, lying diagonally
+market	teapot	Copper teapot	medium	9722	small copper teapot with a curved spout
+market	spool	Thread spool	small	9723	wooden spool of red thread
+market	pretzel	Pretzel	small	9724	golden brown baked pretzel with salt
+market	toy_horse	Toy horse	medium	9725	small painted wooden toy horse on wheels
+market	sunflower	Sunflower	medium	9726	single yellow sunflower with a short stem and one leaf
+market	rose	Rose	medium	9727	single red rose with a green stem, lying diagonally
+market	tankard	Tankard	medium	9728	wooden beer tankard with metal bands and a handle
+market	wine_bottle	Green bottle	medium	9729	dark green glass wine bottle with a cork, no label
+market	hammer	Hammer	medium	9730	small wooden-handled iron hammer, lying diagonally
+market	lute	Lute	medium	9731	small wooden lute with a round body, lying diagonally
+market	glove	Leather glove	small	9732	single brown leather glove
+hoard	goblet	Golden goblet	medium	9801	golden goblet studded with small red gems
+hoard	crown	Crown	medium	9802	golden royal crown with red and blue jewels
+hoard	ruby	Ruby	small	9803	large faceted red ruby gemstone
+hoard	emerald	Emerald	small	9804	large emerald-cut green emerald gemstone
+hoard	sapphire	Sapphire	small	9805	large round faceted blue sapphire gemstone
+hoard	coin_pouch	Coin pouch	small	9806	small red velvet pouch tied with gold cord, bulging with coins, coins hidden inside
+hoard	dragon_scale	Dragon scale	small	9807	single large shiny teal dragon scale, shield shaped
+hoard	rune_stone	Rune stone	small	9808	smooth grey river stone with a glowing blue carved spiral symbol
+hoard	dagger	Jewelled dagger	medium	9809	jewelled dagger with a golden hilt and a short silver blade, lying diagonally
+hoard	dragon_egg	Red dragon egg	small	9810	scaly crimson red dragon egg
+hoard	tiara	Tiara	small	9811	delicate silver tiara with pearls and a blue gem
+hoard	pearl_necklace	Pearl necklace	medium	9812	white pearl necklace loosely coiled
+hoard	amulet	Amulet	small	9813	golden amulet pendant with a green gem on a short chain
+hoard	round_shield	Round shield	medium	9814	small round wooden shield with a blue painted rim and an iron boss
+hoard	helmet	Knight's helmet	medium	9815	silver knight's helmet with a red plume
+hoard	gold_plate	Golden plate	medium	9816	ornate round golden plate with an embossed rim, standing upright
+hoard	jewel_box	Jewel box	medium	9845	small open purple velvet jewel box with gold trim
+hoard	scepter	Scepter	medium	9818	golden royal scepter with a purple gem on top, lying diagonally
+hoard	royal_orb	Royal orb	small	9819	golden royal orb with a small cross on top and a band of jewels
+hoard	gold_bar	Gold bar	small	9820	single shiny gold ingot bar, blank, no stamp
+hoard	oyster_pearl	Oyster pearl	small	9821	open oyster shell holding one big white pearl
+hoard	harp	Golden harp	medium	9822	small golden harp with strings
+hoard	drinking_horn	Drinking horn	medium	9823	ivory drinking horn with silver bands
+hoard	bracelet	Bracelet	small	9824	golden bangle bracelet set with green gems
+hoard	brooch	Brooch	small	9825	ornate silver brooch with a large oval purple amethyst
+hoard	candelabra	Candelabra	medium	9826	small silver three-armed candelabra with three unlit white candles
+hoard	blue_vase	Blue vase	medium	9827	small blue and white porcelain vase with a flower pattern
+hoard	mini_chest	Little chest	small	9844	tiny closed wooden treasure chest with iron bands and a brass lock plate
+hoard	golden_mask	Golden mask	medium	9829	ornate golden masquerade mask with eye holes
+hoard	jade_dragon	Jade dragon	medium	9830	small carved green jade dragon statuette, coiled
+hoard	golden_apple	Golden apple	small	9831	shiny golden apple with a golden leaf
+hoard	crystal_ball	Crystal ball	small	9832	clear crystal ball with a faint violet mist inside on a small bronze stand
+hoard	phoenix_feather	Phoenix feather	medium	9833	fiery red and orange phoenix feather, lying diagonally
+hoard	battle_axe	Battle axe	medium	9834	small steel battle axe with a wooden handle, lying diagonally
+hoard	gauntlet	Gauntlet	medium	9835	single steel armoured knight's gauntlet
+hoard	golden_key	Golden key	small	9843	large ornate golden key with a round jewelled bow and a simple square bit
+hoard	medallion	Medallion	small	9842	round bronze medallion embossed with a coiled dragon, hanging from a short red ribbon loop, small in the frame
+hoard	golden_bird	Golden bird	small	9838	small golden songbird figurine
+hoard	jeweled_egg	Jewelled egg	small	9839	ornate jewelled egg, white enamel with gold filigree and pink gems
+hoard	treasure_map	Treasure map	medium	9840	rolled-up old treasure map tied with a leather cord, closed

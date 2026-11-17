@@ -1,0 +1,896 @@
+{
+ "size": [
+  2752,
+  1536
+ ],
+ "spots": [
+  {
+   "id": "a02",
+   "x": 260,
+   "y": 450,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "a03",
+   "x": 405,
+   "y": 488,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "a04",
+   "x": 565,
+   "y": 572,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a05",
+   "x": 700,
+   "y": 678,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a06",
+   "x": 1195,
+   "y": 486,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a07",
+   "x": 1325,
+   "y": 478,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 458,
+    "polygon": [
+     [
+      1287,
+      458
+     ],
+     [
+      1363,
+      458
+     ],
+     [
+      1363,
+      488
+     ],
+     [
+      1287,
+      488
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "a08",
+   "x": 1150,
+   "y": 600,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a09",
+   "x": 1140,
+   "y": 676,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a10",
+   "x": 470,
+   "y": 262,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 238,
+    "polygon": [
+     [
+      412,
+      238
+     ],
+     [
+      528,
+      238
+     ],
+     [
+      528,
+      272
+     ],
+     [
+      412,
+      272
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "a11",
+   "x": 288,
+   "y": 240,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 222,
+    "polygon": [
+     [
+      248,
+      222
+     ],
+     [
+      328,
+      222
+     ],
+     [
+      328,
+      250
+     ],
+     [
+      248,
+      250
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "a12",
+   "x": 1300,
+   "y": 128,
+   "maxSize": 55,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a13",
+   "x": 1180,
+   "y": 288,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a14",
+   "x": 1440,
+   "y": 285,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a15",
+   "x": 1500,
+   "y": 482,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a16",
+   "x": 1580,
+   "y": 482,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a17",
+   "x": 1760,
+   "y": 484,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a18",
+   "x": 1440,
+   "y": 600,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a19",
+   "x": 1450,
+   "y": 678,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a20",
+   "x": 2060,
+   "y": 442,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a21",
+   "x": 2140,
+   "y": 590,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "a22",
+   "x": 2190,
+   "y": 655,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "a23",
+   "x": 2660,
+   "y": 262,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 240,
+    "polygon": [
+     [
+      2620,
+      240
+     ],
+     [
+      2700,
+      240
+     ],
+     [
+      2700,
+      272
+     ],
+     [
+      2620,
+      272
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "a24",
+   "x": 1660,
+   "y": 268,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "b01",
+   "x": 110,
+   "y": 893,
+   "maxSize": 64,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "counter"
+  },
+  {
+   "id": "b02",
+   "x": 480,
+   "y": 885,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "counter"
+  },
+  {
+   "id": "b03",
+   "x": 690,
+   "y": 862,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "b04",
+   "x": 720,
+   "y": 980,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "b05",
+   "x": 610,
+   "y": 1074,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "chest"
+  },
+  {
+   "id": "b06",
+   "x": 1090,
+   "y": 918,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "b07",
+   "x": 1300,
+   "y": 912,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "b08",
+   "x": 960,
+   "y": 912,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "b09",
+   "x": 510,
+   "y": 1095,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "barrel"
+  },
+  {
+   "id": "b10",
+   "x": 480,
+   "y": 1225,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "b11",
+   "x": 675,
+   "y": 1232,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "drum"
+  },
+  {
+   "id": "b12",
+   "x": 735,
+   "y": 1300,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bowl",
+   "occlusion": {
+    "cutY": 1283,
+    "polygon": [
+     [
+      696,
+      1283
+     ],
+     [
+      774,
+      1283
+     ],
+     [
+      774,
+      1310
+     ],
+     [
+      696,
+      1310
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "b13",
+   "x": 555,
+   "y": 1235,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1215,
+    "polygon": [
+     [
+      512,
+      1215
+     ],
+     [
+      598,
+      1215
+     ],
+     [
+      598,
+      1245
+     ],
+     [
+      512,
+      1245
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "b14",
+   "x": 650,
+   "y": 1520,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "b15",
+   "x": 1100,
+   "y": 1520,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "b16",
+   "x": 1100,
+   "y": 1385,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rug"
+  },
+  {
+   "id": "b17",
+   "x": 1260,
+   "y": 1300,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rug"
+  },
+  {
+   "id": "b18",
+   "x": 980,
+   "y": 1500,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "board"
+  },
+  {
+   "id": "b19",
+   "x": 420,
+   "y": 1290,
+   "maxSize": 64,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "b20",
+   "x": 425,
+   "y": 1408,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "barrel"
+  },
+  {
+   "id": "b21",
+   "x": 650,
+   "y": 1372,
+   "maxSize": 70,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "c01",
+   "x": 1460,
+   "y": 893,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "c02",
+   "x": 1440,
+   "y": 1010,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "stool"
+  },
+  {
+   "id": "c03",
+   "x": 1640,
+   "y": 1075,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1055,
+    "polygon": [
+     [
+      1600,
+      1055
+     ],
+     [
+      1680,
+      1055
+     ],
+     [
+      1680,
+      1085
+     ],
+     [
+      1600,
+      1085
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "c04",
+   "x": 1560,
+   "y": 1195,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rug"
+  },
+  {
+   "id": "c05",
+   "x": 1800,
+   "y": 1240,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rug"
+  },
+  {
+   "id": "c06",
+   "x": 1500,
+   "y": 1370,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rug"
+  },
+  {
+   "id": "c07",
+   "x": 1820,
+   "y": 1440,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rug"
+  },
+  {
+   "id": "c08",
+   "x": 1845,
+   "y": 915,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "c09",
+   "x": 1850,
+   "y": 1068,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "box"
+  },
+  {
+   "id": "c10",
+   "x": 1920,
+   "y": 860,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 845,
+    "polygon": [
+     [
+      1882,
+      845
+     ],
+     [
+      1958,
+      845
+     ],
+     [
+      1958,
+      870
+     ],
+     [
+      1882,
+      870
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "c11",
+   "x": 1950,
+   "y": 1000,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "books"
+  },
+  {
+   "id": "c12",
+   "x": 2070,
+   "y": 1150,
+   "maxSize": 75,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1128,
+    "polygon": [
+     [
+      2021,
+      1128
+     ],
+     [
+      2119,
+      1128
+     ],
+     [
+      2119,
+      1160
+     ],
+     [
+      2021,
+      1160
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "c13",
+   "x": 2190,
+   "y": 1110,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "barrel"
+  },
+  {
+   "id": "c14",
+   "x": 2200,
+   "y": 1340,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "crate"
+  },
+  {
+   "id": "c15",
+   "x": 2340,
+   "y": 1450,
+   "maxSize": 52,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bowl",
+   "occlusion": {
+    "cutY": 1438,
+    "polygon": [
+     [
+      2306,
+      1438
+     ],
+     [
+      2374,
+      1438
+     ],
+     [
+      2374,
+      1460
+     ],
+     [
+      2306,
+      1460
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "c16",
+   "x": 2050,
+   "y": 1480,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "c17",
+   "x": 1600,
+   "y": 1490,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "c18",
+   "x": 2420,
+   "y": 992,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "cabinet"
+  },
+  {
+   "id": "c19",
+   "x": 2680,
+   "y": 990,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "cabinet"
+  },
+  {
+   "id": "c20",
+   "x": 2250,
+   "y": 1505,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "a25",
+   "x": 2170,
+   "y": 445,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  }
+ ]
+}

@@ -1,0 +1,1421 @@
+{
+ "format": "pourfect-hidden-v1",
+ "scene": "market",
+ "title": "Market Stall",
+ "background": {
+  "size": [
+   2752,
+   1536
+  ],
+  "images": [
+   {
+    "file": "background.jpg",
+    "size": [
+     2752,
+     1536
+    ],
+    "scale": 1.0
+   },
+   {
+    "file": "background_1376.jpg",
+    "size": [
+     1376,
+     768
+    ],
+    "scale": 0.5
+   }
+  ]
+ },
+ "coordinates": "background pixels of background.jpg; spot x,y is the bottom-centre anchor of the object",
+ "objects": [
+  {
+   "id": "scale",
+   "name": "Brass scale",
+   "sizeClass": "medium",
+   "png": "objects/scale.png",
+   "size": [
+    195,
+    220
+   ]
+  },
+  {
+   "id": "purse",
+   "name": "Coin purse",
+   "sizeClass": "small",
+   "png": "objects/purse.png",
+   "size": [
+    200,
+    220
+   ]
+  },
+  {
+   "id": "lantern",
+   "name": "Lantern",
+   "sizeClass": "medium",
+   "png": "objects/lantern.png",
+   "size": [
+    98,
+    220
+   ]
+  },
+  {
+   "id": "wool",
+   "name": "Wool skein",
+   "sizeClass": "small",
+   "png": "objects/wool.png",
+   "size": [
+    130,
+    220
+   ]
+  },
+  {
+   "id": "carrot",
+   "name": "Carrot",
+   "sizeClass": "medium",
+   "png": "objects/carrot.png",
+   "size": [
+    185,
+    220
+   ]
+  },
+  {
+   "id": "bell",
+   "name": "Hand bell",
+   "sizeClass": "small",
+   "png": "objects/bell.png",
+   "size": [
+    140,
+    220
+   ]
+  },
+  {
+   "id": "apple",
+   "name": "Red apple",
+   "sizeClass": "small",
+   "png": "objects/apple.png",
+   "size": [
+    202,
+    220
+   ]
+  },
+  {
+   "id": "marble",
+   "name": "Glass marble",
+   "sizeClass": "small",
+   "png": "objects/marble.png",
+   "size": [
+    220,
+    220
+   ]
+  },
+  {
+   "id": "pear",
+   "name": "Pear",
+   "sizeClass": "small",
+   "png": "objects/pear.png",
+   "size": [
+    145,
+    220
+   ]
+  },
+  {
+   "id": "cheese",
+   "name": "Cheese wedge",
+   "sizeClass": "small",
+   "png": "objects/cheese.png",
+   "size": [
+    220,
+    130
+   ]
+  },
+  {
+   "id": "bread",
+   "name": "Bread loaf",
+   "sizeClass": "medium",
+   "png": "objects/bread.png",
+   "size": [
+    220,
+    167
+   ]
+  },
+  {
+   "id": "fish",
+   "name": "Fish",
+   "sizeClass": "medium",
+   "png": "objects/fish.png",
+   "size": [
+    220,
+    69
+   ]
+  },
+  {
+   "id": "eggplant",
+   "name": "Eggplant",
+   "sizeClass": "medium",
+   "png": "objects/eggplant.png",
+   "size": [
+    220,
+    182
+   ]
+  },
+  {
+   "id": "lemon",
+   "name": "Lemon",
+   "sizeClass": "small",
+   "png": "objects/lemon.png",
+   "size": [
+    191,
+    220
+   ]
+  },
+  {
+   "id": "grapes",
+   "name": "Grapes",
+   "sizeClass": "medium",
+   "png": "objects/grapes.png",
+   "size": [
+    179,
+    220
+   ]
+  },
+  {
+   "id": "cherries",
+   "name": "Cherries",
+   "sizeClass": "small",
+   "png": "objects/cherries.png",
+   "size": [
+    190,
+    220
+   ]
+  },
+  {
+   "id": "strawberry",
+   "name": "Strawberry",
+   "sizeClass": "small",
+   "png": "objects/strawberry.png",
+   "size": [
+    196,
+    220
+   ]
+  },
+  {
+   "id": "melon_slice",
+   "name": "Melon slice",
+   "sizeClass": "small",
+   "png": "objects/melon_slice.png",
+   "size": [
+    220,
+    174
+   ]
+  },
+  {
+   "id": "corn",
+   "name": "Corn cob",
+   "sizeClass": "medium",
+   "png": "objects/corn.png",
+   "size": [
+    160,
+    220
+   ]
+  },
+  {
+   "id": "pepper",
+   "name": "Red pepper",
+   "sizeClass": "small",
+   "png": "objects/pepper.png",
+   "size": [
+    166,
+    220
+   ]
+  },
+  {
+   "id": "radish",
+   "name": "Radish bunch",
+   "sizeClass": "medium",
+   "png": "objects/radish.png",
+   "size": [
+    176,
+    220
+   ]
+  },
+  {
+   "id": "honey",
+   "name": "Honey pot",
+   "sizeClass": "medium",
+   "png": "objects/honey.png",
+   "size": [
+    218,
+    220
+   ]
+  },
+  {
+   "id": "jug",
+   "name": "Clay jug",
+   "sizeClass": "medium",
+   "png": "objects/jug.png",
+   "size": [
+    167,
+    220
+   ]
+  },
+  {
+   "id": "hen_egg",
+   "name": "Brown egg",
+   "sizeClass": "small",
+   "png": "objects/hen_egg.png",
+   "size": [
+    163,
+    220
+   ]
+  },
+  {
+   "id": "peacock_feather",
+   "name": "Peacock feather",
+   "sizeClass": "medium",
+   "png": "objects/peacock_feather.png",
+   "size": [
+    215,
+    220
+   ]
+  },
+  {
+   "id": "straw_hat",
+   "name": "Straw hat",
+   "sizeClass": "medium",
+   "png": "objects/straw_hat.png",
+   "size": [
+    220,
+    127
+   ]
+  },
+  {
+   "id": "boot",
+   "name": "Leather boot",
+   "sizeClass": "medium",
+   "png": "objects/boot.png",
+   "size": [
+    220,
+    198
+   ]
+  },
+  {
+   "id": "spoon",
+   "name": "Wooden spoon",
+   "sizeClass": "medium",
+   "png": "objects/spoon.png",
+   "size": [
+    183,
+    220
+   ]
+  },
+  {
+   "id": "ladle",
+   "name": "Copper ladle",
+   "sizeClass": "medium",
+   "png": "objects/ladle.png",
+   "size": [
+    220,
+    203
+   ]
+  },
+  {
+   "id": "teapot",
+   "name": "Copper teapot",
+   "sizeClass": "medium",
+   "png": "objects/teapot.png",
+   "size": [
+    220,
+    180
+   ]
+  },
+  {
+   "id": "spool",
+   "name": "Thread spool",
+   "sizeClass": "small",
+   "png": "objects/spool.png",
+   "size": [
+    220,
+    220
+   ]
+  },
+  {
+   "id": "pretzel",
+   "name": "Pretzel",
+   "sizeClass": "small",
+   "png": "objects/pretzel.png",
+   "size": [
+    220,
+    201
+   ]
+  },
+  {
+   "id": "toy_horse",
+   "name": "Toy horse",
+   "sizeClass": "medium",
+   "png": "objects/toy_horse.png",
+   "size": [
+    217,
+    220
+   ]
+  },
+  {
+   "id": "sunflower",
+   "name": "Sunflower",
+   "sizeClass": "medium",
+   "png": "objects/sunflower.png",
+   "size": [
+    110,
+    220
+   ]
+  },
+  {
+   "id": "rose",
+   "name": "Rose",
+   "sizeClass": "medium",
+   "png": "objects/rose.png",
+   "size": [
+    193,
+    220
+   ]
+  },
+  {
+   "id": "tankard",
+   "name": "Tankard",
+   "sizeClass": "medium",
+   "png": "objects/tankard.png",
+   "size": [
+    196,
+    220
+   ]
+  },
+  {
+   "id": "wine_bottle",
+   "name": "Green bottle",
+   "sizeClass": "medium",
+   "png": "objects/wine_bottle.png",
+   "size": [
+    80,
+    220
+   ]
+  },
+  {
+   "id": "hammer",
+   "name": "Hammer",
+   "sizeClass": "medium",
+   "png": "objects/hammer.png",
+   "size": [
+    145,
+    220
+   ]
+  },
+  {
+   "id": "lute",
+   "name": "Lute",
+   "sizeClass": "medium",
+   "png": "objects/lute.png",
+   "size": [
+    113,
+    220
+   ]
+  },
+  {
+   "id": "glove",
+   "name": "Leather glove",
+   "sizeClass": "small",
+   "png": "objects/glove.png",
+   "size": [
+    113,
+    220
+   ]
+  }
+ ],
+ "spots": [
+  {
+   "id": "m01",
+   "x": 90,
+   "y": 662,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "flowerbox",
+   "occlusion": {
+    "cutY": 652,
+    "polygon": [
+     [
+      52,
+      652
+     ],
+     [
+      128,
+      652
+     ],
+     [
+      128,
+      672
+     ],
+     [
+      52,
+      672
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m02",
+   "x": 650,
+   "y": 636,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m03",
+   "x": 800,
+   "y": 712,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m04",
+   "x": 1210,
+   "y": 642,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m05",
+   "x": 1050,
+   "y": 728,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m06",
+   "x": 1700,
+   "y": 563,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m07",
+   "x": 1780,
+   "y": 692,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m08",
+   "x": 1980,
+   "y": 668,
+   "maxSize": 55,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m09",
+   "x": 1880,
+   "y": 725,
+   "maxSize": 55,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m10",
+   "x": 1100,
+   "y": 505,
+   "maxSize": 85,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "beam"
+  },
+  {
+   "id": "m11",
+   "x": 1600,
+   "y": 505,
+   "maxSize": 70,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "beam"
+  },
+  {
+   "id": "m12",
+   "x": 2120,
+   "y": 505,
+   "maxSize": 70,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "beam"
+  },
+  {
+   "id": "m13",
+   "x": 760,
+   "y": 505,
+   "maxSize": 70,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "beam"
+  },
+  {
+   "id": "m14",
+   "x": 640,
+   "y": 830,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m15",
+   "x": 950,
+   "y": 830,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m16",
+   "x": 1100,
+   "y": 915,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m17",
+   "x": 230,
+   "y": 912,
+   "maxSize": 75,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 900,
+    "polygon": [
+     [
+      181,
+      900
+     ],
+     [
+      279,
+      900
+     ],
+     [
+      279,
+      922
+     ],
+     [
+      181,
+      922
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m18",
+   "x": 450,
+   "y": 1082,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m19",
+   "x": 680,
+   "y": 1084,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m20",
+   "x": 1050,
+   "y": 1080,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m21",
+   "x": 1250,
+   "y": 1080,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m22",
+   "x": 100,
+   "y": 1205,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1190,
+    "polygon": [
+     [
+      57,
+      1190
+     ],
+     [
+      143,
+      1190
+     ],
+     [
+      143,
+      1215
+     ],
+     [
+      57,
+      1215
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m23",
+   "x": 215,
+   "y": 1195,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "barrel",
+   "occlusion": {
+    "cutY": 1183,
+    "polygon": [
+     [
+      176,
+      1183
+     ],
+     [
+      254,
+      1183
+     ],
+     [
+      254,
+      1205
+     ],
+     [
+      176,
+      1205
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m24",
+   "x": 330,
+   "y": 1207,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "barrel",
+   "occlusion": {
+    "cutY": 1195,
+    "polygon": [
+     [
+      287,
+      1195
+     ],
+     [
+      373,
+      1195
+     ],
+     [
+      373,
+      1217
+     ],
+     [
+      287,
+      1217
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m25",
+   "x": 215,
+   "y": 1312,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bucket",
+   "occlusion": {
+    "cutY": 1302,
+    "polygon": [
+     [
+      176,
+      1302
+     ],
+     [
+      254,
+      1302
+     ],
+     [
+      254,
+      1322
+     ],
+     [
+      176,
+      1322
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m26",
+   "x": 335,
+   "y": 1318,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "pot"
+  },
+  {
+   "id": "m27",
+   "x": 500,
+   "y": 1215,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "sack"
+  },
+  {
+   "id": "m28",
+   "x": 640,
+   "y": 1300,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "sack"
+  },
+  {
+   "id": "m29",
+   "x": 690,
+   "y": 1222,
+   "maxSize": 85,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "barrel",
+   "occlusion": {
+    "cutY": 1208,
+    "polygon": [
+     [
+      635,
+      1208
+     ],
+     [
+      745,
+      1208
+     ],
+     [
+      745,
+      1232
+     ],
+     [
+      635,
+      1232
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m30",
+   "x": 860,
+   "y": 1360,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1345,
+    "polygon": [
+     [
+      820,
+      1345
+     ],
+     [
+      900,
+      1345
+     ],
+     [
+      900,
+      1370
+     ],
+     [
+      820,
+      1370
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m31",
+   "x": 1000,
+   "y": 1245,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "crate",
+   "occlusion": {
+    "cutY": 1232,
+    "polygon": [
+     [
+      957,
+      1232
+     ],
+     [
+      1043,
+      1232
+     ],
+     [
+      1043,
+      1255
+     ],
+     [
+      957,
+      1255
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m32",
+   "x": 1250,
+   "y": 1310,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1298,
+    "polygon": [
+     [
+      1210,
+      1298
+     ],
+     [
+      1290,
+      1298
+     ],
+     [
+      1290,
+      1320
+     ],
+     [
+      1210,
+      1320
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m33",
+   "x": 1340,
+   "y": 1210,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "barrel"
+  },
+  {
+   "id": "m34",
+   "x": 450,
+   "y": 1460,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m35",
+   "x": 700,
+   "y": 1440,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m36",
+   "x": 920,
+   "y": 1500,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m37",
+   "x": 1150,
+   "y": 1450,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m38",
+   "x": 1320,
+   "y": 1520,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m39",
+   "x": 1450,
+   "y": 832,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m40",
+   "x": 1530,
+   "y": 950,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m41",
+   "x": 1810,
+   "y": 975,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m42",
+   "x": 2100,
+   "y": 965,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "crate"
+  },
+  {
+   "id": "m43",
+   "x": 1520,
+   "y": 1085,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m44",
+   "x": 1720,
+   "y": 1088,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m45",
+   "x": 2000,
+   "y": 1086,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m46",
+   "x": 2230,
+   "y": 1085,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m47",
+   "x": 1585,
+   "y": 1180,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "barrel"
+  },
+  {
+   "id": "m48",
+   "x": 1760,
+   "y": 1255,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1243,
+    "polygon": [
+     [
+      1717,
+      1243
+     ],
+     [
+      1803,
+      1243
+     ],
+     [
+      1803,
+      1265
+     ],
+     [
+      1717,
+      1265
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m49",
+   "x": 1960,
+   "y": 1268,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "pot",
+   "occlusion": {
+    "cutY": 1262,
+    "polygon": [
+     [
+      1920,
+      1262
+     ],
+     [
+      2000,
+      1262
+     ],
+     [
+      2000,
+      1278
+     ],
+     [
+      1920,
+      1278
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m50",
+   "x": 2110,
+   "y": 1215,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1198,
+    "polygon": [
+     [
+      2070,
+      1198
+     ],
+     [
+      2150,
+      1198
+     ],
+     [
+      2150,
+      1225
+     ],
+     [
+      2070,
+      1225
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m51",
+   "x": 2350,
+   "y": 1225,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1210,
+    "polygon": [
+     [
+      2307,
+      1210
+     ],
+     [
+      2393,
+      1210
+     ],
+     [
+      2393,
+      1235
+     ],
+     [
+      2307,
+      1235
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m52",
+   "x": 2462,
+   "y": 1258,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "basket",
+   "occlusion": {
+    "cutY": 1240,
+    "polygon": [
+     [
+      2422,
+      1240
+     ],
+     [
+      2502,
+      1240
+     ],
+     [
+      2502,
+      1268
+     ],
+     [
+      2422,
+      1268
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "m53",
+   "x": 2640,
+   "y": 1305,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "barrel"
+  },
+  {
+   "id": "m54",
+   "x": 2470,
+   "y": 990,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m55",
+   "x": 2700,
+   "y": 990,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "table"
+  },
+  {
+   "id": "m56",
+   "x": 2660,
+   "y": 836,
+   "maxSize": 55,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "m57",
+   "x": 1500,
+   "y": 1430,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m58",
+   "x": 1750,
+   "y": 1460,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m59",
+   "x": 2000,
+   "y": 1420,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m60",
+   "x": 2200,
+   "y": 1500,
+   "maxSize": 110,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  },
+  {
+   "id": "m61",
+   "x": 2420,
+   "y": 1460,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "paving"
+  }
+ ],
+ "placement": {
+  "note": "Rules used by the PoC's tools/layout.py to make the review pages; the app can copy them.",
+  "classCap": {
+   "small": 68,
+   "medium": 112
+  },
+  "renderLongSide": "min(spot.maxSize, classCap[object.sizeClass]) * random(0.88, 1.0); if the object's aspect ratio > 1.6, multiply by 1 + 0.25 * min(1, (aspect - 1.6) / 1.4), capped at 1.25 * spot.maxSize",
+  "compatible": "object.sizeClass must be in spot.sizeClass",
+  "minGap": "anchors of two chosen spots at least 0.6 * (maxSizeA + maxSizeB) apart",
+  "order": "place medium objects first; draw back to front by spot y",
+  "flip": "optional horizontal flip with probability 0.3",
+  "anchor": "object image bottom-centre at (spot.x, spot.y)"
+ },
+ "render": {
+  "note": "How the PoC blends an object into the painting (tools/hocommon.py). Colours are 0-255.",
+  "tint": "mean colour of the background in the object's box grown by max(w, h) on every side; rgb = rgb * (1 - t) + mean * t with t = random(0.18, 0.26); then rgb *= 0.72 + 0.35 * luminance(mean)/255; then saturation *= 0.85 (toward the per-pixel grey); then Gaussian blur 0.35 px",
+  "shadow": {
+   "color": [
+    40,
+    25,
+    15
+   ],
+   "alpha": 0.38,
+   "blur": 5,
+   "offset": [
+    5,
+    4
+   ],
+   "how": "object alpha * 0.38 as a dark silhouette, blurred, drawn under the object at +5, +4 px"
+  },
+  "occlusion": "for spots with 'occlusion': after drawing the object, draw the background again clipped to occlusion.polygon, with its top edge feathered over occlusion.feather px (vertical box blur of the mask)",
+  "hitTest": "object alpha > 60 within 6 px of the tap (PoC review page)"
+ }
+}

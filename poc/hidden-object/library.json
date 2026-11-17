@@ -1,0 +1,353 @@
+{
+ "scene": "attic",
+ "title": "Alchemist's Attic",
+ "objects": [
+  {
+   "id": "key",
+   "name": "Silver key",
+   "size": "small",
+   "src": "objects/key.png",
+   "clean": {}
+  },
+  {
+   "id": "hourglass",
+   "name": "Hourglass",
+   "size": "small",
+   "src": "objects/hourglass.png",
+   "clean": {}
+  },
+  {
+   "id": "owl",
+   "name": "Wooden owl",
+   "size": "medium",
+   "src": "objects/owl.png",
+   "clean": {}
+  },
+  {
+   "id": "mushroom",
+   "name": "Toadstool",
+   "size": "small",
+   "src": "objects/mushroom.png",
+   "clean": {
+    "eraseRowsFull": [
+     [
+      0.88,
+      1.0
+     ]
+    ]
+   }
+  },
+  {
+   "id": "crystal",
+   "name": "Amethyst",
+   "size": "small",
+   "src": "objects/crystal.png",
+   "clean": {}
+  },
+  {
+   "id": "quill",
+   "name": "Quill",
+   "size": "medium",
+   "src": "objects/quill.png",
+   "clean": {}
+  },
+  {
+   "id": "watch",
+   "name": "Pocket watch",
+   "size": "small",
+   "src": "objects/watch.png",
+   "clean": {}
+  },
+  {
+   "id": "potion",
+   "name": "Green potion",
+   "size": "small",
+   "src": "objects/potion.png",
+   "clean": {
+    "eraseRowsFull": [
+     [
+      0.9,
+      1.0
+     ]
+    ],
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "horseshoe",
+   "name": "Horseshoe",
+   "size": "small",
+   "src": "objects/horseshoe.png",
+   "clean": {}
+  },
+  {
+   "id": "teacup",
+   "name": "Teacup",
+   "size": "small",
+   "src": "objects/teacup.png",
+   "clean": {}
+  },
+  {
+   "id": "scroll",
+   "name": "Scroll",
+   "size": "medium",
+   "src": "objects/scroll.png",
+   "clean": {}
+  },
+  {
+   "id": "egg",
+   "name": "Dragon egg",
+   "size": "small",
+   "src": "objects/egg.png",
+   "clean": {}
+  },
+  {
+   "id": "candle",
+   "name": "Candle",
+   "size": "medium",
+   "src": "objects/candle.png",
+   "seed": 9601,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "magnifier",
+   "name": "Magnifying glass",
+   "size": "medium",
+   "src": "objects/magnifier.png",
+   "seed": 9602,
+   "clean": {}
+  },
+  {
+   "id": "starfish",
+   "name": "Starfish",
+   "size": "small",
+   "src": "objects/starfish.png",
+   "seed": 9643,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "spectacles",
+   "name": "Spectacles",
+   "size": "small",
+   "src": "objects/spectacles.png",
+   "seed": 9604,
+   "clean": {}
+  },
+  {
+   "id": "inkwell",
+   "name": "Inkwell",
+   "size": "small",
+   "src": "objects/inkwell.png",
+   "seed": 9605,
+   "clean": {}
+  },
+  {
+   "id": "mortar",
+   "name": "Mortar and pestle",
+   "size": "medium",
+   "src": "objects/mortar.png",
+   "seed": 9606,
+   "clean": {
+    "alphaCut": 150,
+    "keepLargest": true,
+    "dropPale": {
+     "below": 0.86,
+     "maxSat": 0.35,
+     "minLum": 0.66
+    }
+   }
+  },
+  {
+   "id": "book",
+   "name": "Red book",
+   "size": "medium",
+   "src": "objects/book.png",
+   "seed": 9607,
+   "clean": {}
+  },
+  {
+   "id": "frog",
+   "name": "Frog figurine",
+   "size": "small",
+   "src": "objects/frog.png",
+   "seed": 9608,
+   "clean": {}
+  },
+  {
+   "id": "flask",
+   "name": "Blue flask",
+   "size": "medium",
+   "src": "objects/flask.png",
+   "seed": 9609,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "telescope",
+   "name": "Telescope",
+   "size": "medium",
+   "src": "objects/telescope.png",
+   "seed": 9610,
+   "clean": {}
+  },
+  {
+   "id": "globe",
+   "name": "Desk globe",
+   "size": "medium",
+   "src": "objects/globe.png",
+   "seed": 9611,
+   "clean": {}
+  },
+  {
+   "id": "die",
+   "name": "Bone die",
+   "size": "small",
+   "src": "objects/die.png",
+   "seed": 9612,
+   "clean": {}
+  },
+  {
+   "id": "ring",
+   "name": "Ruby ring",
+   "size": "small",
+   "src": "objects/ring.png",
+   "seed": 9613,
+   "clean": {}
+  },
+  {
+   "id": "pinecone",
+   "name": "Pinecone",
+   "size": "small",
+   "src": "objects/pinecone.png",
+   "seed": 9614,
+   "clean": {}
+  },
+  {
+   "id": "acorn",
+   "name": "Acorn",
+   "size": "small",
+   "src": "objects/acorn.png",
+   "seed": 9615,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "shell",
+   "name": "Seashell",
+   "size": "small",
+   "src": "objects/shell.png",
+   "seed": 9616,
+   "clean": {}
+  },
+  {
+   "id": "lavender",
+   "name": "Lavender bundle",
+   "size": "medium",
+   "src": "objects/lavender.png",
+   "seed": 9617,
+   "clean": {}
+  },
+  {
+   "id": "lamp",
+   "name": "Oil lamp",
+   "size": "medium",
+   "src": "objects/lamp.png",
+   "seed": 9618,
+   "clean": {}
+  },
+  {
+   "id": "scissors",
+   "name": "Scissors",
+   "size": "small",
+   "src": "objects/scissors.png",
+   "seed": 9629,
+   "clean": {
+    "alphaCut": 150,
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "paintbrush",
+   "name": "Paintbrush",
+   "size": "medium",
+   "src": "objects/paintbrush.png",
+   "seed": 9620,
+   "clean": {}
+  },
+  {
+   "id": "firefly_jar",
+   "name": "Firefly jar",
+   "size": "medium",
+   "src": "objects/firefly_jar.png",
+   "seed": 9621,
+   "clean": {}
+  },
+  {
+   "id": "chess_knight",
+   "name": "Chess knight",
+   "size": "small",
+   "src": "objects/chess_knight.png",
+   "seed": 9622,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "butterfly",
+   "name": "Butterfly",
+   "size": "small",
+   "src": "objects/butterfly.png",
+   "seed": 9623,
+   "clean": {}
+  },
+  {
+   "id": "pumpkin",
+   "name": "Pumpkin",
+   "size": "medium",
+   "src": "objects/pumpkin.png",
+   "seed": 9624,
+   "clean": {}
+  },
+  {
+   "id": "broom",
+   "name": "Broom",
+   "size": "medium",
+   "src": "objects/broom.png",
+   "seed": 9641,
+   "clean": {
+    "alphaCut": 150,
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "wand",
+   "name": "Magic wand",
+   "size": "medium",
+   "src": "objects/wand.png",
+   "seed": 9626,
+   "clean": {}
+  },
+  {
+   "id": "mirror",
+   "name": "Hand mirror",
+   "size": "medium",
+   "src": "objects/mirror.png",
+   "seed": 9627,
+   "clean": {}
+  },
+  {
+   "id": "padlock",
+   "name": "Padlock",
+   "size": "small",
+   "src": "objects/padlock.png",
+   "seed": 9628,
+   "clean": {}
+  }
+ ]
+}
