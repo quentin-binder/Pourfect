@@ -1,0 +1,355 @@
+{
+  "episode" : {
+    "followsChapter" : 6,
+    "name" : "Icefall Ridge",
+    "number" : 6,
+    "subtitle" : "Frost and crates together on the high slopes"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-06-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "o2o22o2o",
+        "oooooooo",
+        "oooooooo",
+        "o2o22o2o",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 20,
+      "seed" : 4301560651750789,
+      "stars" : {
+        "three" : 18150,
+        "two" : 13300
+      },
+      "title" : "Icefall Ridge 1",
+      "tuning" : {
+        "passRate" : 70,
+        "runs" : 200,
+        "target" : 72
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-06-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "1111111",
+        "ooooooo",
+        "AAAAAAA",
+        "AAAAAAA"
+      ],
+      "moves" : 20,
+      "seed" : 4989037451931098,
+      "stars" : {
+        "three" : 14950,
+        "two" : 10700
+      },
+      "title" : "Icefall Ridge 2",
+      "tuning" : {
+        "passRate" : 72,
+        "runs" : 200,
+        "target" : 72
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 20,
+          "kind" : "crystal",
+          "type" : "collect"
+        },
+        {
+          "count" : 20,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-06-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "ooo..ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 29,
+      "seed" : 1706001550492464,
+      "stars" : {
+        "three" : 11000,
+        "two" : 7700
+      },
+      "title" : "Icefall Ridge 3",
+      "tuning" : {
+        "passRate" : 72,
+        "runs" : 200,
+        "target" : 71
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 45,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-06-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "22oooo22",
+        "22oooo22",
+        "oo2222oo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 24,
+      "seed" : 1022442641058437,
+      "stars" : {
+        "three" : 22350,
+        "two" : 16350
+      },
+      "title" : "Icefall Ridge 4",
+      "tuning" : {
+        "passRate" : 71,
+        "runs" : 200,
+        "target" : 71
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 35,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-06-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oBBBBBBo",
+        "oooooooo",
+        "oooooooo",
+        "oCooooCo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 22,
+      "seed" : 7889067408282185,
+      "stars" : {
+        "three" : 15800,
+        "two" : 11400
+      },
+      "title" : "Icefall Ridge 5",
+      "tuning" : {
+        "passRate" : 67,
+        "runs" : 200,
+        "target" : 71
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 20,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-06-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..ooo..",
+        ".o222o.",
+        "ooooooo",
+        "o22o22o",
+        "ooooooo",
+        ".oBBBo.",
+        "..BBB.."
+      ],
+      "moves" : 22,
+      "seed" : 6648702706830204,
+      "stars" : {
+        "three" : 12750,
+        "two" : 9950
+      },
+      "title" : "Icefall Ridge 6",
+      "tuning" : {
+        "passRate" : 72,
+        "runs" : 200,
+        "target" : 70
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 20,
+          "kind" : "crystal",
+          "type" : "collect"
+        },
+        {
+          "count" : 8500,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-06-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 27,
+      "seed" : 2197402830428779,
+      "stars" : {
+        "three" : 14500,
+        "two" : 10550
+      },
+      "title" : "Icefall Ridge 7",
+      "tuning" : {
+        "passRate" : 68,
+        "runs" : 200,
+        "target" : 70
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 60,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-06-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "o222222o",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oAAAAAAo",
+        "oBBBBBBo",
+        "oooooooo"
+      ],
+      "moves" : 27,
+      "seed" : 8663259043444186,
+      "stars" : {
+        "three" : 25600,
+        "two" : 18400
+      },
+      "title" : "Icefall Ridge 8",
+      "tuning" : {
+        "passRate" : 68,
+        "runs" : 200,
+        "target" : 69
+      }
+    }
+  ],
+  "version" : 1
+}

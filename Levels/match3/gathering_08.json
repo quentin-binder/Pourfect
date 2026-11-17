@@ -1,0 +1,365 @@
+{
+  "episode" : {
+    "followsChapter" : 8,
+    "name" : "Windy Rookery",
+    "number" : 8,
+    "subtitle" : "Feathers drift high among the old towers"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "count" : 40,
+          "kind" : "feather",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-08-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "ooo..ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 27,
+      "seed" : 1753857014748540,
+      "stars" : {
+        "three" : 18250,
+        "two" : 12450
+      },
+      "title" : "Windy Rookery 1",
+      "tuning" : {
+        "passRate" : 67,
+        "runs" : 200,
+        "target" : 65
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-08-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooFoooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooBBBBoo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 28,
+      "seed" : 2477768023655926,
+      "stars" : {
+        "three" : 30300,
+        "two" : 23250
+      },
+      "title" : "Windy Rookery 2",
+      "tuning" : {
+        "passRate" : 65,
+        "runs" : 200,
+        "target" : 65
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 25,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-08-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "o2oooo2o",
+        "oo2oo2oo",
+        "ooo22ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 24,
+      "seed" : 6670482477423125,
+      "stars" : {
+        "three" : 11450,
+        "two" : 8500
+      },
+      "title" : "Windy Rookery 3",
+      "tuning" : {
+        "passRate" : 67,
+        "runs" : 200,
+        "target" : 64
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 40,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-08-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..oooo..",
+        "..oooo..",
+        "oooooooo",
+        "oCoooCoo",
+        "oooooooo",
+        "oooooooo",
+        "..oBBo..",
+        "..oBBo.."
+      ],
+      "moves" : 23,
+      "seed" : 3472876952474844,
+      "stars" : {
+        "three" : 14700,
+        "two" : 11650
+      },
+      "title" : "Windy Rookery 4",
+      "tuning" : {
+        "passRate" : 61,
+        "runs" : 200,
+        "target" : 64
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 25000,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-08-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "11111111",
+        "11111111",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 30,
+      "seed" : 8020070951477740,
+      "stars" : {
+        "three" : 35250,
+        "two" : 28900
+      },
+      "title" : "Windy Rookery 5",
+      "tuning" : {
+        "passRate" : 62,
+        "runs" : 200,
+        "target" : 63
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-08-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oFooooFo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "o222222o",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 31,
+      "seed" : 197416193443297,
+      "stars" : {
+        "three" : 27500,
+        "two" : 19900
+      },
+      "title" : "Windy Rookery 6",
+      "tuning" : {
+        "passRate" : 62,
+        "runs" : 200,
+        "target" : 63
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 30,
+          "kind" : "feather",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-08-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 34,
+      "seed" : 640280101099620,
+      "stars" : {
+        "three" : 16300,
+        "two" : 12850
+      },
+      "title" : "Windy Rookery 7",
+      "tuning" : {
+        "passRate" : 61,
+        "runs" : 200,
+        "target" : 63
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-08-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooFooo",
+        "oooooooo",
+        "o2oooo2o",
+        "oooooooo",
+        "oooooooo",
+        "oAAAAAAo",
+        "oBBBBBBo",
+        "oooooooo"
+      ],
+      "moves" : 30,
+      "seed" : 7999541507454269,
+      "stars" : {
+        "three" : 26850,
+        "two" : 20600
+      },
+      "title" : "Windy Rookery 8",
+      "tuning" : {
+        "passRate" : 62,
+        "runs" : 200,
+        "target" : 62
+      }
+    }
+  ],
+  "version" : 1
+}

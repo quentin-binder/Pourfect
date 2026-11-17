@@ -1,0 +1,331 @@
+{
+  "episode" : {
+    "followsChapter" : 1,
+    "name" : "Mushroom Hollow",
+    "number" : 1,
+    "subtitle" : "Swap neighbours to line up three and gather mushrooms"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "count" : 50,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower"
+      ],
+      "layout" : [
+        "oooooo",
+        "oooooo",
+        "oooooo",
+        "oooooo",
+        "oooooo",
+        "oooooo"
+      ],
+      "moves" : 18,
+      "seed" : 4366644164502249,
+      "stars" : {
+        "three" : 18800,
+        "two" : 14250
+      },
+      "title" : "Mushroom Hollow 1",
+      "tuning" : {
+        "passRate" : 91,
+        "runs" : 200,
+        "target" : 90
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 55,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower"
+      ],
+      "layout" : [
+        "oooooo",
+        "oooooo",
+        "oooooo",
+        "oooooo",
+        "oooooo",
+        "oooooo"
+      ],
+      "moves" : 18,
+      "seed" : 1322004743853534,
+      "stars" : {
+        "three" : 21200,
+        "two" : 15600
+      },
+      "title" : "Mushroom Hollow 2",
+      "tuning" : {
+        "passRate" : 90,
+        "runs" : 200,
+        "target" : 90
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 80,
+          "kind" : "mushroom",
+          "type" : "collect"
+        },
+        {
+          "count" : 50,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 17,
+      "seed" : 4028924645376990,
+      "stars" : {
+        "three" : 30250,
+        "two" : 22000
+      },
+      "title" : "Mushroom Hollow 3",
+      "tuning" : {
+        "passRate" : 88,
+        "runs" : 200,
+        "target" : 89
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 75,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 23,
+      "seed" : 6377705152163094,
+      "stars" : {
+        "three" : 40600,
+        "two" : 29300
+      },
+      "title" : "Mushroom Hollow 4",
+      "tuning" : {
+        "passRate" : 90,
+        "runs" : 200,
+        "target" : 89
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 25,
+          "kind" : "mushroom",
+          "type" : "collect"
+        },
+        {
+          "count" : 20,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 21,
+      "seed" : 6717841294861545,
+      "stars" : {
+        "three" : 14650,
+        "two" : 10250
+      },
+      "title" : "Mushroom Hollow 5",
+      "tuning" : {
+        "passRate" : 87,
+        "runs" : 200,
+        "target" : 88
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 35,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 21,
+      "seed" : 5010116703802194,
+      "stars" : {
+        "three" : 15100,
+        "two" : 10500
+      },
+      "title" : "Mushroom Hollow 6",
+      "tuning" : {
+        "passRate" : 89,
+        "runs" : 200,
+        "target" : 88
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 30,
+          "kind" : "mushroom",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-01-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..ooo..",
+        ".ooooo.",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        ".ooooo.",
+        "..ooo.."
+      ],
+      "moves" : 20,
+      "seed" : 3167396499597339,
+      "stars" : {
+        "three" : 10000,
+        "two" : 6900
+      },
+      "title" : "Mushroom Hollow 7",
+      "tuning" : {
+        "passRate" : 86,
+        "runs" : 200,
+        "target" : 87
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 45,
+          "kind" : "mushroom",
+          "type" : "collect"
+        },
+        {
+          "count" : 9000,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-01-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 26,
+      "seed" : 2667654929949384,
+      "stars" : {
+        "three" : 20150,
+        "two" : 16300
+      },
+      "title" : "Mushroom Hollow 8",
+      "tuning" : {
+        "passRate" : 86,
+        "runs" : 200,
+        "target" : 87
+      }
+    }
+  ],
+  "version" : 1
+}

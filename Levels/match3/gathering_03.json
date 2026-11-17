@@ -1,0 +1,341 @@
+{
+  "episode" : {
+    "followsChapter" : 3,
+    "name" : "Moonlit Meadow",
+    "number" : 3,
+    "subtitle" : "Frost holds an ingredient fast: match beside it to thaw it"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "o11111o",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 24,
+      "seed" : 8936341491289453,
+      "stars" : {
+        "three" : 14750,
+        "two" : 11500
+      },
+      "title" : "Moonlit Meadow 1",
+      "tuning" : {
+        "passRate" : 83,
+        "runs" : 200,
+        "target" : 83
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 25,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "o1ooo1o",
+        "o11o11o",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 22,
+      "seed" : 3654395678005851,
+      "stars" : {
+        "three" : 12650,
+        "two" : 9800
+      },
+      "title" : "Moonlit Meadow 2",
+      "tuning" : {
+        "passRate" : 80,
+        "runs" : 200,
+        "target" : 82
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 25,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oo1111oo",
+        "oo1111oo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 18,
+      "seed" : 93290508562433,
+      "stars" : {
+        "three" : 13850,
+        "two" : 9450
+      },
+      "title" : "Moonlit Meadow 3",
+      "tuning" : {
+        "passRate" : 85,
+        "runs" : 200,
+        "target" : 82
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 50,
+          "kind" : "moonflower",
+          "type" : "collect"
+        },
+        {
+          "count" : 30,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 22,
+      "seed" : 2271808716206431,
+      "stars" : {
+        "three" : 17250,
+        "two" : 13000
+      },
+      "title" : "Moonlit Meadow 4",
+      "tuning" : {
+        "passRate" : 79,
+        "runs" : 200,
+        "target" : 82
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..ooo..",
+        ".o111o.",
+        "ooooooo",
+        "o11o11o",
+        "ooooooo",
+        ".o111o.",
+        "..ooo.."
+      ],
+      "moves" : 23,
+      "seed" : 3332226162450637,
+      "stars" : {
+        "three" : 17300,
+        "two" : 13050
+      },
+      "title" : "Moonlit Meadow 5",
+      "tuning" : {
+        "passRate" : 81,
+        "runs" : 200,
+        "target" : 81
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "11oooo11",
+        "11oooo11",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 24,
+      "seed" : 5719649839122238,
+      "stars" : {
+        "three" : 17750,
+        "two" : 12500
+      },
+      "title" : "Moonlit Meadow 6",
+      "tuning" : {
+        "passRate" : 81,
+        "runs" : 200,
+        "target" : 81
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-03-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "o11..11o",
+        "o111111o",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 20,
+      "seed" : 420107884945536,
+      "stars" : {
+        "three" : 11200,
+        "two" : 7850
+      },
+      "title" : "Moonlit Meadow 7",
+      "tuning" : {
+        "passRate" : 81,
+        "runs" : 200,
+        "target" : 80
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-03-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "o2oooo2o",
+        "oooooooo",
+        "oo1111oo",
+        "oo1111oo",
+        "oooooooo",
+        "o2oooo2o",
+        "oooooooo"
+      ],
+      "moves" : 22,
+      "seed" : 1229811347618315,
+      "stars" : {
+        "three" : 23950,
+        "two" : 18250
+      },
+      "title" : "Moonlit Meadow 8",
+      "tuning" : {
+        "passRate" : 79,
+        "runs" : 200,
+        "target" : 80
+      }
+    }
+  ],
+  "version" : 1
+}

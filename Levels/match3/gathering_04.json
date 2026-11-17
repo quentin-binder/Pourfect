@@ -1,0 +1,349 @@
+{
+  "episode" : {
+    "followsChapter" : 4,
+    "name" : "Ember Hearth",
+    "number" : 4,
+    "subtitle" : "Double frost needs two thaws; blooms crack it from afar"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 30,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "o22222o",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 18,
+      "seed" : 8965952269014127,
+      "stars" : {
+        "three" : 10800,
+        "two" : 7450
+      },
+      "title" : "Ember Hearth 1",
+      "tuning" : {
+        "passRate" : 79,
+        "runs" : 200,
+        "target" : 79
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 45,
+          "kind" : "ember",
+          "type" : "collect"
+        },
+        {
+          "count" : 30,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 24,
+      "seed" : 8633877601203751,
+      "stars" : {
+        "three" : 23150,
+        "two" : 17000
+      },
+      "title" : "Ember Hearth 2",
+      "tuning" : {
+        "passRate" : 79,
+        "runs" : 200,
+        "target" : 79
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 60,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "o1oooo1o",
+        "o12oo21o",
+        "o12oo21o",
+        "o1oooo1o",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 25,
+      "seed" : 7638923126746573,
+      "stars" : {
+        "three" : 22600,
+        "two" : 17900
+      },
+      "title" : "Ember Hearth 3",
+      "tuning" : {
+        "passRate" : 74,
+        "runs" : 200,
+        "target" : 78
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..oooo..",
+        "..oooo..",
+        "oooooooo",
+        "oo2222oo",
+        "oo2222oo",
+        "oooooooo",
+        "..oooo..",
+        "..oooo.."
+      ],
+      "moves" : 26,
+      "seed" : 4036314818128924,
+      "stars" : {
+        "three" : 15750,
+        "two" : 11800
+      },
+      "title" : "Ember Hearth 4",
+      "tuning" : {
+        "passRate" : 77,
+        "runs" : 200,
+        "target" : 78
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 35,
+          "kind" : "ember",
+          "type" : "collect"
+        },
+        {
+          "count" : 10000,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-04-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 24,
+      "seed" : 2684918049057473,
+      "stars" : {
+        "three" : 18400,
+        "two" : 13550
+      },
+      "title" : "Ember Hearth 5",
+      "tuning" : {
+        "passRate" : 81,
+        "runs" : 200,
+        "target" : 78
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 45,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "22222222",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 29,
+      "seed" : 7652029845374417,
+      "stars" : {
+        "three" : 24100,
+        "two" : 17400
+      },
+      "title" : "Ember Hearth 6",
+      "tuning" : {
+        "passRate" : 80,
+        "runs" : 200,
+        "target" : 77
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 35,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "o2ooo2o",
+        "ooooooo",
+        "o11o11o",
+        "ooooooo",
+        "o2ooo2o",
+        "ooooooo"
+      ],
+      "moves" : 24,
+      "seed" : 4279664033415119,
+      "stars" : {
+        "three" : 23500,
+        "two" : 18200
+      },
+      "title" : "Ember Hearth 7",
+      "tuning" : {
+        "passRate" : 78,
+        "runs" : 200,
+        "target" : 77
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 40,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-04-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "o222222o",
+        "oooooooo",
+        "oooooooo",
+        "o111111o",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 25,
+      "seed" : 6381292656722176,
+      "stars" : {
+        "three" : 21300,
+        "two" : 15450
+      },
+      "title" : "Ember Hearth 8",
+      "tuning" : {
+        "passRate" : 77,
+        "runs" : 200,
+        "target" : 76
+      }
+    }
+  ],
+  "version" : 1
+}

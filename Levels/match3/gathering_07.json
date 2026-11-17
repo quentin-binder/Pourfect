@@ -1,0 +1,381 @@
+{
+  "episode" : {
+    "followsChapter" : 7,
+    "name" : "Bogwater Springs",
+    "number" : 7,
+    "subtitle" : "Bring the potion flasks down: clear the cells below them"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 2
+      },
+      "goals" : [
+        {
+          "count" : 2,
+          "type" : "drops"
+        }
+      ],
+      "id" : "m3-07-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "oooFooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 25,
+      "seed" : 5924998904091324,
+      "stars" : {
+        "three" : 16450,
+        "two" : 12400
+      },
+      "title" : "Bogwater Springs 1",
+      "tuning" : {
+        "passRate" : 71,
+        "runs" : 200,
+        "target" : 69
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "count" : 15,
+          "kind" : "drop",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-07-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "ooFooFoo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 21,
+      "seed" : 3084640990527544,
+      "stars" : {
+        "three" : 14900,
+        "two" : 11700
+      },
+      "title" : "Bogwater Springs 2",
+      "tuning" : {
+        "passRate" : 67,
+        "runs" : 200,
+        "target" : 68
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 40,
+          "kind" : "drop",
+          "type" : "collect"
+        },
+        {
+          "count" : 35,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-07-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 23,
+      "seed" : 4116004430837069,
+      "stars" : {
+        "three" : 17700,
+        "two" : 13600
+      },
+      "title" : "Bogwater Springs 3",
+      "tuning" : {
+        "passRate" : 68,
+        "runs" : 200,
+        "target" : 68
+      }
+    },
+    {
+      "drops" : {
+        "columns" : [
+          2,
+          3,
+          4,
+          5
+        ],
+        "maxOnBoard" : 2,
+        "total" : 4
+      },
+      "goals" : [
+        {
+          "count" : 4,
+          "type" : "drops"
+        }
+      ],
+      "id" : "m3-07-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        ".ooFFoo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 28,
+      "seed" : 8589514249203250,
+      "stars" : {
+        "three" : 25350,
+        "two" : 19000
+      },
+      "title" : "Bogwater Springs 4",
+      "tuning" : {
+        "passRate" : 66,
+        "runs" : 200,
+        "target" : 67
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-07-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "ooooFooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "11111111",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 36,
+      "seed" : 4450441106132376,
+      "stars" : {
+        "three" : 29700,
+        "two" : 23150
+      },
+      "title" : "Bogwater Springs 5",
+      "tuning" : {
+        "passRate" : 66,
+        "runs" : 200,
+        "target" : 67
+      }
+    },
+    {
+      "drops" : {
+        "columns" : [
+          2,
+          3,
+          4,
+          5
+        ],
+        "maxOnBoard" : 1,
+        "total" : 2
+      },
+      "goals" : [
+        {
+          "count" : 2,
+          "type" : "drops"
+        },
+        {
+          "count" : 10,
+          "kind" : "drop",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-07-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "..oFoo..",
+        "..oooo..",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "..oooo..",
+        "..oooo.."
+      ],
+      "moves" : 36,
+      "seed" : 7542042303498765,
+      "stars" : {
+        "three" : 22700,
+        "two" : 17450
+      },
+      "title" : "Bogwater Springs 6",
+      "tuning" : {
+        "passRate" : 67,
+        "runs" : 200,
+        "target" : 67
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-07-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "oooFoooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "AAoooAAA",
+        "AAAAAAAA"
+      ],
+      "moves" : 37,
+      "seed" : 7160662609079512,
+      "stars" : {
+        "three" : 31050,
+        "two" : 23700
+      },
+      "title" : "Bogwater Springs 7",
+      "tuning" : {
+        "passRate" : 67,
+        "runs" : 200,
+        "target" : 66
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "count" : 15,
+          "kind" : "drop",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-07-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "drop"
+      ],
+      "layout" : [
+        "oFooooFo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "ooo..ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 28,
+      "seed" : 6286721095515357,
+      "stars" : {
+        "three" : 24200,
+        "two" : 19900
+      },
+      "title" : "Bogwater Springs 8",
+      "tuning" : {
+        "passRate" : 66,
+        "runs" : 200,
+        "target" : 66
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,371 @@
+{
+  "episode" : {
+    "followsChapter" : 9,
+    "name" : "Alchemist's Garden",
+    "number" : 9,
+    "subtitle" : "Every herb at once for the great brew"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "count" : 25,
+          "kind" : "moonflower",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-09-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 22,
+      "seed" : 8108247648043400,
+      "stars" : {
+        "three" : 14800,
+        "two" : 11550
+      },
+      "title" : "Alchemist's Garden 1",
+      "tuning" : {
+        "passRate" : 60,
+        "runs" : 200,
+        "target" : 62
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-09-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "o22oo22o",
+        "o22oo22o",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "AAoooAAA",
+        "AAAAAAAA"
+      ],
+      "moves" : 21,
+      "seed" : 8323958840269512,
+      "stars" : {
+        "three" : 15850,
+        "two" : 10950
+      },
+      "title" : "Alchemist's Garden 2",
+      "tuning" : {
+        "passRate" : 60,
+        "runs" : 200,
+        "target" : 61
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "count" : 20,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-09-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooFooFoo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "ooo..ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 34,
+      "seed" : 1802784141740803,
+      "stars" : {
+        "three" : 26850,
+        "two" : 21250
+      },
+      "title" : "Alchemist's Garden 3",
+      "tuning" : {
+        "passRate" : 61,
+        "runs" : 200,
+        "target" : 61
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 40,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-09-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..oooo..",
+        ".o2oo2o.",
+        "oooooooo",
+        "o2oooo2o",
+        "oooooooo",
+        "oBBBBBBo",
+        ".oooooo.",
+        "..oooo.."
+      ],
+      "moves" : 25,
+      "seed" : 2924797459946803,
+      "stars" : {
+        "three" : 16000,
+        "two" : 12100
+      },
+      "title" : "Alchemist's Garden 4",
+      "tuning" : {
+        "passRate" : 59,
+        "runs" : 200,
+        "target" : 60
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 20,
+          "kind" : "moonflower",
+          "type" : "collect"
+        },
+        {
+          "count" : 10000,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-09-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 30,
+      "seed" : 4298327493799521,
+      "stars" : {
+        "three" : 16300,
+        "two" : 12450
+      },
+      "title" : "Alchemist's Garden 5",
+      "tuning" : {
+        "passRate" : 62,
+        "runs" : 200,
+        "target" : 60
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-09-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooFoooo",
+        "oooooooo",
+        "11111111",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oCooooCo",
+        "oooooooo"
+      ],
+      "moves" : 18,
+      "seed" : 2114446378741438,
+      "stars" : {
+        "three" : 18250,
+        "two" : 13800
+      },
+      "title" : "Alchemist's Garden 6",
+      "tuning" : {
+        "passRate" : 59,
+        "runs" : 200,
+        "target" : 59
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 25,
+          "kind" : "moonflower",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "feather",
+          "type" : "collect"
+        },
+        {
+          "count" : 20,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-09-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "ooo..ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 31,
+      "seed" : 3774023489219,
+      "stars" : {
+        "three" : 11400,
+        "two" : 8400
+      },
+      "title" : "Alchemist's Garden 7",
+      "tuning" : {
+        "passRate" : 60,
+        "runs" : 200,
+        "target" : 59
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-09-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "o222222o",
+        "o2oooo2o",
+        "o2oCCo2o",
+        "o2oCCo2o",
+        "o2oooo2o",
+        "o222222o",
+        "oooooooo"
+      ],
+      "moves" : 19,
+      "seed" : 4475602950334500,
+      "stars" : {
+        "three" : 17100,
+        "two" : 13200
+      },
+      "title" : "Alchemist's Garden 8",
+      "tuning" : {
+        "passRate" : 54,
+        "runs" : 200,
+        "target" : 59
+      }
+    }
+  ],
+  "version" : 1
+}

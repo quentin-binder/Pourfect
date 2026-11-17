@@ -1,0 +1,345 @@
+{
+  "episode" : {
+    "followsChapter" : 2,
+    "name" : "Crystal Grotto",
+    "number" : 2,
+    "subtitle" : "Lines of four and five leave glowing specials behind"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "count" : 35,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 23,
+      "seed" : 1981434250229221,
+      "stars" : {
+        "three" : 18200,
+        "two" : 13600
+      },
+      "title" : "Crystal Grotto 1",
+      "tuning" : {
+        "passRate" : 87,
+        "runs" : 200,
+        "target" : 86
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 45,
+          "kind" : "crystal",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..ooo..",
+        ".ooooo.",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        ".ooooo.",
+        "..ooo.."
+      ],
+      "moves" : 22,
+      "seed" : 5007615949906988,
+      "stars" : {
+        "three" : 13950,
+        "two" : 10750
+      },
+      "title" : "Crystal Grotto 2",
+      "tuning" : {
+        "passRate" : 85,
+        "runs" : 200,
+        "target" : 86
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 40,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 22,
+      "seed" : 3635651023477473,
+      "stars" : {
+        "three" : 20550,
+        "two" : 15150
+      },
+      "title" : "Crystal Grotto 3",
+      "tuning" : {
+        "passRate" : 84,
+        "runs" : 200,
+        "target" : 86
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 25,
+          "kind" : "crystal",
+          "type" : "collect"
+        },
+        {
+          "count" : 20,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..oooo..",
+        "..oooo..",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "..oooo..",
+        "..oooo.."
+      ],
+      "moves" : 22,
+      "seed" : 1125109518836123,
+      "stars" : {
+        "three" : 12050,
+        "two" : 9100
+      },
+      "title" : "Crystal Grotto 4",
+      "tuning" : {
+        "passRate" : 89,
+        "runs" : 200,
+        "target" : 85
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 9000,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-02-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 23,
+      "seed" : 3538238726084237,
+      "stars" : {
+        "three" : 18400,
+        "two" : 13950
+      },
+      "title" : "Crystal Grotto 5",
+      "tuning" : {
+        "passRate" : 84,
+        "runs" : 200,
+        "target" : 85
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 30,
+          "kind" : "crystal",
+          "type" : "collect"
+        },
+        {
+          "count" : 20,
+          "kind" : "moonflower",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "ooo..ooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 23,
+      "seed" : 5312383520314858,
+      "stars" : {
+        "three" : 16950,
+        "two" : 12050
+      },
+      "title" : "Crystal Grotto 6",
+      "tuning" : {
+        "passRate" : 83,
+        "runs" : 200,
+        "target" : 84
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 30,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..ooo..",
+        ".ooooo.",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        ".ooooo.",
+        "..ooo.."
+      ],
+      "moves" : 26,
+      "seed" : 2423666533455234,
+      "stars" : {
+        "three" : 13200,
+        "two" : 10000
+      },
+      "title" : "Crystal Grotto 7",
+      "tuning" : {
+        "passRate" : 83,
+        "runs" : 200,
+        "target" : 84
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 45,
+          "kind" : "crystal",
+          "type" : "collect"
+        },
+        {
+          "count" : 30,
+          "kind" : "ember",
+          "type" : "collect"
+        },
+        {
+          "count" : 30,
+          "kind" : "mushroom",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-02-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 23,
+      "seed" : 1407993802596610,
+      "stars" : {
+        "three" : 18550,
+        "two" : 12950
+      },
+      "title" : "Crystal Grotto 8",
+      "tuning" : {
+        "passRate" : 82,
+        "runs" : 200,
+        "target" : 83
+      }
+    }
+  ],
+  "version" : 1
+}

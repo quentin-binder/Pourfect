@@ -1,0 +1,387 @@
+{
+  "episode" : {
+    "followsChapter" : 10,
+    "name" : "Dragon's Larder",
+    "number" : 10,
+    "subtitle" : "Rare ingredients from the hoard's own pantry"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "count" : 30,
+          "kind" : "ember",
+          "type" : "collect"
+        },
+        {
+          "count" : 25,
+          "kind" : "drop",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-10-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 26,
+      "seed" : 1667593633065270,
+      "stars" : {
+        "three" : 12200,
+        "two" : 9850
+      },
+      "title" : "Dragon's Larder 1",
+      "tuning" : {
+        "passRate" : 56,
+        "runs" : 200,
+        "target" : 58
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-10-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooFFooo",
+        "oooooooo",
+        "o2oooo2o",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "BBoooBBB",
+        "BBBBBBBB"
+      ],
+      "moves" : 38,
+      "seed" : 563480315980486,
+      "stars" : {
+        "three" : 32650,
+        "two" : 25750
+      },
+      "title" : "Dragon's Larder 2",
+      "tuning" : {
+        "passRate" : 58,
+        "runs" : 200,
+        "target" : 58
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 25,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-10-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "..oooo..",
+        "..o22o..",
+        "oooooooo",
+        "o2oooo2o",
+        "o2oooo2o",
+        "oooooooo",
+        "..oCCo..",
+        "..oooo.."
+      ],
+      "moves" : 26,
+      "seed" : 6754262282163502,
+      "stars" : {
+        "three" : 9650,
+        "two" : 7300
+      },
+      "title" : "Dragon's Larder 3",
+      "tuning" : {
+        "passRate" : 58,
+        "runs" : 200,
+        "target" : 57
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 20,
+          "kind" : "ember",
+          "type" : "collect"
+        },
+        {
+          "count" : 10500,
+          "type" : "score"
+        }
+      ],
+      "id" : "m3-10-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        ".oooooo."
+      ],
+      "moves" : 32,
+      "seed" : 4300336592936609,
+      "stars" : {
+        "three" : 16500,
+        "two" : 12350
+      },
+      "title" : "Dragon's Larder 4",
+      "tuning" : {
+        "passRate" : 57,
+        "runs" : 200,
+        "target" : 57
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-10-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oFooooFo",
+        "oooooooo",
+        "o222222o",
+        "oooooooo",
+        "oooooooo",
+        "ooo..ooo",
+        "oBBooBBo",
+        "oooooooo"
+      ],
+      "moves" : 34,
+      "seed" : 4368990488720080,
+      "stars" : {
+        "three" : 26950,
+        "two" : 19950
+      },
+      "title" : "Dragon's Larder 5",
+      "tuning" : {
+        "passRate" : 56,
+        "runs" : 200,
+        "target" : 56
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "frost"
+        },
+        {
+          "count" : 15,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-10-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember",
+        "drop"
+      ],
+      "layout" : [
+        "oooooooo",
+        "22222222",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "22222222",
+        "oooooooo"
+      ],
+      "moves" : 32,
+      "seed" : 6971112282485387,
+      "stars" : {
+        "three" : 15300,
+        "two" : 12150
+      },
+      "title" : "Dragon's Larder 6",
+      "tuning" : {
+        "passRate" : 55,
+        "runs" : 200,
+        "target" : 56
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 1,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-10-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooFooo",
+        "oooooooo",
+        "oBBooBBo",
+        "oooooooo",
+        "oooooooo",
+        "o111111o",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 33,
+      "seed" : 4688168498192906,
+      "stars" : {
+        "three" : 27600,
+        "two" : 21500
+      },
+      "title" : "Dragon's Larder 7",
+      "tuning" : {
+        "passRate" : 54,
+        "runs" : 200,
+        "target" : 55
+      }
+    },
+    {
+      "drops" : {
+        "maxOnBoard" : 2,
+        "total" : 3
+      },
+      "goals" : [
+        {
+          "count" : 3,
+          "type" : "drops"
+        },
+        {
+          "type" : "frost"
+        },
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 20,
+          "kind" : "ember",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-10-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oFooooFo",
+        "o2oooo2o",
+        "oooooooo",
+        "ooBCCBoo",
+        "ooBCCBoo",
+        "oooooooo",
+        "o222222o",
+        "oooooooo"
+      ],
+      "moves" : 38,
+      "seed" : 4285378338846381,
+      "stars" : {
+        "three" : 31750,
+        "two" : 23150
+      },
+      "title" : "Dragon's Larder 8",
+      "tuning" : {
+        "passRate" : 55,
+        "runs" : 200,
+        "target" : 55
+      }
+    }
+  ],
+  "version" : 1
+}

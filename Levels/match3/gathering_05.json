@@ -1,0 +1,336 @@
+{
+  "episode" : {
+    "followsChapter" : 5,
+    "name" : "Sealed Storeroom",
+    "number" : 5,
+    "subtitle" : "Rune-sealed crates break when you match beside them"
+  },
+  "format" : "pourfect-match3",
+  "levels" : [
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-05-1",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "ooooooo",
+        "AoAoAoA",
+        "AAAAAAA"
+      ],
+      "moves" : 19,
+      "seed" : 6522146391265031,
+      "stars" : {
+        "three" : 13750,
+        "two" : 10500
+      },
+      "title" : "Sealed Storeroom 1",
+      "tuning" : {
+        "passRate" : 75,
+        "runs" : 200,
+        "target" : 76
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 40,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-05-2",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "ooAAAAoo",
+        "ooAAAAoo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 18,
+      "seed" : 8000548054492235,
+      "stars" : {
+        "three" : 12350,
+        "two" : 9250
+      },
+      "title" : "Sealed Storeroom 2",
+      "tuning" : {
+        "passRate" : 75,
+        "runs" : 200,
+        "target" : 75
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        }
+      ],
+      "id" : "m3-05-3",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        ".oooooo.",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "BBooooBB",
+        "BBBBBBBB",
+        ".BBBBBB."
+      ],
+      "moves" : 34,
+      "seed" : 5480688954776986,
+      "stars" : {
+        "three" : 28850,
+        "two" : 22450
+      },
+      "title" : "Sealed Storeroom 3",
+      "tuning" : {
+        "passRate" : 75,
+        "runs" : 200,
+        "target" : 75
+      }
+    },
+    {
+      "goals" : [
+        {
+          "count" : 55,
+          "kind" : "feather",
+          "type" : "collect"
+        },
+        {
+          "count" : 45,
+          "kind" : "crystal",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-05-4",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 26,
+      "seed" : 5587330609497196,
+      "stars" : {
+        "three" : 25050,
+        "two" : 18100
+      },
+      "title" : "Sealed Storeroom 4",
+      "tuning" : {
+        "passRate" : 75,
+        "runs" : 200,
+        "target" : 74
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 50,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-05-5",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "AooooooA",
+        "AAooooAA",
+        "AAooooAA",
+        "AooooooA",
+        "oooooooo",
+        "oooooooo"
+      ],
+      "moves" : 26,
+      "seed" : 2080263231067404,
+      "stars" : {
+        "three" : 18950,
+        "two" : 15150
+      },
+      "title" : "Sealed Storeroom 5",
+      "tuning" : {
+        "passRate" : 72,
+        "runs" : 200,
+        "target" : 74
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 35,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-05-6",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "ooooooo",
+        "ooooooo",
+        "ooBBBoo",
+        "ooBCBoo",
+        "ooBBBoo",
+        "ooooooo",
+        "ooooooo"
+      ],
+      "moves" : 25,
+      "seed" : 8206414375111202,
+      "stars" : {
+        "three" : 14850,
+        "two" : 11900
+      },
+      "title" : "Sealed Storeroom 6",
+      "tuning" : {
+        "passRate" : 71,
+        "runs" : 200,
+        "target" : 74
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "type" : "frost"
+        }
+      ],
+      "id" : "m3-05-7",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "oooooooo",
+        "11111111",
+        "oooooooo",
+        "AAAAAAAA",
+        "BBBBBBBB"
+      ],
+      "moves" : 37,
+      "seed" : 1463491092588297,
+      "stars" : {
+        "three" : 30300,
+        "two" : 22550
+      },
+      "title" : "Sealed Storeroom 7",
+      "tuning" : {
+        "passRate" : 74,
+        "runs" : 200,
+        "target" : 73
+      }
+    },
+    {
+      "goals" : [
+        {
+          "type" : "crates"
+        },
+        {
+          "count" : 35,
+          "kind" : "feather",
+          "type" : "collect"
+        }
+      ],
+      "id" : "m3-05-8",
+      "kinds" : [
+        "mushroom",
+        "crystal",
+        "feather",
+        "moonflower",
+        "ember"
+      ],
+      "layout" : [
+        "..oooo..",
+        "..oooo..",
+        "ooBBBBoo",
+        "oooooooo",
+        "oooooooo",
+        "ooBBBBoo",
+        "..oooo..",
+        "..oooo.."
+      ],
+      "moves" : 26,
+      "seed" : 3066526196612094,
+      "stars" : {
+        "three" : 15800,
+        "two" : 11600
+      },
+      "title" : "Sealed Storeroom 8",
+      "tuning" : {
+        "passRate" : 74,
+        "runs" : 200,
+        "target" : 73
+      }
+    }
+  ],
+  "version" : 1
+}
