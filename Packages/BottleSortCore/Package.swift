@@ -9,6 +9,7 @@ let package = Package(
         .executable(name: "levelgen", targets: ["levelgen"]),
         .library(name: "Match3Core", targets: ["Match3Core"]),
         .executable(name: "m3gen", targets: ["m3gen"]),
+        .library(name: "SecretRecipeCore", targets: ["SecretRecipeCore"]),
     ],
     targets: [
         .target(name: "BottleSortCore"),
@@ -20,5 +21,8 @@ let package = Package(
         .executableTarget(name: "m3gen", dependencies: ["Match3Core", "BottleSortCore"],
                           swiftSettings: [.swiftLanguageMode(.v5)]),
         .testTarget(name: "Match3CoreTests", dependencies: ["Match3Core", "BottleSortCore"]),
+        // R10b Secret Recipe (code-breaking deduction): pure rules, candidates, daily generator, stats.
+        .target(name: "SecretRecipeCore", dependencies: ["BottleSortCore"]),
+        .testTarget(name: "SecretRecipeCoreTests", dependencies: ["SecretRecipeCore", "BottleSortCore"]),
     ]
 )
