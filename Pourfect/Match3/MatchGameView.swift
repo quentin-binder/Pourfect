@@ -91,10 +91,12 @@ struct MatchGameView: View {
         }
         .onChange(of: settings.value, initial: true) { _, value in model?.settings = value }
         .onChange(of: reduceMotion, initial: true) { _, value in model?.reduceMotion = value }
-        // The idle hint: after about 5 s without input, one valid swap glows (free).
-        .task(id: model.map { "\($0.idleTick)-\($0.busy)" }) {
-            guard let model, !model.busy, model.isPlaying, tip == nil else { return }
+        // The idle hint: after about 5 s without input, one valid swap glows (free). The timer
+        // restarts when a tip or story scene closes, and never lights the hint under one.
+        .task(id: model.map { "\($0.idleTick)-\($0.busy)-\(tip == nil)-\(story.scene == nil)" }) {
+            guard let model, !model.busy, model.isPlaying, tip == nil, story.scene == nil else { return }
             do { try await Task.sleep(for: .seconds(5)) } catch { return }
+            guard tip == nil, story.scene == nil else { return }
             model.showHint()
         }
         .task { if settings.value.soundEnabled { SoundEngine.shared.warmUp() } }

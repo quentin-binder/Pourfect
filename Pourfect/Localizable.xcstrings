@@ -49,6 +49,9 @@
     "%@, unlocked" : {
       "comment" : "VoiceOver: an unlocked Lab Style reward"
     },
+    "%@. %@" : {
+      "comment" : "Tooltip of a locked episode marker: its name, then when it opens"
+    },
     "%@: %@" : {
       "comment" : "VoiceOver: a story line, speaker then line"
     },
@@ -668,8 +671,14 @@
     "Bubbling flasks" : {
 
     },
+    "Bubbling Over: the moves left fire as specials" : {
+      "comment" : "VoiceOver: the match-3 finale starts"
+    },
     "But… what happens now?" : {
       "comment" : "Story, ending"
+    },
+    "Can't swap there" : {
+      "comment" : "VoiceOver: a match-3 swap with a frozen piece, crate, flask, hole or the edge"
     },
     "Careful now. The bog air makes some of the flasks bubble." : {
       "comment" : "Story, chapter 7 (Bubbling Bog)"
@@ -1195,6 +1204,9 @@
     "Gathered!" : {
       "comment" : "Match-3 win card title"
     },
+    "Gathered! Stars: %lld of 3. Score %lld" : {
+      "comment" : "VoiceOver: a match-3 level was won; stars and the final score"
+    },
     "Gathering %lld" : {
       "comment" : "Map plate of a locked ingredient-gathering episode"
     },
@@ -1445,6 +1457,9 @@
     "Moves %lld" : {
 
     },
+    "Moves left: %lld. %@" : {
+      "comment" : "VoiceOver: after a match-3 swap; moves left, then the goals"
+    },
     "Murky" : {
       "comment" : "Daily puzzle difficulty (Thursday)"
     },
@@ -1579,6 +1594,9 @@
     "Next month" : {
 
     },
+    "No match, the pieces slide back" : {
+      "comment" : "VoiceOver: a match-3 swap that makes no line of three"
+    },
     "No recipe chapters found in the app bundle" : {
 
     },
@@ -1618,6 +1636,12 @@
     "Opens Lab Style" : {
 
     },
+    "Opens when chapter 10's last recipe is brewed" : {
+      "comment" : "Map: when the last gathering episode opens"
+    },
+    "Opens with chapter %lld" : {
+      "comment" : "Map: when a locked gathering episode opens"
+    },
     "Order filled: flask %lld" : {
       "comment" : "VoiceOver: a customer's order flask now holds what was asked for; the argument is the flask number"
     },
@@ -1626,6 +1650,9 @@
     },
     "Out of moves" : {
       "comment" : "Match-3 card when the moves run out"
+    },
+    "Out of moves. Retrying is free, and the board starts the same way." : {
+      "comment" : "VoiceOver: a match-3 level was lost"
     },
     "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {
 
@@ -2176,6 +2203,9 @@
     },
     "This level can't be played" : {
 
+    },
+    "This one can't be moved" : {
+      "comment" : "VoiceOver: a frozen piece, crate or flask was picked"
     },
     "This ticket shows layers, bottom to top. Its flask must end with exactly that pattern." : {
 

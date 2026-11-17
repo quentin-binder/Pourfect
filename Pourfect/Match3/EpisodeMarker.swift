@@ -86,16 +86,20 @@ struct IngredientBasket: View {
 }
 
 /// An episode's small button on the chapter map: a basket on a round wooden token, with its stars
-/// or a lock below. Locked episodes do nothing; they never block the chapter path.
+/// or a lock below. A locked episode says when it opens (tooltip, and a small note when tapped);
+/// episodes never block the chapter path.
 struct EpisodeMarker: View {
     let entry: MapEpisode
     let scale: CGFloat
     let action: () -> Void
+    @State private var showsLockNote = false
 
     private var size: CGFloat { 40 * scale }
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            if entry.isOpen { action() } else { showsLockNote = true }
+        } label: {
             VStack(spacing: 2) {
                 token
                 plate
@@ -103,11 +107,39 @@ struct EpisodeMarker: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .allowsHitTesting(entry.isOpen)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityText)
         .accessibilityAddTraits(.isButton)
-        .help(Text("Ingredient gathering: \(entry.name)", comment: "Tooltip of an episode marker on the map"))
+        .help(tooltip)
+        .popover(isPresented: $showsLockNote) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Ingredient gathering: \(entry.name)", comment: "Tooltip of an episode marker on the map")
+                    .font(.headline)
+                if let opens = opensText {
+                    Label { opens } icon: { Image(systemName: "lock.fill") }
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    /// When a locked episode opens; nil when it is open.
+    private var opensText: Text? {
+        switch entry.state {
+        case .open: nil
+        case .locked(_, true):
+            Text("Opens when chapter 10's last recipe is brewed", comment: "Map: when the last gathering episode opens")
+        case .locked(let chapter, false):
+            Text("Opens with chapter \(chapter)", comment: "Map: when a locked gathering episode opens")
+        }
+    }
+
+    private var tooltip: Text {
+        let name = Text("Ingredient gathering: \(entry.name)", comment: "Tooltip of an episode marker on the map")
+        guard let opens = opensText else { return name }
+        return Text("\(name). \(opens)", comment: "Tooltip of a locked episode marker: its name, then when it opens")
     }
 
     private var ring: Color {

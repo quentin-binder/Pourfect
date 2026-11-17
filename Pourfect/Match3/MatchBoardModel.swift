@@ -154,6 +154,7 @@ final class MatchBoardModel {
             if game.board.contains(pos), game.board[pos].item != nil || game.board[pos].crate > 0 {
                 nudge(pos, toward: nil)
                 feedback(.refused)
+                announce(String(localized: "This one can't be moved", comment: "VoiceOver: a frozen piece, crate or flask was picked"))
             }
         }
     }
@@ -170,6 +171,7 @@ final class MatchBoardModel {
             // Frost, a crate, a flask, a hole or the edge: the piece leans over and comes back.
             if board[swap.from].item != nil { nudge(swap.from, toward: swap.to) }
             feedback(.refused)
+            announce(String(localized: "Can't swap there", comment: "VoiceOver: a match-3 swap with a frozen piece, crate, flask, hole or the edge"))
             return
         }
         guard game.isValidSwap(swap) else {
@@ -291,6 +293,7 @@ final class MatchBoardModel {
     private func bounce(_ swap: M3Swap) async throws {
         guard let a = tokenIndex(at: swap.from), let b = tokenIndex(at: swap.to) else { return }
         feedback(.refused)
+        announce(String(localized: "No match, the pieces slide back", comment: "VoiceOver: a match-3 swap that makes no line of three"))
         if reduceMotion {
             nudge(swap.from, toward: swap.to)
             try await pause(0.2)
@@ -506,6 +509,7 @@ final class MatchBoardModel {
         let set = Set(cells)
         for p in cells { addEffect(.glitter(p), duration: 0.8) }
         feedback(.flask)
+        hud.score += M3Rules.Points.flask * cells.count
         animate(.easeIn(duration: reduceMotion ? 0.25 : 0.4)) {
             for i in tokens.indices where set.contains(tokens[i].pos) && tokens[i].item.isFlask {
                 if !reduceMotion { tokens[i].dy = -0.8; tokens[i].scale = 1.3 }
@@ -520,6 +524,7 @@ final class MatchBoardModel {
     private func animateReshuffle(_ reshuffle: M3Reshuffle) async throws {
         banner = .shuffle
         feedback(.reshuffle)
+        announce(String(localized: "No swaps left: stirring the tray", comment: "Match-3: the board is reshuffled"))
         addEffect(.swirl, duration: 1.0)
         try await pause(0.35)
         let moves: [(Int, M3Pos)] = reshuffle.moves.compactMap { m in tokenIndex(at: m.from).map { ($0, m.to) } }
@@ -552,32 +557,42 @@ final class MatchBoardModel {
         sync()
         switch game.status {
         case .playing:
+            announce(spokenProgress)
             return
         case .lost:
             try await pause(0.3)
             feedback(.outOfMoves)
+            announce(String(localized: "Out of moves. Retrying is free, and the board starts the same way.",
+                            comment: "VoiceOver: a match-3 level was lost"))
             withAnimation(.spring(duration: 0.4)) { outcome = .lost }
         case .won:
+            // The finale is played in the core first and the win saved at once, so leaving the
+            // screen (or Retry) while the finale is still animating can't lose it.
             let movesLeft = game.movesLeft
+            let result: M3Finale? = movesLeft > 0 ? game.playFinale() : nil
+            let stars = game.stars, score = game.score
+            let newBest = isDemo ? false : (onWin?(stars, score, movesLeft) ?? false)
             try await pause(0.35)
-            try await finale()
-            let stars = game.stars
-            let newBest = isDemo ? false : (onWin?(stars, game.score, movesLeft) ?? false)
+            if let result { try await finale(result) }
             feedback(.won)
+            announce(String(localized: "Gathered! Stars: \(stars) of 3. Score \(score)",
+                            comment: "VoiceOver: a match-3 level was won; stars and the final score"))
             withAnimation(.spring(duration: 0.45)) {
-                outcome = .won(stars: stars, score: game.score, newBest: newBest, movesLeft: movesLeft)
+                outcome = .won(stars: stars, score: score, newBest: newBest, movesLeft: movesLeft)
             }
         }
     }
 
-    /// "Bubbling Over": every move left becomes a special that fires at once, for bonus points.
-    private func finale() async throws {
-        guard game.movesLeft > 0 else { return }
+    /// "Bubbling Over": every move left becomes a special that fires at once, for bonus points
+    /// (`result` is the core's finale, already played; this shows it).
+    private func finale(_ result: M3Finale) async throws {
+        guard !result.bursts.isEmpty else { return }
         finaleRunning = true
         defer { finaleRunning = false }
         withAnimation(.spring(duration: 0.4)) { banner = .finale }
+        announce(String(localized: "Bubbling Over: the moves left fire as specials",
+                        comment: "VoiceOver: the match-3 finale starts"))
         try await pause(0.9)
-        let result = game.playFinale()
         for burst in result.bursts {
             if let i = tokenIndex(at: burst.at), var piece = tokens[i].item.piece {
                 piece.special = burst.special
@@ -674,13 +689,26 @@ final class MatchBoardModel {
         }
     }
 
-    /// The board summary for VoiceOver.
-    var spokenSummary: String {
-        let goals = level.goals.map { goal -> String in
+    /// Read out after each swap has played out: moves left and the goals.
+    private var spokenProgress: String {
+        String(localized: "Moves left: \(hud.moves). \(spokenGoals)", comment: "VoiceOver: after a match-3 swap; moves left, then the goals")
+    }
+
+    private var spokenGoals: String {
+        level.goals.map { goal -> String in
             let p = progress(goal)
             return "\(Match3Goals.name(goal)) \(p.current)/\(p.target)"
         }
-        return String(localized: "\(width) by \(height) board, \(hud.moves) moves left, \(goals.formatted(.list(type: .and)))",
+        .formatted(.list(type: .and))
+    }
+
+    private func announce(_ text: String) {
+        AccessibilityNotification.Announcement(text).post()
+    }
+
+    /// The board summary for VoiceOver.
+    var spokenSummary: String {
+        String(localized: "\(width) by \(height) board, \(hud.moves) moves left, \(spokenGoals)",
                       comment: "VoiceOver: match-3 board summary")
     }
 
