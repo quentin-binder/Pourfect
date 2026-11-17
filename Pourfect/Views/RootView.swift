@@ -16,12 +16,18 @@ enum Route: Hashable {
     case rush
     /// An ingredient-gathering (match-3) level (R9).
     case match3(M3Level)
+    /// A gathering episode's level list (episode number).
+    case episode(Int)
+    /// The Daily Gathering screen, and its level of a UTC day.
+    case m3Daily
+    case m3DailyPlay(M3Level, DailyDate)
 }
 
 struct RootView: View {
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
     @Environment(DailyModel.self) private var daily
+    @Environment(M3DailyModel.self) private var m3daily
     @Environment(RushRecordModel.self) private var rushRecords
     @Environment(StoryPresenter.self) private var story
     @Environment(AppSettings.self) private var settings
@@ -44,6 +50,8 @@ struct RootView: View {
             ChapterMapView(onOpenChapter: { path.append(.pack($0)) },
                            onChallenges: { path.append(.challenges) },
                            onDaily: { path.append(.daily) },
+                           onEpisode: { path.append(.episode($0)) },
+                           onM3Daily: { path.append(.m3Daily) },
                            onLabStyle: { showsLabStyle = true })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
@@ -65,13 +73,22 @@ struct RootView: View {
                     case .random(let level, let options):
                         GameView(model: GameViewModel(randomLevel: level, options: options))
                     case .daily:
-                        DailyView { level, date in path.append(.dailyPlay(level, date)) }
+                        DailyView(onPlay: { level, date in path.append(.dailyPlay(level, date)) },
+                                  onGathering: { path.append(.m3Daily) })
                     case .dailyPlay(let level, let date):
                         GameView(model: GameViewModel(dailyLevel: level, date: date, daily: daily))
                     case .rush:
                         RushView(makeRun: makeRushRun)
                     case .match3(let level):
                         MatchGameView(level: level) { path.removeAll() }
+                    case .episode(let number):
+                        if let file = Match3Library.shared.episodes.first(where: { $0.episode.number == number }) {
+                            EpisodeView(file: file) { path.append(.match3($0)) }
+                        }
+                    case .m3Daily:
+                        M3DailyView(onPlay: { level, date in path.append(.m3DailyPlay(level, date)) })
+                    case .m3DailyPlay(let level, let date):
+                        MatchGameView(level: level, daily: date) { if !path.isEmpty { path.removeLast() } }
                     }
                 }
         }
@@ -115,7 +132,9 @@ struct RootView: View {
         // New rewards: announce each once (never the starters; nothing with `-LPUnlockAll`).
         .onChange(of: unlocked, initial: true) { _, now in announce(now) }
         // A new UTC day may have started while the app was in the background.
-        .onChange(of: scenePhase) { _, phase in if phase == .active { daily.refresh() } }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { daily.refresh(); m3daily.refresh() }
+        }
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
         .task { await openFromLaunchArguments() }
@@ -172,7 +191,8 @@ struct RootView: View {
         // `-LPShowStory N` plays chapter N's story scene (`-LPShowStory ending`: the ending) over
         // whatever else opens; `-LPStoryLine K` opens it on line K (1-based).
         if let raw = defaults.string(forKey: "LPShowStory") {
-            let scene = raw == "ending" ? StoryScene.ending : Int(raw).map(StoryScene.chapter)
+            // `-LPShowStory gathering.N`: gathering episode N's scene.
+            let scene = raw == "ending" ? StoryScene.ending : StoryScene(id: raw) ?? Int(raw).map(StoryScene.chapter)
             if let scene { story.show(scene, line: max(0, defaults.integer(forKey: "LPStoryLine") - 1)) }
         }
         #if os(macOS)
@@ -190,6 +210,19 @@ struct RootView: View {
         // `-LPOpenMatch3 ID` opens an ingredient-gathering level (`m3-03-2`, or `daily` for today's
         // daily match-3, `daily-YYYY-MM-DD` for another day's); `-LPM3Seed S` replaces its seed and
         // `-LPM3Demo K` (in `MatchGameView`) plays K bot moves.
+        // `-LPOpenEpisode N` opens gathering episode N's level list; `-LPOpenM3Daily 1` the Daily
+        // Gathering screen (`-LPPlayM3Daily 1` also starts today's level).
+        if defaults.integer(forKey: "LPOpenEpisode") > 0 {
+            path = [.episode(defaults.integer(forKey: "LPOpenEpisode"))]
+            return
+        }
+        if defaults.bool(forKey: "LPOpenM3Daily") || defaults.bool(forKey: "LPPlayM3Daily") {
+            path = [.m3Daily]
+            guard defaults.bool(forKey: "LPPlayM3Daily") else { return }
+            while m3daily.level == nil { try? await Task.sleep(for: .milliseconds(100)) }
+            if let level = m3daily.level { path.append(.m3DailyPlay(level, m3daily.today)) }
+            return
+        }
         if let id = defaults.string(forKey: "LPOpenMatch3") {
             var level: M3Level?
             if id.hasPrefix("daily") {

@@ -73,9 +73,13 @@ extension DailySpec {
 
 enum DailyText {
     /// "New brew in 3 h 12 m" (the next puzzle comes at UTC midnight).
-    static func countdown(seconds: TimeInterval) -> String {
+    static func countdown(seconds: TimeInterval, gathering: Bool = false) -> String {
         let minutes = max(1, Int((seconds / 60).rounded(.up)))
         let h = minutes / 60, m = minutes % 60
+        if gathering {
+            if h == 0 { return String(localized: "New gathering in \(m) m", comment: "Countdown to the next daily gathering, minutes") }
+            return String(localized: "New gathering in \(h) h \(m) m", comment: "Countdown to the next daily gathering, hours and minutes")
+        }
         if h == 0 { return String(localized: "New brew in \(m) m", comment: "Countdown to the next daily puzzle, minutes") }
         return String(localized: "New brew in \(h) h \(m) m", comment: "Countdown to the next daily puzzle, hours and minutes")
     }

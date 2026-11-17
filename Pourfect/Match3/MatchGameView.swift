@@ -8,16 +8,25 @@ struct MatchGameView: View {
     /// The level being played (Next moves on to the episode's next level).
     @State private var level: M3Level
     @State private var model: MatchBoardModel?
+    /// The open tip, if any (first time, or "?").
+    @State private var tip: [TutorialTopic]?
+    /// The UTC day of a Daily Gathering level (its first win counts for the streak); nil for episodes.
+    var daily: DailyDate?
     /// Back to the chapter map.
     var onMap: () -> Void
+    @Environment(Match3ProgressModel.self) private var m3progress
+    @Environment(M3DailyModel.self) private var m3daily
+    @Environment(TutorialModel.self) private var tutorials
+    @Environment(StoryPresenter.self) private var story
     @Environment(AppSettings.self) private var settings
     @Environment(\.effectiveReduceMotion) private var reduceMotion
     @Environment(\.colorRunesEnabled) private var runes
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
 
-    init(level: M3Level, onMap: @escaping () -> Void) {
+    init(level: M3Level, daily: DailyDate? = nil, onMap: @escaping () -> Void) {
         _level = State(initialValue: level)
+        self.daily = daily
         self.onMap = onMap
     }
 
@@ -33,6 +42,16 @@ struct MatchGameView: View {
                 }
                 .padding()
                 .overlay { card(model) }
+                .overlay {
+                    if let tip, story.scene == nil {
+                        TutorialOverlay(topics: tip) {
+                            tutorials.markSeen(tip)
+                            withAnimation(reduceMotion ? nil : .default) { self.tip = nil }
+                        }
+                        .id(tip)
+                        .transition(.opacity)
+                    }
+                }
             } else {
                 ContentUnavailableView("This level can't be played", systemImage: "exclamationmark.triangle",
                                        description: Text("Its board could not be set up."))
@@ -49,17 +68,32 @@ struct MatchGameView: View {
         #endif
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
+                Button { withAnimation(reduceMotion ? nil : .default) { tip = M3Tips.topics(for: level) } } label: {
+                    Label("How to play", systemImage: "questionmark.circle")
+                }
+                .keyboardShortcut("/", modifiers: .command)
+                .help(Text("How this level works", comment: "Tooltip of the match-3 help button"))
+                .accessibilityLabel(Text("How to play this level", comment: "VoiceOver: the match-3 help button"))
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button { model?.restart() } label: { Label("Retry", systemImage: "arrow.counterclockwise") }
                     .keyboardShortcut("r", modifiers: .command)
                     .help("Start this level over")
             }
         }
         .task(id: level.id) { load() }
+        // New things in this level: their tips, once the screen has settled (after a story scene).
+        .task(id: "\(level.id)-\(story.scene == nil)") {
+            let unseen = tutorials.unseen(M3Tips.topics(for: level))
+            guard tip == nil, !unseen.isEmpty, story.scene == nil else { return }
+            try? await Task.sleep(for: .milliseconds(450))
+            withAnimation(reduceMotion ? nil : .default) { tip = unseen }
+        }
         .onChange(of: settings.value, initial: true) { _, value in model?.settings = value }
         .onChange(of: reduceMotion, initial: true) { _, value in model?.reduceMotion = value }
         // The idle hint: after about 5 s without input, one valid swap glows (free).
         .task(id: model.map { "\($0.idleTick)-\($0.busy)" }) {
-            guard let model, !model.busy, model.isPlaying else { return }
+            guard let model, !model.busy, model.isPlaying, tip == nil else { return }
             do { try await Task.sleep(for: .seconds(5)) } catch { return }
             model.showHint()
         }
@@ -75,6 +109,13 @@ struct MatchGameView: View {
         let demo = false
         #endif
         let fresh = MatchBoardModel(level: level, isDemo: demo)
+        let played = level, date = daily
+        fresh?.onWin = { [m3progress, m3daily] stars, score, movesLeft in
+            if let date {
+                _ = m3daily.record(date: date, level: played, stars: stars, score: score, movesLeft: movesLeft)
+            }
+            return m3progress.recordWin(played.id, stars: stars, score: score)
+        }
         fresh?.settings = settings.value
         fresh?.reduceMotion = reduceMotion
         model = fresh
@@ -125,7 +166,7 @@ struct MatchGameView: View {
     @ViewBuilder
     private func card(_ model: MatchBoardModel) -> some View {
         switch model.outcome {
-        case .won(let stars, let score, let newBest):
+        case .won(let stars, let score, let newBest, _):
             resultCard {
                 Text("Gathered!", comment: "Match-3 win card title").font(.largeTitle.bold())
                 StarsView(count: stars, size: 32)
@@ -133,12 +174,26 @@ struct MatchGameView: View {
                 if newBest {
                     Label("New best score", systemImage: "rosette").foregroundStyle(M3Colors.gold)
                 }
+                if daily != nil {
+                    Label {
+                        Text("Daily Gathering streak \(m3daily.stats.currentStreak)", comment: "Match-3 win card of the daily level")
+                    } icon: {
+                        Image(systemName: "flame.fill").foregroundStyle(.orange)
+                    }
+                    .font(.headline)
+                }
                 HStack {
                     Button("Retry") { model.restart() }
                         .buttonStyle(.bordered)
-                    Button("Map") { onMap() }
+                    Button(daily == nil ? LocalizedStringKey("Map") : LocalizedStringKey("Back")) { onMap() }
                         .buttonStyle(.bordered)
-                    if let next = Match3Library.shared.next(after: level.id) {
+                    if let daily, let detail = m3daily.details[daily] {
+                        ShareLink(item: M3DailyText.share(date: daily, detail: detail)) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    if daily == nil, let next = Match3Library.shared.next(after: level.id) {
                         Button("Next Level") { level = next }
                             .buttonStyle(.borderedProminent)
                             .keyboardShortcut(.defaultAction)
@@ -160,7 +215,7 @@ struct MatchGameView: View {
                     }
                 }
                 HStack {
-                    Button("Map") { onMap() }
+                    Button(daily == nil ? LocalizedStringKey("Map") : LocalizedStringKey("Back")) { onMap() }
                         .buttonStyle(.bordered)
                     Button("Retry") { model.restart() }
                         .buttonStyle(.borderedProminent)

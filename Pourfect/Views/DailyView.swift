@@ -6,6 +6,8 @@ import SwiftUI
 /// midnight UTC for everyone).
 struct DailyView: View {
     let onPlay: (_ level: LevelDefinition, _ date: DailyDate) -> Void
+    /// Opens the Daily Gathering (R9), shown as a card under the stats.
+    var onGathering: (() -> Void)?
 
     @Environment(DailyModel.self) private var daily
     /// First day of the month on show; nil = today's month.
@@ -16,6 +18,7 @@ struct DailyView: View {
             VStack(spacing: 16) {
                 todayCard
                 statsGrid
+                if let onGathering { M3DailyHomeCard(action: onGathering) }
                 DailyCalendar(month: month, today: daily.today, stats: daily.stats,
                               canGoBack: month > earliestMonth, canGoForward: month < daily.today.firstOfMonth,
                               onMove: move(by:))
@@ -172,6 +175,8 @@ struct DailyCalendar: View {
     let canGoBack: Bool
     let canGoForward: Bool
     let onMove: (_ months: Int) -> Void
+    /// The legend of the gold days ("Perfect"; the Daily Gathering's are three-star days).
+    var perfectTitle: LocalizedStringKey = "Perfect"
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
 
@@ -214,7 +219,7 @@ struct DailyCalendar: View {
 
             HStack(spacing: 16) {
                 legend(Circle().fill(Color.orange.opacity(0.85)), "Solved")
-                legend(Circle().fill(PerfectBadge.gold), "Perfect")
+                legend(Circle().fill(PerfectBadge.gold), perfectTitle)
                 legend(Circle().strokeBorder(.white, lineWidth: 2), "Today")
             }
             .font(.caption)
@@ -333,13 +338,14 @@ struct DifficultyPips: View {
     }
 }
 
-/// "New brew in 3 h 12 m", updated every 30 seconds.
+/// "New brew in 3 h 12 m" ("New gathering in …" for the Daily Gathering), updated every 30 seconds.
 struct DailyCountdown: View {
+    var gathering = false
     @Environment(DailyModel.self) private var daily
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
-            Text(DailyText.countdown(seconds: daily.secondsUntilNextPuzzle(at: context.date)))
+            Text(DailyText.countdown(seconds: daily.secondsUntilNextPuzzle(at: context.date), gathering: gathering))
         }
     }
 }

@@ -1,4 +1,5 @@
 import BottleSortCore
+import Match3Core
 import Observation
 import SwiftUI
 
@@ -35,7 +36,8 @@ struct StoryLine: Hashable {
 }
 
 /// The story's lines: a short scene for each chapter's first opening and one ending (DECISIONS
-/// 236). Each scene fits its chapter's place and the mechanic it brings. When a scene plays is
+/// 236), and one for each ingredient-gathering episode (R9): what the two gather and for which
+/// place on the path. Each scene fits its chapter's place and the mechanic it brings. When a scene plays is
 /// decided in the core (`Story`).
 enum StoryScript {
     static func lines(_ scene: StoryScene) -> [StoryLine] {
@@ -109,6 +111,68 @@ enum StoryScript {
             ]
         case .chapter:
             return []
+        case .gathering(1):
+            return [
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "Look at all these glowing caps! Why are we picking mushrooms instead of sorting?", comment: "Story, gathering episode 1 (Mushroom Hollow)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "The Rune Vault is pitch dark. Hollow-caps glow for hours once they're gathered: our lanterns for tomorrow.", comment: "Story, gathering episode 1 (Mushroom Hollow)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Swap two neighbors to line up three of a kind, and the basket fills itself.", comment: "Story, gathering episode 1 (Mushroom Hollow)")),
+            ]
+        case .gathering(2):
+            return [
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "The marsh ahead is all mist. How will we see a thing?", comment: "Story, gathering episode 2 (Crystal Grotto)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "With grotto crystals. Hold one up and the fog thins around it.", comment: "Story, gathering episode 2 (Crystal Grotto)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Line up four or five and they leave a glowing special behind. Set it off and a whole row comes loose.", comment: "Story, gathering episode 2 (Crystal Grotto)")),
+            ]
+        case .gathering(3):
+            return [
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "The Glyph Library's oldest runes have faded. Moonflowers glow just bright enough to read them.", comment: "Story, gathering episode 3 (Moonlit Meadow)")),
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "Some of them are frozen in the night frost!", comment: "Story, gathering episode 3 (Moonlit Meadow)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Match right beside them and the ice cracks. Patience, and a little warmth.", comment: "Story, gathering episode 3 (Moonlit Meadow)")),
+            ]
+        case .gathering(4):
+            return [
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "Embers! Are these for the Glass Works?", comment: "Story, gathering episode 4 (Ember Hearth)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "My friend's furnace needs the hottest coals in the land. Mind the double frost here: it takes two thaws.", comment: "Story, gathering episode 4 (Ember Hearth)")),
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "Twice the cracking. I'll bring a bloom or two.", comment: "Story, gathering episode 4 (Ember Hearth)")),
+            ]
+        case .gathering(5):
+            return [
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Before the climb to Frost Peak we need warm supplies, and they're locked in my old storeroom.", comment: "Story, gathering episode 5 (Sealed Storeroom)")),
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "Every crate has a rune seal on it.", comment: "Story, gathering episode 5 (Sealed Storeroom)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Seals give way when you match beside them. The stronger ones need a few knocks.", comment: "Story, gathering episode 5 (Sealed Storeroom)")),
+            ]
+        case .gathering(6):
+            return [
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "Ice and crates, all over the ridge. What are we after up here?", comment: "Story, gathering episode 6 (Icefall Ridge)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Icefall crystals. The Bubbling Bog boils over without something cold to calm it.", comment: "Story, gathering episode 6 (Icefall Ridge)")),
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "Frost, seals and six ingredients. I'm ready!", comment: "Story, gathering episode 6 (Icefall Ridge)")),
+            ]
+        case .gathering(7):
+            return [
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Spring water from the bog, for the Twin Towers. Their chained flasks need it pure.", comment: "Story, gathering episode 7 (Bogwater Springs)")),
+                L(speaker: .apprentice, mood: .neutral, text: String(localized: "Those little potion flasks are floating in the tray.", comment: "Story, gathering episode 7 (Bogwater Springs)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Clear the cells below them and they sink. Bring each one down to the bottom and it's ours.", comment: "Story, gathering episode 7 (Bogwater Springs)")),
+            ]
+        case .gathering(8):
+            return [
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "So many feathers up here! The wind has carried them all over the towers.", comment: "Story, gathering episode 8 (Windy Rookery)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "My hall needs fresh quills. Every recipe on the cauldron cards is written with one.", comment: "Story, gathering episode 8 (Windy Rookery)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Gather them quickly, before the wind changes its mind.", comment: "Story, gathering episode 8 (Windy Rookery)")),
+            ]
+        case .gathering(9):
+            return [
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "For the dragon we'll need a sleeping draught: every herb in my garden, at once.", comment: "Story, gathering episode 9 (Alchemist's Garden)")),
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "Frost, crates, flasks… the whole garden is a puzzle!", comment: "Story, gathering episode 9 (Alchemist's Garden)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Then use all you've learned. A prism and a comet together make quite a harvest.", comment: "Story, gathering episode 9 (Alchemist's Garden)")),
+            ]
+        case .gathering(10):
+            return [
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "The dragon is purring, and it showed us its larder!", comment: "Story, gathering episode 10 (Dragon's Larder)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Rare ingredients, kept for a thousand years. Enough for the grandest brew of all.", comment: "Story, gathering episode 10 (Dragon's Larder)")),
+                L(speaker: .apprentice, mood: .neutral, text: String(localized: "Then let's gather every last one.", comment: "Story, gathering episode 10 (Dragon's Larder)")),
+            ]
+        case .gathering:
+            return []
         case .ending:
             return [
                 L(speaker: .apprentice, mood: .happy, text: String(localized: "Every flask sorted, every gate open… and listen, the dragon is purring!", comment: "Story, ending")),
@@ -127,6 +191,9 @@ enum StoryScript {
             return String(localized: "Chapter \(n) · \(name)", comment: "Story scene heading")
         case .ending:
             return String(localized: "Epilogue", comment: "Story scene heading for the ending")
+        case .gathering(let n):
+            let name = Match3Library.shared.episodes.first { $0.episode.number == n }?.episode.name ?? ""
+            return String(localized: "Gathering · \(name)", comment: "Story scene heading of an ingredient-gathering episode")
         }
     }
 
@@ -135,6 +202,8 @@ enum StoryScript {
         switch scene {
         case .chapter(let n): ChapterArt.vignette(n) ?? .bgWorkbenchLandscape
         case .ending: .chapter10
+        // Where the gathered ingredients are going: the next chapter (the larder is the hoard's own).
+        case .gathering(let n): ChapterArt.vignette(min(n + 1, 10)) ?? .bgWorkbenchLandscape
         }
     }
 }

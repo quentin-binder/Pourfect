@@ -83,13 +83,18 @@ struct ChapterMapView: View {
     let onOpenChapter: (_ packID: String) -> Void
     let onChallenges: () -> Void
     let onDaily: () -> Void
+    /// Opens ingredient-gathering episode N (R9).
+    let onEpisode: (_ number: Int) -> Void
+    let onM3Daily: () -> Void
     let onLabStyle: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
+    @Environment(Match3ProgressModel.self) private var m3progress
 
     var body: some View {
         let entries = MapChapter.entries(catalog: catalog, progress: progress)
+        let episodes = m3progress.entries(catalog: catalog, progress: progress)
         let current = entries.last(where: \.isOpen)
         GeometryReader { geo in
             let wide = geo.size.width >= 760
@@ -97,7 +102,7 @@ struct ChapterMapView: View {
                 let panelWidth = min(340, geo.size.width * 0.38)
                 let mapWidth = min(520, geo.size.width - panelWidth - 72)
                 HStack(spacing: 28) {
-                    map(entries, current: current, width: mapWidth)
+                    map(entries, episodes: episodes, current: current, width: mapWidth)
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(.white.opacity(0.15)))
                         .shadow(color: .black.opacity(0.5), radius: 18)
@@ -108,7 +113,7 @@ struct ChapterMapView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 // The bar is a safe-area inset of the scroll view, so chapter 1 can scroll above it.
-                map(entries, current: current, width: geo.size.width)
+                map(entries, episodes: episodes, current: current, width: geo.size.width)
                     .safeAreaInset(edge: .bottom) { compactBar(current: current) }
             }
         }
@@ -136,7 +141,7 @@ struct ChapterMapView: View {
 
     // MARK: Map
 
-    private func map(_ entries: [MapChapter], current: MapChapter?, width: CGFloat) -> some View {
+    private func map(_ entries: [MapChapter], episodes: [MapEpisode], current: MapChapter?, width: CGFloat) -> some View {
         let height = width / ChapterArt.mapAspect
         // Opens scrolled to the chapter the player is on.
         // (Nudged down a little so the marker's name plate is in view too.)
@@ -153,6 +158,16 @@ struct ChapterMapView: View {
                     .interpolation(.medium)
                     .frame(width: width, height: height)
                     .accessibilityHidden(true)
+                // Gathering episodes sit on the path between the chapters (drawn first, under them).
+                ForEach(episodes) { episode in
+                    if EpisodeArt.mapSpots.indices.contains(episode.number - 1) {
+                        let spot = EpisodeArt.mapSpots[episode.number - 1]
+                        EpisodeMarker(entry: episode, scale: min(1.15, max(0.8, width / 440))) {
+                            if episode.isOpen { onEpisode(episode.number) }
+                        }
+                        .position(x: spot.x * width, y: spot.y * height)
+                    }
+                }
                 ForEach(entries) { entry in
                     if ChapterArt.mapSpots.indices.contains(entry.number - 1) {
                         let spot = ChapterArt.mapSpots[entry.number - 1]
@@ -195,6 +210,7 @@ struct ChapterMapView: View {
                 Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(.orange)
             }
             DailyHomeCard(action: onDaily)
+            M3DailyHomeCard(action: onM3Daily)
             if let current, let pack = current.pack {
                 continueCard(current, pack: pack)
             }
@@ -267,6 +283,7 @@ struct ChapterMapView: View {
     private func compactBar(current: MapChapter?) -> some View {
         VStack(spacing: 8) {
             DailyBarRow(action: onDaily)
+            M3DailyBarRow(action: onM3Daily)
             compactButtons(current: current)
         }
         .controlSize(.large)

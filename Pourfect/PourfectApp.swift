@@ -10,6 +10,8 @@ struct PourfectApp: App {
     @State private var daily = DailyModel.makeDefault()
     @State private var rushRecords = RushRecordModel()
     @State private var story = StoryPresenter()
+    @State private var m3progress = Match3ProgressModel()
+    @State private var m3daily = M3DailyModel.makeDefault()
 
     var body: some Scene {
         WindowGroup("Pourfect") {
@@ -20,6 +22,8 @@ struct PourfectApp: App {
                 .environment(daily)
                 .environment(rushRecords)
                 .environment(story)
+                .environment(m3progress)
+                .environment(m3daily)
                 .settingsEnvironment(settings)
         }
         #if os(macOS)

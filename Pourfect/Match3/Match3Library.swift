@@ -45,31 +45,3 @@ enum Match3Library {
         return Library(episodes: files.sorted { $0.episode.number < $1.episode.number }, loadErrors: errors)
     }
 }
-
-/// Best results per match-3 level id (`m3-…`), kept apart from the sorting chapters' stars so no
-/// chapter gate ever counts them (DECISIONS 262).
-enum Match3Records {
-    private static let starsKey = "m3.bestStars.v1"
-    private static let scoreKey = "m3.bestScore.v1"
-
-    static func bestStars(_ id: String, defaults: UserDefaults = .standard) -> Int {
-        (defaults.dictionary(forKey: starsKey) as? [String: Int])?[id] ?? 0
-    }
-
-    static func bestScore(_ id: String, defaults: UserDefaults = .standard) -> Int {
-        (defaults.dictionary(forKey: scoreKey) as? [String: Int])?[id] ?? 0
-    }
-
-    /// Records a win; returns true when the score is a new best for the level.
-    @discardableResult
-    static func recordWin(_ id: String, stars: Int, score: Int, defaults: UserDefaults = .standard) -> Bool {
-        var allStars = (defaults.dictionary(forKey: starsKey) as? [String: Int]) ?? [:]
-        var allScores = (defaults.dictionary(forKey: scoreKey) as? [String: Int]) ?? [:]
-        let previous = allScores[id] ?? 0
-        allStars[id] = max(allStars[id] ?? 0, stars)
-        allScores[id] = max(previous, score)
-        defaults.set(allStars, forKey: starsKey)
-        defaults.set(allScores, forKey: scoreKey)
-        return score > previous
-    }
-}

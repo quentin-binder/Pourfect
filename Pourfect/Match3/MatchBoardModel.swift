@@ -42,7 +42,8 @@ final class MatchBoardModel {
     }
 
     enum Outcome: Equatable {
-        case won(stars: Int, score: Int, newBest: Bool)
+        /// `movesLeft`: moves left at the win, before the finale turned them into specials.
+        case won(stars: Int, score: Int, newBest: Bool, movesLeft: Int)
         case lost
     }
 
@@ -72,6 +73,9 @@ final class MatchBoardModel {
 
     /// Set by the view from the environment.
     var reduceMotion = false
+    /// Saves a win (stars, score, moves left at the win); returns true for a new best score.
+    /// Not called for demo games.
+    @ObservationIgnored var onWin: ((_ stars: Int, _ score: Int, _ movesLeft: Int) -> Bool)?
     var settings = GameSettings()
 
     @ObservationIgnored private var nextID = 0
@@ -554,13 +558,14 @@ final class MatchBoardModel {
             feedback(.outOfMoves)
             withAnimation(.spring(duration: 0.4)) { outcome = .lost }
         case .won:
+            let movesLeft = game.movesLeft
             try await pause(0.35)
             try await finale()
             let stars = game.stars
-            let newBest = isDemo ? false : Match3Records.recordWin(level.id, stars: stars, score: game.score)
+            let newBest = isDemo ? false : (onWin?(stars, game.score, movesLeft) ?? false)
             feedback(.won)
             withAnimation(.spring(duration: 0.45)) {
-                outcome = .won(stars: stars, score: game.score, newBest: newBest)
+                outcome = .won(stars: stars, score: game.score, newBest: newBest, movesLeft: movesLeft)
             }
         }
     }

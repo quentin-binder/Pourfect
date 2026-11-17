@@ -8,6 +8,8 @@ enum TutorialTopic: String, CaseIterable, Hashable {
     case switches = "switch"
     /// R7 customer orders and layered recipes (level goals, not flask mechanics).
     case order, layered
+    /// R9 ingredient gathering (match-3): never a `Mechanic`, so recipes never ask for them.
+    case m3Swap = "m3.swap", m3Specials = "m3.specials", m3Frost = "m3.frost", m3Crates = "m3.crates", m3Flasks = "m3.flasks"
 
     init?(_ mechanic: Mechanic) { self.init(rawValue: mechanic.rawValue) }
 
