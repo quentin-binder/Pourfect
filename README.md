@@ -154,10 +154,13 @@ Packages/BottleSortCore/     Swift package — pure game logic, no UI imports
   Sources/Match3Core/        Ingredient gathering (match-3) rules, bots, daily (R9); Sources/m3gen its CLI
   Sources/DistilleryCore/    Distillery (R10): pipe flow, solver, generator, level format, daily; Sources/distillgen its CLI
   Sources/SecretRecipeCore/  Secret Recipe (R10b): recipe codes, feedback, game, candidates, daily, share, stats
+  Sources/HiddenCore/        Hidden-object rooms (R11): scene files, placement + blending, rounds with decoys, hit tests
 scripts/                     test-fast.sh (optimized core tests), testflight.sh + ExportOptions.plist (release upload),
                              appstore-caption.swift / appstore-flatten.swift (App Store screenshots)
 docs/APP_STORE.md            Store category, age rating, privacy answers, size report, App Store Connect steps
 Levels/chapter_0N.json       Main-path chapters 1–3; challenge_*.json: optional challenges (synchronized folder: every JSON file is bundled)
+HiddenScenes/<room>/         Hidden-object rooms: scene.json, backgrounds, object PNGs (folder reference, bundled as is)
+poc/hidden-object/           The rooms' art pipeline (Python scripts, libraries, spot lists; images not committed)
 ```
 
 No third-party dependencies, only Apple frameworks.
@@ -442,6 +445,7 @@ cd Packages/BottleSortCore && swift test # debug build, ~80 s — run once befor
 LP_SLOW_TESTS=1 scripts/test-fast.sh     # also the slow performance tests (60 days of Daily generation)
 scripts/test-fast.sh --filter Match3CoreTests   # only the match-3 suite (~2 s)
 scripts/test-fast.sh --filter DistilleryCoreTests   # only the distillery suite (~3 s)
+scripts/test-fast.sh --filter HiddenCoreTests   # only the hidden-object suite (< 1 s)
 ```
 
 The distillery suite (`Tests/DistilleryCoreTests`) covers the flow of every piece, murk, leaks, valves and coils,
@@ -777,6 +781,47 @@ counts toward the chapter map, the Lab Style rewards or any gate.
   combinatorics for every guess against 70 secrets, all 45 million pairs against a slot-by-slot reference in the
   optimized run, game end and reveal, candidates against a brute-force filter, daily goldens and spread, practice
   seeds, share text, saving rules, stats and streaks).
+
+## Hidden-object rooms (R11, core and assets)
+
+Search scenes ("Wimmelbild"), the fourth pillar: three rooms — **Alchemist's Attic**, **Market Stall** and
+**Dragon's Hoard** — each played as **ten seeded rounds**. A round hides objects from the room's 40-object library on
+its hand-placed spots; the player finds the ones on the find list by tapping them. Calm: no timer; stars from hints
+and wrong taps. Rooms open with sorting chapters 2 / 5 / 8 and never block anything. The app screens (wing on the
+map, viewer with pinch / scroll zoom, find list, lantern hint, sounds, VoiceOver) are the next step; this part ships
+the art and the rules. DECISIONS 294–302.
+
+- **Assets**: `HiddenScenes/<attic|market|hoard>/` (bundled as a folder reference, 10.5 MB): `scene.json`
+  (`pourfect-hidden-v1`: objects with id / English name / size class / PNG size; spots with anchor, maxSize, size
+  classes, surface and an occlusion polygon for containers), `background.jpg` (2752×1536), `background_1376.jpg` and
+  `objects/<id>.png` (≤ 220 px, alpha, untinted). They are the art pipeline's export, unchanged; the pipeline (merged
+  from the `wimmel-poc` branch, images not committed) lives in `poc/hidden-object/` (see its README).
+- **Placement and blending** follow the pipeline's `layout.py` / `hocommon.py` exactly: size from the spot and the
+  object's class, thin objects longer, bottom centre on the spot, spacing, flips; each object tinted toward the mean
+  colour around it (`HiddenTint`: 3×3 matrix + bias, e.g. for `CIColorMatrix`), a soft contact shadow (α 0.38, blur
+  σ 5, offset +5, +4) and, in containers, the background drawn again over its foot (`HiddenBlend.occluderMask`).
+- **Rounds**: 8 → 15 objects to find, 8 → 20 decoys (non-findable library objects drawn exactly the same way, never
+  covering a target; tapping one is a wrong tap), objects shrinking, harder spots later, gold objects on the hoard's
+  find list only from round 6. Same picture for the same round and variant; a replay after finishing gets a new one.
+- **Stars**: 3 = no hint and ≤ 3 wrong taps, 2 = ≤ 2 hints and ≤ 10 wrong taps, else 1. The lantern hint circles
+  one remaining object and recharges for 30 s; VoiceOver's "reveal next" finds the next object and counts as a hint.
+
+**Core** (`HiddenCore`, no dependencies; linked into the app):
+
+- `HiddenScene(data:)` decodes and validates a `scene.json`; `HiddenSceneID` (`attic`, `market`, `hoard`).
+- `HiddenGenerator.round(scene, round:variant:)` → `HiddenRoundLayout` (`targets` = find list, `decoys`,
+  `drawOrder` back to front); `HiddenCurve.spec(_:round:)`, `HiddenCurve.goldish(_:)`; `HiddenGenerator.seed`.
+- `HiddenPlacement` (size, flip, top-left, tint strength, `shadowRect`, `tintSampleRect`, `occlusion`),
+  `HiddenBlend` (shadow constants, `tint(mean:strength:)`, `occluderMask`), `HiddenRaster.mean` for the tint colour.
+- `HiddenAlphaMask` (from a PNG's alpha), `HiddenHitTester.hit(at:slop:found:)` → target / decoy / nothing,
+  `HiddenTouch.slop(pointsPerBackgroundPixel:)`.
+- `HiddenRoundState` (tap, `useHint(now:layout:)` → `HiddenHintGlow`, `revealNext()`, stars), `HiddenStars`,
+  `HiddenProgression` (room unlocks, rounds in order, story ids `hidden.<room>`), `HiddenProgress` (best stars and
+  finished plays per round, Codable).
+- `PythonRandom` (CPython's Mersenne Twister, bit for bit) and `HiddenPoC.layout` (layout.py replayed) for the goldens.
+- Tests: `scripts/test-fast.sh --filter HiddenCoreTests` (22 tests, < 1 s). Goldens:
+  `poc/hidden-object/tools/swift_goldens.py HiddenScenes Packages/BottleSortCore/Tests/HiddenCoreTests/Goldens/poc_layouts.json`
+  (Pillow + numpy, Python 3.9+).
 
 ## Generate levels
 

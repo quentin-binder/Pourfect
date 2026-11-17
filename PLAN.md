@@ -268,5 +268,17 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] Merged into main: daily in the Today hub with the other three dailies, practice in Challenges (DECISIONS 293)
 - Not covered: notes aren't saved; no hard mode (guesses needn't fit earlier clues)
 
+## R11 — Hidden-object rooms (search scenes, fourth pillar)
+- [x] Art: v1 set from the `wimmel-poc` art test (3 rooms × 40 objects, ~60 spots each), approved; branch merged so the pipeline and specs stay in `poc/hidden-object/` (images not committed) (DECISIONS 294)
+- [x] Assets in the app: `HiddenScenes/<room>/` as a bundled folder reference, 10.5 MB (DECISIONS 295)
+- [x] Core: `HiddenCore` target — scene files with validation, placement and blending rules ported exactly from `layout.py` / `hocommon.py` with Python goldens (DECISIONS 296)
+- [x] Ten rounds per room (more and smaller objects, harder spots, gold in the hoard from round 6), seeded generator with non-findable decoys that never cover a target (DECISIONS 297–298)
+- [x] Hit testing on downsampled alpha with a zoom-scaled touch radius; round state, stars (no timer), lantern hint with 30 s recharge, "reveal next"; room unlocks with chapters 2 / 5 / 8, rounds in order, progress (DECISIONS 299–301)
+- [x] Tests: 22 in `HiddenCoreTests` (DECISIONS 302)
+- [ ] App: the rooms' wing on the chapter map (locked / open / stars), room screen with the ten rounds, story scene `hidden.<room>` on first opening (`StoryScene` case + lines)
+- [ ] App: the viewer — scene fills the screen, pinch-zoom + pan (iPhone), scroll / trackpad zoom + drag (Mac), double-tap zoom; objects drawn with tint, shadow and occluder; hit testing with the zoom-scaled radius
+- [ ] App: find list (catalog names + thumbnails, tick-off flourish, count), found objects fading out with a sparkle, wrong-tap shake / puff, lantern glow and recharge, round-complete card with stars; sounds, haptics, VoiceOver (readable list, "reveal next"), Reduce Motion
+- Not planned yet: a daily room
+
 ## Parked ideas (user, not scheduled)
 - [ ] **Different-sized flasks** as a mechanic (mixed capacities in one recipe). Open decisions when it's picked up: win rule (workspace flasks that must end empty / colors sized to a flask / loose sorting) and which chapter introduces it.
