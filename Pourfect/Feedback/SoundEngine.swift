@@ -68,6 +68,12 @@ final class SoundEngine {
         case m3Collect
         /// A special is made: a quick shimmering three-note sparkle.
         case m3Spark
+        /// Hidden-object rooms (R11): an object is found, a bright two-note glass chime.
+        case hiddenFind
+        /// A tap on nothing or on an object not on the list: a soft dusty puff.
+        case hiddenPuff
+        /// The lantern hint lights: a slow airy shimmer.
+        case hiddenShimmer
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -373,6 +379,7 @@ nonisolated enum SoundSynthesis {
             return sum
         }
         makeMatch3(into: &out)
+        makeHidden(into: &out)
         for amount in 1...4 {
             var variants: [[Float]] = []
             for variant in 0..<3 {
@@ -449,6 +456,40 @@ nonisolated enum SoundSynthesis {
                 sum += sin(2 * .pi * f * local) * exp(-local * 9) * min(1, local * 500) * (1 + 0.3 * sin(2 * .pi * 11 * local))
             }
             return sum
+        }
+    }
+
+    /// Hidden-object room (R11) sounds, from their own noise generator so every older sound stays the same.
+    private static func makeHidden(into out: inout Output) {
+        var rng = NoiseGenerator(seed: 0x41D_0011)
+        out.sounds[.hiddenFind] = render(0.9, peak: 0.15) { t in
+            var sum = 0.0
+            for (k, f) in [1567.98, 2093.0].enumerated() {
+                let start = Double(k) * 0.07
+                guard t >= start else { continue }
+                let local = t - start
+                sum += Self.clink(t: local, f0: f) * 0.6 + sin(2 * .pi * f * local) * exp(-local * 4.5) * min(1, local * 600) * 0.5
+            }
+            return sum
+        }
+        let dust = lowpassedNoise(count: Int(0.3 * sampleRate), cutoff: 900, rng: &rng)
+        out.sounds[.hiddenPuff] = render(0.3, peak: 0.09) { t in
+            let i = min(Int(t * sampleRate), dust.count - 1)
+            let envelope = min(1, t / 0.015) * exp(-t * 13)
+            return (dust[i] + sin(2 * .pi * 180 * t) * 0.25) * envelope
+        }
+        let air = lowpassedNoise(count: Int(1.2 * sampleRate), cutoff: 3200, rng: &rng)
+        out.sounds[.hiddenShimmer] = render(1.2, peak: 0.1) { t in
+            let i = min(Int(t * sampleRate), air.count - 1)
+            let swell = pow(sin(.pi * min(1, t / 1.2)), 2)
+            var bells = 0.0
+            for (k, f) in [2637.0, 3135.96, 3520.0, 3951.07].enumerated() {
+                let start = 0.08 + Double(k) * 0.16
+                guard t >= start else { continue }
+                let local = t - start
+                bells += sin(2 * .pi * f * local) * exp(-local * 6) * min(1, local * 300)
+            }
+            return air[i] * 0.35 * swell + bells * 0.45
         }
     }
 
