@@ -1,4 +1,4 @@
-/// What one swap did, in the exact order the app animates it (DECISIONS 252–).
+/// What one swap did, in the exact order the app animates it (DECISIONS 258).
 
 public enum M3Status: String, Sendable, Hashable, Codable {
     case playing, won, lost

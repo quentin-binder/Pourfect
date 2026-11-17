@@ -153,6 +153,19 @@ public struct M3Level: Codable, Sendable, Hashable, Identifiable {
     public var hasCrates: Bool { layout.contains { $0.contains("A") || $0.contains("B") || $0.contains("C") } }
     public var hasDrops: Bool { (drops?.total ?? 0) > 0 }
 
+    /// FNV-1a (64-bit, hex) of the level's sorted-key JSON: pins generator output in golden tests.
+    public var fingerprint: String {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let data = (try? encoder.encode(self)) ?? Data()
+        var hash: UInt64 = 0xCBF2_9CE4_8422_2325
+        for byte in data {
+            hash ^= UInt64(byte)
+            hash &*= 0x0000_0100_0000_01B3
+        }
+        return String(hash, radix: 16)
+    }
+
     /// The mechanics this level uses (for the app's tips and the tools).
     public var features: [String] {
         var f: [String] = []
@@ -180,7 +193,7 @@ public struct M3Episode: Codable, Sendable, Hashable {
     }
 }
 
-/// One episode file `Levels/match3/episode_NN.json`.
+/// One episode file `Levels/match3/gathering_NN.json`.
 public struct M3EpisodeFile: Codable, Sendable, Hashable {
     public static let formatName = "pourfect-match3"
     public static let currentVersion = 1
