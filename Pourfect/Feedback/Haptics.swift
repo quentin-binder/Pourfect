@@ -111,6 +111,27 @@ enum Haptics {
         #endif
     }
 
+    /// Ingredient gathering (R9): a light tap per match, firmer with each cascade step.
+    static func matchPop(cascade: Int) {
+        #if os(iOS)
+        light.impactOccurred(intensity: min(1, 0.45 + 0.12 * Double(max(0, cascade - 1))))
+        #endif
+    }
+
+    /// A special fires (R9): one firm knock.
+    static func specialFired() {
+        #if os(iOS)
+        medium.impactOccurred(intensity: 0.75)
+        #endif
+    }
+
+    /// Frost cracks or a crate is hit (R9): a soft tap.
+    static func obstacleHit() {
+        #if os(iOS)
+        soft.impactOccurred(intensity: 0.55)
+        #endif
+    }
+
     /// Light impact: the tap did nothing.
     static func illegal() {
         #if os(iOS)

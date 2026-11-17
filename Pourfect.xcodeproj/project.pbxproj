@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		000000000000000000000302 /* BottleSortCore in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000301 /* BottleSortCore */; };
+		000000000000000000000304 /* Match3Core in Frameworks */ = {isa = PBXBuildFile; productRef = 000000000000000000000303 /* Match3Core */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +46,7 @@
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				000000000000000000000302 /* BottleSortCore in Frameworks */,
+				000000000000000000000304 /* Match3Core in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 			name = Pourfect;
 			packageProductDependencies = (
 				000000000000000000000301 /* BottleSortCore */,
+				000000000000000000000303 /* Match3Core */,
 			);
 			productName = Pourfect;
 			productReference = 000000000000000000000120 /* Pourfect.app */;
@@ -397,6 +400,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 000000000000000000000300 /* XCLocalSwiftPackageReference "Packages/BottleSortCore" */;
 			productName = BottleSortCore;
+		};
+		000000000000000000000303 /* Match3Core */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 000000000000000000000300 /* XCLocalSwiftPackageReference "Packages/BottleSortCore" */;
+			productName = Match3Core;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

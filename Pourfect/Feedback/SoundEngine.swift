@@ -56,6 +56,18 @@ final class SoundEngine {
         case goldSeal
         /// A customer's order is filled (R7): a small shop bell, two quick strikes.
         case orderBell
+        /// Ingredient gathering (R9): two pieces slide past each other (a soft wooden swish).
+        case m3Swap
+        /// A special fires: an airy whoosh sweeping up.
+        case m3Whoosh
+        /// A frost layer cracks: sharp ice ticks and a cold tink.
+        case m3Crack
+        /// A sealed crate is hit or breaks: a hollow wooden knock with splinters.
+        case m3Crate
+        /// A potion flask reaches the bottom: a glug and two bright bell notes.
+        case m3Collect
+        /// A special is made: a quick shimmering three-note sparkle.
+        case m3Spark
     }
 
     /// Synthesis rate; the mixer converts to the hardware rate.
@@ -65,6 +77,8 @@ final class SoundEngine {
     /// Gurgle variants per poured amount (1…4 layers), alternated so repeats don't sound identical.
     private var gurgles: [[AVAudioPCMBuffer]] = []
     private var gurgleTurn = 0
+    /// Match-3 pops (R9), one per cascade step, rising in pitch.
+    private var pops: [AVAudioPCMBuffer] = []
 
     private var engine: AVAudioEngine?
     private var players: [AVAudioPlayerNode] = []
@@ -105,6 +119,13 @@ final class SoundEngine {
         let variants = gurgles[min(max(amount, 1), gurgles.count) - 1]
         gurgleTurn += 1
         schedule(variants[gurgleTurn % variants.count], after: delay, volume: 1)
+    }
+
+    /// The pop of a match (R9): `step` 0 for the swap's own wave, higher for each cascade (it
+    /// climbs a pentatonic scale and stays on the top note).
+    func playPop(step: Int, after delay: TimeInterval = 0, volume: Float = 1) {
+        guard !pops.isEmpty else { return }
+        schedule(pops[min(max(step, 0), pops.count - 1)], after: delay, volume: volume)
     }
 
     /// Length of the gurgle for `amount` layers: 0.35 s (1 layer) to 0.5 s (4+), around the
@@ -239,6 +260,7 @@ final class SoundEngine {
     private func install(_ output: SoundSynthesis.Output) {
         buffers = output.sounds.compactMapValues { buffer(from: $0) }
         gurgles = output.gurgles.map { $0.compactMap { buffer(from: $0) } }.filter { !$0.isEmpty }
+        pops = output.pops.compactMap { buffer(from: $0) }
     }
 
     /// Copies samples into a mono float buffer.
@@ -258,6 +280,8 @@ nonisolated enum SoundSynthesis {
         var sounds: [SoundEngine.Sound: [Float]] = [:]
         /// Variants per poured amount (1…4 layers).
         var gurgles: [[[Float]]] = []
+        /// Match-3 pops by cascade step (R9).
+        var pops: [[Float]] = []
     }
 
     static let sampleRate = 44_100.0
@@ -348,6 +372,7 @@ nonisolated enum SoundSynthesis {
             }
             return sum
         }
+        makeMatch3(into: &out)
         for amount in 1...4 {
             var variants: [[Float]] = []
             for variant in 0..<3 {
@@ -359,6 +384,72 @@ nonisolated enum SoundSynthesis {
             out.gurgles.append(variants)
         }
         return out
+    }
+
+    /// Ingredient gathering (R9) sounds. Their noise comes from their own generator, so every older
+    /// sound stays exactly as it was.
+    private static func makeMatch3(into out: inout Output) {
+        var rng = NoiseGenerator(seed: 0x3A7C_0009)
+        // Pops: a round bubble "plip" gliding up, on a pentatonic scale from A4.
+        for ratio in [1.0, 9.0 / 8, 5.0 / 4, 3.0 / 2, 5.0 / 3, 2.0, 9.0 / 4] {
+            let f0 = 440 * ratio
+            out.pops.append(render(0.24, peak: 0.17) { t in
+                let phase = 2 * .pi * (f0 * t + f0 * 0.6 * (1 - exp(-t * 40)) / 40)
+                let body = sin(phase) * exp(-t * 26)
+                let sparkle = sin(2 * .pi * f0 * 3 * t) * exp(-t * 45) * 0.25
+                return (body + sparkle) * min(1, t / 0.003)
+            })
+        }
+        let swish = lowpassedNoise(count: Int(0.16 * sampleRate), cutoff: 1400, rng: &rng)
+        out.sounds[.m3Swap] = render(0.16, peak: 0.07) { t in
+            let i = min(Int(t * sampleRate), swish.count - 1)
+            return swish[i] * sin(.pi * t / 0.16)
+        }
+        let air = lowpassedNoise(count: Int(0.42 * sampleRate), cutoff: 2600, rng: &rng)
+        out.sounds[.m3Whoosh] = render(0.42, peak: 0.13) { t in
+            let i = min(Int(t * sampleRate), air.count - 1)
+            let envelope = pow(sin(.pi * min(1, t / 0.42)), 2)
+            let sweep = sin(2 * .pi * (280 * t + 900 * t * t)) * 0.18
+            return (air[i] + sweep) * envelope
+        }
+        let ticks = lowpassedNoise(count: Int(0.3 * sampleRate), cutoff: 6000, rng: &rng)
+        let tickTimes = (0..<7).map { _ in rng.unit() * 0.09 }
+        out.sounds[.m3Crack] = render(0.3, peak: 0.12) { t in
+            var sum = 0.0
+            let i = min(Int(t * sampleRate), ticks.count - 1)
+            for start in tickTimes where t >= start && t < start + 0.006 { sum += ticks[i] * 1.4 }
+            sum += Self.clink(t: max(0, t - 0.02), f0: 2950) * (t > 0.02 ? 0.35 : 0)
+            return sum
+        }
+        let splinters = lowpassedNoise(count: Int(0.36 * sampleRate), cutoff: 1800, rng: &rng)
+        out.sounds[.m3Crate] = render(0.36, peak: 0.16) { t in
+            let i = min(Int(t * sampleRate), splinters.count - 1)
+            let knock = (sin(2 * .pi * 120 * t) + 0.5 * sin(2 * .pi * 287 * t)) * exp(-t * 22) * min(1, t / 0.002)
+            let crunch = splinters[i] * exp(-t * 9) * 0.6 * (0.6 + 0.4 * sin(2 * .pi * 31 * t))
+            return knock + crunch
+        }
+        out.sounds[.m3Collect] = render(0.8, peak: 0.14) { t in
+            let glug = t < 0.12 ? sin(2 * .pi * (300 * t + 1600 * t * t)) * exp(-t * 18) * 0.6 : 0
+            var bells = 0.0
+            for (k, f) in [1318.5, 1975.5].enumerated() {
+                let start = 0.08 + Double(k) * 0.1
+                guard t >= start else { continue }
+                let local = t - start
+                bells += (sin(2 * .pi * f * local) + 0.3 * sin(2 * .pi * f * 2.76 * local) * exp(-local * 10))
+                    * exp(-local * 5) * min(1, local * 400)
+            }
+            return glug + bells * 0.7
+        }
+        out.sounds[.m3Spark] = render(0.55, peak: 0.1) { t in
+            var sum = 0.0
+            for (k, f) in [1760.0, 2217.5, 2637.0].enumerated() {
+                let start = Double(k) * 0.06
+                guard t >= start else { continue }
+                let local = t - start
+                sum += sin(2 * .pi * f * local) * exp(-local * 9) * min(1, local * 500) * (1 + 0.3 * sin(2 * .pi * 11 * local))
+            }
+            return sum
+        }
     }
 
     /// Glass: a few inharmonic partials, each fading at its own rate, plus a tiny strike.
