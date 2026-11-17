@@ -1,0 +1,335 @@
+{
+ "scene": "market",
+ "title": "Market Stall",
+ "objects": [
+  {
+   "id": "scale",
+   "name": "Brass scale",
+   "size": "medium",
+   "src": "objects/scale.png",
+   "clean": {}
+  },
+  {
+   "id": "purse",
+   "name": "Coin purse",
+   "size": "small",
+   "src": "objects/purse.png",
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "lantern",
+   "name": "Lantern",
+   "size": "medium",
+   "src": "objects/lantern.png",
+   "clean": {}
+  },
+  {
+   "id": "wool",
+   "name": "Wool skein",
+   "size": "small",
+   "src": "objects/wool.png",
+   "clean": {}
+  },
+  {
+   "id": "carrot",
+   "name": "Carrot",
+   "size": "medium",
+   "src": "objects/carrot.png",
+   "clean": {}
+  },
+  {
+   "id": "bell",
+   "name": "Hand bell",
+   "size": "small",
+   "src": "objects/bell.png",
+   "clean": {}
+  },
+  {
+   "id": "apple",
+   "name": "Red apple",
+   "size": "small",
+   "src": "objects/apple.png",
+   "clean": {}
+  },
+  {
+   "id": "marble",
+   "name": "Glass marble",
+   "size": "small",
+   "src": "objects/marble.png",
+   "clean": {}
+  },
+  {
+   "id": "pear",
+   "name": "Pear",
+   "size": "small",
+   "src": "objects/pear.png",
+   "seed": 9701,
+   "clean": {}
+  },
+  {
+   "id": "cheese",
+   "name": "Cheese wedge",
+   "size": "small",
+   "src": "objects/cheese.png",
+   "seed": 9742,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "bread",
+   "name": "Bread loaf",
+   "size": "medium",
+   "src": "objects/bread.png",
+   "seed": 9703,
+   "clean": {}
+  },
+  {
+   "id": "fish",
+   "name": "Fish",
+   "size": "medium",
+   "src": "objects/fish.png",
+   "seed": 9704,
+   "clean": {}
+  },
+  {
+   "id": "eggplant",
+   "name": "Eggplant",
+   "size": "medium",
+   "src": "objects/eggplant.png",
+   "seed": 9705,
+   "clean": {}
+  },
+  {
+   "id": "lemon",
+   "name": "Lemon",
+   "size": "small",
+   "src": "objects/lemon.png",
+   "seed": 9706,
+   "clean": {}
+  },
+  {
+   "id": "grapes",
+   "name": "Grapes",
+   "size": "medium",
+   "src": "objects/grapes.png",
+   "seed": 9707,
+   "clean": {}
+  },
+  {
+   "id": "cherries",
+   "name": "Cherries",
+   "size": "small",
+   "src": "objects/cherries.png",
+   "seed": 9708,
+   "clean": {}
+  },
+  {
+   "id": "strawberry",
+   "name": "Strawberry",
+   "size": "small",
+   "src": "objects/strawberry.png",
+   "seed": 9709,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "melon_slice",
+   "name": "Melon slice",
+   "size": "small",
+   "src": "objects/melon_slice.png",
+   "seed": 9710,
+   "clean": {}
+  },
+  {
+   "id": "corn",
+   "name": "Corn cob",
+   "size": "medium",
+   "src": "objects/corn.png",
+   "seed": 9711,
+   "clean": {}
+  },
+  {
+   "id": "pepper",
+   "name": "Red pepper",
+   "size": "small",
+   "src": "objects/pepper.png",
+   "seed": 9712,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "radish",
+   "name": "Radish bunch",
+   "size": "medium",
+   "src": "objects/radish.png",
+   "seed": 9713,
+   "clean": {}
+  },
+  {
+   "id": "honey",
+   "name": "Honey pot",
+   "size": "medium",
+   "src": "objects/honey.png",
+   "seed": 9714,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "jug",
+   "name": "Clay jug",
+   "size": "medium",
+   "src": "objects/jug.png",
+   "seed": 9715,
+   "clean": {}
+  },
+  {
+   "id": "hen_egg",
+   "name": "Brown egg",
+   "size": "small",
+   "src": "objects/hen_egg.png",
+   "seed": 9716,
+   "clean": {}
+  },
+  {
+   "id": "peacock_feather",
+   "name": "Peacock feather",
+   "size": "medium",
+   "src": "objects/peacock_feather.png",
+   "seed": 9717,
+   "clean": {}
+  },
+  {
+   "id": "straw_hat",
+   "name": "Straw hat",
+   "size": "medium",
+   "src": "objects/straw_hat.png",
+   "seed": 9718,
+   "clean": {}
+  },
+  {
+   "id": "boot",
+   "name": "Leather boot",
+   "size": "medium",
+   "src": "objects/boot.png",
+   "seed": 9719,
+   "clean": {}
+  },
+  {
+   "id": "spoon",
+   "name": "Wooden spoon",
+   "size": "medium",
+   "src": "objects/spoon.png",
+   "seed": 9720,
+   "clean": {}
+  },
+  {
+   "id": "ladle",
+   "name": "Copper ladle",
+   "size": "medium",
+   "src": "objects/ladle.png",
+   "seed": 9741,
+   "clean": {}
+  },
+  {
+   "id": "teapot",
+   "name": "Copper teapot",
+   "size": "medium",
+   "src": "objects/teapot.png",
+   "seed": 9722,
+   "clean": {}
+  },
+  {
+   "id": "spool",
+   "name": "Thread spool",
+   "size": "small",
+   "src": "objects/spool.png",
+   "seed": 9723,
+   "clean": {}
+  },
+  {
+   "id": "pretzel",
+   "name": "Pretzel",
+   "size": "small",
+   "src": "objects/pretzel.png",
+   "seed": 9724,
+   "clean": {}
+  },
+  {
+   "id": "toy_horse",
+   "name": "Toy horse",
+   "size": "medium",
+   "src": "objects/toy_horse.png",
+   "seed": 9725,
+   "clean": {}
+  },
+  {
+   "id": "sunflower",
+   "name": "Sunflower",
+   "size": "medium",
+   "src": "objects/sunflower.png",
+   "seed": 9726,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "rose",
+   "name": "Rose",
+   "size": "medium",
+   "src": "objects/rose.png",
+   "seed": 9727,
+   "clean": {}
+  },
+  {
+   "id": "tankard",
+   "name": "Tankard",
+   "size": "medium",
+   "src": "objects/tankard.png",
+   "seed": 9728,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "wine_bottle",
+   "name": "Green bottle",
+   "size": "medium",
+   "src": "objects/wine_bottle.png",
+   "seed": 9729,
+   "clean": {}
+  },
+  {
+   "id": "hammer",
+   "name": "Hammer",
+   "size": "medium",
+   "src": "objects/hammer.png",
+   "seed": 9730,
+   "clean": {
+    "alphaCut": 150,
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "lute",
+   "name": "Lute",
+   "size": "medium",
+   "src": "objects/lute.png",
+   "seed": 9731,
+   "clean": {}
+  },
+  {
+   "id": "glove",
+   "name": "Leather glove",
+   "size": "small",
+   "src": "objects/glove.png",
+   "seed": 9732,
+   "clean": {}
+  }
+ ]
+}

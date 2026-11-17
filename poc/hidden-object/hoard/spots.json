@@ -1,0 +1,755 @@
+{
+ "size": [
+  2752,
+  1536
+ ],
+ "spots": [
+  {
+   "id": "h01",
+   "x": 690,
+   "y": 405,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h02",
+   "x": 870,
+   "y": 350,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h03",
+   "x": 985,
+   "y": 395,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h04",
+   "x": 1270,
+   "y": 542,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h05",
+   "x": 1320,
+   "y": 645,
+   "maxSize": 55,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h06",
+   "x": 790,
+   "y": 722,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "h07",
+   "x": 440,
+   "y": 700,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h08",
+   "x": 1680,
+   "y": 713,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "h09",
+   "x": 1990,
+   "y": 708,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "h10",
+   "x": 2470,
+   "y": 712,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "h11",
+   "x": 2040,
+   "y": 343,
+   "maxSize": 50,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h12",
+   "x": 500,
+   "y": 768,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "pedestal"
+  },
+  {
+   "id": "h13",
+   "x": 470,
+   "y": 905,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h14",
+   "x": 600,
+   "y": 968,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "chest"
+  },
+  {
+   "id": "h15",
+   "x": 650,
+   "y": 912,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "block"
+  },
+  {
+   "id": "h16",
+   "x": 930,
+   "y": 912,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "block"
+  },
+  {
+   "id": "h17",
+   "x": 1060,
+   "y": 938,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "chest"
+  },
+  {
+   "id": "h18",
+   "x": 1000,
+   "y": 1045,
+   "maxSize": 60,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bowl",
+   "occlusion": {
+    "cutY": 1035,
+    "polygon": [
+     [
+      961,
+      1035
+     ],
+     [
+      1039,
+      1035
+     ],
+     [
+      1039,
+      1055
+     ],
+     [
+      961,
+      1055
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "h19",
+   "x": 900,
+   "y": 1110,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h20",
+   "x": 250,
+   "y": 1045,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h21",
+   "x": 60,
+   "y": 1055,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h22",
+   "x": 420,
+   "y": 1080,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h23",
+   "x": 180,
+   "y": 1300,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bowl",
+   "occlusion": {
+    "cutY": 1290,
+    "polygon": [
+     [
+      140,
+      1290
+     ],
+     [
+      220,
+      1290
+     ],
+     [
+      220,
+      1310
+     ],
+     [
+      140,
+      1310
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "h24",
+   "x": 400,
+   "y": 1215,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "rock"
+  },
+  {
+   "id": "h25",
+   "x": 520,
+   "y": 1300,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h26",
+   "x": 690,
+   "y": 1365,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bowl",
+   "occlusion": {
+    "cutY": 1350,
+    "polygon": [
+     [
+      650,
+      1350
+     ],
+     [
+      730,
+      1350
+     ],
+     [
+      730,
+      1375
+     ],
+     [
+      650,
+      1375
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "h27",
+   "x": 300,
+   "y": 1500,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h28",
+   "x": 650,
+   "y": 1480,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h29",
+   "x": 850,
+   "y": 1430,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h30",
+   "x": 1000,
+   "y": 1500,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h31",
+   "x": 1150,
+   "y": 1420,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h32",
+   "x": 1300,
+   "y": 1340,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h33",
+   "x": 1200,
+   "y": 1200,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h34",
+   "x": 1050,
+   "y": 1260,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h35",
+   "x": 505,
+   "y": 1400,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "rock"
+  },
+  {
+   "id": "h36",
+   "x": 1360,
+   "y": 850,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "h37",
+   "x": 1640,
+   "y": 940,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h38",
+   "x": 1500,
+   "y": 1010,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "ledge"
+  },
+  {
+   "id": "h39",
+   "x": 1950,
+   "y": 893,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "shelf"
+  },
+  {
+   "id": "h40",
+   "x": 2060,
+   "y": 905,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "block"
+  },
+  {
+   "id": "h41",
+   "x": 2030,
+   "y": 1020,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "chest"
+  },
+  {
+   "id": "h42",
+   "x": 1880,
+   "y": 1105,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "step"
+  },
+  {
+   "id": "h44",
+   "x": 1630,
+   "y": 1065,
+   "maxSize": 58,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "pot",
+   "occlusion": {
+    "cutY": 1055,
+    "polygon": [
+     [
+      1592,
+      1055
+     ],
+     [
+      1668,
+      1055
+     ],
+     [
+      1668,
+      1075
+     ],
+     [
+      1592,
+      1075
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "h45",
+   "x": 2350,
+   "y": 960,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h46",
+   "x": 2290,
+   "y": 1040,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h47",
+   "x": 2500,
+   "y": 1080,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h48",
+   "x": 2230,
+   "y": 1235,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "pot",
+   "occlusion": {
+    "cutY": 1225,
+    "polygon": [
+     [
+      2190,
+      1225
+     ],
+     [
+      2270,
+      1225
+     ],
+     [
+      2270,
+      1245
+     ],
+     [
+      2190,
+      1245
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "h49",
+   "x": 2340,
+   "y": 1265,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "bowl",
+   "occlusion": {
+    "cutY": 1255,
+    "polygon": [
+     [
+      2300,
+      1255
+     ],
+     [
+      2380,
+      1255
+     ],
+     [
+      2380,
+      1275
+     ],
+     [
+      2300,
+      1275
+     ]
+    ],
+    "feather": 6
+   }
+  },
+  {
+   "id": "h50",
+   "x": 1450,
+   "y": 1200,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h51",
+   "x": 1700,
+   "y": 1250,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h52",
+   "x": 1550,
+   "y": 1380,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h53",
+   "x": 1900,
+   "y": 1450,
+   "maxSize": 100,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h54",
+   "x": 2200,
+   "y": 1510,
+   "maxSize": 95,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h55",
+   "x": 2700,
+   "y": 1500,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h56",
+   "x": 1250,
+   "y": 1080,
+   "maxSize": 66,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h57",
+   "x": 130,
+   "y": 1140,
+   "maxSize": 90,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h58",
+   "x": 1370,
+   "y": 1120,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "floor"
+  },
+  {
+   "id": "h59",
+   "x": 820,
+   "y": 1180,
+   "maxSize": 62,
+   "sizeClass": [
+    "small"
+   ],
+   "surface": "coins"
+  },
+  {
+   "id": "h60",
+   "x": 1400,
+   "y": 1480,
+   "maxSize": 105,
+   "sizeClass": [
+    "small",
+    "medium"
+   ],
+   "surface": "floor"
+  }
+ ]
+}

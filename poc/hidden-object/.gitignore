@@ -1,0 +1,7 @@
+# Generated art and pages are not committed; regenerate them (see README).
+*.png
+*.jpg
+*.html
+layers/
+random/
+__pycache__/

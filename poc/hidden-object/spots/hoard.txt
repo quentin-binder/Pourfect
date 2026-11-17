@@ -1,0 +1,60 @@
+# id x y maxSize classes surface [occludeBelow]   (x,y = bottom-centre anchor in 2752x1536 background px)
+h01 690 405 62 s ledge
+h02 870 350 66 s coins
+h03 985 395 60 s ledge
+h04 1270 542 58 s ledge
+h05 1320 645 55 s ledge
+h06 790 722 58 s shelf
+h07 440 700 58 s coins
+h08 1680 713 58 s shelf
+h09 1990 708 58 s shelf
+h10 2470 712 58 s shelf
+h11 2040 343 50 s ledge
+h12 500 768 62 s pedestal
+h13 470 905 95 sm coins
+h14 600 968 62 s chest
+h15 650 912 62 s block
+h16 930 912 62 s block
+h17 1060 938 62 s chest
+h18 1000 1045 60 s bowl 1035
+h19 900 1110 95 sm coins
+h20 250 1045 90 sm coins
+h21 60 1055 66 s coins
+h22 420 1080 95 sm coins
+h23 180 1300 62 s bowl 1290
+h24 400 1215 95 sm rock
+h25 520 1300 95 sm coins
+h26 690 1365 62 s bowl 1350
+h27 300 1500 100 sm floor
+h28 650 1480 105 sm floor
+h29 850 1430 105 sm floor
+h30 1000 1500 105 sm floor
+h31 1150 1420 105 sm floor
+h32 1300 1340 105 sm floor
+h33 1200 1200 100 sm floor
+h34 1050 1260 100 sm floor
+h35 505 1400 62 s rock
+h36 1360 850 58 s shelf
+h37 1640 940 58 s ledge
+h38 1500 1010 62 s ledge
+h39 1950 893 58 s shelf
+h40 2060 905 62 s block
+h41 2030 1020 62 s chest
+h42 1880 1105 95 sm step
+h44 1630 1065 58 s pot 1055
+h45 2350 960 95 sm coins
+h46 2290 1040 95 sm coins
+h47 2500 1080 90 sm coins
+h48 2230 1235 62 s pot 1225
+h49 2340 1265 62 s bowl 1255
+h50 1450 1200 105 sm floor
+h51 1700 1250 105 sm floor
+h52 1550 1380 105 sm floor
+h53 1900 1450 100 sm floor
+h54 2200 1510 95 sm floor
+h55 2700 1500 66 s floor
+h56 1250 1080 66 s floor
+h57 130 1140 90 sm coins
+h58 1370 1120 62 s floor
+h59 820 1180 62 s coins
+h60 1400 1480 105 sm floor

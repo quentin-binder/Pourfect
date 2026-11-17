@@ -1,0 +1,66 @@
+# id x y maxSize classes surface [occludeBelow]   (x,y = bottom-centre anchor in 2752x1536 background px)
+a02 260 450 90 sm books
+a03 405 488 60 s books
+a04 565 572 62 s shelf
+a05 700 678 60 s shelf
+a06 1195 486 62 s shelf
+a07 1325 478 58 s basket 458
+a08 1150 600 60 s shelf
+a09 1140 676 58 s shelf
+a10 470 262 90 sm basket 238
+a11 288 240 62 s basket 222
+a12 1300 128 55 s shelf
+a13 1180 288 58 s shelf
+a14 1440 285 58 s shelf
+a15 1500 482 62 s shelf
+a16 1580 482 62 s shelf
+a17 1760 484 62 s shelf
+a18 1440 600 58 s shelf
+a19 1450 678 58 s shelf
+a20 2060 442 62 s shelf
+a21 2140 590 62 s shelf
+a22 2190 655 60 s books
+a23 2660 262 62 s basket 240
+a24 1660 268 58 s shelf
+b01 110 893 64 s counter
+b02 480 885 90 sm counter
+b03 690 862 60 s shelf
+b04 720 980 60 s shelf
+b05 610 1074 62 s chest
+b06 1090 918 95 sm table
+b07 1300 912 62 s table
+b08 960 912 60 s table
+b09 510 1095 66 s barrel
+b10 480 1225 62 s books
+b11 675 1232 66 s drum
+b12 735 1300 60 s bowl 1283
+b13 555 1235 66 s basket 1215
+b14 650 1520 105 sm floor
+b15 1100 1520 105 sm floor
+b16 1100 1385 100 sm rug
+b17 1260 1300 100 sm rug
+b18 980 1500 66 s board
+b19 420 1290 64 s books
+b20 425 1408 90 sm barrel
+b21 650 1372 70 s books
+c01 1460 893 62 s table
+c02 1440 1010 66 s stool
+c03 1640 1075 62 s basket 1055
+c04 1560 1195 100 sm rug
+c05 1800 1240 100 sm rug
+c06 1500 1370 105 sm rug
+c07 1820 1440 105 sm rug
+c08 1845 915 60 s books
+c09 1850 1068 62 s box
+c10 1920 860 58 s basket 845
+c11 1950 1000 60 s books
+c12 2070 1150 75 s basket 1128
+c13 2190 1110 95 sm barrel
+c14 2200 1340 95 sm crate
+c15 2340 1450 52 s bowl 1438
+c16 2050 1480 105 sm floor
+c17 1600 1490 105 sm floor
+c18 2420 992 62 s cabinet
+c19 2680 990 62 s cabinet
+c20 2250 1505 100 sm floor
+a25 2170 445 60 s shelf

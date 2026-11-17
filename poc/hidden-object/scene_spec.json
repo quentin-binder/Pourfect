@@ -1,0 +1,18 @@
+{
+  "scene": "attic",
+  "foundForDemo": ["key", "owl", "crystal", "teacup"],
+  "objects": {
+    "key":       {"label": "Silver key",    "x": 1101, "y": 1376, "height": 110, "rotate": 70},
+    "hourglass": {"label": "Hourglass",     "x": 1356, "y": 482,  "height": 80},
+    "owl":       {"label": "Wooden owl",    "x": 2133, "y": 633,  "height": 80},
+    "mushroom":  {"label": "Toadstool",     "x": 678,  "y": 1061, "height": 80, "eraseRows": [[0.88, 1.0]], "occludeBelow": 1046},
+    "crystal":   {"label": "Amethyst",      "x": 2202, "y": 963,  "height": 75, "tint": 0.28},
+    "quill":     {"label": "Quill",         "x": 1101, "y": 914,  "height": 100, "rotate": -48},
+    "watch":     {"label": "Pocket watch",  "x": 1415, "y": 1032, "height": 60},
+    "potion":    {"label": "Green potion",  "x": 1203, "y": 757,  "height": 60, "eraseRows": [[0.9, 1.0]]},
+    "horseshoe": {"label": "Horseshoe",     "x": 1710, "y": 924,  "height": 75, "shadow": 0.25},
+    "teacup":    {"label": "Teacup",        "x": 727,  "y": 1278, "height": 50, "tint": 0.26},
+    "scroll":    {"label": "Scroll",        "x": 590,  "y": 1376, "height": 70, "rotate": -15},
+    "egg":       {"label": "Dragon egg",    "x": 2084, "y": 1175, "height": 60, "tint": 0.28, "occludeBelow": 1158}
+  }
+}

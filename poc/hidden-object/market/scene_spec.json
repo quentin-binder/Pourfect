@@ -1,0 +1,16 @@
+{
+  "scene": "market",
+  "title": "Market Stall — hidden-object art test",
+  "note": "Scene 2 style test. Everything here is generated art: one painted background plus 8 separately generated objects, cut out, tinted toward the scene, given soft contact shadows, and where they sit in a container (apple in the garlic basket, wool in the herb basket) partly hidden behind scene pixels drawn back on top. Each object is its own layer, so it can vanish cleanly. Click an object to find it.",
+  "foundForDemo": ["apple", "bell"],
+  "objects": {
+    "scale":   {"label": "Brass scale",  "x": 1100, "y": 838,  "height": 120},
+    "apple":   {"label": "Red apple",    "x": 880,  "y": 1375, "height": 55, "occludeBelow": 1352},
+    "purse":   {"label": "Coin purse",   "x": 1610, "y": 840,  "height": 70, "keepLargest": true},
+    "lantern": {"label": "Lantern",      "x": 1735, "y": 945,  "height": 85},
+    "wool":    {"label": "Wool skein",   "x": 2462, "y": 1258, "height": 62, "occludeBelow": 1240},
+    "carrot":  {"label": "Carrot",       "x": 640,  "y": 1320, "height": 110, "rotate": -30},
+    "bell":    {"label": "Hand bell",    "x": 335,  "y": 1358, "height": 60},
+    "marble":  {"label": "Glass marble", "x": 980,  "y": 1435, "height": 40}
+  }
+}

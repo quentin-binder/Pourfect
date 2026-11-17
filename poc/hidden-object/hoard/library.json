@@ -1,0 +1,355 @@
+{
+ "scene": "hoard",
+ "title": "Dragon's Hoard",
+ "objects": [
+  {
+   "id": "goblet",
+   "name": "Golden goblet",
+   "size": "medium",
+   "src": "objects/goblet.png",
+   "seed": 9801,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "crown",
+   "name": "Crown",
+   "size": "medium",
+   "src": "objects/crown.png",
+   "seed": 9802,
+   "clean": {}
+  },
+  {
+   "id": "ruby",
+   "name": "Ruby",
+   "size": "small",
+   "src": "objects/ruby.png",
+   "seed": 9803,
+   "clean": {}
+  },
+  {
+   "id": "emerald",
+   "name": "Emerald",
+   "size": "small",
+   "src": "objects/emerald.png",
+   "seed": 9804,
+   "clean": {}
+  },
+  {
+   "id": "sapphire",
+   "name": "Sapphire",
+   "size": "small",
+   "src": "objects/sapphire.png",
+   "seed": 9805,
+   "clean": {}
+  },
+  {
+   "id": "coin_pouch",
+   "name": "Coin pouch",
+   "size": "small",
+   "src": "objects/coin_pouch.png",
+   "seed": 9806,
+   "clean": {
+    "keepLargest": true,
+    "alphaCut": 120
+   }
+  },
+  {
+   "id": "dragon_scale",
+   "name": "Dragon scale",
+   "size": "small",
+   "src": "objects/dragon_scale.png",
+   "seed": 9807,
+   "clean": {}
+  },
+  {
+   "id": "rune_stone",
+   "name": "Rune stone",
+   "size": "small",
+   "src": "objects/rune_stone.png",
+   "seed": 9808,
+   "clean": {
+    "alphaCut": 120
+   }
+  },
+  {
+   "id": "dagger",
+   "name": "Jewelled dagger",
+   "size": "medium",
+   "src": "objects/dagger.png",
+   "seed": 9809,
+   "clean": {}
+  },
+  {
+   "id": "dragon_egg",
+   "name": "Red dragon egg",
+   "size": "small",
+   "src": "objects/dragon_egg.png",
+   "seed": 9810,
+   "clean": {}
+  },
+  {
+   "id": "tiara",
+   "name": "Tiara",
+   "size": "small",
+   "src": "objects/tiara.png",
+   "seed": 9811,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "pearl_necklace",
+   "name": "Pearl necklace",
+   "size": "medium",
+   "src": "objects/pearl_necklace.png",
+   "seed": 9812,
+   "clean": {}
+  },
+  {
+   "id": "amulet",
+   "name": "Amulet",
+   "size": "small",
+   "src": "objects/amulet.png",
+   "seed": 9813,
+   "clean": {}
+  },
+  {
+   "id": "round_shield",
+   "name": "Round shield",
+   "size": "medium",
+   "src": "objects/round_shield.png",
+   "seed": 9814,
+   "clean": {}
+  },
+  {
+   "id": "helmet",
+   "name": "Knight's helmet",
+   "size": "medium",
+   "src": "objects/helmet.png",
+   "seed": 9815,
+   "clean": {}
+  },
+  {
+   "id": "gold_plate",
+   "name": "Golden plate",
+   "size": "medium",
+   "src": "objects/gold_plate.png",
+   "seed": 9816,
+   "clean": {}
+  },
+  {
+   "id": "jewel_box",
+   "name": "Jewel box",
+   "size": "medium",
+   "src": "objects/jewel_box.png",
+   "seed": 9845,
+   "clean": {
+    "keepLargest": true,
+    "dropPale": {
+     "below": 0.82,
+     "maxSat": 0.2,
+     "minLum": 0.7
+    }
+   }
+  },
+  {
+   "id": "scepter",
+   "name": "Scepter",
+   "size": "medium",
+   "src": "objects/scepter.png",
+   "seed": 9818,
+   "clean": {}
+  },
+  {
+   "id": "royal_orb",
+   "name": "Royal orb",
+   "size": "small",
+   "src": "objects/royal_orb.png",
+   "seed": 9819,
+   "clean": {}
+  },
+  {
+   "id": "gold_bar",
+   "name": "Gold bar",
+   "size": "small",
+   "src": "objects/gold_bar.png",
+   "seed": 9820,
+   "clean": {
+    "alphaCut": 170,
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "oyster_pearl",
+   "name": "Oyster pearl",
+   "size": "small",
+   "src": "objects/oyster_pearl.png",
+   "seed": 9821,
+   "clean": {}
+  },
+  {
+   "id": "harp",
+   "name": "Golden harp",
+   "size": "medium",
+   "src": "objects/harp.png",
+   "seed": 9822,
+   "clean": {}
+  },
+  {
+   "id": "drinking_horn",
+   "name": "Drinking horn",
+   "size": "medium",
+   "src": "objects/drinking_horn.png",
+   "seed": 9823,
+   "clean": {}
+  },
+  {
+   "id": "bracelet",
+   "name": "Bracelet",
+   "size": "small",
+   "src": "objects/bracelet.png",
+   "seed": 9824,
+   "clean": {}
+  },
+  {
+   "id": "brooch",
+   "name": "Brooch",
+   "size": "small",
+   "src": "objects/brooch.png",
+   "seed": 9825,
+   "clean": {}
+  },
+  {
+   "id": "candelabra",
+   "name": "Candelabra",
+   "size": "medium",
+   "src": "objects/candelabra.png",
+   "seed": 9826,
+   "clean": {}
+  },
+  {
+   "id": "blue_vase",
+   "name": "Blue vase",
+   "size": "medium",
+   "src": "objects/blue_vase.png",
+   "seed": 9827,
+   "clean": {}
+  },
+  {
+   "id": "mini_chest",
+   "name": "Little chest",
+   "size": "small",
+   "src": "objects/mini_chest.png",
+   "seed": 9844,
+   "clean": {
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "golden_mask",
+   "name": "Golden mask",
+   "size": "medium",
+   "src": "objects/golden_mask.png",
+   "seed": 9829,
+   "clean": {}
+  },
+  {
+   "id": "jade_dragon",
+   "name": "Jade dragon",
+   "size": "medium",
+   "src": "objects/jade_dragon.png",
+   "seed": 9830,
+   "clean": {}
+  },
+  {
+   "id": "golden_apple",
+   "name": "Golden apple",
+   "size": "small",
+   "src": "objects/golden_apple.png",
+   "seed": 9831,
+   "clean": {}
+  },
+  {
+   "id": "crystal_ball",
+   "name": "Crystal ball",
+   "size": "small",
+   "src": "objects/crystal_ball.png",
+   "seed": 9832,
+   "clean": {}
+  },
+  {
+   "id": "phoenix_feather",
+   "name": "Phoenix feather",
+   "size": "medium",
+   "src": "objects/phoenix_feather.png",
+   "seed": 9833,
+   "clean": {}
+  },
+  {
+   "id": "battle_axe",
+   "name": "Battle axe",
+   "size": "medium",
+   "src": "objects/battle_axe.png",
+   "seed": 9834,
+   "clean": {}
+  },
+  {
+   "id": "gauntlet",
+   "name": "Gauntlet",
+   "size": "medium",
+   "src": "objects/gauntlet.png",
+   "seed": 9835,
+   "clean": {}
+  },
+  {
+   "id": "golden_key",
+   "name": "Golden key",
+   "size": "small",
+   "src": "objects/golden_key.png",
+   "seed": 9843,
+   "clean": {}
+  },
+  {
+   "id": "medallion",
+   "name": "Medallion",
+   "size": "small",
+   "src": "objects/medallion.png",
+   "seed": 9842,
+   "clean": {
+    "eraseRows": [
+     [
+      0.0,
+      0.42
+     ]
+    ],
+    "keepLargest": true
+   }
+  },
+  {
+   "id": "golden_bird",
+   "name": "Golden bird",
+   "size": "small",
+   "src": "objects/golden_bird.png",
+   "seed": 9838,
+   "clean": {}
+  },
+  {
+   "id": "jeweled_egg",
+   "name": "Jewelled egg",
+   "size": "small",
+   "src": "objects/jeweled_egg.png",
+   "seed": 9839,
+   "clean": {}
+  },
+  {
+   "id": "treasure_map",
+   "name": "Treasure map",
+   "size": "medium",
+   "src": "objects/treasure_map.png",
+   "seed": 9840,
+   "clean": {}
+  }
+ ]
+}
