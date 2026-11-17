@@ -311,9 +311,10 @@ struct HiddenRoundTests {
                     let tag = "\(id) r\(round) v\(variant)"
                     fingerprints.insert(l.fingerprint)
                     #expect(l.targets.count == spec.targets, "\(tag)")
-                    // every room has room for the full count through round 6; later at least 10 (the market is tight)
+                    // at least 9 (or the full count when it is lower); the market is tight, more so since the
+                    // layout review took its flower box out (spot m54)
                     #expect(l.decoys.count <= spec.decoys, "\(tag)")
-                    #expect(l.decoys.count >= (round <= 6 ? spec.decoys : min(spec.decoys, 10)), "\(tag)")
+                    #expect(l.decoys.count >= min(spec.decoys, 9), "\(tag)")
                     let all = l.targets + l.decoys
                     #expect(Set(all.map(\.objectID)).count == all.count, "\(tag)")
                     #expect(Set(all.map(\.spotID)).count == all.count, "\(tag)")
@@ -385,8 +386,9 @@ struct HiddenRoundTests {
 }
 
 let goldenSeedAttic1: UInt64 = 6545833932382697410
+/// Changed when the layout review marked attic spot b09 unusable (the generator skips it); only proposals use it.
 let goldenAttic1 =
-    "d:mortar@a10:67x80:236 d:lavender@a02:56x80:256 T:teacup@a17:58x35f:258 T:hourglass@a04:32x60:198 T:crystal@b02:47x62f:216 T:watch@b01:48x63:223 d:mirror@b06:61x84:200 T:padlock@b09:42x61:209 d:owl@c04:56x88:232 T:magnifier@c14:82x85:182 T:horseshoe@b16:51x63f:191 d:broom@b20:75x84f:260 T:pumpkin@c07:102x102:207 d:flask@c17:51x98:212 d:globe@c20:65x91:244 d:telescope@b14:95x79:236"
+    "d:mortar@a10:67x80:236 d:flask@a02:44x84:212 T:watch@a17:47x61:223 T:hourglass@a05:31x58:198 T:pumpkin@b02:87x87:207 T:horseshoe@b01:47x59f:191 T:teacup@b08:56x34f:258 T:padlock@b07:40x58:209 d:lavender@b06:59x84:256 d:telescope@c13:86x71:236 d:mirror@c05:64x89:200 T:magnifier@b17:86x89:182 d:globe@c14:61x86:244 d:owl@b16:56x88:232 d:broom@c17:87x98f:260 T:crystal@b15:47x62f:216"
 let goldenHoard10v2 =
     "T:sapphire@h07:46x44:233 T:coin_pouch@h09:45x43:251 d:golden_key@h08:56x17:200 T:jeweled_egg@h06:28x46:229 T:oyster_pearl@h12:51x44:201 T:golden_bird@h39:45x33:204 d:jewel_box@h13:74x74f:221 T:emerald@h15:45x49:202 T:brooch@h37:49x38:214 d:treasure_map@h45:52x77f:224 T:tiara@h14:54x28f:245 T:dragon_scale@h38:32x50:199 T:dragon_egg@h18:38x53:190 d:golden_mask@h20:76x55f:203 d:dagger@h47:69x76:210 d:royal_orb@h56:29x57f:181 T:goblet@h42:49x85:253 d:blue_vase@h19:54x77f:239 d:drinking_horn@h57:64x71:213 T:mini_chest@h59:54x48:196 T:ruby@h33:53x48:190 d:golden_apple@h48:43x47:186 d:battle_axe@h51:48x88:243 d:pearl_necklace@h34:78x83:260 T:crystal_ball@h49:38x51f:227 d:round_shield@h32:78x82:241 d:gauntlet@h52:45x101:247 d:crown@h31:92x67:205 d:helmet@h29:62x89f:212 d:jade_dragon@h53:82x67f:244 d:candelabra@h60:50x98:218 d:scepter@h28:75x86:254 T:harp@h30:58x91:245 d:gold_plate@h27:82x81:189 d:phoenix_feather@h54:60x76f:183"
 

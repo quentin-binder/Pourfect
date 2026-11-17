@@ -11,6 +11,7 @@ let package = Package(
         .executable(name: "m3gen", targets: ["m3gen"]),
         .library(name: "DistilleryCore", targets: ["DistilleryCore"]),
         .executable(name: "distillgen", targets: ["distillgen"]),
+        .executable(name: "hiddengen", targets: ["hiddengen"]),
         .library(name: "SecretRecipeCore", targets: ["SecretRecipeCore"]),
         .library(name: "HiddenCore", targets: ["HiddenCore"]),
     ],
@@ -35,6 +36,8 @@ let package = Package(
         // R11 hidden-object rooms: scene files, placement + blending rules (ported from the art pipeline), round
         // generator with decoys, hit testing, round state, progression. Goldens come from poc/hidden-object/tools.
         .target(name: "HiddenCore"),
+        // Proposes and checks the fixed rounds (`HiddenScenes/<room>/rounds.json`).
+        .executableTarget(name: "hiddengen", dependencies: ["HiddenCore"], swiftSettings: [.swiftLanguageMode(.v5)]),
         .testTarget(name: "HiddenCoreTests", dependencies: ["HiddenCore"], exclude: ["Goldens"]),
     ]
 )

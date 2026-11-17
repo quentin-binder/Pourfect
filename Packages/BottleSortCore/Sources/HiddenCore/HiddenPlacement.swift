@@ -33,10 +33,12 @@ public enum HiddenRules {
     }
 
     /// The drawn size for a long side: each side × (L / natural long side), rounded half-to-even, at least 1.
-    public static func drawnSize(_ o: HiddenObject, longSide: Int) -> (width: Int, height: Int) {
+    /// With a rotation (fixed layouts), the sides of the rotated picture's canvas (`HiddenRotation.canvasSize`).
+    public static func drawnSize(_ o: HiddenObject, longSide: Int, rotation: Double = 0) -> (width: Int, height: Int) {
         let k = Double(longSide) / Double(o.longSide)
-        return (max(1, Int((Double(o.pixelWidth) * k).rounded(.toNearestOrEven))),
-                max(1, Int((Double(o.pixelHeight) * k).rounded(.toNearestOrEven))))
+        let natural = HiddenRotation.canvasSize(width: o.pixelWidth, height: o.pixelHeight, degrees: rotation)
+        return (max(1, Int((Double(natural.width) * k).rounded(.toNearestOrEven))),
+                max(1, Int((Double(natural.height) * k).rounded(.toNearestOrEven))))
     }
 
     /// layout.py's spacing test against every already chosen spot.
@@ -82,21 +84,30 @@ public struct HiddenPlacement: Sendable, Hashable, Codable {
     public let anchorX: Int
     public let anchorY: Int
     public let occlusion: HiddenOcclusionGeometry?
+    /// Fixed layouts only (R11 review): the anchor moved by (dx, dy) background px, and the picture turned
+    /// clockwise by `rotation` degrees (before the flip) on a canvas grown to hold it.
+    public let dx: Int
+    public let dy: Int
+    public let rotation: Double
 
-    public init(object o: HiddenObject, spot s: HiddenSpot, role: HiddenRole, longSide: Int, flipped: Bool, tint: Double) {
+    public init(object o: HiddenObject, spot s: HiddenSpot, role: HiddenRole, longSide: Int, flipped: Bool, tint: Double,
+                dx: Int = 0, dy: Int = 0, rotation: Double = 0) {
         objectID = o.id
         spotID = s.id
         self.role = role
         self.longSide = longSide
-        let size = HiddenRules.drawnSize(o, longSide: longSide)
+        let size = HiddenRules.drawnSize(o, longSide: longSide, rotation: rotation)
         width = size.width
         height = size.height
         self.flipped = flipped
         self.tint = tint
-        x = s.x - size.width / 2
-        y = s.y - size.height
-        anchorX = s.x
-        anchorY = s.y
+        self.dx = dx
+        self.dy = dy
+        self.rotation = rotation
+        anchorX = s.x + dx
+        anchorY = s.y + dy
+        x = anchorX - size.width / 2
+        y = anchorY - size.height
         occlusion = s.occlusion.map { HiddenOcclusionGeometry($0) }
     }
 

@@ -275,7 +275,7 @@ public struct HiddenProgress: Sendable, Hashable, Codable {
     static func key(_ s: HiddenSceneID, _ r: Int) -> String { "\(s.rawValue).\(r)" }
 
     public func bestStars(_ s: HiddenSceneID, round r: Int) -> Int { best[Self.key(s, r)] ?? 0 }
-    /// Finished plays of a round = the layout variant its next play uses (0 the first time).
+    /// How often a round has been finished (replays use the same fixed layout).
     public func finishedPlays(_ s: HiddenSceneID, round r: Int) -> Int { plays[Self.key(s, r)] ?? 0 }
     public func stars(_ s: HiddenSceneID) -> Int { HiddenProgression.rounds.reduce(0) { $0 + bestStars(s, round: $1) } }
     public func roundsFinished(_ s: HiddenSceneID) -> Int { HiddenProgression.rounds.filter { bestStars(s, round: $0) > 0 }.count }

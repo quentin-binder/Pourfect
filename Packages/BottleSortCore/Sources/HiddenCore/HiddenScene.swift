@@ -82,6 +82,9 @@ public struct HiddenSpot: Sendable, Hashable {
     public let sizeClasses: [HiddenSizeClass]
     public let surface: String
     public let occlusion: HiddenOcclusion?
+    /// Marked `"unusable": true` in scene.json after the layout review (R11): objects there looked wrong (floating,
+    /// propped up, clashing with the painting). The generator and the fixed layouts never use it.
+    public var unusable = false
 
     public func accepts(_ c: HiddenSizeClass) -> Bool { sizeClasses.contains(c) }
 
@@ -181,7 +184,7 @@ public struct HiddenScene: Sendable, Hashable {
                 occ = HiddenOcclusion(cutY: o.cutY, polygon: o.polygon, feather: o.feather)
             }
             spots.append(HiddenSpot(id: s.id, x: s.x, y: s.y, maxSize: s.maxSize, sizeClasses: classes,
-                                    surface: s.surface, occlusion: occ))
+                                    surface: s.surface, occlusion: occ, unusable: s.unusable ?? false))
         }
         for c in HiddenSizeClass.allCases where objects.contains(where: { $0.sizeClass == c }) {
             guard spots.contains(where: { $0.accepts(c) }) else { throw fail("no spot takes \(c) objects") }
@@ -208,6 +211,7 @@ private struct RawScene: Decodable {
     struct Spot: Decodable {
         let id: String; let x: Int; let y: Int; let maxSize: Int; let sizeClass: [String]; let surface: String
         let occlusion: Occlusion?
+        let unusable: Bool?
     }
     let format: String
     let scene: String

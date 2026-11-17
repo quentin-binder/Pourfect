@@ -58,7 +58,8 @@ public enum HiddenCurve {
     }
 }
 
-/// A generated round: what to draw (back to front) and what to find.
+/// A round: what to draw (back to front) and what to find. Players get the fixed ones from `rounds.json`
+/// (`HiddenFixedLayouts`); the generator only proposes them.
 public struct HiddenRoundLayout: Sendable, Hashable, Codable {
     public let scene: HiddenSceneID
     public let round: Int
@@ -92,7 +93,8 @@ public enum HiddenGenerator {
     public static let decoyMargin = 4
 
     /// Seed for (room, round, variant): FNV-1a 64 of `hidden-v1|attic|3|0`, then the SplitMix64 finalizer.
-    /// Variant 0 is a round's first layout; a replay after finishing uses the number of finished plays.
+    /// Variant 0 is the seed of a round's proposal and of its fixed layout (the lantern's offsets); other variants
+    /// only make further proposals (`hiddengen`, DEBUG `-LPHiddenSeed`). Players never get generated rounds.
     public static func seed(_ scene: HiddenSceneID, round: Int, variant: Int) -> UInt64 {
         var h: UInt64 = 0xCBF2_9CE4_8422_2325
         for b in "\(seedVersion)|\(scene.rawValue)|\(round)|\(variant)".utf8 {
@@ -132,7 +134,7 @@ public enum HiddenGenerator {
         var rng = PythonRandom(seed: seed)
         let gold = HiddenCurve.goldish(scene.id)
         let order = rng.sample(scene.objects, scene.objects.count)
-        var free = scene.spots
+        var free = scene.spots.filter { !$0.unusable }
         rng.shuffle(&free)
 
         // 1. candidates for the find list: the library order, gold-ish ones first so the round gets its gold targets
