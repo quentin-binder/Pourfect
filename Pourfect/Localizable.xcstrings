@@ -37,6 +37,9 @@
     "%@, %lld of %lld stars, %lld gold seals" : {
       "comment" : "VoiceOver: a challenge book in the hub"
     },
+    "%@, %lld of %lld stars, %lld of %lld stills distilled" : {
+      "comment" : "VoiceOver: a distillery challenge pack in the hub"
+    },
     "%@, in use" : {
       "comment" : "VoiceOver: the chosen Lab Style reward"
     },
@@ -70,6 +73,12 @@
           }
         }
       }
+    },
+    "%lld / %lld distilled" : {
+      "comment" : "Distillery challenge pack card: levels won"
+    },
+    "%lld by %lld board" : {
+      "comment" : "VoiceOver: distillery board size"
     },
     "%lld by %lld board, %lld moves left, %@" : {
       "comment" : "VoiceOver: match-3 board summary"
@@ -289,6 +298,12 @@
         }
       }
     },
+    "%lld of %lld distilled" : {
+      "comment" : "Distillery pack header: levels won"
+    },
+    "%lld of %lld done" : {
+      "comment" : "Today card: dailies won today of all dailies"
+    },
     "%lld of %lld filled" : {
       "comment" : "VoiceOver: how many order flasks hold what they should"
     },
@@ -361,6 +376,9 @@
           }
         }
       }
+    },
+    "%lld of %lld stars, %lld of %lld stills distilled" : {
+      "comment" : "VoiceOver: distillery pack progress"
     },
     "%lld recipes" : {
       "localizations" : {
@@ -495,6 +513,9 @@
         }
       }
     },
+    "%lld taps · fewest %lld" : {
+      "comment" : "Daily Distillery result: taps used and the minimum"
+    },
     "%lld taps · fewest possible %lld" : {
       "comment" : "Distillery win card: taps used and the minimum"
     },
@@ -506,6 +527,15 @@
     },
     "3 stars" : {
 
+    },
+    "5×5, one potion, straights and elbows" : {
+      "comment" : "Random Distillery tier details"
+    },
+    "6×6, two potions, splitters and crossings" : {
+      "comment" : "Random Distillery tier details"
+    },
+    "7×7, two potions, riveted pieces, a heat coil and a valve" : {
+      "comment" : "Random Distillery tier details"
     },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {
 
@@ -561,7 +591,7 @@
     "A potion pours only onto the same potion or into an empty flask, and only as much as fits." : {
 
     },
-    "A race against the clock, hard recipe books and random brews. Always open; nothing here counts toward the chapter map." : {
+    "A race against the clock, hard recipe books, random brews and the distillery's hardest stills. Always open; nothing here counts toward the chapter map." : {
       "comment" : "Challenges hub header"
     },
     "A sealed flask is locked: only its rune-stone key can be poured in, and nothing can be poured out." : {
@@ -620,6 +650,9 @@
     "Alchemist's Workbench" : {
       "comment" : "Workbench theme name"
     },
+    "All %lld dailies done" : {
+      "comment" : "Today card: every daily won today"
+    },
     "An alchemist's journey from the cellar to the dragon's hoard." : {
 
     },
@@ -629,8 +662,14 @@
     "An open pipe end is dripping" : {
       "comment" : "Tooltip: distillery leak warning"
     },
+    "And never let two potions meet in one pipe. They turn to murk and block the line." : {
+      "comment" : "Story, distillery stage 2 (Copper and Steam)"
+    },
     "And the dragon?" : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "And the red wheels? They won't let anything through." : {
+      "comment" : "Story, distillery stage 3 (The Great Alembic)"
     },
     "Apprentice" : {
       "comment" : "Story speaker name"
@@ -751,6 +790,9 @@
     },
     "Bubbling Over: the moves left fire as specials" : {
       "comment" : "VoiceOver: the match-3 finale starts"
+    },
+    "Builds a random still and opens it" : {
+      "comment" : "VoiceOver hint of a Random Distillery tier"
     },
     "But… what happens now?" : {
       "comment" : "Story, ending"
@@ -884,6 +926,9 @@
     "Choose a mode and workbench size, then brew a recipe" : {
 
     },
+    "Choose a tier, then distill a random still" : {
+      "comment" : "VoiceOver hint of the Random Distillery card"
+    },
     "Classic" : {
       "comment" : "Random recipe mode"
     },
@@ -938,6 +983,9 @@
     },
     "Copper" : {
       "comment" : "Metal of a rune key and its seal"
+    },
+    "Copper and Steam" : {
+      "comment" : "Distillery stage 2 title"
     },
     "Costs %lld seconds" : {
       "comment" : "VoiceOver hint on Rush's Skip button; the argument is the time penalty"
@@ -1006,14 +1054,20 @@
     "Daily Distillery" : {
       "comment" : "Title of the daily distillery level"
     },
+    "Daily Distillery streak %lld" : {
+      "comment" : "Distillery win card of the daily level"
+    },
+    "Daily Distillery, %@, distilled with %lld stars, streak %lld" : {
+      "comment" : "VoiceOver: the Daily Distillery, won today"
+    },
+    "Daily Distillery, %@, not played yet, streak %lld" : {
+      "comment" : "VoiceOver: the Daily Distillery, not yet won today"
+    },
     "Daily Gathering" : {
       "comment" : "Title of the daily match-3 level"
     },
     "Daily Gathering streak %lld" : {
       "comment" : "Match-3 win card of the daily level"
-    },
-    "Daily Gathering · %@" : {
-      "comment" : "iPhone home bar: the daily match-3 level and its weekday"
     },
     "Daily Gathering, %@, not played yet, streak %lld" : {
       "comment" : "VoiceOver: the daily gathering card",
@@ -1040,10 +1094,19 @@
     "Daily solved!" : {
 
     },
+    "Days distilled" : {
+      "comment" : "Daily Distillery stat: days won"
+    },
     "Days follow UTC. A new brew appears at midnight UTC." : {
 
     },
     "Days follow UTC. A new gathering appears at midnight UTC." : {
+
+    },
+    "Days follow UTC. A new still appears at midnight UTC." : {
+
+    },
+    "Days follow UTC. New dailies appear at midnight UTC." : {
 
     },
     "Days gathered" : {
@@ -1060,6 +1123,33 @@
     },
     "Distilled!" : {
   
+    },
+    "Distillery" : {
+      "comment" : "Map plate over a distillery stage marker"
+    },
+    "Distillery Expert" : {
+      "comment" : "Distillery challenge pack title"
+    },
+    "Distillery Master" : {
+      "comment" : "Distillery challenge pack title"
+    },
+    "Distillery challenge" : {
+      "comment" : "Distillery challenge pack screen kicker"
+    },
+    "Distillery stage %lld, %@, %lld of %lld stars" : {
+      "comment" : "VoiceOver: an open distillery stage on the map"
+    },
+    "Distillery stage %lld, %@, locked. Opens with chapter %lld" : {
+      "comment" : "VoiceOver: a locked distillery stage on the map"
+    },
+    "Distillery · %@" : {
+      "comment" : "Story scene heading of a distillery workshop stage"
+    },
+    "Distillery · Stage %lld" : {
+      "comment" : "Distillery stage screen kicker"
+    },
+    "Distillery: %@" : {
+      "comment" : "Tooltip of a distillery stage on the map"
     },
     "Done" : {
       "comment" : "Ends a story scene"
@@ -1174,6 +1264,9 @@
     "Every sound is synthesized by the app while you play; there are no recorded samples. Text uses Apple's system fonts (SF Pro, SF Pro Rounded and New York)." : {
       "comment" : "About screen: sound and font credits"
     },
+    "Every still is new: a fresh board from a random seed. Random stills save no stars." : {
+      "comment" : "Random Distillery screen header"
+    },
     "Fair shares" : {
 
     },
@@ -1191,6 +1284,15 @@
     },
     "Fewest possible %lld taps" : {
       "comment" : "VoiceOver: distillery minimum taps"
+    },
+    "Fewest turns gets three stars? Then I'll think before I twist." : {
+      "comment" : "Story, distillery stage 1 (The Cold Still)"
+    },
+    "Fewest-tap days" : {
+      "comment" : "Daily Distillery stat: perfect days"
+    },
+    "Fiendish" : {
+      "comment" : "Random Distillery tier"
     },
     "Fill every flask" : {
       "comment" : "Distillery tip title"
@@ -1357,6 +1459,9 @@
     "Gentle" : {
       "comment" : "Daily puzzle difficulty (Monday)"
     },
+    "Gentle · Tricky · Fiendish" : {
+      "comment" : "Random Distillery card: the three tiers"
+    },
     "Ghost Mist" : {
       "comment" : "Potion name of the grey liquid"
     },
@@ -1381,6 +1486,9 @@
     "Grand Gathering" : {
       "comment" : "Daily gathering flavour (Sunday)"
     },
+    "Grand Still" : {
+      "comment" : "Daily Distillery flavour (Sunday)"
+    },
     "Haptics" : {
 
     },
@@ -1390,8 +1498,20 @@
     "heat coil, turns %@ into %@" : {
       "comment" : "VoiceOver: a distillery heat coil; arguments are the potions in and out"
     },
+    "Heat Coil" : {
+      "comment" : "Daily Distillery flavour (Thursday)"
+    },
     "Heat coils" : {
       "comment" : "Distillery tip title"
+    },
+    "Heat coils that change a potion, and valves that wait for a flask." : {
+      "comment" : "Distillery stage 3 subtitle"
+    },
+    "Heat coils. A potion that runs through one comes out changed, like red turning to orange. Read the little tag." : {
+      "comment" : "Story, distillery stage 3 (The Great Alembic)"
+    },
+    "Heating the still…" : {
+      "comment" : "Daily Distillery level is being generated"
     },
     "Hexagon" : {
       "comment" : "Name of a colorblind rune"
@@ -1586,6 +1706,9 @@
     "Mira" : {
       "comment" : "Name of the farmer who orders potions"
     },
+    "Missing" : {
+
+    },
     "Mix two specials" : {
       "comment" : "Match-3 tip title"
     },
@@ -1643,6 +1766,9 @@
     "My hall needs fresh quills. Every recipe on the cauldron cards is written with one." : {
       "comment" : "Story, gathering episode 8 (Windy Rookery)"
     },
+    "My old distillery! It hasn't run since I was your age. Someone knocked every pipe out of line." : {
+      "comment" : "Story, distillery stage 1 (The Cold Still)"
+    },
     "My old hall, and my favorite cauldron. Here we don't just sort potions, we brew them." : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
     },
@@ -1666,6 +1792,18 @@
     },
     "New brew in %lld m" : {
       "comment" : "Countdown to the next daily puzzle, minutes"
+    },
+    "New dailies in %lld h %lld m" : {
+      "comment" : "Countdown to the next dailies, hours and minutes"
+    },
+    "New dailies in %lld m" : {
+      "comment" : "Countdown to the next dailies, minutes"
+    },
+    "New distillery in %lld h %lld m" : {
+      "comment" : "Countdown to the next Daily Distillery, hours and minutes"
+    },
+    "New distillery in %lld m" : {
+      "comment" : "Countdown to the next Daily Distillery, minutes"
     },
     "New gathering in %lld h %lld m" : {
       "comment" : "Countdown to the next daily gathering, hours and minutes",
@@ -1816,7 +1954,13 @@
     "One at a time" : {
 
     },
+    "One cauldron, one flask: turn the brass pipes until the potion runs through." : {
+      "comment" : "Distillery stage 1 subtitle"
+    },
     "Only in the cauldron" : {
+
+    },
+    "not played" : {
 
     },
     "opens %@" : {
@@ -1824,6 +1968,9 @@
     },
     "Opens Lab Style" : {
 
+    },
+    "Opens the daily games" : {
+      "comment" : "VoiceOver hint of the Today card"
     },
     "Opens when chapter 10's last recipe is brewed" : {
       "comment" : "Map: when the last gathering episode opens"
@@ -1923,6 +2070,9 @@
     },
     "Pourfect Daily %@ · %@ · 🔥 %lld" : {
       "comment" : "Shared daily result: date, moves, streak"
+    },
+    "Pourfect Distillery — %@ %@ %lld taps (fewest %lld)" : {
+      "comment" : "Shared Daily Distillery result: date, stars as ★/☆, taps used and the minimum"
     },
     "Pourfect Gathering — %@ %@ %lld moves left" : {
       "comment" : "Shared daily gathering result: date, stars as ★/☆, moves left at the win",
@@ -2036,6 +2186,9 @@
     "Replay this episode's story" : {
       "comment" : "Tooltip of the Story button on a gathering episode"
     },
+    "Replay this stage's story" : {
+      "comment" : "Tooltip of the Story button on a distillery stage"
+    },
     "Resets at midnight UTC" : {
 
     },
@@ -2096,7 +2249,7 @@
     "Rush · Recipe %lld" : {
       "comment" : "Game title in Rush mode; the argument is the recipe's number in the run"
     },
-    "Rush, hard recipe books and Random Brew, open any time" : {
+    "Rush, hard recipe books, Random Brew and the distillery, open any time" : {
 
     },
     "Sa" : {
@@ -2148,6 +2301,9 @@
     },
     "Settings" : {
 
+    },
+    "Seven by seven, valves and coils everywhere." : {
+      "comment" : "Distillery Master pack subtitle"
     },
     "Share" : {
 
@@ -2233,6 +2389,12 @@
     "Splitters" : {
       "comment" : "Distillery tip title: the tee piece"
     },
+    "Splitters feed two flasks at once. The riveted pieces are bolted down, so plan around them." : {
+      "comment" : "Story, distillery stage 2 (Copper and Steam)"
+    },
+    "Splitters, riveted pieces, two potions and crossings." : {
+      "comment" : "Distillery stage 2 subtitle"
+    },
     "Spring water from the bog, for the Twin Towers. Their chained flasks need it pure." : {
       "comment" : "Story, gathering episode 7 (Bogwater Springs)"
     },
@@ -2244,6 +2406,9 @@
     },
     "Starburst" : {
       "comment" : "Completion effect name"
+    },
+    "Stars from the challenge packs are kept apart and never lock a chapter." : {
+      "comment" : "Footnote of a distillery challenge pack"
     },
     "Start Rush" : {
 
@@ -2272,6 +2437,18 @@
     },
     "Still %lld" : {
       "comment" : "Title of a distillery level; the argument is its number in the stage"
+    },
+    "Still %lld, %lld stars, best %lld taps" : {
+      "comment" : "VoiceOver: a won distillery level"
+    },
+    "Still %lld, locked" : {
+      "comment" : "VoiceOver: a locked distillery level"
+    },
+    "Still %lld, new piece, not distilled yet" : {
+      "comment" : "VoiceOver: an open distillery level that brings a new piece"
+    },
+    "Still %lld, not distilled yet" : {
+      "comment" : "VoiceOver: an open distillery level"
     },
     "Story" : {
 
@@ -2339,11 +2516,20 @@
     "Th" : {
       "comment" : "Calendar column: Thursday"
     },
+    "The Cold Still" : {
+      "comment" : "Distillery stage 1 title"
+    },
     "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
       "comment" : "Story, chapter 5 (Glass Works)"
     },
     "The Glyph Library's oldest runes have faded. Moonflowers glow just bright enough to read them." : {
       "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
+    },
+    "The Great Alembic" : {
+      "comment" : "Distillery stage 3 title"
+    },
+    "The Great Alembic, the heart of the old lab. Get it running and we can brew anything." : {
+      "comment" : "Story, distillery stage 3 (The Great Alembic)"
     },
     "The Rune Vault is pitch dark. Hollow-caps glow for hours once they're gathered: our lanterns for tomorrow." : {
       "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
@@ -2353,6 +2539,9 @@
     },
     "The dial under the flask lights up after every pour, wherever you pour. Its number is the moves left until it bubbles up." : {
 
+    },
+    "The distillery is optional: its stars are kept apart and never lock a chapter." : {
+      "comment" : "Footnote of a distillery stage"
     },
     "The dragon is purring, and it showed us its larder!" : {
       "comment" : "Story, gathering episode 10 (Dragon's Larder)"
@@ -2393,6 +2582,9 @@
     "The shape of every flask on the board. Flasks hold just as much in any shape." : {
 
     },
+    "The still is warm again! But this room has two cauldrons and pipes that split three ways." : {
+      "comment" : "Story, distillery stage 2 (Copper and Steam)"
+    },
     "Then let's gather every last one." : {
       "comment" : "Story, gathering episode 10 (Dragon's Larder)"
     },
@@ -2404,6 +2596,9 @@
     },
     "Then use all you've learned. A prism and a comet together make quite a harvest." : {
       "comment" : "Story, gathering episode 9 (Alchemist's Garden)"
+    },
+    "These copper coils are hot to the touch." : {
+      "comment" : "Story, distillery stage 3 (The Great Alembic)"
     },
     "Thinking…" : {
 
@@ -2459,6 +2654,12 @@
     "Today · %@" : {
       "comment" : "Daily screen: today's date"
     },
+    "Today's dailies" : {
+      "comment" : "Daily hub header title"
+    },
+    "Today's dailies, %@. %@" : {
+      "comment" : "VoiceOver: the Today card on the map"
+    },
     "Today, not solved yet" : {
 
     },
@@ -2480,8 +2681,14 @@
     "Turn counter-clockwise" : {
       "comment" : "VoiceOver action: turn a distillery pipe back"
     },
+    "Turn the pieces until the cauldron's outlet runs all the way to the flask. No open ends, or it drips on my floor." : {
+      "comment" : "Story, distillery stage 1 (The Cold Still)"
+    },
     "Turn the pipes" : {
       "comment" : "Distillery tip title"
+    },
+    "Turn the pipes, fill every flask" : {
+      "comment" : "Daily Distillery card: what to do"
     },
     "Turns it a quarter clockwise." : {
       "comment" : "VoiceOver hint of a distillery pipe piece"
@@ -2507,11 +2714,20 @@
     "Twins. Pour into one and the potion is shared evenly between both. And pour into a full flask with a brass pipe, and it pushes its bottom layer across." : {
       "comment" : "Story, chapter 8 (Twin Towers)"
     },
+    "Two Potions" : {
+      "comment" : "Daily Distillery flavour (Wednesday): two colors"
+    },
     "Two flasks on a silver chain are twins. Pour into either one and the pour is split evenly: half lands in each." : {
 
     },
     "Two lines crossing in an L or a T leave a bloom. It bursts open and clears the ingredients around it." : {
       "comment" : "Match-3 tip: bloom special"
+    },
+    "Two or three potions and every piece. Twenty hard stills." : {
+      "comment" : "Distillery Expert pack subtitle"
+    },
+    "Two pipes, one tile. They pass over each other and never mix." : {
+      "comment" : "Story, distillery stage 2 (Copper and Steam)"
     },
     "Two potions" : {
       "comment" : "Distillery tip title"
@@ -2536,6 +2752,9 @@
     },
     "Valves" : {
       "comment" : "Distillery tip title"
+    },
+    "Valves. Fill the flask with the same number and its valve swings open. One flask first, then the next." : {
+      "comment" : "Story, distillery stage 3 (The Great Alembic)"
     },
     "Verdigris" : {
       "comment" : "Metal of a rune key and its seal"
@@ -2564,11 +2783,17 @@
     "west" : {
       "comment" : "Distillery direction, spoken by VoiceOver"
     },
+    "What about the crossed pipes?" : {
+      "comment" : "Story, distillery stage 2 (Copper and Steam)"
+    },
     "What bursts out of a flask when you cork it. Reduce Motion shows none." : {
 
     },
     "What happens when they bubble?" : {
       "comment" : "Story, chapter 7 (Bubbling Bog)"
+    },
+    "What's behind this door? It's all brass pipes and cobwebs, and everything is stone cold." : {
+      "comment" : "Story, distillery stage 1 (The Cold Still)"
     },
     "When the top layer is frozen, the flask is shut: nothing pours in or out until the ice thaws." : {
 
@@ -2765,6 +2990,9 @@
     },
     "twin of flask %lld, every pour into either is split evenly between both" : {
       "comment" : "VoiceOver: a twin flask; the argument is the other twin's number"
+    },
+    "won" : {
+
     },
     "· Best %lld" : {
 
