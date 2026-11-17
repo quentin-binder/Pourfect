@@ -1,6 +1,132 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ %@" : {
+      "comment" : "VoiceOver: an ingredient that is a special, e.g. Ember row comet"
+    },
+    "%@: %lld of %lld" : {
+      "comment" : "VoiceOver: a match-3 goal and its progress"
+    },
+    "%lld by %lld board, %lld moves left, %@" : {
+      "comment" : "VoiceOver: match-3 board summary"
+    },
+    "%lld moves left" : {
+      "comment" : "VoiceOver: match-3 moves left"
+    },
+    "bloom" : {
+      "comment" : "Match-3 special that clears the 3 by 3 square around it"
+    },
+    "Bubbling Over!" : {
+      "comment" : "Match-3 finale: the moves left become specials that fire"
+    },
+    "Cascade ×%lld" : {
+      "comment" : "Match-3: several matches in a row after one swap"
+    },
+    "column comet" : {
+      "comment" : "Match-3 special that clears its column"
+    },
+    "Crates" : {
+      "comment" : "Match-3 goal: break every sealed crate"
+    },
+    "Crystal" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "Ember" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "Feather" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "Frost" : {
+      "comment" : "Match-3 goal: clear every frost layer"
+    },
+    "frozen, %lld ice layers" : {
+      "comment" : "VoiceOver: a frozen match-3 piece"
+    },
+    "Gathered!" : {
+      "comment" : "Match-3 win card title"
+    },
+    "Its board could not be set up." : {
+
+    },
+    "Map" : {
+
+    },
+    "Moonflower" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "moves" : {
+      "comment" : "Match-3 HUD caption under the moves left"
+    },
+    "Mushroom" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "New best score" : {
+
+    },
+    "Next Level" : {
+
+    },
+    "No swaps left: stirring the tray" : {
+      "comment" : "Match-3: the board is reshuffled"
+    },
+    "Out of moves" : {
+      "comment" : "Match-3 card when the moves run out"
+    },
+    "Potion Drop" : {
+      "comment" : "Match-3 ingredient"
+    },
+    "Potion flask, bring it to the bottom" : {
+      "comment" : "VoiceOver: the drop-down goal item"
+    },
+    "prism" : {
+      "comment" : "Match-3 special that clears every piece of one kind"
+    },
+    "Prism, clears every piece of the kind it is swapped with" : {
+      "comment" : "VoiceOver: a prism piece"
+    },
+    "Retry" : {
+
+    },
+    "Retrying is free, and the board starts the same way." : {
+      "comment" : "Match-3 out-of-moves card: retry costs nothing; the seed gives the same start"
+    },
+    "Row %lld, column %lld" : {
+      "comment" : "VoiceOver: position of a match-3 cell"
+    },
+    "row comet" : {
+      "comment" : "Match-3 special that clears its row"
+    },
+    "Score" : {
+      "comment" : "Match-3 goal: reach a score"
+    },
+    "Score %lld" : {
+      "comment" : "Match-3 win card: the final score"
+    },
+    "Score %lld; two stars at %lld, three stars at %lld" : {
+      "comment" : "VoiceOver: match-3 score and star thresholds"
+    },
+    "Sealed crate, %lld hits left" : {
+      "comment" : "VoiceOver: a match-3 crate cell"
+    },
+    "Start this level over" : {
+
+    },
+    "Swap down" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one below"
+    },
+    "Swap left" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one on the left"
+    },
+    "Swap right" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one on the right"
+    },
+    "Swap up" : {
+      "comment" : "VoiceOver action: swap a match-3 piece with the one above"
+    },
+    "This level can't be played" : {
+
+    },
     "· Best %lld" : {
 
     },
