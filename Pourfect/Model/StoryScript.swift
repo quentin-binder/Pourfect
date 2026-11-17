@@ -173,6 +173,31 @@ enum StoryScript {
             ]
         case .gathering:
             return []
+        case .distillery(1):
+            return [
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "What's behind this door? It's all brass pipes and cobwebs, and everything is stone cold.", comment: "Story, distillery stage 1 (The Cold Still)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "My old distillery! It hasn't run since I was your age. Someone knocked every pipe out of line.", comment: "Story, distillery stage 1 (The Cold Still)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Turn the pieces until the cauldron's outlet runs all the way to the flask. No open ends, or it drips on my floor.", comment: "Story, distillery stage 1 (The Cold Still)")),
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "Fewest turns gets three stars? Then I'll think before I twist.", comment: "Story, distillery stage 1 (The Cold Still)")),
+            ]
+        case .distillery(2):
+            return [
+                L(speaker: .apprentice, mood: .happy, text: String(localized: "The still is warm again! But this room has two cauldrons and pipes that split three ways.", comment: "Story, distillery stage 2 (Copper and Steam)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Splitters feed two flasks at once. The riveted pieces are bolted down, so plan around them.", comment: "Story, distillery stage 2 (Copper and Steam)")),
+                L(speaker: .alchemist, mood: .worried, text: String(localized: "And never let two potions meet in one pipe. They turn to murk and block the line.", comment: "Story, distillery stage 2 (Copper and Steam)")),
+                L(speaker: .apprentice, mood: .neutral, text: String(localized: "What about the crossed pipes?", comment: "Story, distillery stage 2 (Copper and Steam)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Two pipes, one tile. They pass over each other and never mix.", comment: "Story, distillery stage 2 (Copper and Steam)")),
+            ]
+        case .distillery(3):
+            return [
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "The Great Alembic, the heart of the old lab. Get it running and we can brew anything.", comment: "Story, distillery stage 3 (The Great Alembic)")),
+                L(speaker: .apprentice, mood: .neutral, text: String(localized: "These copper coils are hot to the touch.", comment: "Story, distillery stage 3 (The Great Alembic)")),
+                L(speaker: .alchemist, mood: .neutral, text: String(localized: "Heat coils. A potion that runs through one comes out changed, like red turning to orange. Read the little tag.", comment: "Story, distillery stage 3 (The Great Alembic)")),
+                L(speaker: .apprentice, mood: .worried, text: String(localized: "And the red wheels? They won't let anything through.", comment: "Story, distillery stage 3 (The Great Alembic)")),
+                L(speaker: .alchemist, mood: .happy, text: String(localized: "Valves. Fill the flask with the same number and its valve swings open. One flask first, then the next.", comment: "Story, distillery stage 3 (The Great Alembic)")),
+            ]
+        case .distillery:
+            return []
         case .ending:
             return [
                 L(speaker: .apprentice, mood: .happy, text: String(localized: "Every flask sorted, every gate open… and listen, the dragon is purring!", comment: "Story, ending")),
@@ -194,6 +219,8 @@ enum StoryScript {
         case .gathering(let n):
             let name = Match3Library.shared.episodes.first { $0.episode.number == n }?.episode.name ?? ""
             return String(localized: "Gathering · \(name)", comment: "Story scene heading of an ingredient-gathering episode")
+        case .distillery(let n):
+            return String(localized: "Distillery · \(DistillWing.stageTitle(n))", comment: "Story scene heading of a distillery workshop stage")
         }
     }
 
@@ -204,6 +231,8 @@ enum StoryScript {
         case .ending: .chapter10
         // Where the gathered ingredients are going: the next chapter (the larder is the hoard's own).
         case .gathering(let n): ChapterArt.vignette(min(n + 1, 10)) ?? .bgWorkbenchLandscape
+        // The old lab's workbench; the Great Alembic stands in the alchemist's hall.
+        case .distillery(let n): n >= 3 ? .chapter09 : .bgWorkbenchLandscape
         }
     }
 }
