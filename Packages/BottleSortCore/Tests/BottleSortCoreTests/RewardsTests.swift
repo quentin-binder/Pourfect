@@ -206,6 +206,16 @@ struct StoryTests {
         #expect(Story.sceneOnOpening(distillery: 2, seen: []) == .distillery(2))
         #expect(Story.sceneOnOpening(distillery: 2, seen: ["distillery.2"]) == nil)
         #expect(Story.sceneOnOpening(distillery: 4, seen: []) == nil)
+        // R11: hidden-object rooms' opening scenes, ids by room name.
+        for n in Story.hiddenRooms {
+            #expect(StoryScene(id: StoryScene.hidden(n).id) == .hidden(n))
+        }
+        #expect(StoryScene.hidden(1).id == "hidden.attic")
+        #expect(StoryScene.hidden(3).id == "hidden.hoard")
+        #expect(StoryScene(id: "hidden.cellar") == nil)
+        #expect(Story.sceneOnOpening(hiddenRoom: 2, seen: []) == .hidden(2))
+        #expect(Story.sceneOnOpening(hiddenRoom: 2, seen: ["hidden.market"]) == nil)
+        #expect(Story.sceneOnOpening(hiddenRoom: 4, seen: []) == nil)
         #expect(Story.replayable(chapter: 3, seen: ["ending"]) == [.chapter(3)])
         #expect(Story.replayable(chapter: 10, seen: []) == [.chapter(10)])
         #expect(Story.replayable(chapter: 10, seen: ["ending"]) == [.chapter(10), .ending])
