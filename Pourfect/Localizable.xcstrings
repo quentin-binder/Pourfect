@@ -1,11 +1,28 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "%@ %@" : {
-      "comment" : "VoiceOver: an ingredient that is a special, e.g. Ember row comet"
+    "· Best %lld" : {
+
+    },
+    "%@ · %@" : {
+      "comment" : "Daily puzzle label: weekday · difficulty, e.g. Sunday · Grand Brew"
+    },
+    "%@ · Room %lld" : {
+      "comment" : "Hidden-object room screen kicker",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$@ · Room %2$lld"
+          }
+        }
+      }
     },
     "%@ (%@)" : {
       "comment" : "Tooltip of a tray ingredient: its name and Mac keyboard key"
+    },
+    "%@ %@" : {
+      "comment" : "VoiceOver: an ingredient that is a special, e.g. Ember row comet"
     },
     "%@ and %@" : {
       "comment" : "Toast: two new rewards"
@@ -34,14 +51,14 @@
     "%@ with %@ brews %@" : {
       "comment" : "VoiceOver: one recipe of a mixing cauldron; the arguments are the two ingredients and the potion they brew"
     },
-    "%@ · %@" : {
-      "comment" : "Daily puzzle label: weekday · difficulty, e.g. Sunday · Grand Brew"
-    },
     "%@, %lld of %lld stars, %lld gold seals" : {
       "comment" : "VoiceOver: a challenge book in the hub"
     },
     "%@, %lld of %lld stars, %lld of %lld stills distilled" : {
       "comment" : "VoiceOver: a distillery challenge pack in the hub"
+    },
+    "%@, found" : {
+      "comment" : "VoiceOver: a found object on the find list"
     },
     "%@, in use" : {
       "comment" : "VoiceOver: the chosen Lab Style reward"
@@ -52,20 +69,20 @@
     "%@, locked. %@. %lld of %lld." : {
       "comment" : "VoiceOver: a locked Lab Style reward, how to earn it and the progress"
     },
+    "%@, not found yet" : {
+      "comment" : "VoiceOver: an object still to find"
+    },
     "%@, unlocked" : {
       "comment" : "VoiceOver: an unlocked Lab Style reward"
     },
-    "%@. %@" : {
-      "comment" : "Tooltip of a locked episode marker: its name, then when it opens"
-    },
     "%@: %@" : {
-      "comment" : "VoiceOver: a story line, speaker then line"
+      "comment" : "Tooltip of a hidden-object room on the map\nVoiceOver: a Random Distillery tier\nVoiceOver: a story line, speaker then line"
     },
     "%@: %lld of %lld" : {
       "comment" : "VoiceOver: a match-3 goal and its progress"
     },
-    "%lld %@" : {
-      "comment" : "Layer count and potion name, e.g. 2 Moonshade"
+    "%@. %@" : {
+      "comment" : "Tooltip of a locked distillery stage: its name, then when it opens\nTooltip of a locked episode marker: its name, then when it opens\nTooltip of a locked hidden-object room: its name, then when it opens"
     },
     "%lld / %lld" : {
       "localizations" : {
@@ -79,6 +96,9 @@
     },
     "%lld / %lld distilled" : {
       "comment" : "Distillery challenge pack card: levels won"
+    },
+    "%lld %@" : {
+      "comment" : "Layer count and potion name, e.g. 2 Moonshade"
     },
     "%lld by %lld board" : {
       "comment" : "VoiceOver: distillery board size"
@@ -107,6 +127,9 @@
           }
         }
       }
+    },
+    "%lld hints" : {
+      "comment" : "Hidden-object round card: hints used"
     },
     "%lld in place, %lld elsewhere" : {
       "comment" : "Secret Recipe feedback for VoiceOver: gold drops (right ingredient, right slot) and silver drops (right ingredient, other slot)"
@@ -143,54 +166,6 @@
                 "stringUnit" : {
                   "state" : "translated",
                   "value" : "%lld moves"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld moves (perfect)" : {
-      "comment" : "Shared daily result",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld move (perfect)"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld moves (perfect)"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "%lld moves left" : {
-      "comment" : "VoiceOver: match-3 moves left"
-    },
-    "%lld moves this time. Your first solve of the day is the one that counts." : {
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld move this time. Your first solve of the day is the one that counts."
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "%lld moves this time. Your first solve of the day is the one that counts."
                 }
               }
             }
@@ -262,6 +237,54 @@
         }
       }
     },
+    "%lld moves (perfect)" : {
+      "comment" : "Shared daily result",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move (perfect)"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves (perfect)"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld moves left" : {
+      "comment" : "VoiceOver: match-3 moves left"
+    },
+    "%lld moves this time. Your first solve of the day is the one that counts." : {
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld move this time. Your first solve of the day is the one that counts."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld moves this time. Your first solve of the day is the one that counts."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld moves, the fewest possible" : {
       "localizations" : {
         "en" : {
@@ -307,6 +330,17 @@
         }
       }
     },
+    "%lld of %lld" : {
+      "comment" : "Find list: found of total",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld"
+          }
+        }
+      }
+    },
     "%lld of %lld distilled" : {
       "comment" : "Distillery pack header: levels won"
     },
@@ -319,11 +353,33 @@
     "%lld of %lld flasks filled" : {
       "comment" : "VoiceOver: distillery progress"
     },
+    "%lld of %lld found" : {
+      "comment" : "VoiceOver: hidden-object round progress",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld found"
+          }
+        }
+      }
+    },
     "%lld of %lld guesses brewed" : {
       "comment" : "Daily Secret Recipe status: in progress"
     },
     "%lld of %lld recipes with a gold seal" : {
       "comment" : "VoiceOver: gold seals earned in a chapter"
+    },
+    "%lld of %lld rounds" : {
+      "comment" : "Hidden-object room header: rounds finished",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld rounds"
+          }
+        }
+      }
     },
     "%lld of %lld stars" : {
       "localizations" : {
@@ -385,6 +441,17 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "%lld of %lld stars, %lld of %lld rounds finished" : {
+      "comment" : "VoiceOver: hidden-object room progress",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld of %2$lld stars, %3$lld of %4$lld rounds finished"
           }
         }
       }
@@ -531,11 +598,17 @@
     "%lld taps · fewest possible %lld" : {
       "comment" : "Distillery win card: taps used and the minimum"
     },
-    "%lld%%" : {
-      "comment" : "Secret Recipe stat value: win percentage"
+    "%lld to find" : {
+      "comment" : "Hidden-object round cell: objects on the list"
+    },
+    "%lld wrong taps" : {
+      "comment" : "Hidden-object round card: wrong taps"
     },
     "%lld/%lld" : {
       "comment" : "Today card: guesses the Secret Recipe took, e.g. 4/8"
+    },
+    "%lld%%" : {
+      "comment" : "Secret Recipe stat value: win percentage"
     },
     "+%lld" : {
       "comment" : "Push preview under a flask: how many layers a pour would push into its bottom through a pressure pipe"
@@ -546,6 +619,9 @@
     "3 stars" : {
 
     },
+    "4 guesses or fewer" : {
+
+    },
     "5×5, one potion, straights and elbows" : {
       "comment" : "Random Distillery tier details"
     },
@@ -554,9 +630,6 @@
     },
     "7×7, two potions, riveted pieces, a heat coil and a valve" : {
       "comment" : "Random Distillery tier details"
-    },
-    "4 guesses or fewer" : {
-
     },
     "A brass lever joins a switch flask to a gate. While the gate's bars are down, nothing pours into it or out of it." : {
 
@@ -595,7 +668,7 @@
 
     },
     "A hint was used, so two stars at most" : {
-  
+
     },
     "A narrow neck lets one layer through at a time, a funnel only takes potions in, and a tap pours from the bottom. Each one changes how the potions flow." : {
       "comment" : "Story, chapter 5 (Glass Works)"
@@ -668,6 +741,9 @@
     "Accessibility" : {
 
     },
+    "Acorn" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Alchemist" : {
       "comment" : "Story speaker name"
     },
@@ -680,6 +756,15 @@
     "All five in place" : {
       "comment" : "Secret Recipe feedback: the guess is the recipe"
     },
+    "All found!" : {
+
+    },
+    "Amethyst" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Amulet" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "An alchemist's journey from the cellar to the dragon's hoard." : {
 
     },
@@ -688,6 +773,15 @@
     },
     "An open pipe end is dripping" : {
       "comment" : "Tooltip: distillery leak warning"
+    },
+    "And everything that isn't on the list?" : {
+      "comment" : "Story, curiosity room 1 (The Alchemist's Attic)"
+    },
+    "And if I can't find something, I'll light the lantern." : {
+      "comment" : "Story, curiosity room 1 (The Alchemist's Attic)"
+    },
+    "And if I touch the wrong treasure?" : {
+      "comment" : "Story, curiosity room 3 (The Dragon's Hoard)"
     },
     "And never let two potions meet in one pipe. They turn to murk and block the line." : {
       "comment" : "Story, distillery stage 2 (Copper and Steam)"
@@ -710,17 +804,20 @@
     "Back" : {
 
     },
+    "Battle axe" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Because she sleeps after a good meal, and she owes me a favour. I want a few things from her hoard." : {
+      "comment" : "Story, curiosity room 3 (The Dragon's Hoard)"
+    },
     "Before the climb to Frost Peak we need warm supplies, and they're locked in my old storeroom." : {
       "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
-    },
-    "Distilled! Every flask is filled. %lld stars, %lld taps." : {
-      "comment" : "VoiceOver: a distillery level is won; arguments are stars and taps"
     },
     "best" : {
       "comment" : "Distillery HUD caption: fewest taps of a win"
     },
     "Best %lld" : {
-      "comment" : "Rush best score\nRush end card: the saved best score"
+      "comment" : "Daily hub row: the game's best streak\nRush best score\nRush end card: the saved best score"
     },
     "Best %lld taps" : {
       "comment" : "VoiceOver: distillery best tap count"
@@ -761,14 +858,32 @@
     "Best streak" : {
 
     },
+    "bloom" : {
+      "comment" : "Match-3 special that clears the 3 by 3 square around it"
+    },
     "Blooms" : {
       "comment" : "Match-3 tip title: the 3x3 special"
+    },
+    "Blue flask" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Blue vase" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Bolt" : {
       "comment" : "Name of a colorblind rune"
     },
+    "Bone die" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Both twins must take the potion, and each gets the same amount. A single layer can't be split, so it can't go in." : {
 
+    },
+    "bottom to top %@" : {
+      "comment" : "VoiceOver: the layers a layered-recipe flask wants, listed from the bottom; the argument lists them"
+    },
+    "Bracelet" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Bram" : {
       "comment" : "Name of the village baker who orders potions"
@@ -776,8 +891,14 @@
     "Brass rivets hold a piece in place: it can't be turned. Build your pipes around it." : {
       "comment" : "Distillery tip: fixed pieces"
     },
+    "Brass scale" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Bread loaf" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
     "Brew" : {
-
+      "comment" : "Secret Recipe: submit the guess"
     },
     "Brew %lld recipes in one Rush" : {
       "comment" : "Lab Style milestone"
@@ -801,10 +922,19 @@
       "comment" : "Rush: the next recipe is being generated; the timer is paused meanwhile"
     },
     "Brewing…" : {
-      "comment" : "Today's daily puzzle is being generated"
+      "comment" : "Secret Recipe: the drops of a guess are appearing"
     },
     "Brews solved" : {
       "comment" : "Number of daily puzzles solved"
+    },
+    "Brooch" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Broom" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Brown egg" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Brr! My potions froze solid on the way up the mountain." : {
       "comment" : "Story, chapter 6 (Frost Peak)"
@@ -812,8 +942,28 @@
     "Bubble Pop" : {
       "comment" : "Completion effect name"
     },
-    "Bubbling Over!" : {
-      "comment" : "Match-3 finale: the moves left become specials that fire"
+    "bubbling flask, its bottom potion rises to the top in %lld moves" : {
+      "comment" : "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "bubbling flask, its bottom potion rises to the top after the next move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "bubbling flask, its bottom potion rises to the top in %lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "Bubbling flasks" : {
 
@@ -821,20 +971,35 @@
     "Bubbling Over: the moves left fire as specials" : {
       "comment" : "VoiceOver: the match-3 finale starts"
     },
+    "Bubbling Over!" : {
+      "comment" : "Match-3 finale: the moves left become specials that fire"
+    },
     "Builds a random still and opens it" : {
       "comment" : "VoiceOver hint of a Random Distillery tier"
     },
     "But… what happens now?" : {
       "comment" : "Story, ending"
     },
+    "Butterfly" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Can't swap there" : {
       "comment" : "VoiceOver: a match-3 swap with a frozen piece, crate, flask, hole or the edge"
+    },
+    "Candelabra" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Candle" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Careful now. The bog air makes some of the flasks bubble." : {
       "comment" : "Story, chapter 7 (Bubbling Bog)"
     },
     "carries %@" : {
       "comment" : "VoiceOver: what flows through a distillery pipe"
+    },
+    "Carrot" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Cascade ×%lld" : {
       "comment" : "Match-3: several matches in a row after one swap"
@@ -861,7 +1026,7 @@
       "comment" : "VoiceOver hint: tray ingredient in notes mode"
     },
     "Chapter %lld" : {
-
+      "comment" : "Map plate of a locked distillery stage: the chapter that opens it\nMap plate of a locked hidden-object room: the chapter that opens it"
     },
     "Chapter %lld · %@" : {
       "comment" : "Story scene heading"
@@ -956,6 +1121,15 @@
     "Chapter Story" : {
       "comment" : "Story menu: the chapter's scene"
     },
+    "Cheese wedge" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Cherries" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Chess knight" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Chevron" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -968,11 +1142,14 @@
     "Classic" : {
       "comment" : "Random recipe mode"
     },
+    "Classic · Rune Seals · Murky Layers" : {
+
+    },
     "Classic Flask" : {
       "comment" : "Flask shape name"
     },
-    "Classic · Rune Seals · Murky Layers" : {
-
+    "Clay jug" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Clear" : {
       "comment" : "Secret Recipe: empty the five slots"
@@ -983,11 +1160,20 @@
     "Clear the mist" : {
 
     },
+    "Clears this slot" : {
+      "comment" : "VoiceOver hint: filled slot"
+    },
     "Click a pipe to turn it a quarter clockwise; right-click or Option-click turns it back. Potion runs from the cauldron through every connected pipe." : {
       "comment" : "Distillery tip (Mac): how to turn pipes"
     },
-    "Clears this slot" : {
-      "comment" : "VoiceOver hint: filled slot"
+    "Click the things on the list when you spot them in the room. Other curios lie about too: clicking those, or nothing, counts as a miss." : {
+      "comment" : "Hidden-object tip (Mac): find the objects on the list"
+    },
+    "Coin pouch" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Coin purse" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Color Runes" : {
 
@@ -997,6 +1183,9 @@
     },
     "colors mixing" : {
       "comment" : "VoiceOver: two colors met in the distillery"
+    },
+    "column comet" : {
+      "comment" : "Match-3 special that clears its column"
     },
     "Comets" : {
       "comment" : "Match-3 tip title: the line-clear special"
@@ -1008,6 +1197,9 @@
       "comment" : "Flask shape name"
     },
     "Continue" : {
+      "comment" : "Continues today's Secret Recipe"
+    },
+    "Continue · Chapter %lld" : {
 
     },
     "Continue chapter %lld, %@" : {
@@ -1020,14 +1212,23 @@
         }
       }
     },
-    "Continue · Chapter %lld" : {
-
-    },
     "Copper" : {
       "comment" : "Metal of a rune key and its seal"
     },
     "Copper and Steam" : {
       "comment" : "Distillery stage 2 title"
+    },
+    "Copper ladle" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Copper teapot" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "corked" : {
+
+    },
+    "Corn cob" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Costs %lld seconds" : {
       "comment" : "VoiceOver hint on Rush's Skip button; the argument is the time penalty"
@@ -1064,7 +1265,7 @@
       "comment" : "Secret Recipe tip title"
     },
     "Cracked" : {
-      "comment" : "Secret Recipe stat: share of days won"
+      "comment" : "Daily hub: today's Secret Recipe was solved\nSecret Recipe stat: share of days won"
     },
     "Cracked in %lld of %lld" : {
       "comment" : "Daily Secret Recipe status: won"
@@ -1085,10 +1286,47 @@
       "comment" : "Distillery piece: two pipes crossing without mixing"
     },
     "Crossings" : {
-      "comment" : "Distillery tip title"
+      "comment" : "Daily Distillery flavour (Saturday)\nDistillery tip title"
+    },
+    "Crown" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Crystal" : {
       "comment" : "Match-3 ingredient"
+    },
+    "Crystal ball" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Curiosities" : {
+      "comment" : "Map plate over a hidden-object room marker"
+    },
+    "Curiosity room %lld, %@, %lld of %lld stars" : {
+      "comment" : "VoiceOver: an open hidden-object room on the map",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Curiosity room %1$lld, %2$@, %3$lld of %4$lld stars"
+          }
+        }
+      }
+    },
+    "Curiosity room %lld, %@, locked. Opens with chapter %lld" : {
+      "comment" : "VoiceOver: a locked hidden-object room on the map",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Curiosity room %1$lld, %2$@, locked. Opens with chapter %3$lld"
+          }
+        }
+      }
+    },
+    "Curiosity Rooms" : {
+      "comment" : "Name of the hidden-object wing"
+    },
+    "Curiosity Rooms · %@" : {
+      "comment" : "Story scene heading of a hidden-object room"
     },
     "Current streak" : {
 
@@ -1160,13 +1398,13 @@
     "Days follow UTC. A new gathering appears at midnight UTC." : {
 
     },
+    "Days follow UTC. A new recipe is hidden at midnight UTC. Secret Recipe never counts toward the chapter map." : {
+
+    },
     "Days follow UTC. A new still appears at midnight UTC." : {
 
     },
     "Days follow UTC. New dailies appear at midnight UTC." : {
-
-    },
-    "Days follow UTC. A new recipe is hidden at midnight UTC. Secret Recipe never counts toward the chapter map." : {
 
     },
     "Days gathered" : {
@@ -1178,6 +1416,9 @@
     "Deep Seal" : {
       "comment" : "Daily puzzle difficulty (Saturday)"
     },
+    "Desk globe" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Diamond" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -1185,25 +1426,13 @@
 
     },
     "Distilled!" : {
-  
+
+    },
+    "Distilled! Every flask is filled. %lld stars, %lld taps." : {
+      "comment" : "VoiceOver: a distillery level is won; arguments are stars and taps"
     },
     "Distillery" : {
       "comment" : "Map plate over a distillery stage marker"
-    },
-    "Distillery Expert" : {
-      "comment" : "Distillery challenge pack title"
-    },
-    "Distillery Master" : {
-      "comment" : "Distillery challenge pack title"
-    },
-    "Distillery challenge" : {
-      "comment" : "Distillery challenge pack screen kicker"
-    },
-    "Distillery stage %lld, %@, %lld of %lld stars" : {
-      "comment" : "VoiceOver: an open distillery stage on the map"
-    },
-    "Distillery stage %lld, %@, locked. Opens with chapter %lld" : {
-      "comment" : "VoiceOver: a locked distillery stage on the map"
     },
     "Distillery · %@" : {
       "comment" : "Story scene heading of a distillery workshop stage"
@@ -1211,11 +1440,32 @@
     "Distillery · Stage %lld" : {
       "comment" : "Distillery stage screen kicker"
     },
+    "Distillery challenge" : {
+      "comment" : "Distillery challenge pack screen kicker"
+    },
+    "Distillery Expert" : {
+      "comment" : "Distillery challenge pack title"
+    },
+    "Distillery Master" : {
+      "comment" : "Distillery challenge pack title"
+    },
+    "Distillery stage %lld, %@, %lld of %lld stars" : {
+      "comment" : "VoiceOver: an open distillery stage on the map"
+    },
+    "Distillery stage %lld, %@, locked. Opens with chapter %lld" : {
+      "comment" : "VoiceOver: a locked distillery stage on the map"
+    },
     "Distillery: %@" : {
       "comment" : "Tooltip of a distillery stage on the map"
     },
     "Done" : {
-      "comment" : "Ends a story scene"
+      "comment" : "Ends a story scene\nLeaves the finished Secret Recipe"
+    },
+    "Dragon egg" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Dragon scale" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Dragon's Blood" : {
       "comment" : "Potion name of the red liquid"
@@ -1225,6 +1475,9 @@
     },
     "Dragons love a tidy shelf. Let's not keep it waiting." : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
+    },
+    "Drinking horn" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "dripping" : {
       "comment" : "VoiceOver: an open pipe end in the distillery drips"
@@ -1282,11 +1535,14 @@
     "east" : {
       "comment" : "Distillery direction, spoken by VoiceOver"
     },
-    "Elbow" : {
-      "comment" : "Distillery piece: a bent pipe"
+    "Eggplant" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Eight guesses to open the alchemist's book" : {
       "comment" : "Daily Secret Recipe status: not started"
+    },
+    "Elbow" : {
+      "comment" : "Distillery piece: a bent pipe"
     },
     "Ember" : {
       "comment" : "Match-3 ingredient"
@@ -1294,11 +1550,14 @@
     "Embers! Are these for the Glass Works?" : {
       "comment" : "Story, gathering episode 4 (Ember Hearth)"
     },
-    "Empty" : {
-      "comment" : "VoiceOver: an empty match-3 cell"
+    "Emerald" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "empty" : {
       "comment" : "VoiceOver: a distillery flask holds nothing yet"
+    },
+    "Empty" : {
+      "comment" : "Distillery: an empty cell\nVoiceOver: an empty match-3 cell"
     },
     "Empty flasks" : {
 
@@ -1314,6 +1573,9 @@
     },
     "Epilogue" : {
       "comment" : "Story scene heading for the ending"
+    },
+    "essence flask, accepts %@ only" : {
+      "comment" : "An essence flask; the argument is the only potion it takes"
     },
     "Essence flasks" : {
 
@@ -1335,6 +1597,9 @@
     },
     "Every still is new: a fresh board from a random seed. Random stills save no stars." : {
       "comment" : "Random Distillery screen header"
+    },
+    "Everything looks like everything else in this heap." : {
+      "comment" : "Story, curiosity room 2 (The Market Stall)"
     },
     "Fair shares" : {
 
@@ -1384,8 +1649,20 @@
     "filled" : {
       "comment" : "VoiceOver: a distillery flask holds its own color"
     },
+    "Find" : {
+      "comment" : "Heading of the hidden-object find list"
+    },
+    "Find what's on the list" : {
+      "comment" : "Hidden-object tip title"
+    },
     "Fireflies" : {
       "comment" : "Completion effect name"
+    },
+    "Firefly jar" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Fish" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Five in a row makes a prism. Swap it with any ingredient to gather every one of that kind." : {
       "comment" : "Match-3 tip: prism special"
@@ -1468,6 +1745,20 @@
     "Forest Hut" : {
       "comment" : "Workbench theme name"
     },
+    "Forty curios under the rafters. Some are on your list, the rest only look like they should be." : {
+      "comment" : "Hidden-object room 1 subtitle"
+    },
+    "Found %@. %lld left." : {
+      "comment" : "VoiceOver: an object was found; the count still to find",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Found %1$@. %2$lld left."
+          }
+        }
+      }
+    },
     "Found in %lld of %lld guesses" : {
       "comment" : "Secret Recipe win card: guesses used"
     },
@@ -1479,6 +1770,9 @@
     },
     "Friday" : {
       "comment" : "Weekday of the daily puzzle"
+    },
+    "Frog figurine" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "From a dusty cellar to a dragon's hoard. You're no apprentice any more, my friend." : {
       "comment" : "Story, ending"
@@ -1507,8 +1801,46 @@
     "Frozen over" : {
 
     },
+    "frozen over, nothing goes in or out, thaws in %lld moves" : {
+      "comment" : "VoiceOver: the top layer of a flask is frozen; the argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "frozen over, nothing goes in or out, thaws in %lld move"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "frozen over, nothing goes in or out, thaws in %lld moves"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "frozen, %lld ice layers" : {
+      "comment" : "VoiceOver: a frozen match-3 piece"
+    },
+    "Fruit, pots and trinkets piled high. Find what the alchemist asks for." : {
+      "comment" : "Hidden-object room 2 subtitle"
+    },
+    "funnel flask, fills only, never pours out" : {
+      "comment" : "VoiceOver: a funnel flask"
+    },
     "Funnel flasks" : {
 
+    },
+    "gate open while flask %lld stays full of one potion" : {
+      "comment" : "VoiceOver: an open gate flask; the argument is its switch's flask number"
+    },
+    "gate shut, nothing pours in or out until flask %lld is full of one potion" : {
+      "comment" : "VoiceOver: a closed gate flask; the argument is its switch's flask number"
     },
     "Gather them quickly, before the wind changes its mind." : {
       "comment" : "Story, gathering episode 8 (Windy Rookery)"
@@ -1519,26 +1851,32 @@
     "Gathered! Stars: %lld of 3. Score %lld" : {
       "comment" : "VoiceOver: a match-3 level was won; stars and the final score"
     },
+    "Gathering · %@" : {
+      "comment" : "Story scene heading of an ingredient-gathering episode"
+    },
     "Gathering %lld" : {
       "comment" : "Map plate of a locked ingredient-gathering episode"
     },
     "Gathering is optional: its stars are kept apart and never lock a chapter." : {
 
     },
-    "Gathering · %@" : {
-      "comment" : "Story scene heading of an ingredient-gathering episode"
-    },
     "Gathering…" : {
       "comment" : "Daily gathering level is being generated"
     },
+    "Gauntlet" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Gentle" : {
-      "comment" : "Daily puzzle difficulty (Monday)"
+      "comment" : "Daily puzzle difficulty (Monday)\nRandom Distillery tier"
     },
     "Gentle · Tricky · Fiendish" : {
       "comment" : "Random Distillery card: the three tiers"
     },
     "Ghost Mist" : {
       "comment" : "Potion name of the grey liquid"
+    },
+    "Glass marble" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Goblin Lime" : {
       "comment" : "Potion name of the lime liquid"
@@ -1549,11 +1887,41 @@
     "Gold and silver drops" : {
       "comment" : "Secret Recipe tip title"
     },
+    "Gold bar" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Gold on gold, mind you. A golden key is hard to see on a pile of coins." : {
+      "comment" : "Story, curiosity room 3 (The Dragon's Hoard)"
+    },
+    "Gold on gold. From round six, golden treasures join the list." : {
+      "comment" : "Hidden-object room 3 subtitle"
+    },
     "Gold seal" : {
       "comment" : "VoiceOver: the win card's gold seal for a perfect brew"
     },
     "Gold seals %lld / %lld" : {
       "comment" : "Gold seals earned in a chapter out of its recipes"
+    },
+    "Golden apple" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Golden bird" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Golden goblet" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Golden harp" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Golden key" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Golden mask" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Golden plate" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Got it" : {
 
@@ -1567,6 +1935,15 @@
     "Grand Still" : {
       "comment" : "Daily Distillery flavour (Sunday)"
     },
+    "Grapes" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Green bottle" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Green potion" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Guess %lld: %@" : {
       "comment" : "VoiceOver announcement after a Secret Recipe guess"
     },
@@ -1579,17 +1956,26 @@
     "Guesses" : {
       "comment" : "Heading of the Secret Recipe guess distribution"
     },
+    "Hammer" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Hand bell" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Hand mirror" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Haptics" : {
 
     },
     "Heart" : {
       "comment" : "Name of a colorblind rune"
     },
-    "heat coil, turns %@ into %@" : {
-      "comment" : "VoiceOver: a distillery heat coil; arguments are the potions in and out"
-    },
     "Heat Coil" : {
       "comment" : "Daily Distillery flavour (Thursday)"
+    },
+    "heat coil, turns %@ into %@" : {
+      "comment" : "VoiceOver: a distillery heat coil; arguments are the potions in and out"
     },
     "Heat coils" : {
       "comment" : "Distillery tip title"
@@ -1612,8 +1998,14 @@
     "Hide the count" : {
       "comment" : "VoiceOver: hide possible recipes count"
     },
+    "Hide the find list" : {
+      "comment" : "VoiceOver: collapse the find list"
+    },
     "Hint" : {
 
+    },
+    "Hint turned the piece in row %lld, column %lld." : {
+      "comment" : "VoiceOver: a distillery hint turned a piece; arguments are its row and column"
     },
     "holds %@, wrong potion" : {
       "comment" : "VoiceOver: a distillery flask holds another color"
@@ -1621,17 +2013,26 @@
     "holds murky liquid" : {
       "comment" : "VoiceOver: a distillery flask"
     },
-    "Hint turned the piece in row %lld, column %lld." : {
-      "comment" : "VoiceOver: a distillery hint turned a piece; arguments are its row and column"
-    },
-    "How the distillery works" : {
-      "comment" : "Tooltip of the distillery help button"
+    "Honey pot" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Honeycomb" : {
       "comment" : "Secret Recipe ingredient"
     },
+    "Horseshoe" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Hourglass" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "How Secret Recipe works" : {
       "comment" : "Tooltip of the Secret Recipe help button"
+    },
+    "How the curiosity rooms work" : {
+      "comment" : "Tooltip of the hidden-object help button"
+    },
+    "How the distillery works" : {
+      "comment" : "Tip heading: distillery basics\nTooltip of the distillery help button"
     },
     "How this level works" : {
       "comment" : "Tooltip of the match-3 help button"
@@ -1650,6 +2051,9 @@
     },
     "How to play this recipe" : {
 
+    },
+    "I'll give you a list. Find each thing and tap it, and it goes straight into my basket." : {
+      "comment" : "Story, curiosity room 1 (The Alchemist's Attic)"
     },
     "Ice and crates, all over the ridge. What are we after up here?" : {
       "comment" : "Story, gathering episode 6 (Icefall Ridge)"
@@ -1731,6 +2135,9 @@
     "Ingredient gathering: %@" : {
       "comment" : "Tooltip of an episode marker on the map"
     },
+    "Inkwell" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Is that… a dragon? Asleep on a mountain of gold?" : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
     },
@@ -1743,6 +2150,18 @@
     "Its board could not be set up." : {
 
     },
+    "Jade dragon" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Jewel box" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Jewelled dagger" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Jewelled egg" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Keep it full" : {
 
     },
@@ -1752,14 +2171,74 @@
     "Keep the bottom" : {
 
     },
+    "Knight's helmet" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Lab Style" : {
       "comment" : "Title of the cosmetic rewards screen"
+    },
+    "Lantern" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Lantern hint" : {
+      "comment" : "VoiceOver: the hidden-object hint button"
+    },
+    "Lantern: glows around one object still to find. Recharges after 30 seconds; a hint costs the third star." : {
+      "comment" : "Tooltip of the hidden-object lantern hint"
+    },
+    "Lavender bundle" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "layer %lld frozen, thaws in %lld moves" : {
+      "comment" : "VoiceOver: a frozen layer (counted from the bottom, 1 = bottom) holds it and everything below; the second argument is the moves until it thaws",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "layer %1$lld frozen, thaws in %#@moves@"
+          },
+          "substitutions" : {
+            "moves" : {
+              "argNum" : 2,
+              "formatSpecifier" : "lld",
+              "variations" : {
+                "plural" : {
+                  "one" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg move"
+                    }
+                  },
+                  "other" : {
+                    "stringUnit" : {
+                      "state" : "translated",
+                      "value" : "%arg moves"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     },
     "Layered recipes" : {
 
     },
     "leaking" : {
       "comment" : "VoiceOver: liquid drips out of this distillery pipe"
+    },
+    "Leather boot" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Leather glove" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Leave it be! Grabbing the wrong thing only stirs up dust. Look closely before you reach." : {
+      "comment" : "Story, curiosity room 1 (The Alchemist's Attic)"
+    },
+    "Lemon" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Level %lld, %lld stars. Goals: %@" : {
       "comment" : "VoiceOver: a gathering level tile",
@@ -1784,17 +2263,35 @@
     "Liquid Sunlight" : {
       "comment" : "Potion name of the yellow liquid"
     },
+    "Little chest" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Locked" : {
 
     },
     "Look at all these glowing caps! Why are we picking mushrooms instead of sorting?" : {
       "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
     },
+    "Look closer" : {
+      "comment" : "Hidden-object tip title"
+    },
+    "Lute" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Magic wand" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Magnifying glass" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Mandrake Root" : {
       "comment" : "Potion name of the brown liquid"
     },
     "Map" : {
 
+    },
+    "Market day! Look at all these stalls, there's fruit stacked to the awnings." : {
+      "comment" : "Story, curiosity room 2 (The Market Stall)"
     },
     "Match right beside them and the ice cracks. Patience, and a little warmth." : {
       "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
@@ -1807,6 +2304,12 @@
     },
     "Maybe" : {
 
+    },
+    "Medallion" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Melon slice" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Mermaid Teal" : {
       "comment" : "Potion name of the cyan liquid"
@@ -1829,6 +2332,9 @@
     "Mixing cauldron" : {
 
     },
+    "mixing cauldron, %@" : {
+      "comment" : "VoiceOver: a mixing cauldron; the argument lists its recipes"
+    },
     "Mo" : {
       "comment" : "Calendar column: Monday"
     },
@@ -1844,26 +2350,32 @@
     "Moonshade" : {
       "comment" : "Potion name of the purple liquid"
     },
+    "Mortar and pestle" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "moves" : {
+      "comment" : "Match-3 HUD caption under the moves left"
+    },
     "Moves %lld" : {
 
     },
     "Moves left: %lld. %@" : {
       "comment" : "VoiceOver: after a match-3 swap; moves left, then the goals"
     },
+    "murky" : {
+      "comment" : "Distillery: two colors met in this pipe"
+    },
     "Murky" : {
       "comment" : "Daily puzzle difficulty (Thursday)"
     },
-    "murky" : {
-      "comment" : "Distillery: two colors met in this pipe"
+    "Murky flasks hide what lies beneath. Only the top potion is visible." : {
+
     },
     "Murky Layers" : {
       "comment" : "Random recipe mode with hidden layers"
     },
     "Murky Layers + Rune Seal" : {
       "comment" : "Daily puzzle mode"
-    },
-    "Murky flasks hide what lies beneath. Only the top potion is visible." : {
-
     },
     "Murky layers below the top show as “?” until you uncover them." : {
 
@@ -1873,6 +2385,9 @@
     },
     "Mushroom" : {
       "comment" : "Match-3 ingredient"
+    },
+    "My attic! Forty years of curiosities. Somewhere in this mess are the things I need for tomorrow's brew." : {
+      "comment" : "Story, curiosity room 1 (The Alchemist's Attic)"
     },
     "My friend's furnace needs the hottest coals in the land. Mind the double frost here: it takes two thaws." : {
       "comment" : "Story, gathering episode 4 (Ember Hearth)"
@@ -1886,16 +2401,13 @@
     "My old hall, and my favorite cauldron. Here we don't just sort potions, we brew them." : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
     },
+    "narrow neck, one layer per pour" : {
+      "comment" : "VoiceOver: a narrow-neck flask moves one layer per pour, in or out"
+    },
     "Narrow necks" : {
 
     },
-    "New Random Still" : {
-      "comment" : "Random Distillery win card: build another random level of the same tier"
-    },
     "New best" : {
-  
-    },
-    "New Random Brew" : {
 
     },
     "New best score" : {
@@ -1936,6 +2448,12 @@
     "New gathering in %lld m" : {
       "comment" : "Countdown to the next daily gathering, minutes"
     },
+    "New Random Brew" : {
+
+    },
+    "New Random Still" : {
+      "comment" : "Random Distillery win card: build another random level of the same tier"
+    },
     "New recipe" : {
       "comment" : "Starts another practice Secret Recipe"
     },
@@ -1945,11 +2463,11 @@
     "New recipe in %lld m" : {
       "comment" : "Countdown to the next daily Secret Recipe, minutes"
     },
-    "New reward!" : {
-      "comment" : "Toast title when a cosmetic reward unlocks"
-    },
     "New reward: %@" : {
       "comment" : "VoiceOver announcement when rewards unlock"
+    },
+    "New reward!" : {
+      "comment" : "Toast title when a cosmetic reward unlocks"
     },
     "New: bubbling flasks" : {
 
@@ -2029,11 +2547,14 @@
     "Next Level" : {
 
     },
+    "Next month" : {
+
+    },
     "Next Recipe" : {
 
     },
-    "Next month" : {
-
+    "Next Round" : {
+      "comment" : "Hidden-object round card: next round"
     },
     "No best yet" : {
       "comment" : "VoiceOver: distillery level not yet won"
@@ -2059,14 +2580,26 @@
     "north to south and east to west, never mixing" : {
       "comment" : "VoiceOver: a distillery crossing's two pipes"
     },
+    "not cracked" : {
+      "comment" : "VoiceOver: today's Secret Recipe was lost"
+    },
     "Not cracked today" : {
       "comment" : "Daily Secret Recipe status: lost"
     },
     "Not cracked: %lld days" : {
       "comment" : "VoiceOver: the lost-days bar of the Secret Recipe guess distribution"
     },
+    "not played" : {
+
+    },
     "Not until you pour off what's on top. A good alchemist is patient, and a little curious." : {
       "comment" : "Story, chapter 3 (Misty Marsh)"
+    },
+    "noted: maybe" : {
+      "comment" : "VoiceOver: a tray ingredient's note"
+    },
+    "noted: ruled out" : {
+      "comment" : "VoiceOver: a tray ingredient's note"
     },
     "Notes" : {
       "comment" : "Secret Recipe: notes mode toggle"
@@ -2083,11 +2616,20 @@
     "Off" : {
 
     },
+    "Oil lamp" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Old Berta keeps the best stall in town, and the most crowded. My list is long today." : {
+      "comment" : "Story, curiosity room 2 (The Market Stall)"
+    },
     "Old Hazel" : {
       "comment" : "Name of the elderly herbalist who orders potions"
     },
     "On" : {
 
+    },
+    "on the bench" : {
+      "comment" : "VoiceOver: this tray ingredient is in the draft"
     },
     "One at a time" : {
 
@@ -2096,12 +2638,6 @@
       "comment" : "Distillery stage 1 subtitle"
     },
     "Only in the cauldron" : {
-
-    },
-    "not cracked" : {
-      "comment" : "VoiceOver: today's Secret Recipe was lost"
-    },
-    "not played" : {
 
     },
     "opens %@" : {
@@ -2117,10 +2653,16 @@
       "comment" : "Map: when the last gathering episode opens"
     },
     "Opens with chapter %lld" : {
-      "comment" : "Map: when a locked gathering episode opens"
+      "comment" : "Map: when a locked distillery stage opens\nMap: when a locked gathering episode opens\nMap: when a locked hidden-object room opens"
+    },
+    "order filled" : {
+      "comment" : "VoiceOver: an order flask holds what was asked for"
     },
     "Order filled: flask %lld" : {
       "comment" : "VoiceOver: a customer's order flask now holds what was asked for; the argument is the flask number"
+    },
+    "order flask, wanted: %@" : {
+      "comment" : "VoiceOver: a customer's order flask; the argument says what it must end with"
     },
     "Orrin" : {
       "comment" : "Name of the travelling merchant who orders potions"
@@ -2134,8 +2676,29 @@
     "Outside the cauldron potions never mix. Brew just as much as the recipe needs to fill flasks with one potion each." : {
 
     },
+    "Oyster pearl" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Padlock" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Paintbrush" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Pair by pair" : {
 
+    },
+    "Peacock feather" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Pear" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Pearl necklace" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Pears, pots, a skein of wool… she has all of it somewhere. Just don't buy her cheese by mistake." : {
+      "comment" : "Story, curiosity room 2 (The Market Stall)"
     },
     "Perfect" : {
       "comment" : "Daily puzzle solved in the fewest possible moves without a hint"
@@ -2144,7 +2707,7 @@
       "comment" : "Win card title: solved in the fewest moves without a hint"
     },
     "Perfect distillation!" : {
-  
+
     },
     "Perfect solve" : {
 
@@ -2152,17 +2715,32 @@
     "Phoenix Ember" : {
       "comment" : "Potion name of the orange liquid"
     },
+    "Phoenix feather" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Pick five different ingredients, then brew." : {
       "comment" : "Secret Recipe bench caption"
+    },
+    "Picture of %@. Objects are found by touch." : {
+      "comment" : "VoiceOver: the hidden-object picture"
+    },
+    "Pinch on the trackpad or turn the mouse wheel to zoom, drag to look around. Double-click zooms in on a spot." : {
+      "comment" : "Hidden-object tip (Mac): zoom and pan"
+    },
+    "Pinecone" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Pip" : {
       "comment" : "Name of the child with a cat who orders potions"
     },
     "Play" : {
-      "comment" : "Start today's daily puzzle"
+      "comment" : "Starts today's Secret Recipe"
     },
     "Played" : {
       "comment" : "Secret Recipe stat"
+    },
+    "Pocket watch" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Politely?" : {
       "comment" : "Story, chapter 4 (Glyph Library)"
@@ -2221,6 +2799,9 @@
     "Pourfect" : {
 
     },
+    "Pourfect collects no data: no accounts, no ads, no analytics. Your progress is saved only on this device." : {
+      "comment" : "About screen: privacy note"
+    },
     "Pourfect Daily %@ · %@ · 🔥 %lld" : {
       "comment" : "Shared daily result: date, moves, streak"
     },
@@ -2241,8 +2822,11 @@
     "Pourfect Secret Recipe · %@ · %@" : {
       "comment" : "Shared Secret Recipe result header: date and guesses used (4/8, or X/8 when not found); the drop grid follows"
     },
-    "Pourfect collects no data: no accounts, no ads, no analytics. Your progress is saved only on this device." : {
-      "comment" : "About screen: privacy note"
+    "pouring here pushes %lld layers into flask %lld" : {
+      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push several layers through the pipe; the arguments are the number of layers (2 or more) and the flask at the pipe's far end"
+    },
+    "pouring here pushes 1 layer into flask %lld" : {
+      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push one layer through the pipe; the argument is the flask at the pipe's far end"
     },
     "Pouring into a narrow neck works the same way: one layer per pour. Plan for the extra pours." : {
 
@@ -2251,13 +2835,22 @@
 
     },
     "Practice recipe" : {
-      "comment" : "Opens an unlimited practice Secret Recipe"
+      "comment" : "Opens an unlimited practice Secret Recipe\nSecret Recipe book subtitle"
+    },
+    "pressure pipe, pushes its bottom layer into the bottom of flask %lld" : {
+      "comment" : "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into"
     },
     "Pressure pipes" : {
 
     },
+    "Pretzel" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
     "Previous month" : {
 
+    },
+    "prism" : {
+      "comment" : "Match-3 special that clears every piece of one kind"
     },
     "Prism, clears every piece of the kind it is swapped with" : {
       "comment" : "VoiceOver: a prism piece"
@@ -2268,8 +2861,17 @@
     "Privacy" : {
       "comment" : "About screen section header"
     },
+    "Pumpkin" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Puts it in the selected slot" : {
       "comment" : "VoiceOver hint: tray ingredient"
+    },
+    "Quill" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Radish bunch" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Random Brew" : {
 
@@ -2286,11 +2888,17 @@
     "Reach every goal at the top before the moves run out. Out of moves? Retry is free, and the board starts the same way." : {
       "comment" : "Match-3 tip: goals, moves and free retry"
     },
+    "Ready" : {
+      "comment" : "VoiceOver: lantern ready"
+    },
     "Ready to use" : {
       "comment" : "Lab Style: an unlocked reward"
     },
     "Real brewing at last!" : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
+    },
+    "Recharging, %lld seconds" : {
+      "comment" : "VoiceOver: lantern recharging"
     },
     "Recipe %lld" : {
 
@@ -2336,20 +2944,41 @@
     "Recipe books" : {
 
     },
+    "recipe brewed" : {
+      "comment" : "Rush end card, under the number of solved recipes (one)"
+    },
     "Recipe cracked!" : {
       "comment" : "Secret Recipe win card title"
+    },
+    "recipes brewed" : {
+      "comment" : "Rush end card, under the number of solved recipes"
+    },
+    "Red apple" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Red book" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Red dragon egg" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Red pepper" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Reduce Motion" : {
 
     },
     "Replay" : {
-
+      "comment" : "Hidden-object round card: play the round again"
     },
     "Replay this chapter's story" : {
       "comment" : "Tooltip of the Story button"
     },
     "Replay this episode's story" : {
       "comment" : "Tooltip of the Story button on a gathering episode"
+    },
+    "Replay this room's story" : {
+      "comment" : "Tooltip of the Story button in a hidden-object room"
     },
     "Replay this stage's story" : {
       "comment" : "Tooltip of the Story button on a distillery stage"
@@ -2366,6 +2995,12 @@
     "Retrying is free, and the board starts the same way." : {
       "comment" : "Match-3 out-of-moves card: retry costs nothing; the seed gives the same start"
     },
+    "Reveal next" : {
+      "comment" : "VoiceOver action: find the next hidden object (counts as a hint)"
+    },
+    "Revealed %@." : {
+      "comment" : "VoiceOver: reveal next found an object"
+    },
     "Ring" : {
       "comment" : "Name of a colorblind rune"
     },
@@ -2378,32 +3013,84 @@
     "Room to push" : {
 
     },
+    "Rooms" : {
+      "comment" : "Hidden-object round card: back to the room's round list"
+    },
+    "Rose" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
     "Rose Gold" : {
       "comment" : "Metal of a rune key and its seal"
+    },
+    "Round %lld" : {
+      "comment" : "Title of a hidden-object round; the argument is its number (1-10)"
+    },
+    "Round %lld, %lld stars, %lld objects to find" : {
+      "comment" : "VoiceOver: a finished hidden-object round",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Round %1$lld, %2$lld stars, %3$lld objects to find"
+          }
+        }
+      }
+    },
+    "Round %lld, locked" : {
+      "comment" : "VoiceOver: a locked hidden-object round"
+    },
+    "Round %lld, not played yet, %lld objects to find" : {
+      "comment" : "VoiceOver: an open hidden-object round",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Round %1$lld, not played yet, %2$lld objects to find"
+          }
+        }
+      }
+    },
+    "Round shield" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Round-Bottom Flask" : {
       "comment" : "Flask shape name"
     },
     "Row %lld, column %lld" : {
-      "comment" : "VoiceOver: position of a match-3 cell"
+      "comment" : "VoiceOver: a distillery cell's place\nVoiceOver: position of a match-3 cell"
+    },
+    "row comet" : {
+      "comment" : "Match-3 special that clears its row"
+    },
+    "Royal orb" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Ruby" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Ruby ring" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Ruled out" : {
+
+    },
+    "Rune key" : {
 
     },
     "Rune Seal" : {
       "comment" : "Daily puzzle mode: one sealed flask"
     },
-    "Rune Seals" : {
-      "comment" : "Random recipe mode with sealed flasks and rune keys"
-    },
-    "Rune key" : {
-
-    },
     "Rune seals" : {
 
     },
+    "Rune Seals" : {
+      "comment" : "Random recipe mode with sealed flasks and rune keys"
+    },
     "Rune seals. Somewhere in the other flasks lies a rune-stone key of the same metal. Pour it onto its seal and the lock gives way." : {
       "comment" : "Story, chapter 2 (Rune Vault)"
+    },
+    "Rune stone" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Rune-stone keys" : {
 
@@ -2411,11 +3098,11 @@
     "Rush" : {
 
     },
-    "Rush Again" : {
-
-    },
     "Rush · Recipe %lld" : {
       "comment" : "Game title in Rush mode; the argument is the recipe's number in the run"
+    },
+    "Rush Again" : {
+
     },
     "Rush, hard recipe books, Random Brew and the distillery, open any time" : {
 
@@ -2423,11 +3110,20 @@
     "Sa" : {
       "comment" : "Calendar column: Saturday"
     },
+    "Sapphire" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Sapphire Draught" : {
       "comment" : "Potion name of the blue liquid"
     },
     "Saturday" : {
       "comment" : "Weekday of the daily puzzle"
+    },
+    "Scepter" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
+    "Scissors" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Score" : {
       "comment" : "Match-3 goal: reach a score"
@@ -2449,11 +3145,11 @@
     "Score %lld; two stars at %lld, three stars at %lld" : {
       "comment" : "VoiceOver: match-3 score and star thresholds"
     },
+    "Scroll" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Sealed" : {
       "comment" : "Daily puzzle difficulty (Wednesday)"
-    },
-    "Sealed Crates" : {
-      "comment" : "Daily gathering flavour (Thursday)"
     },
     "Sealed crate, %lld hits left" : {
       "comment" : "VoiceOver: a match-3 crate cell"
@@ -2461,26 +3157,35 @@
     "Sealed crates" : {
       "comment" : "Match-3 tip title"
     },
+    "Sealed Crates" : {
+      "comment" : "Daily gathering flavour (Thursday)"
+    },
     "Sealed flasks open when you pour their rune key into them. Keys move alone." : {
 
+    },
+    "sealed with a %@ rune" : {
+      "comment" : "A sealed flask; the argument is the key metal"
     },
     "Seals give way when you match beside them. The stronger ones need a few knocks." : {
       "comment" : "Story, gathering episode 5 (Sealed Storeroom)"
     },
+    "Seashell" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Secret Recipe" : {
       "comment" : "Title of the code-breaking recipe game"
     },
-    "Secret Recipe Practice" : {
-      "comment" : "Title of a practice Secret Recipe game"
-    },
     "Secret Recipe practice" : {
       "comment" : "VoiceOver: the Secret Recipe practice card"
+    },
+    "Secret Recipe Practice" : {
+      "comment" : "Title of a practice Secret Recipe game"
     },
     "Secret Recipe, %@, streak %lld" : {
       "comment" : "VoiceOver: the Secret Recipe card"
     },
     "See the book" : {
-      "comment" : "Opens the finished daily Secret Recipe"
+      "comment" : "Opens the finished daily Secret Recipe\nSecret Recipe end card: close it to look at the guesses"
     },
     "Settings" : {
 
@@ -2494,14 +3199,26 @@
     "Share Result" : {
 
     },
+    "Sharp eyes!" : {
+
+    },
+    "She'll snore a little louder. Find what's on the list, take nothing else, and keep your voice down." : {
+      "comment" : "Story, curiosity room 3 (The Dragon's Hoard)"
+    },
     "Shh. Its hoard is kept behind gates. Fill a switch flask to the top with one potion and its gate lifts." : {
       "comment" : "Story, chapter 10 (Dragon's Hoard)"
     },
     "Show the count" : {
       "comment" : "VoiceOver: show possible recipes count"
     },
+    "Show the find list" : {
+      "comment" : "VoiceOver: expand the find list"
+    },
     "Silver" : {
       "comment" : "Metal of a rune key and its seal"
+    },
+    "Silver key" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Sir Rowan" : {
       "comment" : "Name of the young knight who orders potions"
@@ -2509,17 +3226,17 @@
     "Skip" : {
       "comment" : "Skips the rest of a story scene"
     },
-    "Skip this recipe" : {
+    "Skip −%lld s" : {
 
     },
-    "Skip −%lld s" : {
+    "Skip this recipe" : {
 
     },
     "Skipped %lld" : {
       "comment" : "Rush end card: recipes skipped in this run"
     },
     "Slot %lld: %@" : {
-      "comment" : "VoiceOver: a slot of the revealed recipe"
+      "comment" : "VoiceOver: a filled slot of the brewing bench\nVoiceOver: a slot of the revealed recipe"
     },
     "Slot %lld: empty" : {
       "comment" : "VoiceOver: an empty slot of the brewing bench"
@@ -2542,8 +3259,14 @@
     "Solve the Daily Brew %lld days in a row" : {
       "comment" : "Lab Style milestone"
     },
+    "solved" : {
+      "comment" : "VoiceOver: state of today's daily puzzle"
+    },
     "Solved" : {
       "comment" : "Daily puzzle solved today"
+    },
+    "solved perfectly" : {
+      "comment" : "VoiceOver: state of today's daily puzzle"
     },
     "Some of them are frozen in the night frost!" : {
       "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
@@ -2572,11 +3295,14 @@
     "Sparkles" : {
       "comment" : "Completion effect name"
     },
+    "Spectacles" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Split between flask %lld and flask %lld" : {
       "comment" : "VoiceOver: a pour into a twin flask was shared evenly with its twin; the arguments are flask numbers"
     },
     "Splitter" : {
-      "comment" : "Distillery piece: a T-shaped junction"
+      "comment" : "Daily Distillery flavour (Tuesday): tee pieces\nDistillery piece: a T-shaped junction"
     },
     "Splitters" : {
       "comment" : "Distillery tip title: the tee piece"
@@ -2599,11 +3325,14 @@
     "Starburst" : {
       "comment" : "Completion effect name"
     },
-    "Stars from the challenge packs are kept apart and never lock a chapter." : {
-      "comment" : "Footnote of a distillery challenge pack"
+    "Starfish" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
     },
     "Starleaf" : {
       "comment" : "Secret Recipe ingredient: a star-shaped leaf"
+    },
+    "Stars from the challenge packs are kept apart and never lock a chapter." : {
+      "comment" : "Footnote of a distillery challenge pack"
     },
     "Start Rush" : {
 
@@ -2651,17 +3380,29 @@
     "Straight pipe" : {
       "comment" : "Distillery piece"
     },
+    "Straw hat" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Strawberry" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
     "Streak %lld" : {
-      "comment" : "Current daily streak (consecutive days solved)"
+      "comment" : "Secret Recipe end card: current streak"
     },
     "Stuck — undo or restart?" : {
 
+    },
+    "Stuck? The lantern glows around one thing still to find, then recharges for 30 seconds. No clock is running: three stars need no hint and at most three misses." : {
+      "comment" : "Hidden-object tip: the lantern hint and stars"
     },
     "Su" : {
       "comment" : "Calendar column: Sunday"
     },
     "Sunday" : {
       "comment" : "Weekday of the daily puzzle"
+    },
+    "Sunflower" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Supplies for %@" : {
       "comment" : "Episode header: the next chapter the ingredients are for"
@@ -2690,11 +3431,20 @@
     "Swipe an ingredient onto a neighbor, or tap one and then the other, to swap them. Line up three or more of a kind and they're gathered." : {
       "comment" : "Match-3 tip: how to swap"
     },
+    "switch flask, fill it with one potion to open the gate of flask %lld" : {
+      "comment" : "VoiceOver: a switch flask that is not complete; the argument is its gate's flask number"
+    },
+    "switch flask, full of one potion: the gate of flask %lld is open" : {
+      "comment" : "VoiceOver: a switch flask that is complete; the argument is its gate's flask number"
+    },
     "Switches and gates" : {
 
     },
     "System" : {
 
+    },
+    "Tankard" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Tap a flask to pick it up, then tap another flask to pour into it." : {
 
@@ -2702,38 +3452,32 @@
     "Tap a pipe to turn it a quarter clockwise; touch and hold turns it back. Potion runs from the cauldron through every connected pipe." : {
       "comment" : "Distillery tip (iPhone, iPad): how to turn pipes"
     },
+    "tap flask, pours from the bottom, nothing goes in" : {
+      "comment" : "VoiceOver: a tap flask"
+    },
     "Tap flasks" : {
 
     },
     "taps" : {
       "comment" : "Distillery HUD caption under the tap count"
     },
+    "Teacup" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Telescope" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Th" : {
       "comment" : "Calendar column: Thursday"
     },
-    "The Cold Still" : {
-      "comment" : "Distillery stage 1 title"
+    "The alchemist has locked away a recipe: five different ingredients, in order, out of the eight on the tray. Fill the five slots and brew. You have eight tries." : {
+      "comment" : "Secret Recipe tip: the goal"
+    },
+    "The Alchemist's Attic" : {
+      "comment" : "Hidden-object room 1 title"
     },
     "The Alchemist's Recipe" : {
       "comment" : "Heading of the Secret Recipe book"
-    },
-    "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
-      "comment" : "Story, chapter 5 (Glass Works)"
-    },
-    "The Glyph Library's oldest runes have faded. Moonflowers glow just bright enough to read them." : {
-      "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
-    },
-    "The Great Alembic" : {
-      "comment" : "Distillery stage 3 title"
-    },
-    "The Great Alembic, the heart of the old lab. Get it running and we can brew anything." : {
-      "comment" : "Story, distillery stage 3 (The Great Alembic)"
-    },
-    "The Rune Vault is pitch dark. Hollow-caps glow for hours once they're gathered: our lanterns for tomorrow." : {
-      "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
-    },
-    "The alchemist has locked away a recipe: five different ingredients, in order, out of the eight on the tray. Fill the five slots and brew. You have eight tries." : {
-      "comment" : "Secret Recipe tip: the goal"
     },
     "The alchemist's recipe was:" : {
       "comment" : "Secret Recipe loss card, above the revealed recipe"
@@ -2750,6 +3494,12 @@
     "The card under the cauldron shows two potions… and a new one?" : {
       "comment" : "Story, chapter 9 (Alchemist's Hall)"
     },
+    "The Cold Still" : {
+      "comment" : "Distillery stage 1 title"
+    },
+    "The curiosity rooms are optional: their stars are kept apart and never lock a chapter." : {
+      "comment" : "Footnote of a hidden-object room"
+    },
     "The dial under the flask lights up after every pour, wherever you pour. Its number is the moves left until it bubbles up." : {
 
     },
@@ -2759,11 +3509,14 @@
     "The dragon is purring, and it showed us its larder!" : {
       "comment" : "Story, gathering episode 10 (Dragon's Larder)"
     },
-    "The fewest moves, without a hint." : {
-      "comment" : "Win card line under a perfect random brew"
+    "The Dragon's Hoard" : {
+      "comment" : "Hidden-object room 3 title"
     },
     "The fewest moves, without a hint: a gold seal for this recipe." : {
       "comment" : "Win card line under a perfect brew"
+    },
+    "The fewest moves, without a hint." : {
+      "comment" : "Win card line under a perfect random brew"
     },
     "The gate is shut. Fill flask %lld with one potion to open it." : {
       "comment" : "Shown when the player pours into or out of a closed gate flask; the argument is the number of its switch flask"
@@ -2773,6 +3526,24 @@
     },
     "The gate of flask %@ shut" : {
       "comment" : "VoiceOver: a switch flask stopped being full of one potion and its gate closed; the argument lists flask numbers"
+    },
+    "The Glass Works! My old friend the glassblower makes the finest flasks in the land." : {
+      "comment" : "Story, chapter 5 (Glass Works)"
+    },
+    "The Glyph Library's oldest runes have faded. Moonflowers glow just bright enough to read them." : {
+      "comment" : "Story, gathering episode 3 (Moonlit Meadow)"
+    },
+    "The Great Alembic" : {
+      "comment" : "Distillery stage 3 title"
+    },
+    "The Great Alembic, the heart of the old lab. Get it running and we can brew anything." : {
+      "comment" : "Story, distillery stage 3 (The Great Alembic)"
+    },
+    "The lantern" : {
+      "comment" : "Hidden-object tip title"
+    },
+    "The Market Stall" : {
+      "comment" : "Hidden-object room 2 title"
     },
     "The marsh ahead is all mist. How will we see a thing?" : {
       "comment" : "Story, gathering episode 2 (Crystal Grotto)"
@@ -2792,17 +3563,26 @@
     "The pipe can only push when the far flask has room. Any color goes through, but only in the arrow's direction." : {
 
     },
+    "the pressure pipe of flask %lld pushes layers into its bottom" : {
+      "comment" : "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from"
+    },
     "The recipe is done when every order is filled and every other flask holds one potion or nothing. The card above the board ticks each order off." : {
 
     },
     "The recipe: %@" : {
       "comment" : "VoiceOver: the revealed Secret Recipe"
     },
+    "The Rune Vault is pitch dark. Hollow-caps glow for hours once they're gathered: our lanterns for tomorrow." : {
+      "comment" : "Story, gathering episode 1 (Mushroom Hollow)"
+    },
     "The shape of every flask on the board. Flasks hold just as much in any shape." : {
 
     },
     "The still is warm again! But this room has two cauldrons and pipes that split three ways." : {
       "comment" : "Story, distillery stage 2 (Copper and Steam)"
+    },
+    "Then come closer and look again. Small things hide in plain sight." : {
+      "comment" : "Story, curiosity room 2 (The Market Stall)"
     },
     "Then let's gather every last one." : {
       "comment" : "Story, gathering episode 10 (Dragon's Larder)"
@@ -2852,8 +3632,22 @@
     "Those little potion flasks are floating in the tray." : {
       "comment" : "Story, gathering episode 7 (Bogwater Springs)"
     },
+    "Thread spool" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
     "Three stars at %lld taps, two up to %lld." : {
       "comment" : "Distillery win card: the tap counts for three and two stars"
+    },
+    "Three stars with no hint and at most %lld wrong taps; two with up to %lld hints and %lld wrong taps." : {
+      "comment" : "Hidden-object round card: the star rules",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Three stars with no hint and at most %1$lld wrong taps; two with up to %2$lld hints and %3$lld wrong taps."
+          }
+        }
+      }
     },
     "Three-star days" : {
       "comment" : "Daily gathering stat"
@@ -2861,17 +3655,26 @@
     "Thursday" : {
       "comment" : "Weekday of the daily puzzle"
     },
+    "Tiara" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
+    },
     "Time left" : {
       "comment" : "VoiceOver: Rush timer"
     },
     "Time's up!" : {
 
     },
+    "Toadstool" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
     "Today" : {
-      "comment" : "Calendar legend"
+      "comment" : "Title of the card / screen with every daily game"
     },
     "Today · %@" : {
       "comment" : "Daily screen: today's date"
+    },
+    "Today, not solved yet" : {
+
     },
     "Today's dailies" : {
       "comment" : "Daily hub header title"
@@ -2882,14 +3685,17 @@
     "Today's recipe · %@" : {
       "comment" : "Secret Recipe book subtitle: the daily and its date"
     },
-    "Today, not solved yet" : {
-
+    "Toy horse" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Treasure map" : {
+      "comment" : "Hidden object to find (The Dragon's Hoard)"
     },
     "Triangle" : {
       "comment" : "Name of a colorblind rune"
     },
     "Tricky" : {
-      "comment" : "Daily puzzle difficulty (Friday)"
+      "comment" : "Daily puzzle difficulty (Friday)\nRandom Distillery tier"
     },
     "Tries these five ingredients as the recipe" : {
       "comment" : "VoiceOver hint: Brew"
@@ -2906,6 +3712,9 @@
     "Turn counter-clockwise" : {
       "comment" : "VoiceOver action: turn a distillery pipe back"
     },
+    "Turn on Notes and tap an ingredient to mark it ruled out, then maybe. With a keyboard: 1 to 8 pick, Delete clears, Return brews." : {
+      "comment" : "Secret Recipe tip: notes and keyboard"
+    },
     "Turn the pieces until the cauldron's outlet runs all the way to the flask. No open ends, or it drips on my floor." : {
       "comment" : "Story, distillery stage 1 (The Cold Still)"
     },
@@ -2921,14 +3730,14 @@
     "Turns one piece towards the solution. A hint costs the third star." : {
       "comment" : "Tooltip of the distillery Hint button"
     },
-    "Turn on Notes and tap an ingredient to mark it ruled out, then maybe. With a keyboard: 1 to 8 pick, Delete clears, Return brews." : {
-      "comment" : "Secret Recipe tip: notes and keyboard"
-    },
     "Twice the cracking. I'll bring a bloom or two." : {
       "comment" : "Story, gathering episode 4 (Ember Hearth)"
     },
     "Twin flasks" : {
 
+    },
+    "twin of flask %lld, every pour into either is split evenly between both" : {
+      "comment" : "VoiceOver: a twin flask; the argument is the other twin's number"
     },
     "Twins can't pour into each other." : {
       "comment" : "Shown when the player pours from one twin flask into the other"
@@ -2941,9 +3750,6 @@
     },
     "Twins. Pour into one and the potion is shared evenly between both. And pour into a full flask with a brass pipe, and it pushes its bottom layer across." : {
       "comment" : "Story, chapter 8 (Twin Towers)"
-    },
-    "Two Potions" : {
-      "comment" : "Daily Distillery flavour (Wednesday): two colors"
     },
     "Two flasks on a silver chain are twins. Pour into either one and the pour is split evenly: half lands in each." : {
 
@@ -2960,6 +3766,9 @@
     "Two potions" : {
       "comment" : "Distillery tip title"
     },
+    "Two Potions" : {
+      "comment" : "Daily Distillery flavour (Wednesday): two colors"
+    },
     "Two potions are mixing" : {
       "comment" : "Tooltip: distillery murk warning"
     },
@@ -2968,6 +3777,12 @@
     },
     "Unknown potion" : {
 
+    },
+    "Up the ladder already? It's dark up here, and everything is buried under dust and cobwebs." : {
+      "comment" : "Story, curiosity room 1 (The Alchemist's Attic)"
+    },
+    "Use the Reveal Next action to find the next object; it counts as a hint." : {
+      "comment" : "VoiceOver hint of the hidden-object picture"
     },
     "Use the rise" : {
 
@@ -2979,7 +3794,7 @@
       "comment" : "VoiceOver: a distillery valve; the argument is the linked flask's number"
     },
     "Valves" : {
-      "comment" : "Distillery tip title"
+      "comment" : "Daily Distillery flavour (Friday)\nDistillery tip title"
     },
     "Valves. Fill the flask with the same number and its valve swings open. One flask first, then the next." : {
       "comment" : "Story, distillery stage 3 (The Great Alembic)"
@@ -3001,6 +3816,9 @@
     },
     "We" : {
       "comment" : "Calendar column: Wednesday"
+    },
+    "We're in the dragon's cave. On purpose. Tell me again why we're in the dragon's cave?" : {
+      "comment" : "Story, curiosity room 3 (The Dragon's Hoard)"
     },
     "Wednesday" : {
       "comment" : "Weekday of the daily puzzle"
@@ -3038,8 +3856,20 @@
     "With grotto crystals. Hold one up and the fog thins around it." : {
       "comment" : "Story, gathering episode 2 (Crystal Grotto)"
     },
+    "won" : {
+
+    },
     "Won %lld%%" : {
       "comment" : "Secret Recipe end card: win percentage"
+    },
+    "Wooden owl" : {
+      "comment" : "Hidden object to find (The Alchemist's Attic)"
+    },
+    "Wooden spoon" : {
+      "comment" : "Hidden object to find (The Market Stall)"
+    },
+    "Wool skein" : {
+      "comment" : "Hidden object to find (The Market Stall)"
     },
     "Workbench" : {
       "comment" : "Lab Style section: workbench themes"
@@ -3059,186 +3889,11 @@
     "Yours from the start" : {
       "comment" : "Lab Style: a reward everyone owns"
     },
-    "bloom" : {
-      "comment" : "Match-3 special that clears the 3 by 3 square around it"
+    "Zoom in" : {
+      "comment" : "Hidden-object zoom button"
     },
-    "bottom to top %@" : {
-      "comment" : "VoiceOver: the layers a layered-recipe flask wants, listed from the bottom; the argument lists them"
-    },
-    "bubbling flask, its bottom potion rises to the top in %lld moves" : {
-      "comment" : "VoiceOver: a bubbling flask; the argument is the moves until its bottom layer rises",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "bubbling flask, its bottom potion rises to the top after the next move"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "bubbling flask, its bottom potion rises to the top in %lld moves"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "column comet" : {
-      "comment" : "Match-3 special that clears its column"
-    },
-    "corked" : {
-
-    },
-    "essence flask, accepts %@ only" : {
-      "comment" : "An essence flask; the argument is the only potion it takes"
-    },
-    "frozen over, nothing goes in or out, thaws in %lld moves" : {
-      "comment" : "VoiceOver: the top layer of a flask is frozen; the argument is the moves until it thaws",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "frozen over, nothing goes in or out, thaws in %lld move"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "frozen over, nothing goes in or out, thaws in %lld moves"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "frozen, %lld ice layers" : {
-      "comment" : "VoiceOver: a frozen match-3 piece"
-    },
-    "funnel flask, fills only, never pours out" : {
-      "comment" : "VoiceOver: a funnel flask"
-    },
-    "gate open while flask %lld stays full of one potion" : {
-      "comment" : "VoiceOver: an open gate flask; the argument is its switch's flask number"
-    },
-    "gate shut, nothing pours in or out until flask %lld is full of one potion" : {
-      "comment" : "VoiceOver: a closed gate flask; the argument is its switch's flask number"
-    },
-    "layer %lld frozen, thaws in %lld moves" : {
-      "comment" : "VoiceOver: a frozen layer (counted from the bottom, 1 = bottom) holds it and everything below; the second argument is the moves until it thaws",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "layer %1$lld frozen, thaws in %#@moves@"
-          },
-          "substitutions" : {
-            "moves" : {
-              "argNum" : 2,
-              "formatSpecifier" : "lld",
-              "variations" : {
-                "plural" : {
-                  "one" : {
-                    "stringUnit" : {
-                      "state" : "translated",
-                      "value" : "%arg move"
-                    }
-                  },
-                  "other" : {
-                    "stringUnit" : {
-                      "state" : "translated",
-                      "value" : "%arg moves"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "mixing cauldron, %@" : {
-      "comment" : "VoiceOver: a mixing cauldron; the argument lists its recipes"
-    },
-    "moves" : {
-      "comment" : "Match-3 HUD caption under the moves left"
-    },
-    "narrow neck, one layer per pour" : {
-      "comment" : "VoiceOver: a narrow-neck flask moves one layer per pour, in or out"
-    },
-    "noted: maybe" : {
-      "comment" : "VoiceOver: a tray ingredient's note"
-    },
-    "noted: ruled out" : {
-      "comment" : "VoiceOver: a tray ingredient's note"
-    },
-    "on the bench" : {
-      "comment" : "VoiceOver: this tray ingredient is in the draft"
-    },
-    "order filled" : {
-      "comment" : "VoiceOver: an order flask holds what was asked for"
-    },
-    "order flask, wanted: %@" : {
-      "comment" : "VoiceOver: a customer's order flask; the argument says what it must end with"
-    },
-    "pouring here pushes %lld layers into flask %lld" : {
-      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push several layers through the pipe; the arguments are the number of layers (2 or more) and the flask at the pipe's far end"
-    },
-    "pouring here pushes 1 layer into flask %lld" : {
-      "comment" : "VoiceOver: while a flask is held, pouring it into this pressure-pipe flask would push one layer through the pipe; the argument is the flask at the pipe's far end"
-    },
-    "pressure pipe, pushes its bottom layer into the bottom of flask %lld" : {
-      "comment" : "VoiceOver: the flask a pressure pipe starts from (a pour into it that doesn't fit pushes its bottom layers through the pipe); the argument is the flask the pipe runs into"
-    },
-    "prism" : {
-      "comment" : "Match-3 special that clears every piece of one kind"
-    },
-    "recipe brewed" : {
-      "comment" : "Rush end card, under the number of solved recipes (one)"
-    },
-    "recipes brewed" : {
-      "comment" : "Rush end card, under the number of solved recipes"
-    },
-    "row comet" : {
-      "comment" : "Match-3 special that clears its row"
-    },
-    "sealed with a %@ rune" : {
-      "comment" : "A sealed flask; the argument is the key metal"
-    },
-    "solved" : {
-      "comment" : "VoiceOver: state of today's daily puzzle"
-    },
-    "solved perfectly" : {
-      "comment" : "VoiceOver: state of today's daily puzzle"
-    },
-    "switch flask, fill it with one potion to open the gate of flask %lld" : {
-      "comment" : "VoiceOver: a switch flask that is not complete; the argument is its gate's flask number"
-    },
-    "switch flask, full of one potion: the gate of flask %lld is open" : {
-      "comment" : "VoiceOver: a switch flask that is complete; the argument is its gate's flask number"
-    },
-    "tap flask, pours from the bottom, nothing goes in" : {
-      "comment" : "VoiceOver: a tap flask"
-    },
-    "the pressure pipe of flask %lld pushes layers into its bottom" : {
-      "comment" : "VoiceOver: the flask at the far end of a pressure pipe; the argument is the flask the pipe starts from"
-    },
-    "twin of flask %lld, every pour into either is split evenly between both" : {
-      "comment" : "VoiceOver: a twin flask; the argument is the other twin's number"
-    },
-    "won" : {
-
-    },
-    "· Best %lld" : {
-
+    "Zoom out" : {
+      "comment" : "Hidden-object zoom button"
     }
   },
   "version" : "1.0"
