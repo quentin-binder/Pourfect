@@ -257,6 +257,7 @@ For each: rules, solver/key, generator flag, JSON, art + one visual signal, tuto
 - [x] Content: three workshop stages and the Expert / Master packs, 20 levels each, rising curve (DECISIONS 276)
 - [x] Progression (stages open with chapters 3 / 6 / 9, levels in order, scene ids `distillery.N`), Random Distillery tiers, Daily Distillery `distill-daily-v1` (DECISIONS 277–278)
 - [x] Tests: `DistilleryCoreTests` (DECISIONS 279)
+- [x] App part 1, the board: `Pourfect/Distillery/` — `DistillBoardModel` (taps, undo, restart, hint, turn and fill timing), `DistillRenderer` / `DistillArt` (brass pipes on a wooden panel, cauldrons, flasks, rivets, valves with link numbers, glowing coils, murk and drips), `DistillGameView` (HUD, controls, win card), tips per piece type, VoiceOver, sounds and haptics, `-LPOpenDistill` / `-LPDistillDemo` (DECISIONS 280)
 - [ ] App: the Distillery wing on the map, stage screens and story scenes (`StoryScene.distillery`), board view (brass and glass in Canvas, flow and win animations, runes, Reduce Motion), Challenges section (Expert, Master, Random), Daily Distillery screen and the "Today" daily hub replacing the separate daily cards
 
 ## Parked ideas (user, not scheduled)

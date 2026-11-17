@@ -398,6 +398,8 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPM3Demo K` | With `-LPOpenMatch3`: plays K greedy-bot moves through the normal swap path, with the animations (a demo win saves nothing). |
 | `-LPM3Seed S` | With `-LPOpenMatch3`: replaces the level's seed (another start board and refill stream). |
 | `-LPM3Moves N` | With `-LPOpenMatch3`: replaces the move limit (e.g. 3 with `-LPM3Demo 3` to reach the "Out of moves" card). |
+| `-LPOpenDistill ID` | Opens a distillery level (R10) by id (`d1-07`, `dx-03`, `dm-12`), `random` (with `-LPDistillTier gentle\|tricky\|fiendish` and `-LPDistillSeed S`), `daily` (today's Daily Distillery) or `daily-YYYY-MM-DD`. |
+| `-LPDistillDemo K` | With `-LPOpenDistill`: plays K solver taps (the fewest-taps path, one every 0.45 s) through the normal tap path, with the animations (a demo win saves nothing). |
 | `-LPOpenEpisode N` | Opens ingredient-gathering episode N's level list (its story scene plays the first time unless `-LPSkipTutorials 1`; add `-LPUnlockAll 1` to open its levels). |
 | `-LPOpenM3Daily 1` | Opens the Daily Gathering screen; `-LPPlayM3Daily 1` also starts today's level. `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake wins, memory only). |
 | `-LPShowStory gathering.N` | Plays gathering episode N's story scene (like `-LPShowStory N` for chapters). |
