@@ -81,6 +81,11 @@ import Testing
         #expect(DistillProgression.isLevelUnlocked(2, won: [true, true]))
         #expect(DistillProgression.sceneOnOpening(stage: 2, seen: []) == "distillery.2")
         #expect(DistillProgression.sceneOnOpening(stage: 2, seen: ["distillery.2"]) == nil)
+        // The app plays these as `StoryScene.distillery(n)`: the same ids.
+        for n in DistillProgression.stages {
+            #expect(StoryScene.distillery(n).id == DistillProgression.sceneID(stage: n))
+        }
+        #expect(Array(Story.distilleries) == Array(DistillProgression.stages))
         #expect(DistillPack.stage(3) == .stage3)
         #expect(DistillPack.expert.stage == nil)
     }

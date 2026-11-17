@@ -196,6 +196,16 @@ struct StoryTests {
         #expect(Story.sceneOnOpening(gathering: 4, seen: []) == .gathering(4))
         #expect(Story.sceneOnOpening(gathering: 4, seen: ["gathering.4"]) == nil)
         #expect(Story.sceneOnOpening(gathering: 11, seen: []) == nil)
+        // R10: distillery stages' opening scenes, same seen set.
+        for n in Story.distilleries {
+            #expect(StoryScene(id: StoryScene.distillery(n).id) == .distillery(n))
+            #expect(StoryScene.distillery(n).id == "distillery.\(n)")
+        }
+        #expect(StoryScene(id: "distillery.0") == nil)
+        #expect(StoryScene(id: "distillery.4") == nil)
+        #expect(Story.sceneOnOpening(distillery: 2, seen: []) == .distillery(2))
+        #expect(Story.sceneOnOpening(distillery: 2, seen: ["distillery.2"]) == nil)
+        #expect(Story.sceneOnOpening(distillery: 4, seen: []) == nil)
         #expect(Story.replayable(chapter: 3, seen: ["ending"]) == [.chapter(3)])
         #expect(Story.replayable(chapter: 10, seen: []) == [.chapter(10)])
         #expect(Story.replayable(chapter: 10, seen: ["ending"]) == [.chapter(10), .ending])

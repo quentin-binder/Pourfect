@@ -9,13 +9,16 @@ public enum StoryScene: Hashable, Sendable {
     case ending
     /// Plays the first time ingredient-gathering episode N (R9, match-3) is opened.
     case gathering(Int)
+    /// Plays the first time distillery workshop stage N (R10, pipe rotation) is opened.
+    case distillery(Int)
 
-    /// Stable id saved in the "seen" set: `chapter.3`, `ending`, `gathering.3`.
+    /// Stable id saved in the "seen" set: `chapter.3`, `ending`, `gathering.3`, `distillery.2`.
     public var id: String {
         switch self {
         case .chapter(let n): "chapter.\(n)"
         case .ending: "ending"
         case .gathering(let n): "gathering.\(n)"
+        case .distillery(let n): "distillery.\(n)"
         }
     }
 
@@ -23,6 +26,10 @@ public enum StoryScene: Hashable, Sendable {
         if id == "ending" { self = .ending; return }
         if id.hasPrefix("gathering."), let n = Int(id.dropFirst("gathering.".count)), Story.gatherings.contains(n) {
             self = .gathering(n)
+            return
+        }
+        if id.hasPrefix("distillery."), let n = Int(id.dropFirst("distillery.".count)), Story.distilleries.contains(n) {
+            self = .distillery(n)
             return
         }
         guard id.hasPrefix("chapter."), let n = Int(id.dropFirst("chapter.".count)),
@@ -39,6 +46,15 @@ public enum Story {
     /// Ingredient-gathering episodes with an opening scene (R9; the same numbers as
     /// `M3Progression.episodes`, whose `sceneID` is this scene's id).
     public static let gatherings = 1...10
+    /// Distillery workshop stages with an opening scene (R10; `DistillProgression.sceneID` gives the same ids).
+    public static let distilleries = 1...3
+
+    /// The scene to play when distillery stage `number` is opened, if it hasn't been seen.
+    public static func sceneOnOpening(distillery number: Int, seen: Set<String>) -> StoryScene? {
+        guard distilleries.contains(number) else { return nil }
+        let scene = StoryScene.distillery(number)
+        return seen.contains(scene.id) ? nil : scene
+    }
 
     /// The scene to play when gathering episode `number` is opened, if it hasn't been seen.
     public static func sceneOnOpening(gathering number: Int, seen: Set<String>) -> StoryScene? {
