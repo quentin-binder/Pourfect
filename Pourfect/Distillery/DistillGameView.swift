@@ -25,6 +25,7 @@ struct DistillGameView: View {
     var onBack: () -> Void
 
     @Environment(DistillProgressModel.self) private var progress
+    @Environment(DistillDailyModel.self) private var distillDaily
     @Environment(TutorialModel.self) private var tutorials
     @Environment(StoryPresenter.self) private var story
     @Environment(AppSettings.self) private var settings
@@ -118,9 +119,13 @@ struct DistillGameView: View {
         #endif
         let fresh = DistillBoardModel(level: level, isDemo: demo > 0)
         let played = level, kind = kind, onWin = onWin
-        fresh.onWin = { [progress] stars, taps, usedHint in
+        fresh.onWin = { [progress, distillDaily] stars, taps, usedHint in
             var newBest = false
             if kind != .random { newBest = progress.recordWin(played.id, stars: stars, taps: taps) }
+            // The day's first win counts for the Daily Distillery streak (replays change nothing).
+            if case .daily(let date) = kind {
+                distillDaily.record(date: date, level: played, stars: stars, taps: taps, usedHint: usedHint)
+            }
             onWin?(played, stars, taps, usedHint)
             return newBest
         }
@@ -187,11 +192,25 @@ struct DistillGameView: View {
                 if newBest {
                     Label("New best", systemImage: "rosette").foregroundStyle(DistillArt.gold)
                 }
+                if case .daily = kind {
+                    Label {
+                        Text("Daily Distillery streak \(distillDaily.stats.currentStreak)", comment: "Distillery win card of the daily level")
+                    } icon: {
+                        Image(systemName: "flame.fill").foregroundStyle(.orange)
+                    }
+                    .font(.headline)
+                }
                 HStack {
                     Button("Retry") { model.restart() }
                         .buttonStyle(.bordered)
                     Button("Back") { onBack() }
                         .buttonStyle(.bordered)
+                    if case .daily(let date) = kind, let detail = distillDaily.details[date] {
+                        ShareLink(item: DistillDailyText.share(date: date, detail: detail)) {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(.bordered)
+                    }
                     if kind == .pack, let next = DistillLibrary.shared.next(after: level.id) {
                         Button("Next Level") { level = next }
                             .buttonStyle(.borderedProminent)

@@ -13,6 +13,7 @@ struct PourfectApp: App {
     @State private var m3progress = Match3ProgressModel()
     @State private var m3daily = M3DailyModel.makeDefault()
     @State private var distillProgress = DistillProgressModel()
+    @State private var distillDaily = DistillDailyModel.makeDefault()
 
     var body: some Scene {
         WindowGroup("Pourfect") {
@@ -26,6 +27,7 @@ struct PourfectApp: App {
                 .environment(m3progress)
                 .environment(m3daily)
                 .environment(distillProgress)
+                .environment(distillDaily)
                 .settingsEnvironment(settings)
         }
         #if os(macOS)
