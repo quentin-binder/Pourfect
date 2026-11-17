@@ -160,7 +160,8 @@ public enum HiddenFixedLayouts {
                                           targets: targets, decoys: decoys, placedOrder: targets + decoys))
     }
 
-    /// The rules every fixed round keeps: a fair find list, nothing covered, nothing outside the picture.
+    /// The rules every fixed round keeps: a fair find list, nothing covered, nothing outside the picture, and the
+    /// round's place on the curve.
     public static func validate(_ l: HiddenRoundLayout, scene: HiddenScene) -> [String] {
         var problems: [String] = []
         let all = l.targets + l.decoys
@@ -185,6 +186,29 @@ public enum HiddenFixedLayouts {
                 problems.append("targets \(a.objectID) and \(b.objectID) overlap")
             }
         }
+        return problems + curveProblems(l, scene: scene)
+    }
+
+    /// The round's place on the difficulty curve (`HiddenCurve.spec`): no target on a spot harder than the round
+    /// allows, at least `hardSpotTargets` on hard spots (difficulty ≥ 2), at most `maxMediumTargets` medium
+    /// targets, and exactly `goldTargets` gold-ish targets (none outside the hoard's rounds 6–10).
+    public static func curveProblems(_ l: HiddenRoundLayout, scene: HiddenScene) -> [String] {
+        let spec = HiddenCurve.spec(scene.id, round: l.round)
+        var problems: [String] = []
+        var hard = 0, medium = 0, gold = 0
+        let goldish = HiddenCurve.goldish(scene.id)
+        for t in l.targets {
+            guard let spot = scene.spot(t.spotID), let o = scene.object(t.objectID) else { continue }
+            if spot.difficulty > spec.maxSpotDifficulty {
+                problems.append("target \(t.objectID) on \(t.spotID) (difficulty \(spot.difficulty), round allows \(spec.maxSpotDifficulty))")
+            }
+            if spot.difficulty >= 2 { hard += 1 }
+            if o.sizeClass == .medium { medium += 1 }
+            if goldish.contains(t.objectID) { gold += 1 }
+        }
+        if hard < spec.hardSpotTargets { problems.append("\(hard) targets on hard spots, round asks for \(spec.hardSpotTargets)") }
+        if medium > spec.maxMediumTargets { problems.append("\(medium) medium targets, round allows \(spec.maxMediumTargets)") }
+        if gold != spec.goldTargets { problems.append("\(gold) gold targets, round asks for \(spec.goldTargets)") }
         return problems
     }
 }

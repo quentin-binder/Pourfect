@@ -535,8 +535,8 @@
   },
   {
    "id": "a10",
-   "x": 470,
-   "y": 262,
+   "x": 488,
+   "y": 182,
    "maxSize": 90,
    "sizeClass": [
     "small",
@@ -544,23 +544,23 @@
    ],
    "surface": "basket",
    "occlusion": {
-    "cutY": 238,
+    "cutY": 162,
     "polygon": [
      [
-      412,
-      238
+      410,
+      162
      ],
      [
-      528,
-      238
+      566,
+      162
      ],
      [
-      528,
-      272
+      566,
+      194
      ],
      [
-      412,
-      272
+      410,
+      194
      ]
     ],
     "feather": 6
@@ -717,6 +717,7 @@
     "small"
    ],
    "surface": "basket",
+   "unusable": true,
    "occlusion": {
     "cutY": 240,
     "polygon": [
@@ -1317,7 +1318,8 @@
    "sizeClass": [
     "small"
    ],
-   "surface": "shelf"
+   "surface": "shelf",
+   "unusable": true
   }
  ],
  "placement": {

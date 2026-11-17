@@ -9,7 +9,9 @@
         "horseshoe: b16 (rug)->b12 (bowl), L56 (upright disc stood in the open)",
         "flask: long 98->88 (real size next to the painted objects)",
         "mirror: turned +80 deg to lie on the table (looked propped up)",
-        "magnifier: rot=40: stood on its rim on the basket lid; laid flat"
+        "magnifier: rot=40: stood on its rim on the basket lid; laid flat",
+        "horseshoe: b12 (bowl, difficulty 3) -> b21 (books); round 1 allows difficulty 1",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot"
       ],
       "objects" : [
         {
@@ -74,7 +76,7 @@
           "id" : "horseshoe",
           "longSide" : 56,
           "role" : "target",
-          "spot" : "b12",
+          "spot" : "b21",
           "tint" : 0.1908
         },
         {
@@ -153,7 +155,9 @@
         "flask: long 104->94 (real size next to the painted objects)",
         "broom: turned +50 deg to lie on the floor (looked propped up)",
         "mirror: turned +80 deg to lie on the rug (looked propped up)",
-        "magnifier: rot=40: stood on its rim on the basket lid; laid flat"
+        "magnifier: rot=40: stood on its rim on the basket lid; laid flat",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot",
+        "hourglass: a25 -> a21; a25 marked unusable (on the front of the sloping shelf, objects floated)"
       ],
       "objects" : [
         {
@@ -225,7 +229,7 @@
           "id" : "hourglass",
           "longSide" : 63,
           "role" : "target",
-          "spot" : "a25",
+          "spot" : "a21",
           "tint" : 0.2069
         },
         {
@@ -325,7 +329,8 @@
         "die: long 49->30 (real size next to the painted objects)",
         "inkwell: long 66->56 (real size next to the painted objects)",
         "quill: turned +45 deg to lie on the rug (looked propped up)",
-        "flask: long 98->88 (real size next to the painted objects)"
+        "flask: long 98->88 (real size next to the painted objects)",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot"
       ],
       "objects" : [
         {
@@ -510,7 +515,9 @@
         "wand: turned +40 deg to lie on the table (looked propped up)",
         "magnifier: turned +40 deg to lie on the floor (looked propped up)",
         "flask: long 88->79 (real size next to the painted objects)",
-        "key: rot=80: stood on the tip of its blade on the shelf; laid down"
+        "key: rot=80: stood on the tip of its blade on the shelf; laid down",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot",
+        "teacup: a25 -> a21; a25 marked unusable (on the front of the sloping shelf, objects floated)"
       ],
       "objects" : [
         {
@@ -576,7 +583,7 @@
           "id" : "teacup",
           "longSide" : 56,
           "role" : "target",
-          "spot" : "a25",
+          "spot" : "a21",
           "tint" : 0.2433
         },
         {
@@ -705,7 +712,8 @@
         "flask: long 85->76 (real size next to the painted objects)",
         "quill: turned +45 deg to lie on the rug (looked propped up), L74",
         "mirror: turned +80 deg to lie on the rug (looked propped up)",
-        "dropped book (decoy @c17): a red book standing alone on the open rug looked propped up"
+        "dropped book (decoy @c17): a red book standing alone on the open rug looked propped up",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot"
       ],
       "objects" : [
         {
@@ -919,7 +927,8 @@
         "paintbrush: turned -50 deg to lie on the table (looked propped up)",
         "pinecone: long 50->45 (real size next to the painted objects)",
         "key: rot=80: stood on the tip of its blade on the book pile; laid down",
-        "scissors: rot=-80: stood upright on their points; laid down"
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot",
+        "scissors: a23 -> a17; a23 and a25 marked unusable (objects floated beside the hanging planter / on the front of the sloping shelf); upright against the shelf's back wall (no turn, as drawn)"
       ],
       "objects" : [
         {
@@ -1008,8 +1017,7 @@
           "id" : "scissors",
           "longSide" : 54,
           "role" : "target",
-          "rotation" : -80,
-          "spot" : "a23",
+          "spot" : "a17",
           "tint" : 0.2561
         },
         {
@@ -1165,7 +1173,8 @@
         "quill: turned +45 deg to lie on the rug (looked propped up), L78",
         "pinecone: long 53->48 (real size next to the painted objects)",
         "acorn: long 49->37 (real size next to the painted objects)",
-        "scissors: turned -80 deg to lie on the table (looked propped up)"
+        "scissors: turned -80 deg to lie on the table (looked propped up)",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot"
       ],
       "objects" : [
         {
@@ -1420,7 +1429,9 @@
         "starfish: long 49->44 (real size next to the painted objects)",
         "spectacles: long 60->54 (real size next to the painted objects)",
         "padlock: long 55->47 (real size next to the painted objects)",
-        "mirror: rot=80: stood on the end of its handle on the books; laid down"
+        "mirror: rot=80: stood on the end of its handle on the books; laid down",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot",
+        "inkwell: a23 -> a21; a23 and a25 marked unusable (objects floated beside the hanging planter / on the front of the sloping shelf)"
       ],
       "objects" : [
         {
@@ -1508,7 +1519,7 @@
           "id" : "inkwell",
           "longSide" : 44,
           "role" : "target",
-          "spot" : "a23",
+          "spot" : "a21",
           "tint" : 0.1918
         },
         {
@@ -1698,7 +1709,8 @@
         "broom: turned +50 deg to lie on the floor (looked propped up)",
         "mirror: turned +80 deg to lie on the rug (looked propped up)",
         "ring: long 54->30 (real size next to the painted objects)",
-        "acorn: long=32: as big as the rolled scroll it sits on"
+        "acorn: long=32: as big as the rolled scroll it sits on",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot"
       ],
       "objects" : [
         {
@@ -1991,7 +2003,9 @@
         "starfish: long 52->47 (real size next to the painted objects)",
         "spectacles: long 61->55 (real size next to the painted objects)",
         "die: long 48->30 (real size next to the painted objects)",
-        "key: rot=80: stood on the tip of its blade on the basket lid; laid down"
+        "key: rot=80: stood on the tip of its blade on the basket lid; laid down",
+        "a10: anchor moved up to the basket rim (scene.json), the basket front hides the foot",
+        "spectacles: a25 -> a17; a25 marked unusable (on the front of the sloping shelf, objects floated)"
       ],
       "objects" : [
         {
@@ -2259,7 +2273,7 @@
           "id" : "spectacles",
           "longSide" : 55,
           "role" : "decoy",
-          "spot" : "a25",
+          "spot" : "a17",
           "tint" : 0.216
         },
         {

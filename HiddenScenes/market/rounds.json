@@ -532,7 +532,8 @@
         "radish: long 94->83 (real size next to the painted objects)",
         "spool: long 56->45 (real size next to the painted objects)",
         "glove: rot=80: stood upright on its cuff on the shelf; laid down",
-        "sunflower: rot=80: stood upright on its stem on the sack; laid down"
+        "sunflower: rot=80: stood upright on its stem on the sack; laid down",
+        "purse: m01 (difficulty 4) -> m18 (table); round 4 allows difficulty 2"
       ],
       "objects" : [
         {
@@ -573,7 +574,7 @@
           "id" : "purse",
           "longSide" : 51,
           "role" : "target",
-          "spot" : "m01",
+          "spot" : "m18",
           "tint" : 0.2228
         },
         {

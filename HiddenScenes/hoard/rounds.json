@@ -10,7 +10,8 @@
         "gold_plate: h29 (floor)->h19 (coins), L90 (upright disc stood in the open)",
         "round_shield: h32 (floor)->h22 (coins), L90 (upright disc stood in the open)",
         "dropped pearl_necklace (decoy @h20): a ring of pearls standing upright on the coins read as propped up (it can't drape)",
-        "moved dragon_scale h27->h23 (bowl, L57): the flat scale stood upright on the open floor"
+        "moved dragon_scale h27->h23 (bowl, L57): the flat scale stood upright on the open floor",
+        "dragon_scale: h23 -> h13 (difficulty 3; round 1 allows 1); on the big coin pile"
       ],
       "objects" : [
         {
@@ -51,7 +52,7 @@
           "id" : "dragon_scale",
           "longSide" : 57,
           "role" : "target",
-          "spot" : "h23",
+          "spot" : "h13",
           "tint" : 0.2396
         },
         {
@@ -489,7 +490,8 @@
         "emerald: long 61->38 (real size next to the painted objects)",
         "gold_plate: h51 (floor)->h46 (coins), L81 (upright disc stood in the open)",
         "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
-        "round_shield: h34 (floor)->h20 (coins), L82 (upright disc stood in the open)"
+        "round_shield: h34 (floor)->h20 (coins), L82 (upright disc stood in the open)",
+        "mini_chest: h23 (difficulty 3) -> h57 (coins); round 4 allows difficulty 2"
       ],
       "objects" : [
         {
@@ -521,7 +523,7 @@
           "id" : "mini_chest",
           "longSide" : 57,
           "role" : "target",
-          "spot" : "h23",
+          "spot" : "h57",
           "tint" : 0.2034
         },
         {
@@ -900,7 +902,8 @@
         "dropped decoy pearl_necklace @h27 (upright disc stood in the open, no free spot)",
         "dagger: turned -45 deg to lie on the floor (looked propped up)",
         "phoenix_feather: turned +45 deg to lie on the rock (looked propped up)",
-        "gauntlet: turned +75 deg to lie on the floor (looked propped up)"
+        "gauntlet: turned +75 deg to lie on the floor (looked propped up)",
+        "added decoy golden_apple @h07 (coins), so the decoys keep rising (14)"
       ],
       "objects" : [
         {
@@ -1106,6 +1109,14 @@
           "rotation" : 75,
           "spot" : "h51",
           "tint" : 0.2208
+        },
+        {
+          "flip" : false,
+          "id" : "golden_apple",
+          "longSide" : 43,
+          "role" : "decoy",
+          "spot" : "h07",
+          "tint" : 0.22
         }
       ],
       "round" : 6

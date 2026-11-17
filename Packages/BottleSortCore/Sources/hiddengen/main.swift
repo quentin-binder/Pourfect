@@ -58,6 +58,13 @@ for room in rooms {
                 for o in proposal.objects { print("  \(o.role == .target ? "T" : "d") \(o.id) @\(o.spot) L\(o.longSide)") }
                 continue
             }
+            let issues = HiddenFixedLayouts.validate(layout, scene: scene)
+            guard issues.isEmpty else {
+                print("\(room.rawValue) round \(round), variant \(variant) breaks the rules, not written: "
+                      + issues.joined(separator: "; "))
+                failed = true
+                continue
+            }
             var replaced = proposal
             replaced.notes = ["proposed by hiddengen (variant \(variant)), not reviewed yet"]
             file.rounds = file.rounds.map { $0.round == round ? replaced : $0 }
@@ -68,7 +75,14 @@ for room in rooms {
                 print("\(room.rawValue): rounds.json exists (use --force)")
                 continue
             }
-            try write(HiddenFixedFile(proposing: HiddenCurve.rounds.map { HiddenGenerator.round(scene, round: $0) }), to: out)
+            let layouts = HiddenCurve.rounds.map { HiddenGenerator.round(scene, round: $0) }
+            let issues = layouts.flatMap { l in HiddenFixedLayouts.validate(l, scene: scene).map { "round \(l.round): \($0)" } }
+            guard issues.isEmpty else {
+                print("\(room.rawValue): the proposal breaks the rules, not written: " + issues.joined(separator: "; "))
+                failed = true
+                continue
+            }
+            try write(HiddenFixedFile(proposing: layouts), to: out)
             print("\(room.rawValue): wrote \(out.path)")
         }
     case "check", "freeze":

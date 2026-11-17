@@ -14,7 +14,8 @@ public struct HiddenRoundSpec: Sendable, Hashable, Codable {
     public let maxSpotDifficulty: Int
     /// At most this many medium (larger) targets.
     public let maxMediumTargets: Int
-    /// This many targets go to hard spots (difficulty ≥ 2: containers) when one is free.
+    /// At least this many targets go to hard spots (difficulty ≥ 2: containers, never above `maxSpotDifficulty`)
+    /// when one is free; other targets may use them too while they are within the cap.
     public let hardSpotTargets: Int
     /// Gold-coloured targets (dragon's hoard only; 0 = none of them on the find list).
     public let goldTargets: Int
@@ -121,9 +122,10 @@ public enum HiddenGenerator {
     /// 1. a random order of the whole library; targets are taken from it: first `goldTargets` gold-ish objects, then
     ///    non-gold ones, at most `maxMediumTargets` medium;
     /// 2. targets are placed medium first on the shuffled spots, each on the first free spot that takes its size
-    ///    class, keeps layout.py's spacing to everything placed, and is not harder than `maxSpotDifficulty`; the first
-    ///    `hardSpotTargets` that fit a hard spot (difficulty ≥ 2) go there; a target with no spot is dropped and the
-    ///    next object in the order takes its place;
+    ///    class, keeps layout.py's spacing to everything placed, is not harder than `maxSpotDifficulty` (hard spots
+    ///    too) and where the drawn box doesn't overlap a placed target's; the first `hardSpotTargets` that fit a hard
+    ///    spot (difficulty 2 up to the cap) go there; a target with no spot is dropped and the next object in the
+    ///    order takes its place;
     /// 3. size factor, flip and tint are drawn when an object is placed (layout.py's formulas);
     /// 4. decoys: the rest of the library in the same order (never a target's id or name), medium first, on the
     ///    remaining spots with the same spacing, any difficulty, each on the first spot where its drawn box (shadow
@@ -160,21 +162,32 @@ public enum HiddenGenerator {
                 batch.append(o)
             }
             for o in stableSorted(batch, by: { $0.sizeClass == .medium && $1.sizeClass != .medium }) {
-                let fits: (HiddenSpot) -> Bool = { s in
-                    s.accepts(o.sizeClass) && HiddenRules.isSpaced(s, from: usedSpots)
+                // The first free spot that takes the object, keeps the spacing, is not harder than the round allows
+                // and where its drawn box stays clear of every target's (sizes drawn for a turned-down spot are
+                // discarded, so a round whose first choice fits is drawn exactly as before this check).
+                func firstClear(_ wanted: (HiddenSpot) -> Bool) -> (Int, HiddenPlacement)? {
+                    for (i, s) in free.enumerated()
+                    where wanted(s) && s.difficulty <= spec.maxSpotDifficulty && s.accepts(o.sizeClass)
+                        && HiddenRules.isSpaced(s, from: usedSpots) {
+                        var trial = rng
+                        let p = HiddenRules.place(o, at: s, role: .target, scale: spec.scale, rng: &trial)
+                        if targets.contains(where: { $0.rect.intersects(p.rect) }) { continue }
+                        rng = trial
+                        return (i, p)
+                    }
+                    return nil
                 }
-                var index: Int?
+                var choice: (Int, HiddenPlacement)?
                 if hardCount < spec.hardSpotTargets {
-                    index = free.firstIndex { $0.difficulty >= 2 && fits($0) }
-                    if index != nil { hardCount += 1 }
+                    choice = firstClear { $0.difficulty >= 2 }
+                    if choice != nil { hardCount += 1 }
                 }
-                if index == nil { index = free.firstIndex { $0.difficulty <= spec.maxSpotDifficulty && fits($0) } }
-                guard let i = index else { continue }
-                let s = free.remove(at: i)
-                usedSpots.append(s)
+                if choice == nil { choice = firstClear { _ in true } }
+                guard let (i, p) = choice else { continue }
+                usedSpots.append(free.remove(at: i))
                 if o.sizeClass == .medium { mediumCount += 1 }
                 if gold.contains(o.id) { goldCount += 1 }
-                targets.append(HiddenRules.place(o, at: s, role: .target, scale: spec.scale, rng: &rng))
+                targets.append(p)
             }
         }
 

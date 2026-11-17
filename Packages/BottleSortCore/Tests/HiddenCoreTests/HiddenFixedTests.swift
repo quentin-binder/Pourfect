@@ -82,12 +82,20 @@ struct HiddenFixedTests {
         }
     }
 
-    /// The generator's proposals pass the same checks (hiddengen propose writes them).
+    /// The generator's proposals pass the same checks, the curve included (hiddengen propose writes them), for the
+    /// first 20 variants of every round.
     @Test func proposalsAreValid() throws {
         for id in HiddenSceneID.allCases {
             let file = HiddenFixedFile(proposing: HiddenCurve.rounds.map { HiddenGenerator.round(scene(id), round: $0) })
             let layouts = try HiddenFixedLayouts.load(JSONEncoder().encode(file), scene: scene(id))
             #expect(layouts.count == 10)
+            for round in HiddenCurve.rounds {
+                for variant in 1..<20 {
+                    let l = HiddenGenerator.round(scene(id), round: round, variant: variant)
+                    let problems = HiddenFixedLayouts.validate(l, scene: scene(id))
+                    #expect(problems.isEmpty, "\(id) r\(round) v\(variant): \(problems)")
+                }
+            }
         }
     }
 
@@ -139,6 +147,25 @@ struct HiddenFixedTests {
         #expect(!problems { f in f.rounds[0].objects[0].dx = 500 }.isEmpty)
         #expect(!problems { f in f.rounds[0].objects[0].rotation = 270 }.isEmpty)
         #expect(!problems { f in f.rounds[0].objects = Array(f.rounds[0].objects.suffix(3)) }.isEmpty)
+        // off the curve: round 1's first target moved to a free container (difficulty 3), a medium target too
+        // many in round 10, a gold target missing in the hoard's round 6
+        let used = Set(base.rounds[0].objects.map(\.spot))
+        if let hard = s.spots.first(where: { !$0.unusable && $0.difficulty >= 3 && !used.contains($0.id) && $0.accepts(.small) }),
+           let small = base.rounds[0].objects.firstIndex(where: { $0.role == .target && s.object($0.id)?.sizeClass == .small }) {
+            #expect(problems { f in f.rounds[0].objects[small].spot = hard.id }.contains { $0.contains("round allows 1") })
+        }
+        #expect(problems { f in
+            f.rounds[9].objects = f.rounds[9].objects.map { o in
+                var o = o
+                if o.role == .decoy, s.object(o.id)?.sizeClass == .medium { o.role = .target }
+                return o
+            }
+        }.contains { $0.contains("medium targets") })
+        let hoard = scene(.hoard)
+        var hoardFile = try JSONDecoder().decode(HiddenFixedFile.self, from: roundsData(.hoard))
+        let gold = HiddenCurve.goldish(.hoard)
+        hoardFile.rounds[5].objects.removeAll { $0.role == .target && gold.contains($0.id) }
+        #expect(throws: HiddenFixedError.self) { try HiddenFixedLayouts.load(JSONEncoder().encode(hoardFile), scene: hoard) }
         // an unusable spot
         let unusable = s.spots.first { $0.unusable }
         if let u = unusable {
