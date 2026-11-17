@@ -398,6 +398,9 @@ DEBUG builds accept these (set them in *Edit Scheme ▸ Run ▸ Arguments*, or p
 | `-LPM3Demo K` | With `-LPOpenMatch3`: plays K greedy-bot moves through the normal swap path, with the animations (a demo win saves nothing). |
 | `-LPM3Seed S` | With `-LPOpenMatch3`: replaces the level's seed (another start board and refill stream). |
 | `-LPM3Moves N` | With `-LPOpenMatch3`: replaces the move limit (e.g. 3 with `-LPM3Demo 3` to reach the "Out of moves" card). |
+| `-LPOpenEpisode N` | Opens ingredient-gathering episode N's level list (its story scene plays the first time unless `-LPSkipTutorials 1`; add `-LPUnlockAll 1` to open its levels). |
+| `-LPOpenM3Daily 1` | Opens the Daily Gathering screen; `-LPPlayM3Daily 1` also starts today's level. `-LPDailyDate` and `-LPDailySeedResults` apply to it too (fake wins, memory only). |
+| `-LPShowStory gathering.N` | Plays gathering episode N's story scene (like `-LPShowStory N` for chapters). |
 | `-LPOpenSettings 1` | macOS: opens the Settings window at launch. |
 | `-LPWindowSize WxH` | macOS: sets the main window's frame to W × H points (title bar included) and centers it, for App Store screenshots (e.g. `1120x700`, 16:10). |
 | `-LPOpenAbout 1` | macOS, with `-LPOpenSettings 1`: also opens the About sheet. |
@@ -531,12 +534,46 @@ The target is the pass rate of the reference bot (greedy with 15 % random slips)
 linearly to 55 % for the 80th. The app loads them separately from the recipe packs (`Match3Library`, every
 `gathering_*` file in the bundle; the recipe catalog still reads only `chapter_*`, `challenge_*` and `pack_*`).
 
-**Board screen** (`Pourfect/Match3/`, app part 1; not on the chapter map yet, open a level with `-LPOpenMatch3`):
+**On the chapter map** (`Pourfect/Match3/`, DECISIONS 264–268):
+
+- Each episode is a small ingredient-basket token on the path between chapter N and N + 1 (`EpisodeArt.mapSpots`;
+  episode 10 up in the tower above Dragon's Hoard), with its stars, a check when every level is won (gold ring at
+  all stars), or a lock and "Gathering N". **How episodes unlock:** episode N (1–9) opens together with sorting
+  chapter N + 1; episode 10 opens once chapter 10's last own recipe (not a customer order) is brewed. Levels inside
+  an episode open in order (level 1 at once, each next one after the previous is won). Episodes never block a
+  chapter, and their stars never count towards a chapter gate, a milestone or a reward. With `-LPUnlockAll 1`
+  every episode and level is open.
+- The episode screen (`EpisodeView`): header with the next chapter's painting ("Supplies for Glyph Library"), the
+  episode's subtitle, a basket of its ingredients and its stars, then its eight levels (number, stars and an icon of
+  the main goal; locked ones show a lock). The toolbar's **Story** button replays its scene.
+- Story: the first time an episode opens, a short scene (`StoryScene.gathering(N)`, the R7 story system with the
+  same portraits) tells what the two gather and for which place: glowing mushrooms to light the Rune Vault, crystals
+  to see through the marsh mist, moonflowers to read faded glyphs, embers for the glass furnace, … a sleeping
+  draught for the dragon. Seen scenes go into the same `progress.storySeen.v1` set (`gathering.N`).
+- Progress: `Match3ProgressModel` keeps best stars and scores in `m3.bestStars.v1` / `m3.bestScore.v1` (keyed by the
+  `m3-…` ids); older saves simply have none.
+- Tips (`M3Tips`, shown in the same `TutorialOverlay` as the sorting tips, with drawn ingredients): *How to gather*
+  (swap and match, goals, moves and free retry) on the first level; *glowing specials* (comet, bloom, prism, mixing
+  two specials) from episode 2 and in the daily; *frost*, *sealed crates* and *potion flasks* on the first level
+  that has them. Seen-state per topic in `tutorial.seen.m3.*`; **?** (⌘/) in the level reopens every topic of that
+  level. The idle hint glow waits while a tip is open.
+- **Daily Gathering** (`M3DailyModel`, `M3DailyViews`): a green card under the Daily Brew card on the map's panel
+  (a row under the Daily Brew row in the iPhone bar, and a card on the Daily Brew screen). Its screen shows today's
+  weekday · flavour (Gentle, Steady, Frosty, Sealed Crates, Flask Drop, Tricky, Grand Gathering) with difficulty
+  pips and the day's ingredients, **Play** / **Replay**, the current and best streak, days gathered, three-star
+  days, and the month calendar (won days amber, three-star days gold). The level is built off the main thread
+  (`M3Daily.level`, cached per day). The first win finished on its UTC day counts (`DailyStreaks`, kept in
+  `m3daily.history.v1`, details in `m3daily.details.v1`); three stars is a "perfect" day. Share text (no board):
+  `Pourfect Gathering — 17 Nov ★★☆ 12 moves left` (moves left at the win, before the finale). The Daily Brew and
+  its history are untouched.
+
+**Board screen** (`Pourfect/Match3/`):
 
 - `MatchGameView`: HUD (moves left, goals with ingredient / frost / crate / flask icons and counters, score with
   marks at the two- and three-star thresholds), the board, the win card (stars, score, Retry / Map / Next Level) and
   the "Out of moves" card (free Retry, Map). Best stars and score per level go to `m3.bestStars.v1` /
-  `m3.bestScore.v1` (`Match3Records`), apart from the sorting chapters' stars.
+  `m3.bestScore.v1` (`Match3ProgressModel`), apart from the sorting chapters' stars. A daily level's win card adds
+  the Daily Gathering streak and **Share**; its Back button returns to the Daily Gathering screen.
 - `MatchBoardView`: tray following the cell mask, sealed crates (wood with the rune-key seal of `BottleView`, metal by
   hits left: copper 1, steel 2, gold 3), pieces, flasks, selection ring, idle hint glow (after 5 s, `M3Game.hint()`,
   free) and effects. Input: drag a piece onto a neighbour (touch or mouse), or tap / click one piece, then a
