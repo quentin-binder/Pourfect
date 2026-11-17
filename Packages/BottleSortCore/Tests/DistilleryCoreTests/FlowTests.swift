@@ -137,6 +137,17 @@ import Testing
         #expect(f.murkyCount > 0)
     }
 
+    @Test func coilReachedFromTwoSidesIsMurkyWhateverTheColorsAndSteps() {
+        // Two sources face one red→orange coil; same step or not, same colors or not, the coil turns murky.
+        for (rows, coilCol, right) in [(["S I1 S"], 1, 0), (["S I1 I1 S"], 2, 0), (["S I1 S"], 1, 5), (["S I1 I1 S"], 1, 5)] {
+            let last = rows[0].split(separator: " ").count - 1
+            let f = board(rows, sources: [(0, 0, 0, .east), (0, last, right, .west)], targets: [],
+                          coils: [(0, coilCol, 0, 5)]).flow
+            #expect(f.nodes(at: P(0, coilCol)).first?.liquid == .murky, "\(rows) coil \(coilCol) right \(right)")
+            #expect(!f.isWon)
+        }
+    }
+
     @Test func dryPiecesAreFine() {
         let b = board(["S I1 F", "L0 T0 I0"], sources: [(0, 0, 0, .east)], targets: [(0, 2, 0, .west)])
         #expect(b.flow.isWon)

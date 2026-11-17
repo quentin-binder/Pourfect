@@ -54,7 +54,8 @@ public struct DistillSeam: Hashable, Sendable {
 ///   nothing on; a cap ends a line without leaking; a shut valve takes liquid in up to its gate on each side
 ///   and passes nothing; a heat coil passes `from` on as `to`.
 /// - Murk: a channel reached in the same step by two different colors turns murky and passes nothing on; two
-///   wet channels whose facing sides hold different colors meet in a murky seam.
+///   wet channels whose facing sides hold different colors meet in a murky seam. A heat coil that liquid reaches
+///   from more than one side (in any steps, whatever the colors) is murky (DECISIONS 284).
 /// - Leak: a wet channel's opening that faces the edge, an empty cell or a side without a facing opening.
 /// - Valves are a fixpoint: all start shut; after each evaluation every valve whose target flask holds its own
 ///   color opens (and stays open); repeat until nothing opens.
@@ -187,8 +188,27 @@ struct DistillNet {
         var shut: [Bool]        // per node: a shut valve
     }
 
-    /// One breadth-first evaluation with the given valves open (per cell).
+    /// One evaluation with the given valves open (per cell). A heat coil reached from more than one side turns
+    /// murky (DECISIONS 284): in the same step that is seen directly; when a second side arrives later, the
+    /// pass is repeated with that coil murky from the start, until no new such coil shows up.
     func run(open: [Bool]) -> Pass {
+        var forced = Array(repeating: false, count: 2 * n)
+        while true {
+            let (p, late) = runOnce(open: open, forced: forced)
+            var added = false
+            for v in late where !forced[v] { forced[v] = true; added = true }
+            if !added { return p }
+        }
+    }
+
+    @inline(__always) func isCoilNode(_ u: Int) -> Bool {
+        let cell = u >> 1
+        return coil[cell] != nil && sourceColor[cell] < 0 && targetIndex[cell] < 0
+    }
+
+    /// One breadth-first evaluation; also returns the coils a second side reached after their first step.
+    func runOnce(open: [Bool], forced: [Bool]) -> (Pass, [Int]) {
+        var late: [Int] = []
         let nn = 2 * n
         var p = Pass(wave: Array(repeating: -1, count: nn), color: Array(repeating: -1, count: nn),
                      murky: Array(repeating: false, count: nn), entry: Array(repeating: 0, count: nn),
@@ -228,12 +248,14 @@ struct DistillNet {
                         touched.append(v)
                     } else if p.wave[v] == d + 1 {
                         p.entry[v] |= UInt8(1 << side)
-                        if arrivalColor[v] != e { conflict[v] = true }
+                        if arrivalColor[v] != e || isCoilNode(v) { conflict[v] = true }
+                    } else if isCoilNode(v), !p.shut[v], !p.murky[v], p.entry[v] & UInt8(1 << side) == 0 {
+                        late.append(v)
                     }
                 }
             }
             for v in touched {
-                if conflict[v] && !p.shut[v] {
+                if (conflict[v] || forced[v]) && !p.shut[v] {
                     p.murky[v] = true
                 } else {
                     p.color[v] = arrivalColor[v]
@@ -242,7 +264,7 @@ struct DistillNet {
             current = touched
             d += 1
         }
-        return p
+        return (p, late)
     }
 
     /// Color at a node's side after a pass (nil dry / murky / no opening).

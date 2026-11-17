@@ -95,7 +95,7 @@ import Testing
     @Test(.enabled(if: heavyTestsEnabled)) func aYearOfDailiesIsValidAndRisesByWeekday() {
         var start = Self.date("2026-11-16")
         var scores = Array(repeating: 0, count: 7)
-        for _ in 0..<8 {
+        for _ in 0..<53 {
             for k in 0..<7 {
                 let day = start.adding(days: k)
                 let l = DistillDaily.level(for: day)
@@ -109,6 +109,15 @@ import Testing
             start = start.adding(days: 7)
         }
         #expect(scores == scores.sorted())
+    }
+
+    @Test func fallbackLevelAlwaysExists() {
+        // The fallback behind `level(for:)` (never needed so far) must produce a valid level for any seed.
+        for k in 0..<40 {
+            let seed = DistillDaily.baseSeed(for: Self.date("2026-11-16").adding(days: k))
+            let l = DistillDaily.fallbackLevel(seed: seed, id: "f\(k)", title: "Fallback")
+            #expect(l.validateSolving().isEmpty, "\(k)")
+        }
     }
 
     @Test func resultFeedsTheStreaks() {

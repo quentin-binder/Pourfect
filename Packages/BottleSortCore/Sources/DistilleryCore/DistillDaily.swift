@@ -109,9 +109,15 @@ public enum DistillDaily {
             if best == nil || abs(l.stats!.score - spec.targetScore) < abs(best!.stats!.score - spec.targetScore) { best = l }
         }
         if let best { return best }
+        return fallbackLevel(seed: seed, id: id, title: spec.label)
+    }
+
+    /// The level used when every weekday candidate fails: Monday's settings with more attempts (tested over
+    /// many seeds in `GeneratorTests`).
+    static func fallbackLevel(seed: UInt64, id: String, title: String) -> DistillLevel {
         var fallback = Self.spec(for: .monday).config
         fallback.maxAttempts = 500
-        return DistillGenerator.generate(fallback, seed: seed, id: id, title: spec.label)!
+        return DistillGenerator.generate(fallback, seed: seed, id: id, title: title)!
     }
 
     /// A Daily Distillery win as a `DailyResult`, so `DailyStreaks` gives its own streak and stats (kept in a
