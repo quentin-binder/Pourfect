@@ -288,4 +288,18 @@ import Testing
         #expect(Array(M3Progression.episodes) == Array(Story.gatherings))
         for n in M3Progression.episodes { #expect(StoryScene.gathering(n).id == M3Progression.sceneID(episode: n)) }
     }
+
+    @Test func flasksNeedAColumnWithAnOpenCell() {
+        // Column 0 is all holes: flasks allowed only there could never spawn, so the goal could never be met.
+        func level(columns: [Int]?, layout: [String] = Array(repeating: ".oooo", count: 5)) -> M3Level {
+            M3Level(id: "x", title: "X", seed: 1, layout: layout, kinds: fiveKinds, moves: 30, goals: [.drops(1)],
+                    stars: M3StarThresholds(two: 1, three: 2), drops: M3Drops(total: 1, maxOnBoard: 1, columns: columns))
+        }
+        #expect(level(columns: [0]).validate() == [.dropsConfig])
+        #expect(level(columns: [0, 2]).validate() == [])
+        #expect(level(columns: nil).validate() == [])
+        // A column of crates counts: the crates break and the cells open.
+        let crates = ["Aoooo", "Aoooo", "Aoooo", "Aoooo", "Aoooo"]
+        #expect(level(columns: [0], layout: crates).validate() == [])
+    }
 }

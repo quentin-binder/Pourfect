@@ -355,7 +355,11 @@ extension M3Level {
         let layoutFlasks = rows.joined().filter { $0 == "F" }.count
         if let d = drops {
             let columnsOK = (d.columns ?? []).allSatisfy { (0..<w).contains($0) } && d.columns?.isEmpty != true
-            if d.total < max(1, layoutFlasks) || d.maxOnBoard < 1 || !columnsOK { errors.append(.dropsConfig) }
+            // Flasks still owed after the layout's own must have a column to spawn in: an allowed
+            // column with at least one open cell (a crate cell counts, it opens when the crate breaks).
+            let spawnColumns = (d.columns ?? Array(0..<w)).filter { c in (0..<w).contains(c) && rows.contains { $0[c] != "." } }
+            let spawnOK = d.total <= layoutFlasks || !spawnColumns.isEmpty
+            if d.total < max(1, layoutFlasks) || d.maxOnBoard < 1 || !columnsOK || !spawnOK { errors.append(.dropsConfig) }
         } else if layoutFlasks > 0 {
             errors.append(.dropsConfig)
         }
