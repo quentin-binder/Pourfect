@@ -1,4 +1,5 @@
 import BottleSortCore
+import DistilleryCore
 import SwiftUI
 
 /// Art and names for the ten chapters of the main path.
@@ -82,19 +83,23 @@ struct MapChapter: Identifiable {
 struct ChapterMapView: View {
     let onOpenChapter: (_ packID: String) -> Void
     let onChallenges: () -> Void
-    let onDaily: () -> Void
+    /// Opens the daily hub (every daily game, R10).
+    let onToday: () -> Void
     /// Opens ingredient-gathering episode N (R9).
     let onEpisode: (_ number: Int) -> Void
-    let onM3Daily: () -> Void
+    /// Opens distillery workshop stage N (R10).
+    let onDistillStage: (_ stage: Int) -> Void
     let onLabStyle: () -> Void
 
     @Environment(LevelCatalog.self) private var catalog
     @Environment(ProgressModel.self) private var progress
     @Environment(Match3ProgressModel.self) private var m3progress
+    @Environment(DistillProgressModel.self) private var distill
 
     var body: some View {
         let entries = MapChapter.entries(catalog: catalog, progress: progress)
         let episodes = m3progress.entries(catalog: catalog, progress: progress)
+        let stages = distill.stageEntries(catalog: catalog, progress: progress)
         let current = entries.last(where: \.isOpen)
         GeometryReader { geo in
             let wide = geo.size.width >= 760
@@ -102,7 +107,7 @@ struct ChapterMapView: View {
                 let panelWidth = min(340, geo.size.width * 0.38)
                 let mapWidth = min(520, geo.size.width - panelWidth - 72)
                 HStack(spacing: 28) {
-                    map(entries, episodes: episodes, current: current, width: mapWidth)
+                    map(entries, episodes: episodes, stages: stages, current: current, width: mapWidth)
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                         .overlay(RoundedRectangle(cornerRadius: 18).strokeBorder(.white.opacity(0.15)))
                         .shadow(color: .black.opacity(0.5), radius: 18)
@@ -113,7 +118,7 @@ struct ChapterMapView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 // The bar is a safe-area inset of the scroll view, so chapter 1 can scroll above it.
-                map(entries, episodes: episodes, current: current, width: geo.size.width)
+                map(entries, episodes: episodes, stages: stages, current: current, width: geo.size.width)
                     .safeAreaInset(edge: .bottom) { compactBar(current: current) }
             }
         }
@@ -141,7 +146,8 @@ struct ChapterMapView: View {
 
     // MARK: Map
 
-    private func map(_ entries: [MapChapter], episodes: [MapEpisode], current: MapChapter?, width: CGFloat) -> some View {
+    private func map(_ entries: [MapChapter], episodes: [MapEpisode], stages: [MapDistillStage],
+                     current: MapChapter?, width: CGFloat) -> some View {
         let height = width / ChapterArt.mapAspect
         // Opens scrolled to the chapter the player is on.
         // (Nudged down a little so the marker's name plate is in view too.)
@@ -158,6 +164,18 @@ struct ChapterMapView: View {
                     .interpolation(.medium)
                     .frame(width: width, height: height)
                     .accessibilityHidden(true)
+                // The distillery wing up the left edge: its pipe, then a still per stage (R10).
+                DistillWingPipe(stages: stages, size: CGSize(width: width, height: height),
+                                scale: min(1.15, max(0.8, width / 440)))
+                ForEach(stages) { stage in
+                    if DistillWing.mapSpots.indices.contains(stage.stage - 1) {
+                        let spot = DistillWing.mapSpots[stage.stage - 1]
+                        DistillStageMarker(entry: stage, scale: min(1.15, max(0.8, width / 440))) {
+                            onDistillStage(stage.stage)
+                        }
+                        .position(x: spot.x * width, y: spot.y * height)
+                    }
+                }
                 // Gathering episodes sit on the path between the chapters (drawn first, under them).
                 ForEach(episodes) { episode in
                     if EpisodeArt.mapSpots.indices.contains(episode.number - 1) {
@@ -209,8 +227,7 @@ struct ChapterMapView: View {
             ForEach(catalog.loadErrors, id: \.self) { error in
                 Label(error, systemImage: "exclamationmark.triangle").font(.caption).foregroundStyle(.orange)
             }
-            DailyHomeCard(action: onDaily)
-            M3DailyHomeCard(action: onM3Daily)
+            TodayHomeCard(action: onToday)
             if let current, let pack = current.pack {
                 continueCard(current, pack: pack)
             }
@@ -265,7 +282,7 @@ struct ChapterMapView: View {
                 Image(systemName: "trophy.fill").font(.title).foregroundStyle(.orange)
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Challenges").font(.headline)
-                    Text("Rush, hard recipe books and Random Brew, open any time")
+                    Text("Rush, hard recipe books, Random Brew and the distillery, open any time")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -282,8 +299,7 @@ struct ChapterMapView: View {
 
     private func compactBar(current: MapChapter?) -> some View {
         VStack(spacing: 8) {
-            DailyBarRow(action: onDaily)
-            M3DailyBarRow(action: onM3Daily)
+            TodayBarRow(action: onToday)
             compactButtons(current: current)
         }
         .controlSize(.large)

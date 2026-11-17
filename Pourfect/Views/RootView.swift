@@ -24,6 +24,14 @@ enum Route: Hashable {
     case m3DailyPlay(M3Level, DailyDate)
     /// A distillery level (R10): a stage or challenge pack level, a random one, or a day's daily.
     case distill(DistillLevel, DistillGameView.Kind)
+    /// A distillery pack's level list: a workshop stage on the map wing or a challenge pack.
+    case distillPack(DistillPack)
+    /// Random Distillery's tier picker (Challenges).
+    case distillRandom
+    /// The Daily Distillery screen.
+    case distillDaily
+    /// The daily hub: every daily game in one list (the map's "Today" card).
+    case dailyHub
 }
 
 struct RootView: View {
@@ -31,6 +39,7 @@ struct RootView: View {
     @Environment(ProgressModel.self) private var progress
     @Environment(DailyModel.self) private var daily
     @Environment(M3DailyModel.self) private var m3daily
+    @Environment(DistillDailyModel.self) private var distillDaily
     @Environment(RushRecordModel.self) private var rushRecords
     @Environment(StoryPresenter.self) private var story
     @Environment(AppSettings.self) private var settings
@@ -52,9 +61,9 @@ struct RootView: View {
         NavigationStack(path: $path) {
             ChapterMapView(onOpenChapter: { path.append(.pack($0)) },
                            onChallenges: { path.append(.challenges) },
-                           onDaily: { path.append(.daily) },
+                           onToday: { path.append(.dailyHub) },
                            onEpisode: { path.append(.episode($0)) },
-                           onM3Daily: { path.append(.m3Daily) },
+                           onDistillStage: { stage in DistillPack.stage(stage).map { path.append(.distillPack($0)) } },
                            onLabStyle: { showsLabStyle = true })
                 .navigationDestination(for: Route.self) { route in
                     switch route {
@@ -65,7 +74,9 @@ struct RootView: View {
                     case .challenges:
                         ChallengesView(onOpenPack: { path.append(.pack($0)) },
                                        onRandom: { path.append(.randomSettings) },
-                                       onRush: { path.append(.rush) })
+                                       onRush: { path.append(.rush) },
+                                       onDistillPack: { path.append(.distillPack($0)) },
+                                       onDistillRandom: { path.append(.distillRandom) })
                     case .level(let packID, let index):
                         if let pack = catalog.pack(id: packID) {
                             GameView(model: GameViewModel(levels: pack.levels, index: index, progress: progress,
@@ -76,8 +87,7 @@ struct RootView: View {
                     case .random(let level, let options):
                         GameView(model: GameViewModel(randomLevel: level, options: options))
                     case .daily:
-                        DailyView(onPlay: { level, date in path.append(.dailyPlay(level, date)) },
-                                  onGathering: { path.append(.m3Daily) })
+                        DailyView(onPlay: { level, date in path.append(.dailyPlay(level, date)) })
                     case .dailyPlay(let level, let date):
                         GameView(model: GameViewModel(dailyLevel: level, date: date, daily: daily))
                     case .rush:
@@ -94,6 +104,14 @@ struct RootView: View {
                         MatchGameView(level: level, daily: date) { if !path.isEmpty { path.removeLast() } }
                     case .distill(let level, let kind):
                         DistillGameView(level: level, kind: kind) { if !path.isEmpty { path.removeLast() } }
+                    case .distillPack(let pack):
+                        DistillPackView(pack: pack) { path.append(.distill($0, .pack)) }
+                    case .distillRandom:
+                        RandomDistillView { path.append(.distill($0, .random)) }
+                    case .distillDaily:
+                        DistillDailyView(onPlay: { level, date in path.append(.distill(level, .daily(date))) })
+                    case .dailyHub:
+                        DailyHubView { path.append($0) }
                     }
                 }
         }
@@ -138,7 +156,7 @@ struct RootView: View {
         .onChange(of: unlocked, initial: true) { _, now in announce(now) }
         // A new UTC day may have started while the app was in the background.
         .onChange(of: scenePhase) { _, phase in
-            if phase == .active { daily.refresh(); m3daily.refresh() }
+            if phase == .active { daily.refresh(); m3daily.refresh(); distillDaily.refresh() }
         }
         #if DEBUG
         .task { _ = SoundEngine.shared }   // starts synthesizing the sounds in the background
@@ -196,7 +214,7 @@ struct RootView: View {
         // `-LPShowStory N` plays chapter N's story scene (`-LPShowStory ending`: the ending) over
         // whatever else opens; `-LPStoryLine K` opens it on line K (1-based).
         if let raw = defaults.string(forKey: "LPShowStory") {
-            // `-LPShowStory gathering.N`: gathering episode N's scene.
+            // `-LPShowStory gathering.N`: gathering episode N's scene; `distillery.N`: distillery stage N's.
             let scene = raw == "ending" ? StoryScene.ending : StoryScene(id: raw) ?? Int(raw).map(StoryScene.chapter)
             if let scene { story.show(scene, line: max(0, defaults.integer(forKey: "LPStoryLine") - 1)) }
         }
@@ -264,6 +282,26 @@ struct RootView: View {
             }
             return
         }
+        // `-LPOpenDailyHub 1` opens the daily hub; `-LPOpenDistillDaily 1` the Daily Distillery screen
+        // (`-LPPlayDistillDaily 1` also starts today's level); `-LPOpenDistillStage N` stage N's level list;
+        // `-LPOpenDistillPack expert|master` a challenge pack's; `-LPOpenDistillRandom 1` Random Distillery.
+        if defaults.bool(forKey: "LPOpenDailyHub") { path = [.dailyHub]; return }
+        if defaults.bool(forKey: "LPOpenDistillDaily") || defaults.bool(forKey: "LPPlayDistillDaily") {
+            path = [.dailyHub, .distillDaily]
+            guard defaults.bool(forKey: "LPPlayDistillDaily") else { return }
+            while distillDaily.level == nil { try? await Task.sleep(for: .milliseconds(100)) }
+            if let level = distillDaily.level { path.append(.distill(level, .daily(distillDaily.today))) }
+            return
+        }
+        if let stage = DistillPack.stage(defaults.integer(forKey: "LPOpenDistillStage")) {
+            path = [.distillPack(stage)]
+            return
+        }
+        if let raw = defaults.string(forKey: "LPOpenDistillPack"), let pack = DistillPack(rawValue: raw) {
+            path = pack.stage == nil ? [.challenges, .distillPack(pack)] : [.distillPack(pack)]
+            return
+        }
+        if defaults.bool(forKey: "LPOpenDistillRandom") { path = [.challenges, .distillRandom]; return }
         // `-LPOpenLabStyle 1` opens the Lab Style rewards screen.
         if defaults.bool(forKey: "LPOpenLabStyle") { showsLabStyle = true }
         if defaults.bool(forKey: "LPOpenDaily") || defaults.bool(forKey: "LPPlayDaily") {

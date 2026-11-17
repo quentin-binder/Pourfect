@@ -6,8 +6,6 @@ import SwiftUI
 /// midnight UTC for everyone).
 struct DailyView: View {
     let onPlay: (_ level: LevelDefinition, _ date: DailyDate) -> Void
-    /// Opens the Daily Gathering (R9), shown as a card under the stats.
-    var onGathering: (() -> Void)?
 
     @Environment(DailyModel.self) private var daily
     /// First day of the month on show; nil = today's month.
@@ -18,7 +16,6 @@ struct DailyView: View {
             VStack(spacing: 16) {
                 todayCard
                 statsGrid
-                if let onGathering { M3DailyHomeCard(action: onGathering) }
                 DailyCalendar(month: month, today: daily.today, stats: daily.stats,
                               canGoBack: month > earliestMonth, canGoForward: month < daily.today.firstOfMonth,
                               onMove: move(by:))
@@ -341,11 +338,14 @@ struct DifficultyPips: View {
 /// "New brew in 3 h 12 m" ("New gathering in …" for the Daily Gathering), updated every 30 seconds.
 struct DailyCountdown: View {
     var gathering = false
+    /// Another daily's wording ("New distillery in …"); every daily turns over at the same UTC midnight.
+    var format: ((TimeInterval) -> String)?
     @Environment(DailyModel.self) private var daily
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { context in
-            Text(DailyText.countdown(seconds: daily.secondsUntilNextPuzzle(at: context.date), gathering: gathering))
+            let seconds = daily.secondsUntilNextPuzzle(at: context.date)
+            Text(format?(seconds) ?? DailyText.countdown(seconds: seconds, gathering: gathering))
         }
     }
 }

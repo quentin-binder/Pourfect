@@ -2,98 +2,10 @@ import BottleSortCore
 import Match3Core
 import SwiftUI
 
-/// "Daily Gathering" on the home screen's side panel, under the Daily Brew card: today's flavour,
-/// its streak, today's stars once won, and the countdown.
-struct M3DailyHomeCard: View {
-    let action: () -> Void
-
-    @Environment(M3DailyModel.self) private var daily
-
-    var body: some View {
-        let spec = daily.spec
-        Button(action: action) {
-            HStack(alignment: .top, spacing: 14) {
-                M3DailyMedallion(tier: spec.tier, solved: daily.todayResult != nil)
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Daily Gathering", comment: "Title of the daily match-3 level")
-                        .font(.caption.weight(.semibold))
-                        .textCase(.uppercase)
-                        .foregroundStyle(.secondary)
-                    Text(M3DailyText.label(spec)).font(.headline)
-                    if let detail = daily.todayDetail {
-                        StarsView(count: detail.stars, size: 13)
-                    } else {
-                        Text("Match three, gather today's basket", comment: "Daily gathering card: what to do")
-                            .font(.subheadline)
-                    }
-                    DailyCountdown(gathering: true)
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                }
-                Spacer(minLength: 0)
-                VStack(alignment: .trailing, spacing: 6) {
-                    M3FlameCount(count: daily.stats.currentStreak)
-                    Image(systemName: "chevron.right").foregroundStyle(.secondary)
-                }
-            }
-            .padding(14)
-            .background(LinearGradient(colors: [M3DailyStyle.tint.opacity(0.3), M3DailyStyle.tint.opacity(0.06)],
-                                       startPoint: .topLeading, endPoint: .bottomTrailing),
-                        in: RoundedRectangle(cornerRadius: 16))
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(M3DailyStyle.tint.opacity(0.4)))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(M3DailyStyle.summary(daily))
-        .accessibilityAddTraits(.isButton)
-    }
-}
-
-/// The Daily Gathering row in the iPhone bottom bar (narrow windows).
-struct M3DailyBarRow: View {
-    let action: () -> Void
-
-    @Environment(M3DailyModel.self) private var daily
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                IngredientBasket(kinds: [.moonflower], size: 28)
-                    .frame(width: 28)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Daily Gathering · \(daily.spec.weekday.localizedName)",
-                         comment: "iPhone home bar: the daily match-3 level and its weekday")
-                        .font(.subheadline.weight(.semibold))
-                    if let detail = daily.todayDetail {
-                        StarsView(count: detail.stars, size: 10)
-                    } else {
-                        Text(M3DailyText.tierName(daily.spec.tier))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-                Spacer(minLength: 0)
-                M3FlameCount(count: daily.stats.currentStreak)
-                Image(systemName: "chevron.right").font(.caption).foregroundStyle(.secondary)
-            }
-            .padding(.horizontal, 12).padding(.vertical, 8)
-            .background(M3DailyStyle.tint.opacity(0.2), in: RoundedRectangle(cornerRadius: 14))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(M3DailyStyle.summary(daily))
-        .accessibilityAddTraits(.isButton)
-    }
-}
-
 /// The Daily Gathering screen: today's level (Play / Replay, Share once won), streak numbers and a
 /// month calendar of won days (three-star days gold), all in UTC days like the Daily Brew.
 struct M3DailyView: View {
     let onPlay: (_ level: M3Level, _ date: DailyDate) -> Void
-    var onBrew: (() -> Void)?
 
     @Environment(M3DailyModel.self) private var daily
     @Environment(\.colorRunesEnabled) private var runes
@@ -107,14 +19,6 @@ struct M3DailyView: View {
                 DailyCalendar(month: month, today: daily.today, stats: daily.stats,
                               canGoBack: month > earliestMonth, canGoForward: month < daily.today.firstOfMonth,
                               onMove: move(by:), perfectTitle: "3 stars")
-                if let onBrew {
-                    Button(action: onBrew) {
-                        Label("Daily Brew", systemImage: "flask.fill")
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                }
                 Label("Days follow UTC. A new gathering appears at midnight UTC.", systemImage: "globe")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
@@ -270,42 +174,6 @@ enum M3DailyStyle {
         }
         return Text("Daily Gathering, \(M3DailyText.label(daily.spec)), not played yet, streak \(streak)",
                     comment: "VoiceOver: the daily gathering card")
-    }
-}
-
-private struct M3DailyMedallion: View {
-    let tier: M3DailyTier
-    let solved: Bool
-
-    var body: some View {
-        ZStack {
-            Circle().fill(RadialGradient(colors: [M3DailyStyle.tint.opacity(0.8), M3DailyStyle.tint.opacity(0.2)],
-                                         center: .center, startRadius: 2, endRadius: 30))
-            Circle().strokeBorder(.white.opacity(0.35), lineWidth: 1.5)
-            IngredientBasket(kinds: [.moonflower, .mushroom, .crystal], size: 40)
-        }
-        .frame(width: 52, height: 52)
-        .overlay(alignment: .bottomTrailing) {
-            if solved {
-                Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(.white, .green)
-                    .offset(x: 3, y: 3)
-            }
-        }
-        .accessibilityHidden(true)
-    }
-}
-
-private struct M3FlameCount: View {
-    let count: Int
-
-    var body: some View {
-        HStack(spacing: 3) {
-            Image(systemName: "flame.fill").foregroundStyle(count > 0 ? Color.orange : Color.secondary)
-            Text(count, format: .number).monospacedDigit()
-        }
-        .font(.headline)
     }
 }
 
